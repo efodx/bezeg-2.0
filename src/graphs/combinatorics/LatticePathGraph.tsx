@@ -469,13 +469,9 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         }));
         this.handle = handle;
         this.wireDrag(handle);
-        // Captions: the target and the start, the selected route, the split legend and the cap message.
+        // Captions: the start, the split legend and the cap message (the target and the selected route are readout rows).
         // The captions sit above the target's row, so a framed small grid keeps them near it.
-        const row = (index: number) => () => this.state.b + CAPTION_ROW_BASE + index;
-        this.caption(() => t("combinatorics_lattice_cap_target", {value0: pointText(this.state.a, this.state.b)}), CAPTION_X, row(3), GraphPalette.controlPoint);
         this.caption(() => t("combinatorics_lattice_cap_start", {value0: pointText(0, 0)}), 0.3, -0.9, GraphPalette.label);
-        this.caption(() => t("combinatorics_lattice_cap_route", {value0: routeLetters(this.selectedRoute()?.letters ?? "")}), CAPTION_X, row(2),
-            GraphPalette.constructionAccent, () => this.selectedRoute() !== undefined);
         // The split legend and the over-cap message: one text per clause, the last line on row 0, so the group grows upward from the grid and stays inside the box.
         const group = (lines: () => string[], color: string, fontSize: number) => {
             for (let line = 0; line < CAPTION_GROUP_LINES; line++) {
@@ -515,7 +511,6 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
             return poly;
         }, GraphPalette.comparisonCurve, 2, 2);
         this.caption(() => t("combinatorics_lattice_cap_triangle"), -1.2, 23.4, GraphPalette.label);
-        this.caption(() => t("combinatorics_lattice_cap_triangle_off", {value0: smallText(view().n)}), -1.2, 22.4, GraphPalette.warningText, () => !view().inView);
     }
 
     private buildExpansion(): void {
@@ -535,8 +530,6 @@ export class LatticePathGraph extends BaseGraph<LatticePathGraphState, LatticeSt
         for (let line = 0; line < CAPTION_LINES; line++) {
             this.caption(() => this.captionStack().lines[line] ?? "", () => this.captionLeft(), () => this.captionRowY(line), GraphPalette.label, true, {fontSize: CAPTION_FONT_PX});
         }
-        this.caption(() => binomialText(this.state.n, this.state.c), () => this.captionLeft(), () => this.captionRowY(this.captionStack().lines.length), GraphPalette.primaryCurve,
-            true, {fontSize: CAPTION_FONT_PX});
     }
 
     /**

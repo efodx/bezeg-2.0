@@ -151,7 +151,8 @@ describe('paths view', () => {
         expect(selected.x.slice(0, 7)).toEqual([0, 1, 2, 3, 4, 5, 6]);
         expect(selected.y.slice(0, 7)).toEqual([0, 0, 0, 0, 0, 0, 0]); // along the bottom first
         expect([selected.x.at(-1), selected.y.at(-1)]).toEqual([6, 6]);
-        expect(shownCaptions(graph)).toContain(t('combinatorics_lattice_cap_route', {value0: letters('RRRRRRUUUUUU')}));
+        expect(readout('route')).toContain(letters('RRRRRRUUUUUU')); // the row carries the route; no board caption repeats it
+        expect(shownCaptions(graph).filter(text => text.includes(letters('RRRRRRUUUUUU')))).toEqual([]);
         // the page buttons step by one page
         fireEvent.click(screen.getByRole('button', {name: t('decrease_count')}));
         expect(graph.state.route).toBe(910);
@@ -251,7 +252,7 @@ describe('triangle view', () => {
         expect(curves(graph)[0].polylines).toBe(0);
         expect(curves(graph)[1].polylines).toBe(0);
         expect(digits(status())).toContain('184756');
-        expect(shownCaptions(graph)).toContain(t('combinatorics_lattice_cap_triangle_off', {value0: '20'}));
+        expect(shownCaptions(graph).filter(text => /vrstica 20|row 20/.test(text))).toEqual([]); // the status says the row is outside the view, no board caption
         noBadText();
     });
 });
@@ -537,16 +538,15 @@ describe('language', () => {
     test('a language switch retranslates the status, the board label, the captions and the step letters', () => {
         const {graph} = mountGraph();
         set(graph, {a: 2, b: 1});
-        expect(shownCaptions(graph)).toContain('cilj (2; 1)');
-        expect(shownCaptions(graph)).toContain(`izbrana pot: ${G}${D}${D}`);
+        expect(shownCaptions(graph)).toContain('začetek (0; 0)');
+        expect(readout('route')).toContain(`${G}${D}${D}`);
         expect([D, G]).toEqual(['D', 'G']);
         act(() => { setLanguage('en'); });
         expect(status()).toBe('Number of routes to (2, 1): 3.');
-        expect(shownCaptions(graph)).toContain('target (2, 1)');
+        expect(shownCaptions(graph)).toContain('start (0, 0)');
         expect(shownCaptions(graph).filter(text => /cilj|začetek/.test(text))).toEqual([]);
         expect(document.querySelector(`[aria-label="${t('combinatorics_lattice_board_label')}"]`)).not.toBeNull();
         expect(readout('route')).toContain('URR'); // the English step letters R and U
-        expect(shownCaptions(graph)).toContain('selected route: URR');
     });
 });
 

@@ -76,17 +76,6 @@ const captionLines = (text: string, width: number): number => Math.max(1, Math.c
 
 /** Room left of the y axis for its numbers ("0,8" at 14 px) plus a gap: a narrow board widens the window to the left until the axis stands this far from the edge. */
 const AXIS_NUMBER_PAD_PX = 34;
-/** The cursor caption wraps by words at the width a right-anchored box may take (from the left padding to the diagram's right edge): `<br>` makes the line breaks explicit. */
-const wrapWords = (text: string, maxChars: number): string => {
-    const lines: string[] = [];
-    let line = "";
-    for (const word of text.split(" ")) {
-        if (line !== "" && line.length + 1 + word.length > maxChars) { lines.push(line); line = word; } else line = line === "" ? word : `${line} ${word}`;
-    }
-    if (line !== "") lines.push(line);
-    return lines.join("<br>");
-};
-const cursorChars = (width: number): number => Math.max(10, Math.floor((width - AXIS_NUMBER_PAD_PX - 24) / CAPTION_CHAR_PX));
 
 const dec = (value: number, digits = 6): string => formatNumber(value, currentLanguage(), digits);
 
@@ -424,18 +413,14 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         const width = this.board.canvasWidth;
         const left = width > AXIS_NUMBER_PAD_PX * 2 ? Math.min(boxLeft, -(AXIS_NUMBER_PAD_PX * right) / (width - AXIS_NUMBER_PAD_PX)) : boxLeft;
         const needed = TICK_ROW_PX + ROW_PX * (1 + this.columnTexts().reduce((sum, text) => sum + captionLines(text(), width), 0)) + ROW_PX / 2;
-        const cursor = t("phase_graph_logistic_cap_cursor", {value0: dec(this.cursor().r, 4), value1: this.periodText()});
-        const neededTop = 8 + ROW_PX * wrapWords(cursor, cursorChars(width)).split("<br>").length + 4;
-        if (!(height > needed + neededTop)) return [left, top, right, bottom];
+        if (!(height > needed)) return [left, top, right, bottom];
         // A span of `px` pixels is px / unit board units, with unit = height / (top + depth): solved by iteration (it settles in a few steps).
-        let upper = top;
         let depth = -bottom;
         for (let i = 0; i < 12; i++) {
-            const unit = height / (upper + depth);
+            const unit = height / (top + depth);
             depth = Math.max(-bottom, needed / unit);
-            upper = Math.max(top, 1 + neededTop / unit);
         }
-        return [left, upper, right, -depth];
+        return [left, top, right, -depth];
     }
 
     private buildScene(): void {
@@ -505,8 +490,8 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         this.handle = handle;
         this.wireDrag(handle);
 
-        // A caption for every element a readout names: the map, the diagonal, the cobweb, the start, the fixed point, the 2-cycle, the
-        // iterate, the diagram, the cursor (with its column's r and the period) and the marks.
+        // Captions for what no legend entry or readout row says: the map's and the diagonal's rule, the cobweb and diagram notes and the marks of r (the start, the fixed
+        // point, the 2-cycle, the iterate and the cursor are legend entries and readout rows).
         // Under the x axis: the row of the r marks, then the long captions in one column, each as tall as its wrapped lines (the browser wraps a
         // caption at the edge of the board, so on a narrow board a row takes several lines and the next row starts below them).
         const below = (row: number) => -(TICK_ROW_PX + row * ROW_PX);
@@ -514,23 +499,11 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         const columnRow = (index: number) => () => -(TICK_ROW_PX + ROW_PX * (1 + column.slice(0, index).reduce((sum, text) => sum + captionLines(text(), this.board.canvasWidth), 0)));
         const columnColors = [GraphPalette.comparisonCurve, GraphPalette.label, GraphPalette.label, GraphPalette.label, GraphPalette.label, GraphPalette.label];
         column.forEach((text, index) => this.caption(() => this.scaleOf().left, () => 0, 4, columnRow(index), text, columnColors[index], {anchorY: "top"}));
-        this.caption(() => startOf(this.state.X), () => 0, 6, 8, () => t("phase_graph_logistic_cap_start", {value0: dec(startOf(this.state.X), 2)}), GraphPalette.constructionAccent);
-        this.caption(() => derived().fixedPoint, () => derived().fixedPoint, 8, -14, () => t("phase_graph_logistic_cap_fixed", {value0: dec(derived().fixedPoint)}),
-            GraphPalette.comparisonCurve, {anchorY: "top"});
-        this.caption(() => 1, () => 0.55, 6, 0, () => {
-            const cycle = derived().twoCycle;
-            return cycle ? t("phase_graph_logistic_cap_cycle", {value0: dec(cycle[0]), value1: dec(cycle[1])}) : "";
-        }, GraphPalette.additionalCurves[1], {visible: hasCycle, anchorX: "right"});
-        this.caption(() => derived().iterates[this.state.step], () => derived().iterates[this.state.step], 8, 8,
-            () => t("phase_graph_logistic_cap_iterate", {value0: subscript(this.state.step), value1: dec(derived().iterates[this.state.step])}), GraphPalette.label,
-            {visible: () => this.state.step > 0});
         const base = () => diagramX(BIFURCATION_R_MIN);
         this.caption(base, () => 0, 0, below(0), () => t("phase_graph_logistic_cap_r", {value0: dec(BIFURCATION_R_MIN, 1)}), GraphPalette.label, {anchorY: "top"});
         this.caption(() => diagramX(BIFURCATION_R_MAX), () => 0, 0, below(0), () => t("phase_graph_logistic_cap_r", {value0: dec(BIFURCATION_R_MAX, 0)}),
             GraphPalette.label, {anchorY: "top", anchorX: "right"});
         this.caption(() => diagramX(3), () => 0, 3, below(0), () => t("phase_graph_logistic_cap_r", {value0: dec(3, 0)}), GraphPalette.label, {anchorY: "top"});
-        this.caption(() => diagramX(BIFURCATION_R_MAX), () => 1, 0, 8, () => wrapWords(t("phase_graph_logistic_cap_cursor", {value0: dec(this.cursor().r, 4), value1: this.periodText()}), cursorChars(this.board.canvasWidth)),
-            GraphPalette.constructionAccent, {anchorX: "right"});
         // The still curves are skipped by every regular update, so their visibility is only computed by a full one; once per build.
         board.fullUpdate();
     }
@@ -727,11 +700,6 @@ export class LogisticMapGraph extends BaseGraph<LogisticMapGraphState, LogisticS
         const {period} = this.derived();
         return period.kind === "computed" ? message("phase_graph_logistic_period_value", {value0: String(period.period)})
             : message("phase_graph_logistic_period_none_value", {value0: String(period.maxPeriod)});
-    }
-
-    /** The period as computed text. */
-    private periodText(): string {
-        return renderMessage(this.periodMessage());
     }
 
     private noteMessage(): Message {

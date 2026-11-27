@@ -333,20 +333,21 @@ export class RecursionCobwebGraph extends BaseGraph<RecursionCobwebGraphState, C
         }));
         this.handle = handle;
         this.wireDrag(handle);
-        // A caption for every element a readout names: the map, the diagonal, the cobweb steps, the start, the fixed point, the iterate.
+        // Captions for what the readout rows do not say: the rule of the map and of the diagonal and the cobweb note (no legend is declared).
         const map = () => this.state.map;
         this.caption(() => this.mapCaption(), chars => clearOfYAxis(captionPlace(map(), "map", 0, 0, this.captionScale(), undefined, undefined, this.captionFrame()), chars, this.captionFrame(), this.captionScale()));
         this.caption(() => t("recursion_graph_cap_diagonal"), chars => clearOfYAxis(captionPlace(map(), "diagonal", 0, 0, this.captionScale(), undefined, undefined, this.captionFrame()), chars, this.captionFrame(), this.captionScale()));
         this.caption(() => t("fixed_point_legend_cobweb"), chars => legendInFrame(this.captionFrame(), chars, this.captionScale(), this.focus().frame));
-        this.caption(() => t("recursion_graph_cap_start", {value0: num(startOf(this.state.X))}), chars => captionPlace(map(), "start", startOf(this.state.X), chars, this.captionScale(), undefined, undefined, this.captionFrame()));
+        // The start, the fixed point and the iterate are readout rows (the markers and the handle need no value beside them); only the words that a marker lies
+        // outside the view stay, because the row cannot say what the board shows.
         this.caption(() => {
             const star = fixed();
-            if (star === null) return "";
-            return t(inView(map(), star) ? "recursion_graph_cap_fixed" : "recursion_graph_cap_fixed_off", {value0: num(star)});
-        }, chars => captionPlace(map(), "fixed", fixed() ?? NaN, chars, this.captionScale(), this.derived().map, undefined, this.captionFrame()), () => fixed() !== null);
-        this.caption(() => t(inView(map(), iterate() ?? NaN) ? "recursion_graph_cap_iterate" : "recursion_graph_cap_iterate_off",
-                {value0: subscript(this.state.step), value1: num(iterate() ?? NaN)}),
-            chars => captionPlace(map(), "iterate", iterate() ?? NaN, chars, this.captionScale(), undefined, undefined, this.captionFrame()), () => this.state.step > 0);
+            return star === null || inView(map(), star) ? "" : t("recursion_graph_cap_fixed_off", {value0: num(star)});
+        }, chars => captionPlace(map(), "fixed", fixed() ?? NaN, chars, this.captionScale(), this.derived().map, undefined, this.captionFrame()),
+        () => fixed() !== null && !inView(map(), fixed() ?? NaN));
+        this.caption(() => (inView(map(), iterate() ?? NaN) ? "" : t("recursion_graph_cap_iterate_off", {value0: subscript(this.state.step), value1: num(iterate() ?? NaN)})),
+            chars => captionPlace(map(), "iterate", iterate() ?? NaN, chars, this.captionScale(), undefined, undefined, this.captionFrame()),
+            () => this.state.step > 0 && !inView(map(), iterate() ?? NaN));
     }
 
     private mapCaption(): string {

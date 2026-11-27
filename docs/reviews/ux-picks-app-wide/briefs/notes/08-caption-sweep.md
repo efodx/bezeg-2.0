@@ -123,3 +123,37 @@ Reciprocal (initial state, 1/z, w/z, z', hidden, language: row assertions replac
 - `just unit FirstTask`: one failure, FunctionsFirstTask waves (other worker).
 - `just build` needed 5 reruns (inputs changed while the other worker edited); passed. `just smoke tests/unified-learning.smoke.spec.cjs` and `tests/guided-lessons.smoke.spec.cjs` passed (the only specs naming these ids). `just smoke-lesson` passed for complex-reciprocal, complex-roots, complex-power, complex-euler, linear-map, linear-map-composition (--port 4391 --workers=1). linear-map did NOT show the `valueWidthDrift null` probe failure here.
 - Shots, 1440x900, graph page default state (lesson step 1 not shot; no lesson URL known): reciprocal: axis names Im, point names z, w, z-bar only. roots: Im, w. power: z, z², z³, z⁴ modul 4, z⁵ modul 5,66 (z⁴ and z⁵ labels at the left clear of the cards). euler: no text. linear-map: point names (a₂=Ae₂, a₁=Ae₁, e₁, e₂, p, Ap, A(e₁+e₂), O). Nothing sits under a card. 1280x720 not shot.
+
+# Batch 4 (stream A, 2026-11-27): lattice-paths, counting-tree, logistic-map, recursion-growth, recursion-cobweb
+
+## Verdicts
+| Graph | Caption line | Verdict |
+|---|---|---|
+| lattice-paths | target; selected route | removed: rows target, route |
+| lattice-paths | triangle-off sentence | removed: status triangle_off |
+| lattice-paths | expansion binomial title | removed: row binomial |
+| lattice-paths | start; split legend; triangle legend; expansion legend; over-cap line | KEPT: no declared legend (`legend: never`), these explain line styles/bars; start names the origin |
+| counting-tree | tree and table title "kind: n, k" | removed: kind row + n/k setters |
+| counting-tree | multiset formula and n! | removed: rows arrangements, all-different |
+| counting-tree | cap_tree, multiset note, table rows, groups caption, row-view title/weights/selected/k | KEPT (explanations; table rows are the only all-kinds view; CB2 lesson names the groups caption) |
+| logistic-map | start, fixed, 2-cycle, iterate, cursor | removed: rows x0, fixed, cycle, iterate, column, period |
+| logistic-map | map rule, diagonal, cobweb, diagram, second split, onset, r tick marks | KEPT (rules/notes/axis marks; legend entries are bare names) |
+| recursion-growth | n-th term "a10 = 21" | removed: row nth |
+| recursion-growth | bars, limit, 4 interest lines, points, chord, axis names | KEPT: no declared legend; they are the only names of the lines (limit moved to row 1) |
+| recursion-cobweb | start | removed: row start |
+| recursion-cobweb | fixed, iterate | now shown only when off view ("outside the view"); in view = rows |
+| recursion-cobweb | map rule, diagonal, cobweb note | KEPT |
+
+## Code
+LatticePathGraph, CountingTreeGraph (treeTitle, TITLE consts), LogisticMapGraph (cursor wrap/period helpers, openingWindow no longer reserves cursor room), GrowthGraph, RecursionCobwebGraph; combinatoricsPreviewCopy.ts alt texts (lattice, expansion, counting-tree). Lesson prose: none named a removed caption.
+
+## Keys deleted (sl+en, lockstep, grepped)
+combinatorics_lattice_cap_target/_route/_triangle_off; phase_graph_logistic_cap_start/_fixed/_cycle/_iterate/_cursor; recursion_graph_growth_cap_nth; recursion_graph_cap_start/_fixed/_iterate (_fixed_off, _iterate_off stay).
+
+## Tests switched
+Lattice (route, triangle-off, language), CountingTree (multiset formula, tree caption rows), Logistic (captions, cursor, narrow board, key count 49->44), Growth (nth row, SCENE_OBJECTS 55->54, shown count), Cobweb (default, off-view iterate, SCENE_OBJECTS 12->11, narrow count).
+
+## Observed checks
+- tsc clean, eslint clean on all changed files. `just unit` (combinatorics, dynamics, recursion graphs; content combinatorics/phasePortraits/recursion/declarationContract; localization) passed after fixes (one Growth shown-count fix rerun passed with FirstTask). Build passed. smoke-lesson counting-tree recursion-growth recursion-cobweb logistic-map passed; `just smoke` demonstrations and guided-lessons specs passed.
+- Golden (check only, not re-recorded): all five differ only in `captions` lines (output read with head -5 per graph, so not every state was inspected).
+- NOT done: browser shots viewed (taken to .tmp-b4-shots2 for logistic, lattice, counting; first logistic shot was blank, routes for growth `/analysis/growth`, cobweb `/analysis/recursion` not shot); scratch .tmp-b4-* files and .tmp-b4-shots* dirs left in the worktree root for handler to delete; 1280x720 not checked. lattice-paths-cb1/3/4 have no smoke-lesson id.

@@ -215,6 +215,8 @@ describe('multiset view', () => {
         expect(readout('letters')).toBe('11');
         expect(digits(readout('arrangements'))).toBe('11!/(1!·4!·4!·2!)=34650');
         expect(digits(readout('all-different'))).toBe('11!=39916800');
+        expect(shownCaptions(graph).filter(text => text.includes('!'))).toEqual([]); // the rows carry both formulas, the board only the letters and the note
+        expect(shownCaptions(graph)).toContain(t('combinatorics_counting_cap_multiset'));
         expect(status()).toContain('Razporeditve 11 črk, med katerimi se nekatere ponavljajo: ');
         expect(digits(status())).toMatch(/34650\.$/);
         const letters = shown(graph).map(o => (o as unknown as {plaintext: string}).plaintext).filter(text => /^[MISP]$/.test(text));
@@ -787,19 +789,14 @@ describe('the table is legible: no text runs into another', () => {
 
 describe('tree captions', () => {
     test.each([[24.5, 'a board of about 17 px per unit'], [40, 'a stress board of about 10 px per unit']])(
-        'the two caption rows keep at least 4 px between them (view box right %d, %s)', (right) => {
+        'the one caption row stays and no title repeats the kind, n and k (view box right %d, %s)', (right) => {
             const {graph} = mountGraph();
             set(graph, {view: 'choices', n: 3, k: 2, repetition: false});
             act(() => { runAs('learner', () => { graph.liveBoard().setBoundingBox([-0.5, 24.5, right, -2.5], true); }); });
-            const board = graph.liveBoard();
-            const rows = shown(graph).filter(o => {
-                const text = (o as unknown as {plaintext: string}).plaintext;
-                return text === t('combinatorics_counting_cap_tree') || text.includes('n = 3, k = 2');
-            }).sort((a, b) => b.Y!() - a.Y!());
-            expect(rows).toHaveLength(2);
-            const fontSize = Number(rows[0].evalVisProp('fontSize'));
-            const pitchPx = (rows[0].Y!() - rows[1].Y!()) * board.unitY;
-            expect(pitchPx - fontSize * 1.25).toBeGreaterThanOrEqual(4);
+            const texts = shownCaptions(graph);
+            expect(texts.filter(text => text === t('combinatorics_counting_cap_tree'))).toHaveLength(1);
+            expect(texts.filter(text => text.includes('n = 3, k = 2'))).toEqual([]);
+            expect(readout('kind')).not.toBe('');
         });
 });
 
@@ -835,7 +832,7 @@ describe('tree caption placement', () => {
             return {text, box: {x0, x1: x0 + w, y0, y1: y0 + h}};
         });
         const captions = boxes.filter(b => b.text === t('combinatorics_counting_cap_tree') || b.text.includes('n = 3, k = 2'));
-        expect(captions).toHaveLength(2);
+        expect(captions.map(c => c.text)).toEqual([t('combinatorics_counting_cap_tree')]);
         const hit = (a: {x0: number; x1: number; y0: number; y1: number}, [x, y]: [number, number], pad: number) => x > a.x0 - pad && x < a.x1 + pad && y > a.y0 - pad && y < a.y1 + pad;
         const root = probes(graph).find(o => o.elType === 'point' && Math.abs(o.X!() - (TREE_LEFT + TREE_WIDTH / 2)) < 1e-9 && o.Y!() === TREE_TOP)!;
         const edges = curves(graph)[0];

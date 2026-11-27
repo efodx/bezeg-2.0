@@ -38,9 +38,9 @@ const texts = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === '
 const ownIds = (graph: ObservedGraph) => probes(graph).filter(o => !o.id.includes('_ticks_')).map(o => o.id);
 const visible = (list: Probe[]) => list.filter(o => o.evalVisProp('visible'));
 const shown = (graph: ObservedGraph) => visible(texts(graph)).map(o => o.plaintext ?? '');
-/** The owned objects: 12 curves (2 sequence, 4 interest + 4 legend, 2 logarithm), 32 points (n-th term, 31 logarithm points), 11 captions. */
+/** The owned objects: 12 curves (2 sequence, 4 interest + 4 legend, 2 logarithm), 32 points (n-th term, 31 logarithm points), 10 captions. */
 const CURVES = 12;
-const SCENE_OBJECTS = CURVES + (1 + LOG_POINTS) + 11;
+const SCENE_OBJECTS = CURVES + (1 + LOG_POINTS) + 10;
 /** Curve indices in creation order. */
 const BARS = 0, LIMIT = 1, SIMPLE = 2, COMPOUND = 3, RELATIVE = 4, CONTINUOUS = 5, LEGEND = 6, LOG_LINE = 10, CHORD = 11;
 
@@ -90,8 +90,9 @@ describe('mount and the sequence panel', () => {
         expect(bars.dataX!.slice(-5)).toEqual([9.64, 9.64, 10.36, 10.36, 9.64]);
         expect(visible(curves(graph))).toHaveLength(1); // no limit line for an arithmetic sequence
         expect(visible(markers(graph))).toHaveLength(1);
+        expect(readout('nth')).toBe('21'); // the n-th term is a row, no board caption repeats it
         expect(shown(graph)).toEqual([
-            t('recursion_graph_growth_cap_bars', {value0: 10}), t('recursion_graph_growth_cap_nth', {value0: '₁₀', value1: '21'}),
+            t('recursion_graph_growth_cap_bars', {value0: 10}),
             t('recursion_graph_growth_cap_x_sequence'), t('recursion_graph_growth_cap_y_sequence'),
         ]);
     });
@@ -106,7 +107,7 @@ describe('mount and the sequence panel', () => {
         expect(readout('limit')).toBe(t('recursion_graph_growth_limit_none'));
         expect(visible(curves(graph))).toHaveLength(1);
         expect(status()).toBe(t('recursion_graph_growth_status_geometric_exact', {value0: '₁₀', value1: '1536', value2: '3069'}));
-        expect(shown(graph)).toHaveLength(4);
+        expect(shown(graph)).toHaveLength(3); // the bars, the two axis names: no n-th term caption
         expect(find(t('recursion_graph_growth_d_label'))).toBeUndefined();
     });
 
@@ -583,7 +584,8 @@ describe('language', () => {
         act(() => { setLanguage('en'); });
         expect(board(graph)).toBe(t('recursion_graph_growth_board_sequence'));
         expect(rangeOf(t('recursion_graph_growth_a1_label'))).toBeTruthy();
-        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_nth', {value0: '₁₀', value1: '21'}));
+        expect(shown(graph)).toContain(t('recursion_graph_growth_cap_bars', {value0: 10}));
+        expect(readout('nth')).toBe('21');
         expect(status()).toBe(t('recursion_graph_growth_status_arithmetic', {value0: '₁₀', value1: '21', value2: '120'}));
         panel('interest');
         expect(shown(graph)).toContain(t('recursion_graph_growth_cap_compound', {value0: '1628.89'}));

@@ -56,8 +56,8 @@ const probes = (graph: ObservedGraph) => graph.liveBoard().objectsList as unknow
 const curves = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === 'curve');
 const texts = (graph: ObservedGraph) => probes(graph).filter(o => o.elType === 'text' && o.plaintext !== '0,0');
 const shown = (graph: ObservedGraph) => texts(graph).filter(o => o.evalVisProp('visible')).map(o => o.plaintext ?? '');
-/** What the scene owns: the three curves, six captions, and three points (fixed point, iterate, start handle). */
-const SCENE_OBJECTS = 3 + 6 + 3;
+/** What the scene owns: the three curves, five captions (map, diagonal, cobweb note, fixed point and iterate off the view), and three points (fixed point, iterate, start handle). */
+const SCENE_OBJECTS = 3 + 5 + 3;
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const status = () => document.querySelector('[data-recursion-status]')!.textContent!;
@@ -105,16 +105,16 @@ describe('mount and the drawing', () => {
         expect(path.x).toEqual([0, 0, 1, 1, 1.5, 1.5, 1.75]);
         expect(shown(graph)).toEqual([
             t('recursion_graph_cap_map_affine', {value0: 'y = 0,5·x + 1'}), t('recursion_graph_cap_diagonal'), t('fixed_point_legend_cobweb'),
-            t('recursion_graph_cap_start', {value0: '0'}), t('recursion_graph_cap_fixed', {value0: '2'}),
-            t('recursion_graph_cap_iterate', {value0: '₃', value1: '1,75'}),
         ]);
+        expect(readout('start')).toBe('0');
+        expect(readout('fixed')).toBe('2');
         expect(readout('iterate')).toBe('1,75');
         noBadText();
     });
 
     test('the iterate has no caption at step 0; its readout row names the step in its label', () => {
         const {graph} = mountGraph();
-        expect(shown(graph)).toHaveLength(5);
+        expect(shown(graph)).toHaveLength(3); // the map, the diagonal and the cobweb note: no iterate caption
         expect(document.querySelector('[data-readout="iterate"] dt')!.textContent).toBe(t('recursion_graph_r_iterate', {value0: '₀'}));
         act(() => { runAs('learner', () => { graph.setState({step: 12}); }); });
         expect(document.querySelector('[data-readout="iterate"] dt')!.textContent).toBe(t('recursion_graph_r_iterate', {value0: '₁₂'}));
@@ -211,22 +211,21 @@ describe('the kind of the fixed point is said in words', () => {
         act(() => { runAs('learner', () => { graph.setState({M: 19, C: 100}); }); }); // m = 0,95, c = 10: x* = 200
         expect(readout('fixed')).toBe('200');
         expect(shown(graph)).toContain(t('recursion_graph_cap_fixed_off', {value0: '200'}));
-        expect(shown(graph).some(text => text === t('recursion_graph_cap_fixed', {value0: '200'}))).toBe(false);
         expect(probes(graph).filter(o => o.elType === 'point' && o.evalVisProp('visible') === false).length).toBeGreaterThanOrEqual(1);
     });
 
-    test('the iterate caption says the iterate is outside the view when its marker is off view, and is the plain caption in view', () => {
-        const tail = (key: 'recursion_graph_cap_iterate' | 'recursion_graph_cap_iterate_off') => {
-            const text = t(key, {value0: '#', value1: '#'});
+    test('the iterate caption appears only to say the iterate is outside the view; in view the row carries it', () => {
+        const tail = () => {
+            const text = t('recursion_graph_cap_iterate_off', {value0: '#', value1: '#'});
             return text.slice(text.lastIndexOf('#') + 1);
         };
         const {graph} = mountGraph();
         act(() => { runAs('learner', () => { graph.setState({step: 3}); }); });
-        expect(shown(graph).some(text => text.startsWith('x') && text.endsWith(tail('recursion_graph_cap_iterate')))).toBe(true);
-        expect(shown(graph).some(text => text.endsWith(tail('recursion_graph_cap_iterate_off')))).toBe(false);
+        expect(readout('iterate')).toBe('1,75');
+        expect(shown(graph).some(text => text.startsWith('x') && text.includes('(izračunano)'))).toBe(false);
+        expect(shown(graph).some(text => text.endsWith(tail()))).toBe(false);
         act(() => { runAs('learner', () => { graph.setState({M: -60, C: 0, X: 1000, step: 60}); }); });
-        expect(shown(graph).some(text => text.endsWith(tail('recursion_graph_cap_iterate_off')))).toBe(true);
-        expect(shown(graph).some(text => text.endsWith(tail('recursion_graph_cap_iterate')))).toBe(false);
+        expect(shown(graph).some(text => text.endsWith(tail()))).toBe(true);
     });
 
     test('a huge iterate is read in scientific form, drawn only up to 10^6, and never NaN or Infinity', () => {
@@ -685,7 +684,7 @@ describe('language', () => {
         expect(document.querySelector(`[aria-label="${t('recursion_graph_board_label')}"]`)).not.toBeNull();
         await waitForPucks('cobweb-m');
         expect(puckControl('cobweb-m').getAttribute('aria-label')).toContain(t('cobweb_m_name'));
-        expect(shown(graph)).toContain(t('recursion_graph_cap_start', {value0: '0'}));
+        expect(readout('start')).toBe('0');
         expect(shown(graph)).toContain(t('recursion_graph_cap_map_affine', {value0: 'y = 0.5·x + 1'}));
         expect(status()).toContain(t('recursion_graph_status_attracting', {value0: '2'}));
         expect(document.body.textContent).not.toMatch(/recursion_graph_/);
@@ -726,7 +725,7 @@ describe('the captions on a narrow board (about 390 px wide)', () => {
                 await chooseMap(map);
                 press(t('next_step'));
                 const all = boxes(graph);
-                expect(all.length).toBeGreaterThanOrEqual(6);
+                expect(all.length).toBeGreaterThanOrEqual(3);
                 for (const box of all) expect(box.right, box.text).toBeLessThanOrEqual(WIDTH);
                 for (let i = 0; i < all.length; i++) {
                     for (let j = i + 1; j < all.length; j++) {

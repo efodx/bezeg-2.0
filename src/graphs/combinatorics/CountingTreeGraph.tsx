@@ -100,13 +100,10 @@ const GROUP_ENTRY_POOL = 24;
 /** The table rows: the first row's line and the distance between rows (each row has the name and, one unit below, the formula with the count). */
 export const TABLE_FIRST_ROW_Y = 16.6;
 export const TABLE_ROW_STEP = 3;
-/** The note above the table (up to NOTE_LINES lines of NOTE_CHARS characters) and the title under it. */
+/** The note above the table (up to NOTE_LINES lines of NOTE_CHARS characters). */
 const TABLE_NOTE_Y = 24.2;
-const TABLE_TITLE_Y = 19.8;
 const NOTE_LINES = 3;
 const NOTE_CHARS = 38;
-const TITLE_LINES = 2;
-const TITLE_CHARS = 34;
 
 /** Breaks a sentence at spaces into lines of at most `maxChars` characters (a longer single word keeps its own line). */
 function wrapWords(text: string, maxChars: number): string[] {
@@ -423,19 +420,14 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
             const centre = CAPTION_MARGIN_PX + (CAPTION_FONT_PX * 1.25) / 2 + row * CAPTION_ROW_PX;
             return this.captionsAtTop() ? top - centre / unit : Math.max(bottom, VIEW_BOX[3]) + (CAPTION_MARGIN_PX + (CAPTION_FONT_PX * 1.25) / 2 + (1 - row) * CAPTION_ROW_PX) / unit;
         };
+        // The kind, n and k are the kind row and the two count setters, so no title caption repeats them.
         this.caption(() => t("combinatorics_counting_cap_tree"), -0.3, rowY(0), GraphPalette.label);
-        this.caption(() => this.treeTitle(), -0.3, rowY(1), GraphPalette.primaryCurve);
     }
 
     /** Whether the two caption rows (and the root dot's radius under them) fit between the top edge and the root dot. */
     private captionsAtTop(): boolean {
         const unit = this.board.unitY > 0 ? this.board.unitY : 1;
         return (this.board.getBoundingBox()[1] - TREE_TOP) * unit >= CAPTION_MARGIN_PX + CAPTION_ROW_PX + CAPTION_FONT_PX * 1.25 + ROOT_DOT_PX;
-    }
-
-    private treeTitle(): string {
-        const {n, k} = this.state;
-        return `${this.kindName(this.counting().kind)}: n = ${smallText(n)}, k = ${smallText(k)}`;
     }
 
     private leafText(index: number): string {
@@ -455,13 +447,11 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
         });
         this.caption(() => t("combinatorics_counting_cap_current"), -0.2, () => (this.groups().length > 0 ? -2 : 4), GraphPalette.constructionAccent, true, {fontSize: 12});
         this.buildGroups();
-        // The long sentences wrap into lines of at most NOTE_CHARS / TITLE_CHARS characters, which fit the narrowest board (390 px wide).
+        // The long sentences wrap into lines of at most NOTE_CHARS characters, which fit the narrowest board (390 px wide).
         const note = () => wrapWords(t("combinatorics_counting_table_note", {value0: smallText(TREE_LEAF_LIMIT)}), NOTE_CHARS);
         for (let line = 0; line < NOTE_LINES; line++) {
             this.caption(() => note()[line] ?? "", -0.3, TABLE_NOTE_Y - 1.5 * line, GraphPalette.warningText, () => this.counting().ordered > BigInt(TREE_LEAF_LIMIT), {fontSize: 12});
         }
-        const title = () => wrapWords(this.treeTitle(), TITLE_CHARS);
-        for (let line = 0; line < TITLE_LINES; line++) this.caption(() => title()[line] ?? "", -0.3, TABLE_TITLE_Y - 1.55 * line, GraphPalette.primaryCurve, true, {fontSize: 13});
     }
 
     /** Below the table: each of the first combinations as a labelled group of its k! orderings, then "x C(n, k) groups = V(n, k) / k!" with the numbers. */
@@ -510,8 +500,6 @@ export class CountingTreeGraph extends BaseGraph<CountingTreeGraphState, Countin
             }, LETTER_COLORS[kind], 4, 0);
         });
         this.caption(() => t("combinatorics_counting_cap_multiset"), -0.3, 23.4, GraphPalette.label);
-        this.caption(() => this.multisetFormula(), -0.3, 19.5, GraphPalette.primaryCurve, true, {fontSize: 18});
-        this.caption(() => `${smallText(this.multiset().total)}! = ${countText(this.multiset().allDifferent)}`, -0.3, 17.2, GraphPalette.label);
     }
 
     private multisetFormula(): string {

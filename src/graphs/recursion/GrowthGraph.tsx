@@ -383,9 +383,8 @@ export class GrowthGraph extends BaseGraph<GrowthGraphState, GrowthState> {
         }, {color: GraphPalette.comparisonCurve, width: 2, dash: 2}, () => state().panel === "sequence" && derived().sequence.limit !== null);
         this.marker(() => state().n, () => Number(derived().sequence.nth), on("sequence"), "diamond", GraphPalette.constructionAccent);
         this.caption(() => t("recursion_graph_growth_cap_bars", {value0: state().n}), textAt(rowY(0)), on("sequence"));
-        this.caption(() => t("recursion_graph_growth_cap_nth", {value0: subscript(state().n), value1: seq(derived().sequence.nth)}),
-            textAt(rowY(1)), on("sequence"));
-        this.caption(() => t("recursion_graph_growth_cap_limit", {value0: num(derived().sequence.limit ?? NaN)}), textAt(rowY(2)),
+        // The n-th term is the row "Term aₙ"; the limit line has no legend entry, so its caption stays (the line's only name).
+        this.caption(() => t("recursion_graph_growth_cap_limit", {value0: num(derived().sequence.limit ?? NaN)}), textAt(rowY(1)),
             () => state().panel === "sequence" && derived().sequence.limit !== null);
 
         // Interest panel: four curves in the window of the years, each with a legend line of the same style and a caption.

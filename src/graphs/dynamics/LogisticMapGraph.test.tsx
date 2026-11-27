@@ -561,7 +561,7 @@ describe('typed values and the drag', () => {
 });
 
 describe('captions', () => {
-    test('a caption names every element a readout names, the marks and the scales', () => {
+    test('the captions carry the rules, the notes, the marks and the scales; the start, the fixed point, the 2-cycle, the iterate and the cursor are rows', () => {
         const {graph} = mountGraph();
         set(graph, {step: 2, R: 310});
         const texts = captionTexts(graph);
@@ -570,17 +570,20 @@ describe('captions', () => {
         has(t('phase_graph_logistic_cap_diagonal'));
         has(t('phase_graph_logistic_cap_cobweb'));
         has(t('phase_graph_logistic_cap_diagram', {value0: '2,5', value1: '4'}));
-        has(t('phase_graph_logistic_cap_start', {value0: '0,2'}));
-        has(t('phase_graph_logistic_cap_fixed', {value0: '0,677419'}));
-        has(t('phase_graph_logistic_cap_cycle', {value0: '0,558014', value1: '0,764567'}));
-        has(t('phase_graph_logistic_cap_cursor', {value0: '3,1015', value1: t('phase_graph_logistic_period_value', {value0: '2'})}));
+        expect(readout('x0')).toBe('0,2');
+        expect(readout('fixed')).toBe('0,677419');
+        expect(readout('cycle')).toBe(t('phase_graph_logistic_cycle_value', {value0: '0,558014', value1: '0,764567'}));
+        expect(readout('period')).toBe(t('phase_graph_logistic_period_value', {value0: '2'}));
+        expect(readout('column')).toContain('3,1015');
+        expect(texts.filter(text => /0,677419|0,558014|3,1015|↔/.test(text))).toEqual([]);
         has(t('phase_graph_logistic_cap_r', {value0: '2,5'}));
         has(t('phase_graph_logistic_cap_r', {value0: '4'}));
         has(t('phase_graph_logistic_cap_r', {value0: '3'}));
         has(t('phase_graph_logistic_cap_mark_second', {value0: '3,44949'}));
         expect(SECOND_SPLIT).toBeCloseTo(3.449490, 6);
         has(t('phase_graph_logistic_cap_onset', {value0: '3,56995'}));
-        expect(texts.some(text => text.startsWith('x₂ = '))).toBe(true);
+        expect(readout('iterate')).not.toBe('');
+        expect(texts.some(text => /^x[₀-₉]+ = /.test(text))).toBe(false);
         expect(texts.every(text => !/NaN|undefined/.test(text))).toBe(true);
     });
 
@@ -597,15 +600,16 @@ describe('captions', () => {
         }
     });
 
-    test('the cycle caption is hidden up to r = 3, the iterate caption at step 0, and the cursor caption makes no claim past the onset', () => {
+    test('no board caption carries the cycle or the iterate, and the period row makes no claim past the onset', () => {
         const {graph} = mountGraph();
         let texts = captionTexts(graph);
         expect(texts.some(text => text.includes('↔'))).toBe(false);
         expect(texts.some(text => text.startsWith('x₀ = ') || /^x[₀-₉]+ = /.test(text))).toBe(false);
+        expect(readout('cycle')).toBe(t('phase_graph_logistic_cycle_none'));
         setR(graph, 380);
         texts = captionTexts(graph);
-        expect(texts).toContain(t('phase_graph_logistic_cap_cursor', {value0: '3,8008',
-            value1: t('phase_graph_logistic_period_claimless_value', {value0: '3,56995'})}));
+        expect(texts.some(text => text.includes('3,8008'))).toBe(false);
+        expect(readout('period')).toBe(t('phase_graph_logistic_period_claimless_value', {value0: '3,56995'}));
     });
 });
 
@@ -732,7 +736,7 @@ describe('language and the catalog', () => {
     test('every phase_graph_logistic key exists in both languages with the same placeholder names, and the source uses exactly these keys', () => {
         const names = (text: string) => Array.from(text.matchAll(/\{(\w+)\}/g), m => m[1]).sort();
         const keys = Object.keys(sl).filter(key => key.startsWith('phase_graph_logistic_'));
-        expect(keys.length).toBeGreaterThanOrEqual(49);
+        expect(keys.length).toBeGreaterThanOrEqual(44);
         for (const key of keys) {
             const slText = sl[key as keyof typeof sl];
             const enText = en[key as keyof typeof sl];
@@ -783,10 +787,7 @@ describe('the captions on a narrow board (390 x 480 px)', () => {
                 const gapPx = (rows[i].Y() - rows[i + 1].Y()) * board.unitY;
                 expect(gapPx, String(rows[i].plaintext)).toBeGreaterThanOrEqual(lines(rows[i]) * 18 - 0.5);
             }
-            const cursor = (ofType(graph, 'text') as unknown as Text[]).find(o => visible(o) && o.evalVisProp('anchorx') === 'right' && o.Y() > 0.9 && o.Y() < 1.5)!;
-            const cursorLines = Math.max(1, Math.ceil((String(cursor.plaintext).length * 7.5) / (390 - 20)));
-            expect(cursorLines).toBeGreaterThan(1);
-            expect((board.getBoundingBox()[1] - cursor.Y()) * board.unitY).toBeGreaterThanOrEqual(cursorLines * 18 - 0.5);
+            expect((ofType(graph, 'text') as unknown as Text[]).filter(o => visible(o) && o.evalVisProp('anchorx') === 'right' && o.Y() > 0.9 && o.Y() < 1.5)).toEqual([]); // no cursor caption
             const last = rows[rows.length - 1];
             const roomPx = (last.Y() - board.getBoundingBox()[3]) * board.unitY;
             expect(roomPx).toBeGreaterThanOrEqual(lines(last) * 18 - 0.5);
