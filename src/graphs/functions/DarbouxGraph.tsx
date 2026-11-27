@@ -1,13 +1,16 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, FillCurve, cleanNumber, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, FillCurve, cleanNumber, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {runAs} from "../base/writes/writeSource";
 import Slider from "../../inputs/Slider";
 import {CountSetter} from "../../inputs/CountSetter";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {FunctionStatus} from "./FunctionStatus";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
-import {formatNumber, NumberLanguage} from "../../analysis/format";
+import {currentLanguage, message, Message, messageNumber, renderMessage, t} from "../../localization";
+import {formatNumber} from "../../analysis/format";
 import {
     canRefine, DARBOUX_EXAMPLE_IDS, DARBOUX_N_MAX, DARBOUX_N_MIN, DARBOUX_X_MAX, DARBOUX_X_MIN, DARBOUX_X_STEP, darbouxExample, DarbouxExample,
     DarbouxExampleId, darbouxSubintervals, DarbouxSubinterval, darbouxTotals, DarbouxTotals,
@@ -26,6 +29,7 @@ const PRECISE = 4;
 
 /** The formulas as they are written on the board and in the example selector. */
 const PRETTY_FORMULA: Readonly<Record<DarbouxExampleId, string>> = {square: "x²", sine: "sin x"};
+const FORMULA_TEX: Readonly<Record<DarbouxExampleId, string>> = {square: "x^{2}", sine: "\\sin x"};
 const exampleTitle = (id: DarbouxExampleId): string => `f(x) = ${PRETTY_FORMULA[id]}`;
 
 
@@ -39,6 +43,13 @@ const exampleTitle = (id: DarbouxExampleId): string => `f(x) = ${PRETTY_FORMULA[
 const EXAMPLE_VIEWS: Readonly<Record<DarbouxExampleId, BoundingBox>> = {
     square: [-3.2, 4.6, 5.2, -3.6],
     sine: [-1, 2, 7.6, -4.6],
+};
+
+/** The ids of the Darboux declaration: a, b and n and the two sum switches are board pucks; the drawn objects are the legend. */
+export type DarbouxIds = {
+    param: "darboux-a" | "darboux-b" | "darboux-n";
+    row: "a" | "b" | "n" | "lower" | "upper" | "integral" | "gap"; note: never;
+    legend: "function" | "lower" | "upper" | "partition"; section: never; action: "show-lower-sum" | "show-upper-sum";
 };
 
 type StatusKind = "hidden" | "trapped" | "limit";
@@ -86,6 +97,8 @@ function rectangles(parts: readonly DarbouxSubinterval[], height: (part: Darboux
 export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
     private pointA?: JXG.Point;
     private pointB?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     override presetCollection() {
         return functionPresetCollections.darboux;
@@ -185,7 +198,7 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
         const thin = this.displayThinWidth(0.5);
 
         // Layers, lowest first: the upper rectangles (taller, dashed outline), the lower rectangles (filled), the partition, the function, then a and b.
-        const family = (config: {
+        const family = (id: string, config: {
             color: string; fillOpacity: number; dash: number; visible: () => boolean; height: (part: DarbouxSubinterval) => number;
         }) => {
             const curve = this.own(board.create("curve", [[], []], {
@@ -193,19 +206,21 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
                 strokeWidth: () => Math.max(1.5, this.displaySettings.strokeWidth * 0.6), dash: config.dash, highlight: false, fixed: true,
                 visible: config.visible,
             })) as unknown as FillCurve;
+            this.drawn.set(id, curve as unknown as JXG.GeometryElement);
             curve.updateDataArray = () => {
                 const data = config.visible() ? rectangles(view().parts, config.height) : {x: [], y: []};
                 curve.dataX = data.x;
                 curve.dataY = data.y;
             };
         };
-        family({color: GraphPalette.additionalCurves[1], fillOpacity: 0.1, dash: 2, visible: () => model().upperVisible, height: part => part.sup});
-        family({color: GraphPalette.additionalCurves[0], fillOpacity: 0.5, dash: 0, visible: () => model().lowerVisible, height: part => part.inf});
+        family("upper", {color: GraphPalette.additionalCurves[1], fillOpacity: 0.1, dash: 2, visible: () => model().upperVisible, height: part => part.sup});
+        family("lower", {color: GraphPalette.additionalCurves[0], fillOpacity: 0.5, dash: 0, visible: () => model().lowerVisible, height: part => part.inf});
 
         // The partition: a thin line from the axis to the graph at every node (always shown, also while both sums are hidden).
         const partition = this.own(board.create("curve", [[], []], {
             strokeColor: GraphPalette.referenceCurve, strokeWidth: thin, dash: 3, highlight: false, fixed: true,
         })) as unknown as FillCurve;
+        this.drawn.set("partition", partition as unknown as JXG.GeometryElement);
         partition.updateDataArray = () => {
             const {parts, example} = view();
             const nodes = [parts[0].x0, ...parts.map(part => part.x1)];
@@ -223,9 +238,9 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
             partition.dataY = y;
         };
 
-        this.own(board.create("functiongraph", [(x: number) => view().example.value(x)], {
+        this.drawn.set("function", this.own(board.create("functiongraph", [(x: number) => view().example.value(x)], {
             strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth,
-        }));
+        })));
 
         // a and b are dragged along the x-axis, projected onto the grid and onto the range a < b allows; a value the model still refuses puts the point back.
         this.pointA = this.axisPoint({
@@ -237,22 +252,7 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
             min: () => cleanNumber(model().a + DARBOUX_X_STEP), max: () => DARBOUX_X_MAX, write: x => this.setB(x, {syncScene: false}),
         });
 
-        // The formula, n, the integral, both sums and the key to the two kinds of rectangle stay on the board (projection needs them), bottom right under the axis.
-        this.caption("bottom-right", [
-            {text: () => exampleTitle(model().example), scale: 1.2, math: true},
-            {
-                text: () => t("darboux_board_n_integral", {
-                    value0: String(model().n), value1: formatNumber(view().totals.integral, language(), PRECISE),
-                }),
-            },
-            {
-                text: () => t("darboux_board_sums", {
-                    value0: model().lowerVisible ? formatNumber(view().totals.lower, language(), PRECISE) : this.hiddenText(),
-                    value1: model().upperVisible ? formatNumber(view().totals.upper, language(), PRECISE) : this.hiddenText(),
-                }),
-            },
-            {text: () => t("darboux_board_key"), minBoardWidth: 520},
-        ]);
+        // Nothing stays on the board: the formula is declared, n, the integral and the sums are readout rows, the key to the two kinds of rectangle is the legend (owner, 2026-11-27).
     }
 
     protected override syncSceneToModel(): void {
@@ -264,20 +264,23 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
     protected override onSceneRemoved(): void {
         this.pointA = undefined;
         this.pointB = undefined;
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected renderControls(): React.ReactNode {
-        const {example, a, b, n, lowerVisible, upperVisible} = this.model;
+        const {example, a, b, n} = this.model;
         const refinable = canRefine(n);
         return <>
             <div className="inspector-group">
-                <CountSetter label={t("darboux_n_label")} n={n} min={DARBOUX_N_MIN} max={DARBOUX_N_MAX}
-                             rejectedHint={t("darboux_n_rejected_hint", {value0: DARBOUX_N_MIN, value1: DARBOUX_N_MAX})}
-                             onPlus={() => guard(this.refusals, () => this.setCount(n + 1))}
-                             onMinus={() => guard(this.refusals, () => this.setCount(n - 1))}
-                             onSet={next => guardField(this.refusals, () => this.setCount(next))}/>
+                <PuckOwned param="darboux-n">
+                    <CountSetter label={t("darboux_n_label")} n={n} min={DARBOUX_N_MIN} max={DARBOUX_N_MAX}
+                                 rejectedHint={t("darboux_n_rejected_hint", {value0: DARBOUX_N_MIN, value1: DARBOUX_N_MAX})}
+                                 onPlus={() => guard(this.refusals, () => this.setCount(n + 1))}
+                                 onMinus={() => guard(this.refusals, () => this.setCount(n - 1))}
+                                 onSet={next => guardField(this.refusals, () => this.setCount(next))}/>
+                </PuckOwned>
                 <div className="darboux-actions" role="group" aria-label={t("darboux_partition_label")}>
                     <UnavailableButton data-action="refine" aria-describedby="darboux-refine-help"
                                        reason={refinable ? undefined : t("darboux_refine_limit", {value0: DARBOUX_N_MAX})}
@@ -290,19 +293,19 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
                               options={DARBOUX_EXAMPLE_IDS.map(id => ({value: id, text: exampleTitle(id)}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
-            <div className="inspector-group">
-                <Slider customText={t("darboux_a_label")} value={a} min={DARBOUX_X_MIN} max={DARBOUX_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("darboux_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <Slider customText={t("darboux_b_label")} value={b} min={DARBOUX_X_MIN} max={DARBOUX_X_MAX} step={0.1} decimals={PRECISE}
-                             rejectedHint={t("darboux_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/>
+            <PuckOwnedGroup params={["darboux-a", "darboux-b"]} className="inspector-group">
+                <PuckOwned param="darboux-a"><Slider customText={t("darboux_a_label")} value={a} min={DARBOUX_X_MIN} max={DARBOUX_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("darboux_a_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/></PuckOwned>
+                <PuckOwned param="darboux-b"><Slider customText={t("darboux_b_label")} value={b} min={DARBOUX_X_MIN} max={DARBOUX_X_MAX} step={0.1} decimals={PRECISE}
+                             rejectedHint={t("darboux_b_rejected_hint")} onChange={next => this.ignoreOutOfDomain(() => this.setB(next))}/></PuckOwned>
                 <p className="inspector-help">{t("darboux_order_help")}</p>
-            </div>
+            </PuckOwnedGroup>
         </>;
     }
 
     protected override renderReveals(): React.ReactNode {
         const {lowerVisible, upperVisible} = this.model;
-        return <>
+        return <PuckOwnedGroup params={["show-lower-sum", "show-upper-sum"]}>
             <div className="darboux-actions" role="group" aria-label={t("darboux_sums_label")}>
                 <RevealButton action="toggle-lower" revealed={lowerVisible} showLabel={t("darboux_show_lower")} hideLabel={t("darboux_hide_lower")}
                               onToggle={() => this.setLowerVisible(!this.model.lowerVisible)}/>
@@ -310,45 +313,107 @@ export class DarbouxGraph extends BaseFunctionGraph<DarbouxModel> {
                               onToggle={() => this.setUpperVisible(!this.model.upperVisible)}/>
             </div>
             <p className="inspector-help">{t("darboux_sums_help")}</p>
-        </>;
+        </PuckOwnedGroup>;
     }
 
-    protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "function", color: GraphPalette.comparisonCurve, label: t("darboux_legend_function"), kind: "line"},
-            {id: "lower", color: GraphPalette.additionalCurves[0], label: t("darboux_legend_lower"), kind: "area"},
-            {id: "upper", color: GraphPalette.additionalCurves[1], label: t("darboux_legend_upper"), kind: "dashed"},
-            {id: "partition", color: GraphPalette.referenceCurve, label: t("darboux_legend_partition"), kind: "line"},
-        ]}/>;
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "darboux-a": {read: () => this.model.a, apply: (value: number) => this.setA(value)},
+            "darboux-b": {read: () => this.model.b, apply: (value: number) => this.setB(value)},
+            "darboux-n": {read: () => this.model.n, apply: (value: number) => this.setCount(value)},
+        };
+    }
+
+    /**
+     * The common declaration (rows, note, view marks) plus a, b and n as board pucks, the two sum switches as switch pucks and the
+     * legend of the drawn objects. A sum is listed only while it is drawn (a hidden sum is not given away).
+     */
+    protected override declaration(): GraphDeclaration {
+        const model = this.model;
+        const endpoint = (key: "darboux-a" | "darboux-b", label: "darboux_a_name" | "darboux_b_name", symbol: string) => ({
+            key, kind: "range" as const, label: message(label), symbol, help: message("darboux_order_help"), placement: "board" as const,
+            min: DARBOUX_X_MIN, max: DARBOUX_X_MAX, step: DARBOUX_X_STEP, maxDecimals: 4,
+        });
+        return {
+            ...this.commonDeclaration(),
+            formula: {label: message("darboux_formula_label"), tex: `f(x)=${FORMULA_TEX[model.example]}`},
+            parameters: [
+                endpoint("darboux-a", "darboux_a_name", "a"),
+                endpoint("darboux-b", "darboux_b_name", "b"),
+                {key: "darboux-n", kind: "count", label: message("darboux_n_name"), symbol: "n", placement: "board", min: DARBOUX_N_MIN, max: DARBOUX_N_MAX,
+                    help: message("darboux_n_rejected_hint", {value0: DARBOUX_N_MIN, value1: DARBOUX_N_MAX})},
+            ],
+            legend: [
+                {id: "function", label: message("darboux_legend_function"), kind: "line", object: "function"},
+                ...(model.lowerVisible ? [{id: "lower" as const, label: message("darboux_legend_lower"), kind: "area" as const, object: "lower"}] : []),
+                ...(model.upperVisible ? [{id: "upper" as const, label: message("darboux_legend_upper"), kind: "dashed" as const, object: "upper"}] : []),
+                {id: "partition", label: message("darboux_legend_partition"), kind: "line", object: "partition"},
+            ],
+            actions: [
+                {id: "show-lower-sum", label: message("darboux_lower_puck"), help: message("darboux_sums_help"), placement: "board", enabled: true,
+                    pressed: model.lowerVisible, puck: true},
+                {id: "show-upper-sum", label: message("darboux_upper_puck"), help: message("darboux_sums_help"), placement: "board", enabled: true,
+                    pressed: model.upperVisible, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "show-lower-sum") runAs("learner", () => this.setLowerVisible(!this.model.lowerVisible));
+        else if (id === "show-upper-sum") runAs("learner", () => this.setUpperVisible(!this.model.upperVisible));
+        else throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp("strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
     }
 
     /** The statuses to state in words (no changing numbers: they are announced on every drag step); each has a stable id. */
-    private statuses(model: DarbouxModel): { id: StatusKind; text: string }[] {
-        const result: { id: StatusKind; text: string }[] = [];
-        if (!model.lowerVisible || !model.upperVisible) result.push({id: "hidden", text: t("darboux_status_hidden")});
-        else result.push({id: "trapped", text: t("darboux_status_trapped")});
-        if (!canRefine(model.n)) result.push({id: "limit", text: t("darboux_status_limit", {value0: DARBOUX_N_MAX})});
+    private statuses(model: DarbouxModel): { id: StatusKind; text: Message }[] {
+        const result: { id: StatusKind; text: Message }[] = [];
+        if (!model.lowerVisible || !model.upperVisible) result.push({id: "hidden", text: message("darboux_status_hidden")});
+        else result.push({id: "trapped", text: message("darboux_status_trapped")});
+        if (!canRefine(model.n)) result.push({id: "limit", text: message("darboux_status_limit", {value0: DARBOUX_N_MAX})});
         return result;
     }
 
-    protected renderReadout(): React.ReactNode {
+    /** Declared by the base (task 08): the readout rows, the note, the statuses and the drawn curve; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
-        const language: NumberLanguage = currentLanguage();
-        const {totals} = this.viewOf(model);
-        const number = (value: number) => formatNumber(value, language, PRECISE);
-        const hidden = this.hiddenText();
-        const rows = [
-            {id: "a", label: t("darboux_a_label"), value: number(model.a)},
-            {id: "b", label: t("darboux_b_label"), value: number(model.b)},
-            {id: "n", label: t("darboux_readout_n"), value: String(model.n)},
-            {id: "lower", label: t("darboux_readout_lower"), value: model.lowerVisible ? number(totals.lower) : hidden},
-            {id: "upper", label: t("darboux_readout_upper"), value: model.upperVisible ? number(totals.upper) : hidden},
-            {id: "integral", label: t("darboux_readout_integral"), value: number(totals.integral)},
-            {id: "gap", label: t("darboux_readout_gap"), value: model.lowerVisible && model.upperVisible ? number(totals.gap) : hidden},
-        ];
+        const {example, parts, totals} = this.viewOf(model);
+        const hidden = message("darboux_hidden");
+        const f = (x: number) => example.value(x);
+        const top = Math.max(...parts.map(part => part.sup));
+        const bottom = Math.min(...parts.map(part => part.inf));
+        return {
+            rows: [
+                {id: "a", name: message("darboux_a_name"), symbol: "a", value: messageNumber(model.a, PRECISE)},
+                {id: "b", name: message("darboux_b_name"), symbol: "b", value: messageNumber(model.b, PRECISE)},
+                {id: "n", name: message("darboux_readout_n"), value: messageNumber(model.n, 0)},
+                {id: "lower", name: message("darboux_readout_lower"), value: model.lowerVisible ? messageNumber(totals.lower, PRECISE) : hidden},
+                {id: "upper", name: message("darboux_readout_upper"), value: model.upperVisible ? messageNumber(totals.upper, PRECISE) : hidden},
+                {id: "integral", name: message("darboux_readout_integral"), value: messageNumber(totals.integral, PRECISE)},
+                {id: "gap", name: message("darboux_readout_gap"), value: model.lowerVisible && model.upperVisible ? messageNumber(totals.gap, PRECISE) : hidden},
+            ],
+            help: message("darboux_note"),
+            status: this.statuses(model),
+            plotted: [f],
+            // The partition ends on the axis and the rectangles reach the extreme heights, so the view keeps both in sight.
+            must: [{x: model.a, y: 0}, {x: model.b, y: 0}, {x: model.a, y: top}, {x: model.b, y: bottom}],
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("darboux_note")}/>
-            <FunctionStatus className="darboux-status" dataAttribute="darboux-status" lines={this.statuses(model)}/>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus className="darboux-status" dataAttribute="darboux-status" lines={(this.functionPanel().status ?? []).map(line => ({id: line.id, text: renderMessage(line.text)}))}/>
         </>;
     }
 }

@@ -70,7 +70,7 @@ const boardObjectCount = (graph: any) => graph.board.objectsList.length;
 const [POSITIVE_FILL, NEGATIVE_FILL] = [0, 1];
 const [F_CURVE, A_CURVE, TANGENT] = [0, 1, 2];
 const [F_POINT, A_POINT, AXIS_A, AXIS_X] = [0, 1, 2, 3];
-const BASELINE = 18;
+const BASELINE = 17;
 const curves = (graph: any) => ofType(graph, 'functiongraph');
 const fills = (graph: any) => ofType(graph, 'curve');
 const points = (graph: any) => ofType(graph, 'point');
@@ -123,7 +123,7 @@ test('initialization draws the shaded stretches, f, the hidden A and tangent, dr
     expect(fills(graph)).toHaveLength(2);
     expect(curves(graph)).toHaveLength(3);
     expect(ofType(graph, 'segment')).toHaveLength(2);
-    expect(ofType(graph, 'text')).toHaveLength(MAX_PIECES + 1);
+    expect(ofType(graph, 'text')).toHaveLength(MAX_PIECES);
     expect(points(graph)).toHaveLength(4);
     expect(boardObjectCount(graph)).toBe(BASELINE);
     expect(graph.generatedObjectCount).toBe(boardObjectCount(graph));
@@ -142,8 +142,8 @@ test('initialization draws the shaded stretches, f, the hidden A and tangent, dr
     // a and x sit on the axis, the point of f on the graph
     expect(axisPoints(graph).map((point: any) => [point.x, point.y])).toEqual([[0, 0], [2, 0]]);
     expect([points(graph)[F_POINT].X(), points(graph)[F_POINT].Y()]).toEqual([2, Math.sin(2)]);
-    // the board names f in words, and while A is hidden it says A is hidden and gives no value
-    expect(caption(graph)).toEqual(['f(x) = sin x', 'f: polna črta', 'A je skrita: napovej A(x)']);
+    // the board keeps no caption: the curve names are the legend and the values are readout rows
+    expect(caption(graph)).toEqual([]);
 });
 
 test('while A is hidden every readout that would give the answer away says hidden and the status is only the prompt', () => {
@@ -180,9 +180,7 @@ test('showing A draws the dashed curve, its tangent and its point, and the reado
         'a': '0', 'x': '2', 'f-x': '0,9093', 'signed-integral': '1,4161', 'slope': '0,9093', 'above-axis': '1,4161', 'below-axis': '0',
     });
     expect(statusIds(graph)).toEqual(['rising']);
-    expect(caption(graph)).toEqual([
-        'f(x) = sin x', 'f: polna črta', 'A: črtkana črta', 'A(x) = 1,4161 (s predznakom)', 'naklon tangente na A v točki x: 0,9093',
-    ]);
+    expect(caption(graph)).toEqual([]);
     expect([points(graph)[A_POINT].X(), points(graph)[A_POINT].Y()]).toEqual([2, 1 - Math.cos(2)]);
     // hiding again is a plain toggle of the model
     apply(graph, reveal(false));
@@ -303,7 +301,7 @@ test('the readout calls the value the signed integral and never presents the geo
     setLanguage('en');
     expect((graph.renderReadout().props.children[0].props.rows as { id: string; label: string }[]).find(row => row.id === 'signed-integral')!.label).toMatch(/signed/);
     expect(graph.renderReadout().props.children[0].props.note[0]).toMatch(/signed definite integral, not the geometric area/);
-    expect(caption(graph)).toContain('A(x) = 0 (signed)');
+    expect(rows(graph)['signed-integral']).toBe('0');
     setLanguage('sl');
     expect(graph.renderReadout().props.children[0].props.note[0]).toMatch(/s predznakom, ne geometrijska ploščina/);
 });
@@ -448,12 +446,12 @@ test('a multi-action scene applied in one synchronous tick reads the earlier act
     apply(graph, defaultScene);
     for (const action of [choice('square'), parameter('accum-a', -1), parameter('accum-x', 3), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({fn: 'square', a: -1, x: 3, accumulationVisible: true});
-    expect(caption(graph)[3]).toBe('A(x) = 9,3333 (s predznakom)'); // (27 - (-1)) / 3
+    expect(rows(graph)['signed-integral']).toBe('9,3333'); // (27 - (-1)) / 3
     // later actions in the same tick see the earlier ones, including the order of a and x
     apply(graph, parameter('accum-a', 3));
     apply(graph, parameter('accum-x', -1));
     expect(graph.model).toEqual({fn: 'square', a: 3, x: -1, accumulationVisible: true});
-    expect(caption(graph)[3]).toBe('A(x) = −9,3333 (s predznakom)');
+    expect(rows(graph)['signed-integral']).toBe('−9,3333');
     expect(statusIds(graph)).toEqual(['reversed', 'rising']);
     // the board points followed every action although React state never updated
     expect(axisPoints(graph).map((point: any) => point.x)).toEqual([3, -1]);
@@ -703,12 +701,14 @@ test('generated objects are disposed and not duplicated across repeated generati
 test('the caption follows the language and a language change notifies subscribers', () => {
     const graph = makeGraph();
     apply(graph, reveal(true));
-    expect(caption(graph)).toEqual(['f(x) = sin x', 'f: polna črta', 'A: črtkana črta', 'A(x) = 1,4161 (s predznakom)', 'naklon tangente na A v točki x: 0,9093']);
+    expect(caption(graph)).toEqual([]);
+    expect(rows(graph)['signed-integral']).toBe('1,4161');
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(caption(graph)).toEqual(['f(x) = sin x', 'f: solid line', 'A: dashed line', 'A(x) = 1.4161 (signed)', 'slope of the tangent to A at x: 0.9093']);
+    expect(caption(graph)).toEqual([]);
+    expect(rows(graph)['signed-integral']).toBe('1.4161');
     unsubscribe();
 });
 

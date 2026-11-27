@@ -55,12 +55,7 @@
         "Trditve izhajajo iz predznaka f″ na [a, b], ki je izračunan natančno, ne vzorčen: konveksna pomeni f″ ≥ 0, konkavna f″ ≤ 0. Trditev o tangenti velja le, kadar t leži v [a, b]."
       ],
       "outputs": [],
-      "captions": [
-        "a = -1, b = 1,5, t = 0,5",
-        "f(x) = x²",
-        "polna črta: tetiva; črtkana črta: tangenta",
-        "sklep: skrit"
-      ]
+      "captions": []
     },
     {
       "name": "convexity-guided/convexity-chord-step",
@@ -116,13 +111,7 @@
       ],
       "outputs": [],
       "captions": [
-        "+",
-        "a = -1, b = 1,5, t = 0,5",
-        "f(x) = x²",
-        "graf: na tetivi ali pod njo, na tangenti ali nad njo",
-        "konveksna na [a, b]",
-        "polna črta: tetiva; črtkana črta: tangenta",
-        "zgoraj: predznak f″ (+ konveksna, - konkavna)"
+        "+"
       ]
     },
     {
@@ -178,12 +167,7 @@
         "Trditve izhajajo iz predznaka f″ na [a, b], ki je izračunan natančno, ne vzorčen: konveksna pomeni f″ ≥ 0, konkavna f″ ≤ 0. Trditev o tangenti velja le, kadar t leži v [a, b]."
       ],
       "outputs": [],
-      "captions": [
-        "a = -1, b = 1,5, t = 0,5",
-        "f(x) = -x²",
-        "polna črta: tetiva; črtkana črta: tangenta",
-        "sklep: skrit"
-      ]
+      "captions": []
     },
     {
       "name": "convexity-guided/convexity-cube-step",
@@ -238,12 +222,7 @@
         "Trditve izhajajo iz predznaka f″ na [a, b], ki je izračunan natančno, ne vzorčen: konveksna pomeni f″ ≥ 0, konkavna f″ ≤ 0. Trditev o tangenti velja le, kadar t leži v [a, b]."
       ],
       "outputs": [],
-      "captions": [
-        "a = -1, b = 1,5, t = 0,5",
-        "f(x) = x³",
-        "polna črta: tetiva; črtkana črta: tangenta",
-        "sklep: skrit"
-      ]
+      "captions": []
     },
     {
       "name": "convexity-guided/convexity-quartic-step",
@@ -298,12 +277,7 @@
         "Trditve izhajajo iz predznaka f″ na [a, b], ki je izračunan natančno, ne vzorčen: konveksna pomeni f″ ≥ 0, konkavna f″ ≤ 0. Trditev o tangenti velja le, kadar t leži v [a, b]."
       ],
       "outputs": [],
-      "captions": [
-        "a = -1, b = 1, t = 0,5",
-        "f(x) = x⁴",
-        "polna črta: tetiva; črtkana črta: tangenta",
-        "sklep: skrit"
-      ]
+      "captions": []
     },
     {
       "name": "convexity-guided/convexity-free-exploration",
@@ -361,13 +335,7 @@
       "captions": [
         "+",
         "+",
-        "0",
-        "a = -1, b = 1, t = 0,5",
-        "f(x) = x⁴",
-        "graf: na tetivi ali pod njo, na tangenti ali nad njo",
-        "konveksna na [a, b]",
-        "polna črta: tetiva; črtkana črta: tangenta",
-        "zgoraj: predznak f″ (+ konveksna, - konkavna)"
+        "0"
       ]
     }
   ]

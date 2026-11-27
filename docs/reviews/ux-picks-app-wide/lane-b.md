@@ -39,51 +39,51 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
 
 ## Status
 
-- Handler 1 (2026-11-27): worktree `.claude/worktrees/lane-b` (branch `lane-b` from `board-workspace-2` at `4b5fcd5fa`,
-  `node_modules` junction). Dispatch `briefs/08-lane-L54.md` (lesson smoke port 4395). Notes `briefs/notes/08-lane-L54.md`.
-- Stream A is now "Board workspace handler 12" (send commit ids there; a14152ab2 still pending pick).
-- Stream A, 2026-11-27: every lane also runs `just unit FirstTask` and per id
-  `BEZEG_PRESET_ROUNDTRIP=all just unit src/graphs/PresetRoundTrip.contract.test.tsx -t <id>`; never background
-  `bash <script>` for long runs (the cleanup tick kills it); foreground checks under 10 minutes each.
-- Three demonstrations exhaust a Sonnet worker's 175k budget; dispatch two per worker.
-- Accepted: `fa98874c4` bezier-hulls, convex-hull (+ delaunay parity/markers); sent to stream A.
-- Accepted: `644dca72b` delaunay, ear-clipping (delaunay golden re-recorded, notes only); sent to stream A.
-- Accepted: `7ff06edc9` fortune, hull-robustness; sent to stream A.
-- Accepted: `48f4d392e` interval-sweep, monotone-partition; sent to stream A.
-- Accepted: `d0d2acb8c` monotone-triangulation, orientation (golden re-recorded, notes only); sent to stream A.
-- Accepted: `a14152ab2` point-in-polygon, point-set-triangulation; sent to stream A. FirstTask and round-trip green for all 12.
-- Lane-b Vite dev server (this handler's shell): `http://127.0.0.1:4484/bezeg-2.0/` (`npx vite --port 4484 --strictPort --host 127.0.0.1`).
-- Caption check (stream A, 2026-11-27, L30 miss): 8 of 12 ok; monotone-partition, monotone-triangulation, interval-sweep,
-  delaunay covered. Cause (shared base): `BaseGraph.tsx:328` returns before binding `view` when a graph has no parameter
-  bindings, so point-set graphs get no view director. Stream A: B fixes it on lane-b as its own commit, before further
-  conversions (bind `view` for declared graphs only; all-graph suites whole; browser recheck of the 4 steps + polygon-area,
-  projective-three-views, projective-five-point; morph no jump). Committed `cb59a901f` (notes `briefs/notes/08-view-binding-fix.md`),
-  picked by A as 71b3b08ab (a14152ab2 as fbeb69755). Morph glide and dev-console sweep clean, sent to A. Follow-up
-  `2420f7a87` (Fortune `_ticks_` filter, Bezier decision 6 asserts marks) sent to A.
-- Accepted: `dfb8498ad` segment-intersections, voronoi (voronoi golden re-recorded, notes only); sent to A.
-- **L54 done** with the session 6 commit (voronoi-degenerate; golden re-recorded: notes plus one deg-off ray arrow that
-  follows the director's framing; 16 "pod grafom" sentences now name the Odčitki card). Sent to A (with dfb8498ad pending pick).
-- Merged board-workspace-2 (incl. ee7a33aa7) into lane-b at `156d36f7c`; A picks only lane commits after it.
-- L50 (8 demos; dispatch `briefs/08-lane-L50.md`, ONE per worker for function graphs (accumulation alone took 175k):
-  accepted `43e4628db` accumulation, `42d6cb877` convexity (sent to A; A ruled the f'' sign marks are NOT case (c): a
-  step names them, so fix in a follow-up (worker running). Rule now in the L50 brief: board text a step tells the learner
-  to read must be clear of cards). Darboux running. Then extrema, fixed-point + sequence (IterativeFunctionGraph shared with L42/L47: opt-in hook only), mean-value +
-  uniform-convergence. Then L49, L44, L47.
-- (old) Uncommitted in the tree: segment-intersections (converted, graph-check green) and voronoi (converted; golden is a
-  notes-only diff to re-record after the fix; VoronoiGraph.host.test Fit case ~536 and hull-robustness "untagged view" writes
-  fail, probably from the view fix in progress, which the fix worker now owns). After the fix commit: one worker reruns
-  family unit, tsc, lint, build, smoke-lesson for both, then commit them. Then + voronoi, voronoi-degenerate; then L50, L49, L44, L47.
-- Open, asked of stream A (2026-11-27): `BaseFunctionGraph.caption()` (:643) draws pixel-anchored corner text on ~30
-  function graphs; cards cover it (accumulation 1280x720). Stream A decided (c): captions stay board-drawn in 08
-  (08 task file :40), never change shared caption() in a lane; extending the Taylor removal is on the owner's list in A's
-  state note. Lanes keep corner captions as is (L50, L47).
-  Owner, 2026-11-27, asked whether removing captions that repeat the legend/readouts is planned: it is not in any task
-  (08 triage :40 defers it to unnamed "feel follow-ups"; 09-11 do not cover it). Owner thinks it should be part of 08;
-  **Owner confirmed 2026-11-27: "Yes, remove that. I thought it was part
-  of it since you can do it when you move to cards."** Lanes remove repeating caption lines as they convert (rule in the
-  L50 brief; carry it into L49/L44/L47 briefs); sweep of converted graphs: B does accumulation + convexity (follow-up
-  after the sign-mark fix), A its own; recorded by A in e5e4374fb (08 task file :40).
-  A picked 43e4628db as de294bbb1, 42d6cb877 as 45b3cc85c; round 11 on master 6c5c063bf.
-- (done) L54 closeout (handler): compgeo lesson prose says "pod grafom" / "under the graph" for readouts that are now cards
-  (`compgeoGuidedLessons.ts` ~lines 572, 766, 1133, 1181, 1322, 2802); reword once all L54 demos are in. Take
-  inspector-width screenshots of a few converted panels before the final L54 commit.
+Rewritten by handler 1 at its soft budget (2026-11-27). Present state only.
+
+### Where
+
+- Worktree `C:/Users/1337Hacker/Desktop/bezeg-2.0/.claude/worktrees/lane-b`, branch `lane-b` (`node_modules` junction;
+  unlink with PowerShell before ever removing). Merged `board-workspace-2` (incl. `ee7a33aa7`) at `156d36f7c`; stream A
+  picks only lane commits after a merge. Merge again from `board-workspace-2` before a new lane if A has moved far.
+- Stream A = **"Board workspace handler 12"** (send every accepted commit id there; it cherry-picks between its lanes).
+- Lane-b Vite dev server (handler 1's shell, dies with the session; restart with `npx vite --port 4484 --strictPort --host 127.0.0.1`
+  as a background command): `http://127.0.0.1:4484/bezeg-2.0/`. Lesson smoke port 4395.
+
+### Done
+
+- **L54 complete** (15 compgeo demos): `fa98874c4`, `644dca72b`, `7ff06edc9`, `48f4d392e`, `d0d2acb8c`, `a14152ab2`,
+  `dfb8498ad`, `028efbf9a` (all picked or queued by A).
+- **View-binding base fix** `cb59a901f` + tests `2420f7a87` (declared graphs with no parameter bindings now bind `view`, so
+  the view director runs on point-set/projective/curve graphs). It made master CI red once (Bezier batch export restored
+  the box by raw JXG; A fixed it in BaseGraph `applyFigurePreset`).
+- **L50 so far:** accumulation `43e4628db`, convexity `42d6cb877`, convexity sign marks clear of cards `706f45046`,
+  sharedControls row dropped `c26f785a3`, and the darboux + caption-sweep commit (the last commit on lane-b; check
+  `git log -3`). All but the last are sent to A; send the last one if it is not mentioned as sent below.
+
+### Rules learned this session (all in `briefs/08-lane-L50.md`; copy them into the L49/L44/L47 briefs)
+
+- One function-graph demonstration per Sonnet worker (one fills the 175k budget); compgeo took two.
+- Checks per demo: graph-check, golden, FirstTask, `BEZEG_PRESET_ROUNDTRIP=all ... -t <id>`, family unit, tsc, lint,
+  `src/graphs/base/sharedControls.graphs.test.tsx` when a slider becomes a puck, every `tests/*.spec.cjs` that names the id
+  or route, build, smoke-lesson, browser caption check at 1440x900 and 1280x720 on the dev server.
+- Host tests of function graphs mock `../../mathjax/loadMathJax` (else pucks never settle in jsdom).
+- **Owner, 2026-11-27: remove board caption lines that repeat a legend entry or readout row** ("Yes, remove that. I
+  thought it was part of it since you can do it when you move to cards."). Pattern: Taylor `e0bfe3576`; the function
+  formula becomes a declared `formula` row ("Funkcija"); unused board keys go from `sl.ts`/`en.ts`. Recorded by A in
+  `e5e4374fb`. Board text a lesson step tells the learner to read must be clear of cards (`marks.must` or user-coordinate
+  anchors inside the followed frame, as `706f45046` / L37 `89e4245ee`).
+- Handler re-records goldens only for notes/rows/labels moving to cards or removed caption lines, after the browser check.
+- Prose: "vklopi krmilnik X" / "turn on the X control"; readouts are "v kartici Odčitki" / "the Readouts card".
+- Views are restored through `BoardView`, never raw `setBoundingBox`.
+
+### Next
+
+1. L50 remaining, one per worker: extrema, fixed-point, sequence (both `IterativeFunctionGraph`, shared with L42/L47:
+   opt-in hook only, default off), mean-value, uniform-convergence. Dispatch template: the darboux dispatch in this
+   handler's history is the shape: "read `briefs/08-lane-L50.md`, the shared brief, the notes; finished examples
+   `43e4628db`, `42d6cb877`, the darboux commit; one demo; checks per the dispatch".
+2. Then L49 (curve geometry, 6 demos, conflicts L31/L33 on `CurveGeometryFirstTask.test.tsx` and L32 on
+   `PlaybackRoutes.test.tsx`), L44 (splines, 6), L47 (probability, 5; `IterativeFunctionGraph`, `BaseFunctionGraph.authority.test.tsx`
+   shared with L46). Write a dispatch per lane like `briefs/08-lane-L50.md`.
+3. Open: none for the owner from stream B.

@@ -462,14 +462,14 @@ describe('the Darboux lesson', () => {
         }
     });
 
-    test('asks for a prediction before the revealing Show lower sum / Show upper sum, and the scene of such a step never reveals them', () => {
+    test('asks for a prediction before the revealing Lower sum / Upper sum controls, and the scene of such a step never reveals them', () => {
         for (const id of ['darboux-prerequisites-step', 'darboux-sine-step', 'darboux-free-exploration']) {
             expect(dStep(id).observationPrompt.en, id).toMatch(/Predict/);
-            expect(dStep(id).observationPrompt.en, id).toMatch(/Show lower sum/);
-            expect(dStep(id).observationPrompt.en, id).toMatch(/Show upper sum/);
+            expect(dStep(id).observationPrompt.en, id).toMatch(/Lower sum/);
+            expect(dStep(id).observationPrompt.en, id).toMatch(/Upper sum/);
             expect(dStep(id).observationPrompt.sl, id).toMatch(/Napovej/);
-            expect(dStep(id).observationPrompt.sl, id).toMatch(/Pokaži spodnjo vsoto/);
-            expect(dStep(id).observationPrompt.sl, id).toMatch(/Pokaži zgornjo vsoto/);
+            expect(dStep(id).observationPrompt.sl, id).toMatch(/krmilnika Spodnja vsota/);
+            expect(dStep(id).observationPrompt.sl, id).toMatch(/Zgornja vsota/);
             const actions = adaptedActions(id);
             expect(actions.some(action => action.kind === 'function-visibility' && action.visible), id).toBe(false);
             expect(actions).toContainEqual({kind: 'function-visibility', target: 'lower-sum', visible: false});

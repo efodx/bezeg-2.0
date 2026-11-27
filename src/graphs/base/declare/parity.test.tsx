@@ -934,6 +934,20 @@ const SAMPLES: readonly Sample[] = [
             {name: 'square shown, t outside [a, b]', apply: run(g => { g.setSecondDerivativeVisible(true); g.setT(-1.8); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/darboux.json', demonstration: 'darboux', states: (() => {
+        type DarbouxSetters = {setA(value: number): void; setB(value: number): void; setCount(value: number): void; setExample(value: string): void; setLowerVisible(value: boolean): void; setUpperVisible(value: boolean): void; refinePartition(): void};
+        const run = (edit: (graph: DarbouxSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as DarbouxSetters)); };
+        return [
+            {name: 'default (sums shown)', apply: () => undefined},
+            {name: 'sums hidden', apply: run(g => { g.setLowerVisible(false); g.setUpperVisible(false); })},
+            {name: 'only lower shown', apply: run(g => { g.setLowerVisible(true); g.setUpperVisible(false); })},
+            {name: 'only upper shown', apply: run(g => { g.setLowerVisible(false); g.setUpperVisible(true); })},
+            {name: 'a=0.5, b=1.5, n=8', apply: run(g => { g.setLowerVisible(true); g.setUpperVisible(true); g.setA(0.5); g.setB(1.5); g.setCount(8); })},
+            {name: 'sine [0, pi] n=1 hidden', apply: run(g => { g.setExample('sine'); g.setB(Math.PI); g.setCount(1); g.setLowerVisible(false); g.setUpperVisible(false); })},
+            {name: 'sine [0, pi] n=1 shown', apply: run(g => { g.setLowerVisible(true); g.setUpperVisible(true); g.setExample('sine'); g.setB(Math.PI); g.setCount(1); })},
+            {name: 'n at the limit (128)', apply: run(g => { g.setExample('square'); g.setCount(128); })},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/linear-function.json', demonstration: 'linear-function', states: (() => {
         type LinearSetters = {setPoint(index: 0 | 1, x: number, y: number): void; setLineParameter(change: {k?: number; n?: number}): void};
         const run = (edit: (graph: LinearSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as LinearSetters)); };

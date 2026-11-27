@@ -43,6 +43,12 @@ more stops that demonstration and is reported with the exact change you want.
 - JSXGraph drag handlers that write state need `runAs('learner', ...)`; tests writing a bound key outside the DOM wrap in it too.
   Since `cb59a901f` every declared graph binds `view`: test view writes go in `runAs('learner', ...)`, and a test of the graph's
   own Fit unsets the director first (`graph.setViewDirector(undefined)`, see `FortuneGraph.host.test.tsx`).
+- Since `cb59a901f` (view director on every declared graph) a browser spec or code path that sets the box by raw JXG
+  (`setBoundingBox`) and expects it to stay may be refitted by the director (master CI red on
+  `tests/curve-ownership.smoke.spec.cjs:161`, Bezier export). Restore views through `BoardView`; grep the browser specs
+  (`tests/*.spec.cjs`) for your graph's id and run any that touch it.
+- `src/graphs/base/sharedControls.graphs.test.tsx` has per-graph slider rows: a slider that becomes a puck moves its
+  rows to the puck (or drops them where a puck test covers them) in the same lane. Run that file.
 - Playback: a puck bound to a parameter that animates reads the live value through `puckLiveValue` (L23, `13468437e`);
   `src/graphs/ExportPausesPlayback.test.tsx` must keep passing unchanged.
 - Lesson prose that names a moved control: reword with the control's label, no "drsnik"/"slider"; readouts are the Odčitki

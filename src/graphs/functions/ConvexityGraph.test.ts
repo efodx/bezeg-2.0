@@ -120,16 +120,15 @@ test('initialization draws x^2 on [-1, 1.5] with chord, tangent, a, b, t and one
     expect(segments(graph)).toHaveLength(4);
     expect(functionGraphs(graph)).toHaveLength(2);
     expect(ofType(graph, 'point')).toHaveLength(7);
-    expect(ofType(graph, 'text')).toHaveLength(5);
-    expect(boardObjectCount(graph)).toBe(18);
-    expect(graph.generatedObjectCount).toBe(18);
+    expect(ofType(graph, 'text')).toHaveLength(4);
+    expect(boardObjectCount(graph)).toBe(17);
+    expect(graph.generatedObjectCount).toBe(17);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, true);
     expect(functionGraphs(graph)[0].parents[0](1.5)).toBe(2.25);
     expect(axisPoints(graph).map((point: any) => [point.x, point.y])).toEqual([[-1, 0], [1.5, 0], [0.5, 0]]);
     expect(valuePoints(graph).map(at)).toEqual([[-1, 1], [1.5, 2.25], [0.5, 0.25]]);
-    expect(caption(graph)).toEqual([
-        'f(x) = x²', 'a = −1, b = 1,5, t = 0,5', 'sklep: skrit', 'polna črta: tetiva; črtkana črta: tangenta',
-    ]);
+    // the verdict, the relations and the line key are readout rows and the legend; the board keeps the formula and the points
+    expect(caption(graph)).toEqual([]);
 });
 
 test('the chord is a solid segment over [a, b] and the tangent a dashed line at t, distinguishable by pattern and colour', () => {
@@ -160,7 +159,7 @@ test('before the reveal the readout, caption and statuses say hidden and give no
     expect(rowLabels(graph).verdict).toBe('Sklep za [a, b]');
     expect(statusIds(graph)).toEqual(['hidden']);
     expect(statusTexts(graph)[0]).not.toMatch(/\d/);
-    expect(caption(graph)[2]).toBe('sklep: skrit');
+    expect(caption(graph)).toEqual([]);
     const text = [...caption(graph), ...Object.values(rows(graph)).filter(value => value !== 'skrito')].join(' ');
     expect(text).not.toMatch(/konveksna|konkavna|brez trditve/);
     expect(signTexts(graph).map(visible)).toEqual([false, false]);
@@ -177,10 +176,7 @@ test('x^2 on [-1, 1.5] revealed: convex, graph on or below the chord and on or a
         'tangent-verdict': 'graf leži na tangenti ali nad njo', inflection: 'ni',
     });
     expect(statusIds(graph)).toEqual(['revealed']);
-    expect(caption(graph)).toEqual([
-        'f(x) = x²', 'a = −1, b = 1,5, t = 0,5', 'konveksna na [a, b]', 'graf: na tetivi ali pod njo, na tangenti ali nad njo',
-        'polna črta: tetiva; črtkana črta: tangenta', "zgoraj: predznak f″ (+ konveksna, − konkavna)",
-    ]);
+    expect(caption(graph)).toEqual([]);
     expect(statusTexts(graph, 'en')[0]).toBe('The verdict follows from the sign of f″ on [a, b].');
 });
 
@@ -192,8 +188,6 @@ test('-x^2 reverses both comparisons: concave, graph on or above the chord and o
         chord: 'y = −0,5x − 1,5', tangent: 'y = −x + 0,25', 'second-derivative-sign': "f″ ≤ 0 na [a, b]",
         verdict: 'konkavna na [a, b]: graf leži na tetivi ali nad njo', 'tangent-verdict': 'graf leži na tangenti ali pod njo', inflection: 'ni',
     });
-    expect(caption(graph)[2]).toBe('konkavna na [a, b]');
-    expect(caption(graph)[3]).toBe('graf: na tetivi ali nad njo, na tangenti ali pod njo');
 });
 
 test('a tangent point outside [a, b] withdraws the tangent claim and says why, while the chord claim stays', () => {
@@ -204,7 +198,6 @@ test('a tangent point outside [a, b] withdraws the tangent claim and says why, w
         t: '1,8', tangent: 'y = 3,6x − 3,24', verdict: 'konveksna na [a, b]: graf leži na tetivi ali pod njo', 'tangent-verdict': 'brez trditve: t je zunaj [a, b]',
     });
     expect(statusIds(graph)).toEqual(['revealed', 'tangent-outside']);
-    expect(caption(graph)[3]).toBe('graf: na tetivi ali pod njo; za tangento ni trditve (t zunaj [a, b])');
     expect(statusTexts(graph, 'en')[1]).toMatch(/lies outside \[a, b\]/);
     // the boundary itself belongs to [a, b]
     apply(graph, parameter('convexity-t', 1.5));
@@ -225,9 +218,7 @@ test('x^3: f\'\' = 6x changes sign at 0, so [-1, 1.5] gets no claim and names th
         'tangent-verdict': "brez trditve: f″ spremeni predznak na [a, b]", inflection: 'pri x = 0',
     });
     expect(statusIds(graph)).toEqual(['revealed', 'no-claim']);
-    expect(caption(graph)[2]).toBe("brez trditve: f″ spremeni predznak na [a, b]");
-    expect(caption(graph)).toHaveLength(5); // no line about the position of the graph
-    expect(graph.captionColors()[2]).not.toBe(graph.captionColors()[1]);
+    expect(caption(graph)).toEqual([]); // the board keeps no caption: the formula is declared, the rest is readouts and the legend
     expect(at(inflectionRing(graph))).toEqual([0, 0]);
     expect(visible(inflectionRing(graph))).toBe(true);
     expect(visible(inflectionLabel(graph))).toBe(true);
@@ -645,7 +636,7 @@ test('unmount leaves no generated object and a late edit changes nothing on the 
 test('generated objects are disposed and not duplicated across repeated generation, example changes and default scenes', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(18);
+    expect(baseline).toBe(17);
     for (let i = 0; i < 4; i++) graph.initialize();
     expect(boardObjectCount(graph)).toBe(baseline);
     expect(graph.generatedObjectCount).toBe(baseline);
@@ -666,17 +657,14 @@ test('generated objects are disposed and not duplicated across repeated generati
 
 test('the caption follows the language and a language change notifies subscribers', () => {
     const graph = makeGraph();
-    expect(caption(graph)[1]).toBe('a = −1, b = 1,5, t = 0,5');
+    expect(rows(graph).a).toBe("−1");
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(caption(graph)[1]).toBe('a = −1, b = 1.5, t = 0.5');
-    expect(caption(graph)[2]).toBe('verdict: hidden');
-    expect(caption(graph)[3]).toBe('solid line: chord; dashed line: tangent');
+    expect(rows(graph).b).toBe("1.5");
+    expect(rows(graph).verdict).toBe('hidden');
     apply(graph, reveal(true));
-    expect(caption(graph)[2]).toBe('convex on [a, b]');
-    expect(caption(graph)[3]).toBe('graph: on or below the chord, on or above the tangent');
     expect(rows(graph).verdict).toBe('convex on [a, b]: the graph lies on or below the chord');
     expect(rows(graph).chord).toBe('y = 0.5x + 1.5');
     unsubscribe();

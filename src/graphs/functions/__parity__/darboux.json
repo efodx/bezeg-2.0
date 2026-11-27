@@ -1,0 +1,406 @@
+{
+  "graph": "darboux",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (sums shown)",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "4"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "1,75"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "3,75"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "2,6667"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "2"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 1,75, U = 3,75",
+        "f(x) = x²",
+        "n = 4, integral = 2,6667",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    },
+    {
+      "name": "sums hidden",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "4"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "skrito"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "skrito"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "2,6667"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = skrito, U = skrito",
+        "f(x) = x²",
+        "n = 4, integral = 2,6667",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    },
+    {
+      "name": "only lower shown",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "4"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "1,75"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "skrito"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "2,6667"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 1,75, U = skrito",
+        "f(x) = x²",
+        "n = 4, integral = 2,6667",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    },
+    {
+      "name": "only upper shown",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "4"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "skrito"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "3,75"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "2,6667"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = skrito, U = 3,75",
+        "f(x) = x²",
+        "n = 4, integral = 2,6667",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    },
+    {
+      "name": "a=0.5, b=1.5, n=8",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0,5"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "1,5"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "8"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "0,9609"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "1,2109"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "1,0833"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "0,25"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 0,9609, U = 1,2109",
+        "f(x) = x²",
+        "n = 8, integral = 1,0833",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    },
+    {
+      "name": "sine [0, pi] n=1 hidden",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "3,1416"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "1"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "skrito"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "skrito"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "2"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = skrito, U = skrito",
+        "f(x) = sin x",
+        "n = 1, integral = 2",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    },
+    {
+      "name": "sine [0, pi] n=1 shown",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "3,1416"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "1"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "0"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "3,1416"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "2"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "3,1416"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 0, U = 3,1416",
+        "f(x) = sin x",
+        "n = 1, integral = 2",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    },
+    {
+      "name": "n at the limit (128)",
+      "rows": [
+        {
+          "key": "Levo krajišče a#0",
+          "label": "Levo krajišče a",
+          "value": "0"
+        },
+        {
+          "key": "Desno krajišče b#0",
+          "label": "Desno krajišče b",
+          "value": "2"
+        },
+        {
+          "key": "Število delov n#0",
+          "label": "Število delov n",
+          "value": "128"
+        },
+        {
+          "key": "Spodnja vsota L (iz infimumov)#0",
+          "label": "Spodnja vsota L (iz infimumov)",
+          "value": "2,6355"
+        },
+        {
+          "key": "Zgornja vsota U (iz supremumov)#0",
+          "label": "Zgornja vsota U (iz supremumov)",
+          "value": "2,698"
+        },
+        {
+          "key": "Natančni integral od a do b#0",
+          "label": "Natančni integral od a do b",
+          "value": "2,6667"
+        },
+        {
+          "key": "Razlika U - L#0",
+          "label": "Razlika U - L",
+          "value": "0,0625"
+        }
+      ],
+      "notes": [
+        "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
+      ],
+      "outputs": [],
+      "captions": [
+        "L = 2,6355, U = 2,698",
+        "f(x) = x²",
+        "n = 128, integral = 2,6667",
+        "poln: spodnja vsota L; črtkan: zgornja vsota U"
+      ]
+    }
+  ]
+}

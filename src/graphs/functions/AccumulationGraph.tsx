@@ -6,9 +6,8 @@ import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import {runAs} from "../base/writes/writeSource";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, message, Message, messageNumber, renderMessage, t} from "../../localization";
+import {message, Message, messageNumber, renderMessage, t} from "../../localization";
 import {FunctionStatus} from "./FunctionStatus";
-import {formatNumber} from "../../analysis/format";
 import {CatalogFunction, catalogFunction, FUNCTION_IDS} from "../../analysis/functions";
 import {
     ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, ACCUMULATION_BOUND_STEP, accumulation, AccumulationPiece, accumulationFill, accumulationPieces, accumulationTangent,
@@ -185,7 +184,6 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
         const model = () => this.model;
         const fn = () => catalogFunction(this.model.fn);
         const revealed = () => this.model.accumulationVisible;
-        const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
         const thin = this.displayThinWidth(0.8);
         const thick = () => Math.max(3, this.displaySettings.strokeWidth * 1.6);
@@ -285,18 +283,6 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
         this.pointA = axisPoint({x: model().a, name: "$$a$$", placement: () => xRightOfA() ? "below-left" : "below-right", write: x => this.setA(x, {syncScene: false})});
         this.pointX = axisPoint({x: model().x, name: "$$x$$", placement: () => xRightOfA() ? "below-right" : "below-left", write: x => this.setX(x, {syncScene: false})});
 
-        // The names of the curves and the values stay on the board, in the corner the default curves leave free.
-        this.caption("bottom-right", [
-            {text: () => `f(x) = ${fn().plain}`, scale: 1.2, math: true},
-            {text: () => t("accumulation_board_f_line"), math: true},
-            {text: () => t("accumulation_board_a_line"), math: true, visible: revealed},
-            {
-                text: () => revealed()
-                    ? t("accumulation_board_value", {value0: formatNumber(this.viewOf(model()).value, language(), PRECISE)})
-                    : t("accumulation_board_hidden"),
-            },
-            {text: () => t("accumulation_board_slope", {value0: formatNumber(this.viewOf(model()).slope, language(), PRECISE)}), visible: revealed},
-        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -364,6 +350,7 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
         });
         return {
             ...this.commonDeclaration(),
+            formula: {label: message("accumulation_formula_label"), tex: `f(x)=${catalogFunction(this.model.fn).latex}`},
             parameters: [bound("accum-a", "accumulation_a_name", "a"), bound("accum-x", "accumulation_x_name", "x")],
             legend: [
                 {id: "function", label: message("accumulation_legend_f"), kind: "line", object: "function"},

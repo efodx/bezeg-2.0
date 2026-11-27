@@ -24,7 +24,7 @@ const routes: Record<string, Route> = {
     'bisection': {lead: button(t('next_step')), later: [labelled(t('bisection_example_label'))]},
     'euler-method': {lead: button(t('next_step')), later: [labelled(t('euler_ode_example_label'))]},
     'mean-value': {lead: labelled(t('mean_value_c_label')), later: [labelled(t('mean_value_example_label')), labelled(t('mean_value_a_label'))]},
-    'darboux': {lead: labelled(t('darboux_n_label')), later: [labelled(t('darboux_example_label')), labelled(t('darboux_a_label'))]},
+    'darboux': {lead: button(t('darboux_refine')), later: [labelled(t('darboux_example_label'))]},
     'sequence': {lead: labelled(t('sequence_epsilon_label')), later: [labelled(t('sequence_example_label'))]},
     'uniform-convergence': {lead: labelled(t('uniform_x_label')), later: [labelled(t('uniform_example_label')), labelled(t('uniform_r_label'))]},
     'fixed-point': {lead: button(t('next_step')), later: [labelled(t('fixed_point_example_label')), labelled(t('fixed_point_x0_label'))]},
@@ -144,5 +144,17 @@ describe('solids chooser', () => {
             for (const control of controls.slice(2, controls.indexOf(offset))) expect(slider.contains(control)).toBe(true);
             expect(slider.contains(controls[2])).toBe(true);
         }
+    });
+});
+
+describe('darboux pucks', () => {
+    // The count, the endpoints and the two sum switches are pucks on the board (task 08): there once, and not in Edit, which leads with Refine.
+    test('n, a, b and the sum switches are pucks and Edit holds no second copy', async () => {
+        mountGraph(graphFactories['darboux']());
+        await waitForPucks('show-upper-sum');
+        const root = document.querySelector('#inspector-edit') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const key of ['darboux-n', 'darboux-a', 'darboux-b', 'show-lower-sum', 'show-upper-sum']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of [t('darboux_n_label'), t('darboux_a_label'), t('darboux_b_label')]) expect(within(root).queryAllByLabelText(label)).toEqual([]);
     });
 });

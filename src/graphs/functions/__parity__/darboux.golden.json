@@ -6,13 +6,13 @@
       "name": "default",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "0"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "2"
         },
         {
@@ -45,24 +45,19 @@
         "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
       ],
       "outputs": [],
-      "captions": [
-        "L = 1,75, U = 3,75",
-        "f(x) = x²",
-        "n = 4, integral = 2,6667",
-        "poln: spodnja vsota L; črtkan: zgornja vsota U"
-      ]
+      "captions": []
     },
     {
       "name": "darboux-guided/darboux-prerequisites-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "0"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "2"
         },
         {
@@ -95,24 +90,19 @@
         "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
       ],
       "outputs": [],
-      "captions": [
-        "L = skrito, U = skrito",
-        "f(x) = x²",
-        "n = 4, integral = 2,6667",
-        "poln: spodnja vsota L; črtkan: zgornja vsota U"
-      ]
+      "captions": []
     },
     {
       "name": "darboux-guided/darboux-refine-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "0"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "2"
         },
         {
@@ -145,24 +135,19 @@
         "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
       ],
       "outputs": [],
-      "captions": [
-        "L = 2,1875, U = 3,1875",
-        "f(x) = x²",
-        "n = 8, integral = 2,6667",
-        "poln: spodnja vsota L; črtkan: zgornja vsota U"
-      ]
+      "captions": []
     },
     {
       "name": "darboux-guided/darboux-sine-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "0"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "3,1416"
         },
         {
@@ -195,24 +180,19 @@
         "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
       ],
       "outputs": [],
-      "captions": [
-        "L = skrito, U = skrito",
-        "f(x) = sin x",
-        "n = 1, integral = 2",
-        "poln: spodnja vsota L; črtkan: zgornja vsota U"
-      ]
+      "captions": []
     },
     {
       "name": "darboux-guided/darboux-sine-reveal-step",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "0"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "3,1416"
         },
         {
@@ -245,24 +225,19 @@
         "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
       ],
       "outputs": [],
-      "captions": [
-        "L = 0, U = 3,1416",
-        "f(x) = sin x",
-        "n = 1, integral = 2",
-        "poln: spodnja vsota L; črtkan: zgornja vsota U"
-      ]
+      "captions": []
     },
     {
       "name": "darboux-guided/darboux-free-exploration",
       "rows": [
         {
-          "key": "Levo krajišče a#0",
-          "label": "Levo krajišče a",
+          "key": "Levo krajišče#0",
+          "label": "Levo krajišče",
           "value": "0"
         },
         {
-          "key": "Desno krajišče b#0",
-          "label": "Desno krajišče b",
+          "key": "Desno krajišče#0",
+          "label": "Desno krajišče",
           "value": "6,2832"
         },
         {
@@ -295,12 +270,7 @@
         "Infimum in supremum na vsakem delu sta natančna (iz krajišč dela in točk, kjer je odvod 0), ne vzorčena. Vedno velja L ≤ integral ≤ U."
       ],
       "outputs": [],
-      "captions": [
-        "L = skrito, U = skrito",
-        "f(x) = sin x",
-        "n = 4, integral = 0",
-        "poln: spodnja vsota L; črtkan: zgornja vsota U"
-      ]
+      "captions": []
     }
   ]
 }

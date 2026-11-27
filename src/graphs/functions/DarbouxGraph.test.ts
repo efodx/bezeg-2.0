@@ -4,9 +4,10 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {DARBOUX_N_MAX, DARBOUX_X_MAX, DARBOUX_X_MIN, DARBOUX_EXAMPLE_IDS, darbouxExample, darbouxSubintervals, darbouxTotals, canRefine} from '../../analysis/darboux';
 import {DARBOUX_EXAMPLE_MODELS} from '../../analysis/darbouxModel';
-import {currentLanguage, onLanguageChange, setLanguage, messageNumber} from '../../localization';
+import {currentLanguage, onLanguageChange, renderMessage, setLanguage, messageNumber} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {revealButton} from "./revealElementTree";
+import type {LegendEntry} from '../base/declare/graphDeclaration';
 
 const BOX = [-3.2, 4.6, 5.2, -3.6];
 
@@ -106,7 +107,7 @@ const statusTexts = (graph: any, language: 'sl' | 'en' = 'sl') => {
     const previous = currentLanguage();
     setLanguage(language);
     try {
-        return graph.statuses(graph.model).map((status: { text: string }) => status.text);
+        return graph.statuses(graph.model).map((status: { text: never }) => renderMessage(status.text));
     } finally {
         setLanguage(previous);
     }
@@ -121,16 +122,16 @@ test('initialization draws the rectangles, the partition, the function, the two 
     expect(curves(graph)).toHaveLength(3);
     expect(ofType(graph, 'functiongraph')).toHaveLength(1);
     expect(axisPoints(graph)).toHaveLength(2);
-    expect(ofType(graph, 'text')).toHaveLength(1);
-    expect(boardObjectCount(graph)).toBe(7);
-    expect(graph.generatedObjectCount).toBe(7);
+    expect(ofType(graph, 'text')).toHaveLength(0);
+    expect(boardObjectCount(graph)).toBe(6);
+    expect(graph.generatedObjectCount).toBe(6);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, true);
     expect(axisPoints(graph).map((point: any) => [point.x, point.y])).toEqual([[0, 0], [2, 0]]);
     expect(ofType(graph, 'functiongraph')[0].parents[0](1.5)).toBe(2.25);
     // lower rectangles reach the infimum (the left end of an increasing function), upper ones the supremum
     expect(rects(curves(graph)[LOWER])).toEqual([[0, 0.5, 0], [0.5, 1, 0.25], [1, 1.5, 1], [1.5, 2, 2.25]]);
     expect(rects(curves(graph)[UPPER])).toEqual([[0, 0.5, 0.25], [0.5, 1, 1], [1, 1.5, 2.25], [1.5, 2, 4]]);
-    expect(caption(graph)).toEqual(['f(x) = x²', 'n = 4, integral = 2,6667', 'L = 1,75, U = 3,75', 'poln: spodnja vsota L; črtkan: zgornja vsota U']);
+    expect(caption(graph)).toEqual([]); // the formula is declared; n, the integral and the sums are readout rows, the key is the legend
 });
 
 test('the lower and the upper rectangles differ by outline pattern as well as by colour, and the key says so in words', () => {
@@ -140,17 +141,25 @@ test('the lower and the upper rectangles differ by outline pattern as well as by
     expect(lowerCurve.attributes.dash).toBe(0);
     expect(upperCurve.attributes.fillColor).not.toBe(lowerCurve.attributes.fillColor);
     expect(lowerCurve.attributes.fillOpacity).toBeGreaterThan(upperCurve.attributes.fillOpacity);
-    const items = graph.renderLegend().props.items as { id: string; label: string; kind: string }[];
+    expect(graph.renderLegend()).toBeNull(); // the declared legend replaces the panel
+    const entries = (): { id: string; label: string; kind: string }[] => graph.getDeclaration()!.legend!.map((entry: LegendEntry) => ({id: entry.id, label: renderMessage(entry.label), kind: entry.kind}));
+    const items = entries();
     expect(items.map(item => [item.id, item.kind])).toEqual([['function', 'line'], ['lower', 'area'], ['upper', 'dashed'], ['partition', 'line']]);
     expect(items[1].label).toMatch(/polni.*infimum/);
     expect(items[2].label).toMatch(/črtkan.*supremum/);
     expect(items.map(item => item.label).join(' ')).not.toMatch(/lev|desn/);
+    // a hidden sum is not drawn, so it is not listed (nothing is given away)
+    apply(graph, lower(false));
+    expect(entries().map(item => item.id)).toEqual(['function', 'upper', 'partition']);
+    apply(graph, upper(false));
+    expect(entries().map(item => item.id)).toEqual(['function', 'partition']);
+    apply(graph, lower(true));
+    apply(graph, upper(true));
     setLanguage('en');
-    const english = graph.renderLegend().props.items.map((item: any) => item.label);
+    const english = entries().map(item => item.label);
     expect(english[1]).toMatch(/filled.*infimum/);
     expect(english[2]).toMatch(/dashed.*supremum/);
     expect(english.join(' ')).not.toMatch(/left|right/i);
-    expect(caption(graph)[3]).toBe('filled: lower sum L; dashed: upper sum U');
 });
 
 test('the readout gives n, both sums, the exact integral and the gap for x^2 on [0, 2] with n = 4', () => {
@@ -196,8 +205,6 @@ test('hidden sums hide their rectangles, their readouts and the gap, while the p
     expect(drawn(curves(graph)[PARTITION]).x.filter(Number.isFinite)).toHaveLength(10); // 5 dividing points
     expect(rows(graph)).toEqual({a: '0', b: '2', n: '4', lower: 'skrito', upper: 'skrito', integral: '2,6667', gap: 'skrito'});
     expect(statusIds(graph)).toEqual(['hidden']);
-    expect(caption(graph)[2]).toBe('L = skrito, U = skrito');
-    expect(caption(graph).join(' ')).not.toMatch(/1,75|3,75/);
     // showing one of them reveals only that one; the gap needs both
     apply(graph, lower(true));
     expect(rows(graph)).toMatchObject({lower: '1,75', upper: 'skrito', gap: 'skrito'});
@@ -549,7 +556,7 @@ test('unmount leaves no generated object and a late edit changes nothing on the 
 test('generated objects are disposed and not duplicated across repeated generation, example changes and default scenes', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(7);
+    expect(baseline).toBe(6);
     for (let i = 0; i < 4; i++) graph.initialize();
     expect(boardObjectCount(graph)).toBe(baseline);
     expect(graph.generatedObjectCount).toBe(baseline);
@@ -569,14 +576,14 @@ test('generated objects are disposed and not duplicated across repeated generati
     expect(axisPoints(graph).every((point: any) => graph.board.objectsList.includes(point))).toBe(true);
 });
 
-test('the caption follows the language and a language change notifies subscribers', () => {
+test('the readout follows the language and a language change notifies subscribers', () => {
     const graph = makeGraph();
-    expect(caption(graph)[1]).toBe('n = 4, integral = 2,6667');
+    expect(rows(graph).integral).toBe('2,6667');
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(caption(graph)[1]).toBe('n = 4, integral = 2.6667');
+    expect(rows(graph).integral).toBe('2.6667');
     unsubscribe();
 });
 
@@ -617,12 +624,7 @@ test('Edit order: the reveal area (lower and upper sums) sits between the contro
     expect(children).toHaveLength(5);
     expect(children[0].props?.className).toBeUndefined(); // controls
     expect(children[1].props.className).toBe('inspector-reveals');
-    const [heading, reveals] = React.Children.toArray(children[1].props.children) as any[];
-    expect(heading.type.name).toBe('ReadoutHeading');
-    expect(reveals.props.children[0].props.className).toBe('darboux-actions');
-    expect(children[2].props.className).toBeUndefined(); // readout
-    expect(children[3].type.name).toBe('RefusalNotice');
-    expect(children[4].type.name).toBe('FunctionLegend');
+const [heading, reveals] = React.Children.toArray(children[1].props.children) as any[];    expect(heading.type.name).toBe('ReadoutHeading');    expect(reveals.type.name).toBe('PuckOwnedGroup'); // the pucks own the two switches while they are on the board    expect(reveals.props.params).toEqual(['show-lower-sum', 'show-upper-sum']);    expect(children[2].props.className).toBeUndefined(); // readout    expect(children[3].type.name).toBe('RefusalNotice');    expect(children[4]).toBeNull(); // the legend is declared, so Orodja draws none
 });
 
 test('a refused edit throws a DomainError whose text is localized and whose reason is a structured model issue', () => {

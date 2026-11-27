@@ -4,15 +4,12 @@ import {MemoryRouter} from 'react-router-dom';
 import {DarbouxGraph} from './DarbouxGraph';
 import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
-import {enterNumber} from '../../inputs/testEntry';
+import {installBoardShims, openTools, puckControl, waitForPucks} from '../base/realGraphTestHarness';
 
-// jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
-beforeAll(() => {
-    const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
-    HTMLCanvasElement.prototype.getContext = (() => context) as unknown as HTMLCanvasElement['getContext'];
-    window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
-        addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
-});
+// The cards hold formulas; jsdom never loads MathJax, so the layout would wait for it forever and the pucks stay hidden.
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
+
+beforeAll(installBoardShims);
 
 beforeEach(() => setLanguage('sl'));
 
@@ -35,9 +32,11 @@ const readout = (id: string) => document.querySelector(`[data-readout="${id}"] d
 const statusIds = () => [...document.querySelectorAll('[data-darboux-status]')].map(element => element.getAttribute('data-darboux-status'));
 const boardObjects = (graph: ObservedDarbouxGraph) => graph.liveBoard().objectsList.length;
 
-test('a real board shows the sums: the fields, Refine and the toggles change the model, and Refine is disabled with a reason at the limit', () => {
+test('a real board shows the sums: a, b, n and the two sum switches are pucks, Refine stays in Orodja and is disabled with a reason at the limit', async () => {
     const graph = new ObservedDarbouxGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    await waitForPucks('show-upper-sum');
+    await openTools();
     expect(graph.state.initialized).toBe(true);
     expect(graph.ownedObjects()).toBeGreaterThan(0);
     expect(readout('lower')).toBe('1,75');
@@ -47,6 +46,11 @@ test('a real board shows the sums: the fields, Refine and the toggles change the
     expect(statusIds()).toEqual(['trapped']);
     const baseline = boardObjects(graph);
 
+    // the pucks own the count, the endpoints and the sum switches: no second copy in Orodja
+    expect(screen.queryByLabelText('Število delov n', {selector: 'input'})).toBeNull();
+    expect(screen.queryByLabelText('Levo krajišče a, vrednost')).toBeNull();
+    expect(screen.queryByRole('button', {name: /zgornjo vsoto/})).toBeNull();
+
     const refine = () => screen.getByRole('button', {name: /Zgosti razdelitev/}) as HTMLButtonElement;
     act(() => { fireEvent.click(refine()); });
     expect(graph.modelNow()).toMatchObject({n: 8});
@@ -55,24 +59,22 @@ test('a real board shows the sums: the fields, Refine and the toggles change the
     expect(readout('upper')).toBe('3,1875');
     expect(boardObjects(graph)).toBe(baseline);
 
-    // a hidden sum is hidden from the board texts and the readouts alike, and shown again by its button
-    const hideUpper = () => screen.getByRole('button', {name: /zgornjo vsoto/});
-    expect(hideUpper().textContent).toBe('Skrij zgornjo vsoto');
-    act(() => { fireEvent.click(hideUpper()); });
+    // a hidden sum is hidden from the board texts and the readouts alike, and shown again by its switch puck
+    expect(puckControl('show-upper-sum').getAttribute('aria-checked')).toBe('true');
+    act(() => { fireEvent.click(puckControl('show-upper-sum')); });
+    expect(graph.modelNow()).toMatchObject({upperVisible: false});
+    expect(puckControl('show-upper-sum').getAttribute('aria-checked')).toBe('false');
     expect(readout('upper')).toBe('skrito');
     expect(readout('gap')).toBe('skrito');
     expect(statusIds()).toEqual(['hidden']);
-    expect(hideUpper().textContent).toBe('Pokaži zgornjo vsoto');
-    act(() => { fireEvent.click(hideUpper()); });
+    act(() => { fireEvent.click(puckControl('show-upper-sum')); });
     expect(readout('upper')).toBe('3,1875');
 
-    // n through the labelled field: an integer in range is applied, a fraction is refused with a hint and leaves the model alone
-    const inputN = screen.getByLabelText('Število delov n', {selector: 'input'}) as HTMLInputElement;
-    act(() => { enterNumber(inputN, '64'); });
+    // n as the puck writes it: an integer in range is applied, a fraction is refused and leaves the model alone
+    act(() => { graph.parameters!.write('darboux-n', 64, 'learner'); });
     expect(graph.modelNow()).toMatchObject({n: 64});
-    act(() => { enterNumber(inputN, '2.5'); });
+    act(() => { graph.parameters!.write('darboux-n', 2.5, 'learner'); });
     expect(graph.modelNow()).toMatchObject({n: 64});
-    expect(screen.getByText('Vnesi celo število med 1 in 128.')).toBeInTheDocument();
 
     // at the limit Refine is an aria-disabled button that points at its explanation
     act(() => { fireEvent.click(refine()); });
@@ -82,14 +84,11 @@ test('a real board shows the sums: the fields, Refine and the toggles change the
     // the limit is stated visibly once (the status line); the help paragraph does not repeat it
     expect(document.getElementById('darboux-refine-help')?.textContent).not.toMatch(/128/);
     expect(statusIds()).toEqual(['trapped', 'limit']);
-    expect([...document.querySelectorAll('.inspector-help')].filter(element => /128/.test(element.textContent ?? '') && !element.closest('.number-input'))).toHaveLength(1);
 
-    // an endpoint that would reach the other one is refused with the rule; a valid one is applied
-    const inputA = screen.getByLabelText('Levo krajišče a, vrednost') as HTMLInputElement;
-    act(() => { enterNumber(inputA, '2'); });
+    // an endpoint that would reach the other one is refused; a valid one is applied
+    act(() => { graph.parameters!.write('darboux-a', 2, 'learner'); });
     expect(graph.modelNow()).toMatchObject({a: 0, b: 2});
-    expect(screen.getByText('Krajišče a mora ostati levo od b (a < b). Najprej premakni b.')).toBeInTheDocument();
-    act(() => { enterNumber(inputA, '1'); });
+    act(() => { graph.parameters!.write('darboux-a', 1, 'learner'); });
     expect(graph.modelNow()).toMatchObject({a: 1, b: 2});
 
     // choosing sin x loads its model; the English labels follow a live language switch
@@ -100,21 +99,19 @@ test('a real board shows the sums: the fields, Refine and the toggles change the
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
     act(() => { setLanguage('en'); });
     expect(screen.getByRole('button', {name: 'Refine the partition (n → 2n)'})).toBeInTheDocument();
-    expect(screen.getByRole('spinbutton', {name: 'Number of parts n'})).toBeInTheDocument();
+    expect(document.querySelector('.puck-strip [data-puck-key="darboux-n"]')?.textContent).toContain('Number of parts');
     expect(readout('lower')).toBe('−3.1416');
 });
 
-test('a live language switch re-evaluates the board texts and the numbers the board shows', () => {
+
+test('a live language switch re-evaluates the numbers the readout shows; the board keeps only the formula', () => {
     const graph = new ObservedDarbouxGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
-    const texts = () => graph.liveBoard().objectsList.filter((object: any) => object.elType === 'text') as any[];
-    const caption = () => texts().map(text => String(text.plaintext)).join('|');
-    expect(caption()).toContain('n = 4, integral = 2,6667');
-    expect(caption()).toContain('poln: spodnja vsota L');
+    const texts = () => graph.liveBoard().objectsList.filter((object: any) => object.elType === 'text').map((text: any) => String(text.plaintext)).join('|');
+    expect(texts()).not.toMatch(/integral|poln/);
+    expect(readout('integral')).toBe('2,6667');
     act(() => { setLanguage('en'); });
-    expect(caption()).toContain('n = 4, integral = 2.6667');
-    expect(caption()).toContain('filled: lower sum L');
-    expect(caption()).not.toContain('poln: spodnja vsota L');
+    expect(readout('integral')).toBe('2.6667');
     act(() => { setLanguage('sl'); });
-    expect(caption()).toContain('n = 4, integral = 2,6667');
+    expect(readout('integral')).toBe('2,6667');
 });

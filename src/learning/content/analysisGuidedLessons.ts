@@ -15,8 +15,8 @@
  * after predicting, except in the steps whose point is the revealed curve or its tangent.
  *
  * The Darboux lesson uses the same generic actions (`set-function-parameter` darboux-a/darboux-b/darboux-n, `set-function-choice`
- * darboux-example and `show-function-element` lower-sum/upper-sum). A prediction step hides both sums and the learner presses the
- * graph's own Show lower sum / Show upper sum after predicting; the revealing step shows them. Refining is the graph's own
+ * darboux-example and `show-function-element` lower-sum/upper-sum). A prediction step hides both sums and the learner turns on the
+ * board Lower sum / Upper sum controls after predicting; the revealing step shows them. Refining is the graph's own
  * button or `darboux-n`.
  *
  * The extrema lesson uses the same generic actions (`set-function-parameter` extrema-a/extrema-b, `set-function-choice`
@@ -62,6 +62,7 @@ import type {TaylorIds} from '../../graphs/functions/TaylorGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
 import type {AccumulationIds} from '../../graphs/functions/AccumulationGraph';
 import type {ConvexityIds} from '../../graphs/functions/ConvexityGraph';
+import type {DarbouxIds} from '../../graphs/functions/DarbouxGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
@@ -69,6 +70,7 @@ const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclarati
 const taylorFrame = frameDeclarer<TaylorIds>();
 const accumulationFrame = frameDeclarer<AccumulationIds>();
 const convexityFrame = frameDeclarer<ConvexityIds>();
+const darbouxFrame = frameDeclarer<DarbouxIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
 const bisectionExample = (value: BisectionExampleId): LessonAction => ({kind: 'function-choice', name: 'bisection-example', value: value});
 /** The scene shows the state after `count` revealed steps. */
@@ -1101,10 +1103,10 @@ const darboux: GuidedLesson = {
                 'The interval \\([0,2]\\) is split into \\(n=4\\) equal parts of width \\(\\Delta x=\\frac{2-0}{4}=\\frac12\\) with the dividing points \\(0,\\frac12,1,\\frac32,2\\). On every part the infimum \\(m_i\\) is the greatest lower bound of the values of \\(f(x)=x^2\\), and the supremum \\(M_i\\) is the least upper bound. The lower sum is \\(L=\\sum m_i\\,\\Delta x\\) and the upper sum is \\(U=\\sum M_i\\,\\Delta x\\). Both sums are hidden now; you see only the dividing points and the exact integral.',
             ),
             formulaIds: ['darboux-sums'],
-            frames: [frame('darboux-prerequisites-explanation', 'explanation'), frame('darboux-prerequisites-observation', 'observation')],
+            frames: [frame('darboux-prerequisites-explanation', 'explanation', darbouxFrame({highlight: ['lower', 'upper']})), frame('darboux-prerequisites-observation', 'observation', darbouxFrame({highlight: ['lower', 'upper', 'integral'], uses: ['show-lower-sum', 'show-upper-sum']}))],
             observationPrompt: text(
-                'Napovej infimum in supremum na vsakem delu, nato vsoti \\(L\\) in \\(U\\) ter ali integral leži med njima; šele nato pritisni Pokaži spodnjo vsoto in Pokaži zgornjo vsoto.',
-                'Predict the infimum and the supremum on each part, then the sums \\(L\\) and \\(U\\) and whether the integral lies between them; only then press Show lower sum and Show upper sum.',
+                'Napovej infimum in supremum na vsakem delu, nato vsoti \\(L\\) in \\(U\\) ter ali integral leži med njima; šele nato vklopi krmilnika Spodnja vsota in Zgornja vsota.',
+                'Predict the infimum and the supremum on each part, then the sums \\(L\\) and \\(U\\) and whether the integral lies between them; only then turn on the Lower sum and Upper sum controls.',
             ),
             expectedObservations: [text(
                 'Vidni so štirje deli širine \\(0{,}5\\), vsoti sta skriti, natančni integral pa je \\(2{,}6667\\).',
@@ -1128,7 +1130,7 @@ const darboux: GuidedLesson = {
                 'The infima on the parts are \\(0,\\frac14,1,\\frac94\\) and the suprema are \\(\\frac14,1,\\frac94,4\\). So \\(L=\\frac12\\left(0+\\frac14+1+\\frac94\\right)=\\frac74=1.75\\) and \\(U=\\frac12\\left(\\frac14+1+\\frac94+4\\right)\\) \\(=\\frac{15}{4}=3.75\\), while the integral is \\(\\int_0^2 x^2\\,dx=\\frac83\\approx2.6667\\). Hence \\(1.75\\le\\frac83\\le3.75\\). The filled rectangles are the lower sum and the rectangles with a dashed outline are the upper sum. Because \\(x^2\\) is increasing on \\([0,2]\\), the infimum and the supremum are at the endpoints of the parts; for other functions this does not hold (step 5).',
             ),
             formulaIds: ['darboux-sums', 'darboux-bounds'], workedExampleId: 'darboux-square-example',
-            frames: [frame('darboux-bounds-explanation', 'explanation'), frame('darboux-bounds-calculation', 'calculation'), frame('darboux-bounds-observation', 'observation')],
+            frames: [frame('darboux-bounds-explanation', 'explanation', darbouxFrame({highlight: ['lower', 'upper']})), frame('darboux-bounds-calculation', 'calculation', darbouxFrame({highlight: ['lower', 'upper', 'integral']})), frame('darboux-bounds-observation', 'observation', darbouxFrame({highlight: ['integral', 'gap']}))],
             observationPrompt: text(
                 'Primerjaj odčitka \\(L\\) in \\(U\\) z napovedjo. Preveri, da integral leži med njima, in preberi razliko \\(U-L\\).',
                 'Compare the readouts \\(L\\) and \\(U\\) with your prediction. Check that the integral lies between them and read the gap \\(U-L\\).',
@@ -1155,7 +1157,7 @@ const darboux: GuidedLesson = {
                 'Refining bisects every part: \\(n=4\\) becomes \\(n=8\\) and \\(\\Delta x=\\frac14\\). The new sums are \\(L=2.1875\\) and \\(U=3.1875\\), whereas before they were \\(1.75\\) and \\(3.75\\). The lower sum increased, the upper sum decreased, and the integral \\(2.6667\\) is still between them. A half of an old part has an infimum greater or equal and a supremum less or equal than the old one, so \\(L\\) does not decrease and \\(U\\) does not increase. For an increasing function the gap is \\(U-L=\\Delta x\\,\\bigl(f(b)-f(a)\\bigr)\\) \\(=\\frac2n\\cdot4=\\frac8n\\), so for \\(n=8\\) it shrinks to \\(1\\).',
             ),
             formulaIds: ['darboux-bounds'],
-            frames: [frame('darboux-refine-explanation', 'explanation'), frame('darboux-refine-observation', 'observation')],
+            frames: [frame('darboux-refine-explanation', 'explanation', darbouxFrame({highlight: ['n', 'lower', 'upper']})), frame('darboux-refine-observation', 'observation', darbouxFrame({highlight: ['n', 'gap']}))],
             observationPrompt: text(
                 'Napovej, kaj se zgodi z \\(L\\) in \\(U\\), ko še enkrat pritisneš Zgosti razdelitev (\\(n=16\\)), in nato pritiskaj gumb do omejitve; opazuj, kako se razlika \\(U-L\\) zmanjšuje.',
                 'Predict what happens to \\(L\\) and \\(U\\) when you press Refine the partition once more (\\(n=16\\)), and then keep pressing the button up to the limit; watch the gap \\(U-L\\) shrink.',
@@ -1182,10 +1184,10 @@ const darboux: GuidedLesson = {
                 'We switch the example: \\(f(x)=\\sin x\\) on \\([0,\\pi]\\) with a single part, \\(n=1\\). At both endpoints \\(\\sin x=0\\), and in between the function is positive. So the infimum is \\(0\\), but the supremum is not \\(0\\): the function rises and comes back. It attains its maximum at a point where the derivative \\(\\cos x\\) equals \\(0\\), which is \\(\\frac{\\pi}{2}\\). The sums are hidden now.',
             ),
             formulaIds: ['darboux-sums'],
-            frames: [frame('darboux-sine-explanation', 'explanation'), frame('darboux-sine-observation', 'observation')],
+            frames: [frame('darboux-sine-explanation', 'explanation', darbouxFrame({highlight: ['lower', 'upper']})), frame('darboux-sine-observation', 'observation', darbouxFrame({highlight: ['lower', 'upper'], uses: ['show-lower-sum', 'show-upper-sum']}))],
             observationPrompt: text(
-                'Napovej infimum in supremum na celotnem intervalu \\([0,\\pi]\\) ter vsoti \\(L\\) in \\(U\\); šele nato pritisni Pokaži spodnjo vsoto in Pokaži zgornjo vsoto.',
-                'Predict the infimum and the supremum on the whole interval \\([0,\\pi]\\) and the sums \\(L\\) and \\(U\\); only then press Show lower sum and Show upper sum.',
+                'Napovej infimum in supremum na celotnem intervalu \\([0,\\pi]\\) ter vsoti \\(L\\) in \\(U\\); šele nato vklopi krmilnika Spodnja vsota in Zgornja vsota.',
+                'Predict the infimum and the supremum on the whole interval \\([0,\\pi]\\) and the sums \\(L\\) and \\(U\\); only then turn on the Lower sum and Upper sum controls.',
             ),
             expectedObservations: [text(
                 'Prikazan je en sam del \\([0,\\pi]\\), vsoti sta skriti, natančni integral je \\(2\\).',
@@ -1209,7 +1211,7 @@ const darboux: GuidedLesson = {
                 'The lower sum is \\(L=0\\cdot\\pi=0\\) and the upper sum is \\(U=1\\cdot\\pi=\\pi\\approx3.1416\\), the integral is \\(\\int_0^{\\pi}\\sin x\\,dx=2\\), so \\(0\\le2\\le\\pi\\). The supremum \\(1\\) is attained at \\(\\frac{\\pi}{2}\\), in the interior of the part. If we took the value at the left endpoint, \\(f(0)=0\\), instead of the supremum, we would get \\(0\\cdot\\pi=0\\), which is less than the integral \\(2\\) and so is not an upper estimate. A value at an endpoint is therefore not the supremum, which is why the app does not call these sums left or right samples. It computes the supremum exactly from the values at the endpoints of the part and the points \\(\\frac{\\pi}{2}+k\\pi\\) where \\(\\cos x=0\\), without sampling.',
             ),
             formulaIds: ['darboux-sums', 'darboux-bounds'], workedExampleId: 'darboux-sine-example',
-            frames: [frame('darboux-sine-reveal-explanation', 'explanation'), frame('darboux-sine-reveal-calculation', 'calculation'), frame('darboux-sine-reveal-observation', 'observation')],
+            frames: [frame('darboux-sine-reveal-explanation', 'explanation', darbouxFrame({highlight: ['upper']})), frame('darboux-sine-reveal-calculation', 'calculation', darbouxFrame({highlight: ['lower', 'upper', 'integral']})), frame('darboux-sine-reveal-observation', 'observation', darbouxFrame({highlight: ['n', 'gap']}))],
             observationPrompt: text(
                 'Primerjaj odčitka z napovedjo. Nato pritisni Zgosti razdelitev in opazuj, kje v delih je supremum, ko so deli še vedno široki.',
                 'Compare the readouts with your prediction. Then press Refine the partition and watch where the supremum lies in the parts while they are still wide.',
@@ -1236,10 +1238,10 @@ const darboux: GuidedLesson = {
                 'For \\(f(x)=\\sin x\\) on \\([0,2\\pi]\\) with \\(n=4\\), \\(\\Delta x=\\frac{\\pi}{2}\\). The infima on the parts are \\(0,0,-1,-1\\) and the suprema are \\(1,1,0,0\\), so \\(L=-\\pi\\approx-3.1416\\), \\(U=\\pi\\approx3.1416\\) and the integral is \\(0\\). The sums are signed: rectangles below the axis contribute negatively. Now explore on your own: change the example, move \\(a\\) and \\(b\\), change \\(n\\) and keep refining until the button becomes unavailable at \\(n=128\\); check that the integral always lies between \\(L\\) and \\(U\\).',
             ),
             formulaIds: ['darboux-sums', 'darboux-bounds'],
-            frames: [frame('darboux-free-explanation', 'explanation'), frame('darboux-free-observation', 'observation')],
+            frames: [frame('darboux-free-explanation', 'explanation', darbouxFrame({highlight: ['a', 'b', 'n']})), frame('darboux-free-observation', 'observation', darbouxFrame({highlight: ['lower', 'upper'], uses: ['show-lower-sum', 'show-upper-sum']}))],
             observationPrompt: text(
-                'Napovej vsoti \\(L\\) in \\(U\\) za \\(\\sin x\\) na \\([0,2\\pi]\\) z \\(n=4\\), nato pritisni Pokaži spodnjo vsoto in Pokaži zgornjo vsoto. Nato preizkusi \\(x^2\\) na drugih intervalih.',
-                'Predict the sums \\(L\\) and \\(U\\) for \\(\\sin x\\) on \\([0,2\\pi]\\) with \\(n=4\\), then press Show lower sum and Show upper sum. Then try \\(x^2\\) on other intervals.',
+                'Napovej vsoti \\(L\\) in \\(U\\) za \\(\\sin x\\) na \\([0,2\\pi]\\) z \\(n=4\\), nato vklopi krmilnika Spodnja vsota in Zgornja vsota. Nato preizkusi \\(x^2\\) na drugih intervalih.',
+                'Predict the sums \\(L\\) and \\(U\\) for \\(\\sin x\\) on \\([0,2\\pi]\\) with \\(n=4\\), then turn on the Lower sum and Upper sum controls. Then try \\(x^2\\) on other intervals.',
             ),
             expectedObservations: [text(
                 'Po pritisku sta \\(L=-3{,}1416\\) in \\(U=3{,}1416\\), integral je \\(0\\), razlika pa \\(6{,}2832\\).',
@@ -1749,8 +1751,8 @@ const convexity: GuidedLesson = {
             formulaIds: ['convexity-chord', 'convexity-second-derivative'], workedExampleId: 'convexity-chord-example',
             frames: [frame('convexity-chord-explanation', 'explanation', convexityFrame({highlight: ['chord']})), frame('convexity-chord-calculation', 'calculation', convexityFrame({highlight: ['chord']})), frame('convexity-chord-observation', 'observation', convexityFrame({highlight: ['second-derivative-sign', 'verdict']}))],
             observationPrompt: text(
-                'Primerjaj sklep z napovedjo: preberi znak \\(f^{\\prime\\prime}\\) na vrhu grafa in vrstico o legi grafa pod podnapisom.',
-                'Compare the verdict with your prediction: read the sign of \\(f^{\\prime\\prime}\\) at the top of the graph and the line about the position of the graph in the caption.',
+                'Primerjaj sklep z napovedjo: preberi znak \\(f^{\\prime\\prime}\\) na vrhu grafa in odčitka Sklep za [a, b] ter Graf glede na tangento.',
+                'Compare the verdict with your prediction: read the sign of \\(f^{\\prime\\prime}\\) at the top of the graph and the readouts Verdict for [a, b] and Graph relative to the tangent.',
             ),
             expectedObservations: [text(
                 'Zgoraj je znak \\(+\\), sklep je »konveksna na \\([a,b]\\)«: graf leži na tetivi ali pod njo in na tangenti ali nad njo.',

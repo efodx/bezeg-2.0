@@ -46,10 +46,7 @@
       ],
       "outputs": [],
       "captions": [
-        "+",
-        "A je skrita: napovej A(x)",
-        "f(x) = sin x",
-        "f: polna črta"
+        "+"
       ]
     },
     {
@@ -96,12 +93,7 @@
       ],
       "outputs": [],
       "captions": [
-        "+",
-        "A(x) = 1,4161 (s predznakom)",
-        "A: črtkana črta",
-        "f(x) = sin x",
-        "f: polna črta",
-        "naklon tangente na A v točki x: 0,9093"
+        "+"
       ]
     },
     {
@@ -148,10 +140,7 @@
       ],
       "outputs": [],
       "captions": [
-        "+",
-        "A je skrita: napovej A(x)",
-        "f(x) = sin x",
-        "f: polna črta"
+        "+"
       ]
     },
     {
@@ -199,10 +188,7 @@
       "outputs": [],
       "captions": [
         "+",
-        "-",
-        "A je skrita: napovej A(x)",
-        "f(x) = sin x",
-        "f: polna črta"
+        "-"
       ]
     },
     {
@@ -249,10 +235,7 @@
       ],
       "outputs": [],
       "captions": [
-        "+",
-        "A je skrita: napovej A(x)",
-        "f(x) = sin x",
-        "f: polna črta"
+        "+"
       ]
     },
     {
@@ -299,12 +282,7 @@
       ],
       "outputs": [],
       "captions": [
-        "+",
-        "A(x) = 1 (s predznakom)",
-        "A: črtkana črta",
-        "f(x) = sin x",
-        "f: polna črta",
-        "naklon tangente na A v točki x: 1"
+        "+"
       ]
     },
     {
@@ -351,10 +329,7 @@
       ],
       "outputs": [],
       "captions": [
-        "+",
-        "A je skrita: napovej A(x)",
-        "f(x) = x²",
-        "f: polna črta"
+        "+"
       ]
     }
   ]

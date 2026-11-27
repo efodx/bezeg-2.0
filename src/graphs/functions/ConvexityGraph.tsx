@@ -26,6 +26,7 @@ const PRECISE = 4;
 
 /** The formulas as they are written on the board and in the example selector. */
 const PRETTY_FORMULA: Readonly<Record<ConvexityExampleId, string>> = {square: "x²", negSquare: "−x²", cube: "x³", quartic: "x⁴"};
+const FORMULA_TEX: Readonly<Record<ConvexityExampleId, string>> = {square: "x^{2}", negSquare: "-x^{2}", cube: "x^{3}", quartic: "x^{4}"};
 const exampleTitle = (id: ConvexityExampleId): string => `f(x) = ${PRETTY_FORMULA[id]}`;
 
 
@@ -245,20 +246,6 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
             : message("convexity_inflection_at", {value0: view.example.inflectionPoints.map(x => this.number(x)).join("; ")});
     }
 
-    /** The board's verdict line: hidden until the second derivative is shown. */
-    private boardVerdict(model: ConvexityModel, view: View): string {
-        if (!model.secondDerivativeVisible) return t("convexity_board_verdict_hidden");
-        return t(view.verdict.kind === "convex" ? "convexity_board_convex" : view.verdict.kind === "concave" ? "convexity_board_concave" : "convexity_board_none");
-    }
-
-    /** The board's line on where the graph lies relative to the chord and the tangent; undefined when nothing is claimed or nothing is shown yet. */
-    private boardRelations(model: ConvexityModel, view: View): string | undefined {
-        if (!model.secondDerivativeVisible || view.verdict.kind === "none") return undefined;
-        const outside = view.tangentClaim.kind === "none";
-        if (view.verdict.kind === "convex") return t(outside ? "convexity_board_relations_convex_outside" : "convexity_board_relations_convex");
-        return t(outside ? "convexity_board_relations_concave_outside" : "convexity_board_relations_concave");
-    }
-
     // ---- Board ---------------------------------------------------------------------------------------------------
 
     protected createScene(): void {
@@ -363,23 +350,6 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
             x: model().t, name: "$$t$$", placement: "below", color: GraphPalette.constructionAccent, step: CONVEXITY_X_STEP,
             min: () => CONVEXITY_X_MIN, max: () => CONVEXITY_X_MAX, write: x => this.setT(x, {syncScene: false}),
         });
-
-        // The formula, the points, the verdict (or the word hidden) and the keys stay on the board (projection needs them).
-        this.caption("bottom-right", [
-            {text: () => exampleTitle(model().example), scale: 1.2, math: true},
-            {text: () => t("convexity_board_interval", {value0: this.number(model().a), value1: this.number(model().b), value2: this.number(model().t)})},
-            {
-                text: () => this.boardVerdict(model(), view()),
-                color: () => revealed() && view().verdict.kind === "none" ? GraphPalette.warningText : GraphPalette.label,
-            },
-            {
-                text: () => this.boardRelations(model(), view()) ?? "",
-                visible: () => this.boardRelations(model(), view()) !== undefined,
-                minBoardWidth: 520,
-            },
-            {text: () => t("convexity_board_key"), minBoardWidth: 520},
-            {text: () => t("convexity_board_signs_key"), visible: revealed, minBoardWidth: 520},
-        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -454,6 +424,7 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         });
         return {
             ...this.commonDeclaration(),
+            formula: {label: message("convexity_formula_label"), tex: `f(x)=${FORMULA_TEX[model.example]}`},
             parameters: [bound("convexity-a", "convexity_a_name", "a"), bound("convexity-b", "convexity_b_name", "b"), bound("convexity-t", "convexity_t_puck", "t")],
             legend: [
                 {id: "function", label: message("convexity_legend_function"), kind: "line", object: "function"},
