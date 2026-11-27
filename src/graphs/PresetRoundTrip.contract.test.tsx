@@ -15,6 +15,7 @@ import {classNames, familySample, selectEntries, skippedPlaceholder, TRANSIENT_S
 import type {DemonstrationId} from '../demonstrations';
 import SolidsGraph from './solids/SolidsGraph';
 import {renderMessage} from '../localization';
+import {runAs} from './base/writes/writeSource';
 
 beforeAll(installBoardShims);
 afterEach(() => { cleanup(); localStorage.clear(); });
@@ -52,7 +53,8 @@ describe.each(entries)('%s', (id, create) => {
         const {graph} = mountGraph(create());
         const collection = graph.presetCollection();
         if (!collection) return;
-        if (changes[id]) act(() => { (graph as unknown as {setState(s: unknown): void}).setState(changes[id]); });
+        // The learner moves the graph off its default (a bound parameter accepts only tagged writes).
+        if (changes[id]) act(() => runAs('learner', () => { (graph as unknown as {setState(s: unknown): void}).setState(changes[id]); }));
         const preset = graph.exportPreset();
         const data = graph.exportPresetData();
         if (changes[id]) expect(data).not.toEqual(graph.defaultPreset());
