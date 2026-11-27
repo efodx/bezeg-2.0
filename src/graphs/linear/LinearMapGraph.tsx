@@ -1,6 +1,6 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, LabelPlacement} from "../functions/BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
 import {FunctionStatus} from "../functions/FunctionStatus";
 import {NumberGrid, type NumberGridCell} from "../../inputs/NumberGrid";
@@ -736,10 +736,6 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         return message(sign > 0 ? "linear_map_orientation_kept" : sign < 0 ? "linear_map_orientation_reversed" : "linear_map_orientation_none");
     }
 
-    private orientationText(sign: -1 | 0 | 1): string {
-        return sign > 0 ? t("linear_map_orientation_kept") : sign < 0 ? t("linear_map_orientation_reversed") : t("linear_map_orientation_none");
-    }
-
     private exampleMessage(choice: LinearMapExampleChoice): Message {
         switch (choice) {
             case "identity": return message("linear_map_example_identity");
@@ -934,34 +930,6 @@ export class LinearMapGraph extends BaseFunctionGraph<LinearMapState> {
         createEllipseObjects(ellipseContext);
         this.pivotHandle = createCompositionPoints(compositionContext);
         this.pivotHandle.on("up", () => this.refitView());
-
-        // The basis images and the determinant stay on the board; the narrow board drops the orientation line.
-        this.caption("bottom-left", [
-            {text: () => t("linear_map_board_columns", {value0: this.vector(view().a1), value1: this.vector(view().a2)}), scale: 1.1, math: true, visible: basisPlane},
-            {
-                text: () => {
-                    const at = iterateAt(this.iterationOf(this.model), this.model.matrix, stepOf(this.model));
-                    return t("linear_map_board_iterate", {value0: String(at.step), value1: this.vector(at.point)});
-                },
-                scale: 1.1, math: true, visible: () => model().mode === "iterate",
-            },
-            {
-                text: () => {
-                    const td = this.traceDetOf(this.model);
-                    return t("linear_map_board_trace_det", {value0: this.num(td.tau, 4), value1: this.num(td.delta, 4)});
-                },
-                scale: 1.1, math: true, visible: () => model().mode === "tracedet",
-            },
-            {
-                text: () => t("linear_map_board_composition", {value0: this.num(this.compositionOf(this.model).determinant, 4)}),
-                scale: 1.1, math: true, visible: () => model().mode === "composition",
-            },
-            {text: () => t("linear_map_board_det", {value0: this.num(view().determinant, 4)}), visible: () => model().mode === "determinant", math: true},
-            {
-                text: () => t("linear_map_board_orientation", {value0: this.orientationText(view().sign)}),
-                visible: () => model().mode === "determinant", minBoardWidth: COMPACT_BOARD_WIDTH,
-            },
-        ]);
     }
 
     protected override syncSceneToModel(): void {

@@ -132,18 +132,16 @@ test('the visible statuses are plain text; the graph announces them through its 
     expect(live[0].textContent).toContain(first.textContent);
 });
 
-test('a live language switch updates the board caption, labels, readouts and statuses and asks the board to redraw', async () => {
+test('a live language switch updates labels, readouts and statuses and asks the board to redraw', async () => {
     const graph = new ObservedLinearMapGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     await ready();
     act(() => { fireEvent.change(screen.getByLabelText('Način prikaza'), {target: {value: 'determinant'}}); });
     act(() => { fireEvent.change(screen.getByLabelText('Primer matrike'), {target: {value: 'orientation-reversing'}}); });
-    expect(graph.captionPlainLines().join('|')).toContain('Orientacija: obrnjena');
     expect(readout('orientation')).toBe('obrnjena');
     const update = vi.spyOn(graph as unknown as { boardUpdate: () => void }, 'boardUpdate');
     act(() => { setLanguage('en'); });
     expect(update).toHaveBeenCalled();
-    expect(graph.captionPlainLines().join('|')).toContain('Orientation: reversed');
     expect(readout('orientation')).toBe('reversed');
     expect(screen.getByLabelText('Example matrix')).toBeInTheDocument();
     expect(screen.getByRole('button', {name: 'Reset to the identity'})).toBeInTheDocument();
@@ -153,7 +151,6 @@ test('a live language switch updates the board caption, labels, readouts and sta
     expect(graph.modelNow().matrix).toEqual([[1, 2], [2, 1]]);
     expect(puckShows('a₁: y')).toBe('2');
     act(() => { setLanguage('sl'); });
-    expect(graph.captionPlainLines().join('|')).toContain('Orientacija: obrnjena');
 });
 
 test('StrictMode mounts, unmounts and mounts again without duplicating board objects, and unmount releases everything', () => {

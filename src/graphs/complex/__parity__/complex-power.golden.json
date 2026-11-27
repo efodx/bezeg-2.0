@@ -61,7 +61,7 @@
       ],
       "outputs": [],
       "captions": [
-        "z = 1 + i",
+        "z",
         "z²",
         "z³",
         "z⁴, modul 4",
@@ -127,7 +127,7 @@
       ],
       "outputs": [],
       "captions": [
-        "z = 1 + i",
+        "z",
         "z²"
       ]
     },
@@ -190,7 +190,7 @@
       ],
       "outputs": [],
       "captions": [
-        "z = 1 + i",
+        "z",
         "z²",
         "z³"
       ]
@@ -254,7 +254,7 @@
       ],
       "outputs": [],
       "captions": [
-        "z = 0,8 + 0,6i"
+        "z"
       ]
     },
     {
@@ -316,7 +316,7 @@
       ],
       "outputs": [],
       "captions": [
-        "z = 0,5 + 0,5i"
+        "z"
       ]
     },
     {
@@ -378,7 +378,7 @@
       ],
       "outputs": [],
       "captions": [
-        "z = 1 + i",
+        "z",
         "z²",
         "z³",
         "z⁴, modul 4"
@@ -443,7 +443,7 @@
       ],
       "outputs": [],
       "captions": [
-        "z = 0,6 + 0,8i",
+        "z",
         "z²"
       ]
     }

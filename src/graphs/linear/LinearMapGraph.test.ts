@@ -64,7 +64,6 @@ const at = (point: any) => [point.X(), point.Y()];
 const [GRID_SOURCE, GRID_IMAGE] = [0, 1];
 /** The two matrix-column handles, looked up through the graph so the order of the board objects does not matter. */
 const handles = (graph: any): any[] => [graph.handle1, graph.handle2];
-const caption = (graph: any) => graph.captionPlainLines();
 
 function collect(node: any, found: Record<string, any[]> = {}) {
     if (!node || typeof node !== 'object') return found;
@@ -310,7 +309,7 @@ describe('singular and thin matrices', () => {
         expect(statusIds(graph)).toEqual(['zero', 'collapse-point']);
         expect(readout(graph, 'area')).toBe('0');
         expect(nonFiniteCoordinates(graph)).toBe(0);
-        expect(caption(graph).join(' ')).toContain('det A = 0');
+        expect(readout(graph, 'det')).toBe('0');
     });
 
     test('det = +-1/16 draws a thin but non-degenerate parallelogram', () => {
@@ -454,17 +453,15 @@ describe('lesson actions', () => {
 });
 
 describe('language switch', () => {
-    test('board captions, labels, statuses, readout rows and the legend follow the language', () => {
+    test('labels, statuses, readout rows and the legend follow the language', () => {
         const graph = makeGraph();
         act(graph, () => graph.setMode('determinant'));
         act(graph, () => graph.setExample('orientation-reversing'));
-        expect(caption(graph).join('|')).toContain('Orientacija: obrnjena');
         expect(readout(graph, 'orientation')).toBe('obrnjena');
         expect(readout(graph, 'a1')).toBe('(1, 2)');
         const slRows = JSON.stringify(collect(graph.renderReadout()).FunctionReadout[0].props.rows);
         const slStatus = JSON.stringify(collect(graph.renderReadout()).FunctionStatus);
         setLanguage('en');
-        expect(caption(graph).join('|')).toContain('Orientation: reversed');
         expect(readout(graph, 'orientation')).toBe('reversed');
         expect(JSON.stringify(collect(graph.renderReadout()).FunctionReadout[0].props.rows)).not.toBe(slRows);
         expect(JSON.stringify(collect(graph.renderReadout()).FunctionStatus)).not.toBe(slStatus);
@@ -474,8 +471,8 @@ describe('language switch', () => {
         expect(select.props.options.map((option: any) => option.text)).toContain('B: reversed orientation');
         // Decimal separator follows the language: 1/4 is 0,25 in Slovenian and 0.25 in English.
         act(graph, () => controls(graph).x1.props.onChange(0.25));
-        expect(caption(graph)[0]).toContain('(0.25, 2)');
+        expect(readout(graph, 'a1')).toBe('(0.25, 2)');
         setLanguage('sl');
-        expect(caption(graph)[0]).toContain('(0,25, 2)');
+        expect(readout(graph, 'a1')).toBe('(0,25, 2)');
     });
 });

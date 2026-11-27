@@ -61,13 +61,13 @@ const resolve = (value: any) => typeof value === 'function' ? value() : value;
 const visible = (object: any) => resolve(object.attributes.visible);
 
 // Creation order per type (see createScene): curves are the circle of the roots, the eight edge slots and the arrow of w; points are the eight
-// root markers, then the test point z and w; texts are the axis names and the caption.
+// root markers, then the test point z and w; texts are the two axis names.
 const CIRCLE = 0;
 const EDGE = (k: number) => 1 + k;
 const ARROW_W = 9;
 const ROOT = (k: number) => k;
 const [Z_POINT, W_POINT] = [8, 9];
-const OBJECT_COUNT = 23;
+const OBJECT_COUNT = 22;
 const curves = (graph: any) => ofType(graph, 'curve');
 const points = (graph: any) => ofType(graph, 'point');
 const caption = (graph: any) => graph.captionPlainLines();
@@ -132,7 +132,7 @@ test('initialization draws w = 2i with the roots, the n-gon and the test point h
     expect(shownEdges(graph)).toEqual([]);
     expect(shown(curves(graph)[CIRCLE])).toBe(false);
     expect(shown(curves(graph)[ARROW_W])).toBe(true);
-    expect(caption(graph)).toEqual(['w = 2i, n = 3', 'koreni: skriti']);
+    expect(caption(graph)).toEqual([]);
     expect(rows(graph)).toMatchObject({w: '2i', 'w-modulus': '2', roots: 'skrito', radius: 'skrito', test: 'skrito', 'test-power': 'skrito', 'test-gap': 'skrito', degree: '3'});
     expect(statusIds(graph)).toEqual(['predict']);
 });
@@ -154,7 +154,6 @@ test('the roots of w = 2i, n = 3 sit at 30, 150 and 270 degrees on the circle of
     });
     expect(rows(graph)['root-3']).toBeUndefined();
     expect(rows(graph).radius).toBe('skrito');
-    expect(caption(graph).slice(1, 4)).toEqual(['z₀ = 1,0911 + 0,63i', 'z₁ = −1,0911 + 0,63i', 'z₂ = −1,2599i']);
     expect(statusIds(graph)).toEqual([]);
     // the board marker names carry the indices
     expect(points(graph)[ROOT(2)].attributes.name).toBe('$$z_{2}$$');
@@ -221,7 +220,6 @@ test('w = 0 has the single root 0 with its multiplicity stated and no polygon, a
     expect(rows(graph)['root-0']).toBe('0, večkratnost 5');
     expect(rows(graph)['root-1']).toBeUndefined();
     expect(rows(graph)['w-argument']).toBe('ni definiran');
-    expect(caption(graph)).toContain('w = 0: edini koren z₀ = 0, večkratnost 5');
     expect(statusIds(graph)).toEqual(['zero', 'test-fails']);
     set(graph, {zRe: 0, zIm: 0});
     expect(statusIds(graph)).toEqual(['zero', 'test-solves']);
@@ -273,7 +271,6 @@ test('the test point z is hidden until shown and its z^n is compared with w: a r
     // (1 + 0.5i)^3 = 0.25 + 1.375i, at distance hypot(0.25, 0.625) from 2i
     expect(rows(graph)).toMatchObject({test: '1 + 0,5i', 'test-power': '0,25 + 1,375i', 'test-gap': '0,6731'});
     expect(statusIds(graph)).toEqual(['test-fails']);
-    expect(caption(graph)).toContain('z = 1 + 0,5i, z^n = 0,25 + 1,375i');
     set(graph, {example: 'unity', wRe: 1, wIm: 0, degree: 4, zRe: 0, zIm: 1});
     expect(rows(graph)).toMatchObject({'test-power': '1', 'test-gap': '0'});
     expect(statusIds(graph)).toEqual(['test-solves']);
@@ -461,7 +458,6 @@ test('presets round-trip, a malformed preset explains itself and loads the defau
     expect(shownRoots(graph)).toEqual([]);
     expect(shownEdges(graph)).toEqual([]);
     expect(shown(points(graph)[Z_POINT])).toBe(false);
-    expect(caption(graph)[0]).toBe('w = 2i, n = 3');
     expect(rows(graph)).toMatchObject({degree: '3', roots: 'skrito'});
     expect(controls(graph).wRe.props.value).toBe(0);
     expect(controls(graph).degree.props.n).toBe(3);
@@ -480,37 +476,24 @@ test('the board caption, readouts, statuses and legend follow the language, and 
     set(graph, {example: 'negative-real', wRe: -1, wIm: 0, degree: 2, rootsVisible: true, testVisible: true, zRe: 0, zIm: 1});
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
-    expect(caption(graph)).toEqual([
-        'w = −1, n = 2', 'z₀ = i', 'z₁ = −i', 'z = i, z^n = −1',
-    ]);
+    expect(rows(graph)).toMatchObject({'root-0': 'i; |z| = 1, arg z = π/2 ≈ 1,571', 'w-argument': 'π ≈ 3,142', 'test-power': '−1'});
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(caption(graph)).toEqual([
-        'w = −1, n = 2', 'z₀ = i', 'z₁ = −i', 'z = i, z^n = −1',
-    ]);
     expect(rows(graph)).toMatchObject({'root-0': 'i; |z| = 1, arg z = π/2 ≈ 1.571', 'w-argument': 'π ≈ 3.142', 'test-power': '−1'});
     expect(graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: any) => renderMessage(status.text))).toEqual([
         'w is on the negative real axis, so arg w is exactly π. When w crosses the axis the labels of the roots move, though the set of roots stays the same.',
         'z^n = w up to rounding (difference below 10⁻⁹): the test point z is a root.',
     ]);
     set(graph, {rootsVisible: false});
-    expect(caption(graph)[1]).toBe('roots: hidden');
     expect(rows(graph).roots).toBe('hidden');
     expect(controls(graph).showRoots.props.children).toBe('Show roots');
     expect(controls(graph).showTest.props.children).toBe('Hide point z');
     expect(controls(graph).degree.props.label).toBe('Degree n');
     expect(controls(graph).select.props.options[0].text).toBe('w = 2i, n = 3');
     setLanguage('sl');
-    expect(caption(graph)[1]).toBe('koreni: skriti');
     expect(controls(graph).showRoots.props.children).toBe('Pokaži korene');
     expect(controls(graph).degree.props.label).toBe('Stopnja n');
     expect(controls(graph).select.props.options[2].text).toBe('w = −1, n = 2 (negativna realna os)');
-    // below 520 px the root lines are left out
-    set(graph, {rootsVisible: true});
-    graph.board.canvasWidth = 390;
-    expect(caption(graph)).toEqual(['w = −1, n = 2', 'z = i, z^n = −1']);
-    graph.board.canvasWidth = 700;
-    expect(caption(graph)).toHaveLength(4);
     unsubscribe();
 });
 

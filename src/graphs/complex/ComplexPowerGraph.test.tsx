@@ -151,7 +151,7 @@ describe('mount and the numbers', () => {
         expect(readout('principal')).toBe(t('complex_power_graph_value_none'));
         expect(readout('angle')).toBe(t('complex_power_graph_value_none'));
         expect(status()).toContain(t('complex_power_graph_status_zero'));
-        expect(captionTexts(graph)).toContain(t('complex_power_graph_cap_zero'));
+        expect(captionTexts(graph).some(text => text.startsWith('z = 0'))).toBe(false);
         noBadText();
     });
 
@@ -369,7 +369,8 @@ describe('captions and the declared legend', () => {
     test('a caption names z and every drawn power; the legend no longer draws its own caption lines', () => {
         const {graph} = mountGraph();
         const texts = captionTexts(graph);
-        expect(texts).toContain('z = 1 + i');
+        expect(texts).toContain('z');
+        expect(texts.some(text => text.startsWith('z = '))).toBe(false);
         for (const k of ['²', '³']) expect(texts).toContain(`z${k}`);
         expect(texts.filter(text => /Enotska krožnica|Potence števila|premakljiv|Pot z,/.test(text))).toEqual([]);
     });
@@ -538,7 +539,7 @@ describe('language and the catalog', () => {
     test('every complex_power_graph key exists in both languages with the same placeholder names, and the sources use exactly these keys', () => {
         const names = (text: string) => Array.from(text.matchAll(/\{(\w+)\}/g), m => m[1]).sort();
         const keys = Object.keys(sl).filter(key => key.startsWith('complex_power_graph_'));
-        expect(keys.length).toBeGreaterThanOrEqual(48);
+        expect(keys.length).toBeGreaterThanOrEqual(46);
         for (const key of keys) {
             const slText = sl[key as keyof typeof sl];
             const enText = en[key as keyof typeof sl];

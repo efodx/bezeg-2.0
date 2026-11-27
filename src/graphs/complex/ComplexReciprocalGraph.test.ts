@@ -121,9 +121,9 @@ test('initialization draws z = 1 + i with 1/z hidden, the unit circle and the co
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, true);
     expect(graph.board.objectsList).toHaveLength(OBJECT_COUNT);
     expect(graph.generatedObjectCount).toBe(OBJECT_COUNT);
-    expect(caption(graph)).toEqual([
-        'z = 1 + i, w = 2 + i', `${ZBAR} = 1 − i`, '1/z: skrit',
-    ]);
+    // the board draws no caption: the operands, z-bar and the hidden 1/z are rows
+    expect(caption(graph)).toEqual([]);
+    expect(rows(graph)).toMatchObject({z: '1 + i', w: '2 + i', conjugate: '1 − i', reciprocal: 'skrito'});
     expect(at(points(graph)[Z_POINT])).toEqual([1, 1]);
     expect(at(points(graph)[W_POINT])).toEqual([2, 1]);
     expect(at(points(graph)[CONJUGATE])).toEqual([1, -1]);
@@ -158,7 +158,6 @@ test('1/z, its modulus and argument, w/z and the position of z match the checked
     expect(rows(graph)['reciprocal-argument']).toMatch(/^−π\/4 ≈ −0,785$/);
     expect(at(points(graph)[RECIPROCAL])).toEqual([0.5, -0.5]);
     expect(shown(points(graph)[RECIPROCAL])).toBe(true);
-    expect(caption(graph)[2]).toBe('1/z = 0,5 − 0,5i');
     expect(statusIds(graph)).toEqual(['outside']);
     // z = 0.5 + 0.5i is inside the circle and goes outside: 1 - i
     set(graph, {zRe: 0.5, zIm: 0.5});
@@ -180,7 +179,7 @@ test('1/z, its modulus and argument, w/z and the position of z match the checked
     expect(rows(graph)['quotient-argument']).toMatch(/^≈ 1,249$/);
     expect(at(points(graph)[QUOTIENT])).toEqual([0.5, 1.5]);
     expect(shown(points(graph)[QUOTIENT])).toBe(true);
-    expect(caption(graph)).toContain('w/z = 0,5 + 1,5i');
+    expect(rows(graph).quotient).toBe('0,5 + 1,5i');
 });
 
 test('z = 0 is reachable on the grid, gives the not-defined status, and no text or coordinate shows NaN or Infinity', () => {
@@ -200,7 +199,6 @@ test('z = 0 is reachable on the grid, gives the not-defined status, and no text 
             quotient: language === 'sl' ? 'ni definiran' : 'undefined', 'z-argument': language === 'sl' ? 'ni definiran' : 'undefined',
             position: language === 'sl' ? 'ni definiran' : 'undefined',
         });
-        expect(caption(graph)[2]).toBe(language === 'sl' ? '1/z: ni definiran' : '1/z: undefined');
         expect(shown(points(graph)[RECIPROCAL])).toBe(false);
         expect(shown(points(graph)[QUOTIENT])).toBe(false);
         expect(shown(curves(graph)[ARROW_Z])).toBe(false);
@@ -355,7 +353,6 @@ test('the inversion circle shows z\' = c + r^2 / conj(z - c), fixes points on th
     expect(rows(graph)).toMatchObject({inversion: '0,9 + 0,8i', 'circle-centre': '0,5', 'circle-radius': '1'});
     expect(at(points(graph)[IMAGE])[0]).toBeCloseTo(0.9, 12);
     expect(at(points(graph)[IMAGE])[1]).toBeCloseTo(0.8, 12);
-    expect(caption(graph)).toContain('z\' = 0,9 + 0,8i');
     // the circle curve is centred on c with radius r
     const circle = curves(graph)[INVERSION_CIRCLE];
     expect([circle.parents[0](0), circle.parents[1](0), circle.parents[0](Math.PI), circle.parents[1](Math.PI)].map(value => Math.round(value * 1e9) / 1e9)).toEqual([1.5, 0, -0.5, 0]);
@@ -375,7 +372,6 @@ test('the inversion circle shows z\' = c + r^2 / conj(z - c), fixes points on th
     expect(statusIds(graph)).toContain('centre-pole');
     expect(rows(graph).inversion).toBe('ni definiran');
     expect(shown(points(graph)[IMAGE])).toBe(false);
-    expect(caption(graph)).toContain('z\': ni definiran (z = c)');
     expect(everyText(graph)).not.toMatch(/NaN|Infinity/);
     // a corrupt radius (a value the model never holds) must not throw out of the view
     for (const radius of [0, -1, Number.NaN, Infinity]) {
@@ -488,7 +484,6 @@ test('presets round-trip, a malformed preset explains itself and loads the defau
     expect(at(points(graph)[RADIUS])).toEqual([1.5, 0]);
     expect(shown(points(graph)[RECIPROCAL])).toBe(false);
     expect(visible(curves(graph)[INVERSION_CIRCLE])).toBe(false);
-    expect(caption(graph)[2]).toBe('1/z: skrit');
     expect(rows(graph)).toMatchObject({reciprocal: 'skrito', 'circle-centre': 'skrito'});
     expect(controls(graph).zRe.props.value).toBe(1);
     expect(controls(graph).radius.props.value).toBe(1);
@@ -509,31 +504,22 @@ test('the board caption, readouts, statuses and legend follow the language, and 
     set(graph, {reciprocalVisible: true, quotientVisible: true, circleVisible: true, zRe: 1, zIm: -1});
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
-    expect(caption(graph)).toEqual([
-        'z = 1 − i, w = 2 + i', `${ZBAR} = 1 + i`, '1/z = 0,5 + 0,5i', 'w/z = 0,5 + 1,5i', 'z\' = 0,9 − 0,8i',
-    ]);
+    expect(rows(graph)).toMatchObject({z: '1 − i', w: '2 + i', conjugate: '1 + i', reciprocal: '0,5 + 0,5i', quotient: '0,5 + 1,5i', inversion: '0,9 − 0,8i'});
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(caption(graph)[2]).toBe('1/z = 0.5 + 0.5i');
     expect(rows(graph)).toMatchObject({reciprocal: '0.5 + 0.5i', quotient: '0.5 + 1.5i', position: 'outside (|z| > 1)'});
     expect(graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: any) => renderMessage(status.text))).toEqual([
         '|z| > 1: z is outside the unit circle, so 1/z is inside it (|1/z| = 1/|z| < 1).',
     ]);
     set(graph, {reciprocalVisible: false});
-    expect(caption(graph)[2]).toBe('1/z: hidden');
     expect(rows(graph).reciprocal).toBe('hidden');
     expect(controls(graph).showReciprocal.props.children).toBe('Show 1/z');
     expect(controls(graph).showCircle.props.children).toBe('Hide inversion circle');
     expect(controls(graph).radius.props.customText).toBe('Radius r');
     setLanguage('sl');
-    expect(caption(graph)[2]).toBe('1/z: skrit');
+    expect(rows(graph).reciprocal).toBe('skrito');
     expect(controls(graph).showReciprocal.props.children).toBe('Pokaži 1/z');
     expect(controls(graph).radius.props.customText).toBe('Polmer r');
-    // below 520 px the labels stay short: the circle line is left out
-    graph.board.canvasWidth = 390;
-    expect(caption(graph)).toHaveLength(4);
-    graph.board.canvasWidth = 700;
-    expect(caption(graph)).toHaveLength(5);
     unsubscribe();
 });
 

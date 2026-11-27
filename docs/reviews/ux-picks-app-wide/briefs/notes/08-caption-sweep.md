@@ -82,3 +82,44 @@ DefiniteIntegral, Derivative (formula.tex, text count 0, board object count 6->5
 - smoke-lesson passed for all nine ids; root-finding needed tests/guided-lessons.smoke.spec.cjs:2387-2390 switched from caption text to the `step` readout and `data-root-finding-status` attributes. Full guided-lessons and unified-learning specs passed.
 - Golden check (parityGolden.test.tsx, not re-recorded): differ for definite-integral, derivative, quadrature, root-finding, fourier-series, fourier-coefficients (captions lines only) and projective-pascal (other worker). euler-method, interp-least-squares, bisection not reported as differing (9 failures counted, 7 distinct ids seen; unexplained).
 - Shots (/tmp/shots, graph page default state, not lesson step 1): bisection, fourier-series, fourier-coefficients viewed: no board text, Funkcija row MathJax renders (f(x)=x²−2, sgn x). Others not viewed. In fourier-series the Orodja card overlaps the taller Odčitki card.
+
+# Batch 3 (stream A, 2026-11-27): complex and linear-map
+
+## Verdicts
+| Graph | Caption line | Verdict |
+|---|---|---|
+| complex-reciprocal | operands, z-bar, 1/z, w/z, z' (incl. hidden/undefined/pole words) | removed: rows z, w, conjugate, reciprocal, quotient, inversion; statuses predict, centre-pole |
+| complex-reciprocal | "outside the view: ..." | KEPT: the board warning follows the zoomed box; the status uses the default view, so it differs; the only board text left, bottom-left |
+| complex-roots | w and n; roots hidden; w = 0; roots z_k; test z, z^n | removed (whole caption): rows w, degree, roots/root-k, test, test-power; statuses predict, zero. Point names w, z_k on markers stay |
+| complex-power | `z = value` | changed to the bare name "z" (a name on the geometry, like z², z³); the value is row z and the status |
+| complex-power | `z²`, `z³`... | KEPT: names of the drawn powers; only z^n is a row |
+| complex-power | `z⁴, modul 4` (beyond view) | KEPT: the modulus is in no row; the status lists only which powers |
+| complex-power | `z = 0: no argument` | removed: status `complex_power_graph_status_zero` |
+| euler-circle | point, v, a, S N, second, product | removed (all six, caption helper too): rows point, velocity, acceleration, sum, second, product; legend entries of the same ids |
+| linear-map | columns; iterate; trace/det; composition det; det; orientation | removed (whole caption): rows a1/a2, iterate/step, tau/delta, product-det, det, orientation |
+
+## Code
+ComplexReciprocalGraph (boardValue, imports), ComplexRootsGraph, ComplexPowerGraph (imports), EulerCircleGraph (caption, scaleOf, pointText/secondText/productText), LinearMapGraph (caption, orientationText, COMPACT_BOARD_WIDTH import). No fragment keys.
+
+## Lesson prose
+complexEulerGuidedLessons.ts:193 (sl, en): "napis ob puščici na grafu" -> "v legendi poišči črtkano puščico pospeška" ("find the dashed acceleration arrow in the legend"). Other lessons name no removed caption.
+
+## Catalog keys now unused, in sl.ts/en.ts (handler deletes; none in a fragment)
+- complex_recip_board_hidden, complex_recip_board_undefined, complex_recip_board_value, complex_recip_board_inversion_pole (complex_recip_board_off_view stays)
+- complex_roots_board_operands, complex_roots_board_root, complex_roots_board_roots_hidden, complex_roots_board_zero, complex_roots_board_test
+- complex_power_graph_cap_z, complex_power_graph_cap_zero (cap_power and cap_out stay used)
+- euler_circle_graph_cap_point, _velocity_near, _acceleration_near, _sum_near, _second, _product
+- linear_map_board_columns, _det, _orientation, _iterate, _trace_det, _composition
+- complex_board_operands stays (ComplexMultiplication). linear_map_orientation_* stay (rows).
+Until deleted, three key-usage tests fail on "unused: <key>": ComplexPowerGraph.test (complex_power_graph key audit), EulerCircleGraph.test (euler_circle_graph audit), LinearMapIteration.host.test ("no linear_map key after linear_map_prompt is unused"). Not run again after the deletion because I may not edit sl.ts/en.ts.
+
+## Tests switched
+Reciprocal (initial state, 1/z, w/z, z', hidden, language: row assertions replace caption lines; the off-view board line test stays; the narrow-board length checks dropped, the circle line no longer exists), Roots (caption asserts now `[]`, rows already asserted every value; OBJECT_COUNT 23 -> 22; language test keeps the sl and en rows), Power (z caption is "z", no `z = ` text; zero caption asserted absent, status assertion unchanged), Euler (the caption test now asserts no caption text, rows point/second/product/sum/velocity/acceleration, legend ids; the two caption language checks dropped, rows `cos` remain), LinearMap.test and host (orientation caption lines dropped beside the existing `orientation` row asserts; det A = 0 -> row `det` '0'; decimal comma check moved to row `a1`).
+
+## Observed checks
+- typecheck: only the other worker's error (WavesGraph.test.tsx `captionLines`). `just lint` on the five graph files passed.
+- `just unit` (src/graphs/complex, src/graphs/linear, content complex/linearMaps/declarationContract, localization): 7 failures first, after fixes only the three key-usage tests above (the first-run LinearMapGraph failure was my own deletion of `vector`, restored). Roots/Euler/LinearMap files rerun: only the Euler key audit fails.
+- Golden (BEZEG_PARITY_GOLDEN_CHECK=1, not re-recorded): complex-euler, complex-power, complex-reciprocal, complex-roots differ in 27 states, every one a `captions` line only (power: `z = 1 + i` -> `z`). linear-map has no golden. waves differs (other worker).
+- `just unit FirstTask`: one failure, FunctionsFirstTask waves (other worker).
+- `just build` needed 5 reruns (inputs changed while the other worker edited); passed. `just smoke tests/unified-learning.smoke.spec.cjs` and `tests/guided-lessons.smoke.spec.cjs` passed (the only specs naming these ids). `just smoke-lesson` passed for complex-reciprocal, complex-roots, complex-power, complex-euler, linear-map, linear-map-composition (--port 4391 --workers=1). linear-map did NOT show the `valueWidthDrift null` probe failure here.
+- Shots, 1440x900, graph page default state (lesson step 1 not shot; no lesson URL known): reciprocal: axis names Im, point names z, w, z-bar only. roots: Im, w. power: z, z², z³, z⁴ modul 4, z⁵ modul 5,66 (z⁴ and z⁵ labels at the left clear of the cards). euler: no text. linear-map: point names (a₂=Ae₂, a₁=Ae₁, e₁, e₂, p, Ap, A(e₁+e₂), O). Nothing sits under a card. 1280x720 not shot.

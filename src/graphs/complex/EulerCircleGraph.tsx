@@ -260,13 +260,6 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
         if (this.secondHandle && (this.secondHandle.X() !== q.re || this.secondHandle.Y() !== q.im)) this.secondHandle.setPosition(JXG.COORDS_BY_USER, [q.re, q.im]);
     }
 
-    /** Pixels per board unit, with a fallback when the board has no size yet. */
-    private scaleOf(): {ux: number; uy: number} {
-        const ux = Number.isFinite(this.board.unitX) && this.board.unitX > 0 ? this.board.unitX : 1;
-        const uy = Number.isFinite(this.board.unitY) && this.board.unitY > 0 ? this.board.unitY : 1;
-        return {ux, uy};
-    }
-
     /** A straight piece from one board point to another; no arrow head. */
     private piece(from: () => Point, to: () => Point, color: string, width: number, dash: number, visible: Visible): JXG.Curve {
         return this.scene.own(this.board.create("curve", [
@@ -288,19 +281,6 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
         ], {
             strokeColor: color, strokeWidth: width, dash, lastArrow: {type: ARROW_TYPE, size: ARROW_SIZE}, doAdvancedPlot: false, numberPoints: 2,
             highlight: false, fixed: true, withLabel: false, visible,
-        }));
-    }
-
-    /** A caption at a board point plus a pixel offset (up is positive); `dy` below the point is negative. */
-    private caption(x: () => number, y: () => number, dx: number, dy: number | (() => number), text: () => string, color: string, options: {
-        visible?: () => boolean; anchorX?: "left" | "right"; anchorY?: "top" | "bottom";
-    } = {}): void {
-        this.scene.own(this.board.create("text", [
-            () => x() + dx / this.scaleOf().ux, () => y() + (typeof dy === "number" ? dy : dy()) / this.scaleOf().uy, text,
-        ], {
-            strokeColor: color, fontSize: 14, anchorX: options.anchorX ?? "left", anchorY: options.anchorY ?? "bottom", fixed: true, highlight: false, withLabel: false,
-            parse: false, // the text holds e^(...), which JSXGraph would otherwise turn into a superscript of the bracket
-            visible: options.visible ?? (() => true),
         }));
     }
 
@@ -365,19 +345,6 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
         this.secondHandle = second;
         this.drawn.set("second", second);
         this.wireDrag(second, "second");
-
-        // A caption for every element a readout names: the point, the arrows and the partial sum (the legend of the styles is the declared legend card).
-        this.caption(() => this.position().re, () => this.position().im, 8, 8, () => t("euler_circle_graph_cap_point", {value0: this.pointText()}), GraphPalette.constructionAccent);
-        this.caption(() => this.velocityTip().re, () => this.velocityTip().im, 6, 0, () => t("euler_circle_graph_cap_velocity_near"),
-            GraphPalette.additionalCurves[1], {visible: velocityShown});
-        this.caption(() => this.accelerationTip().re, () => this.accelerationTip().im, 6, 0, () => t("euler_circle_graph_cap_acceleration_near"),
-            GraphPalette.additionalCurves[2], {visible: accelerationShown});
-        this.caption(() => this.derived().partialSum.re, () => this.derived().partialSum.im, 8, -6, () => t("euler_circle_graph_cap_sum_near", {value0: String(this.state.degree)}),
-            GraphPalette.additionalCurves[0], {visible: sumShown, anchorY: "top"});
-        this.caption(() => secondPoint().re, () => secondPoint().im, 8, 8, () => t("euler_circle_graph_cap_second", {value0: this.secondText()}),
-            GraphPalette.additionalCurves[4], {visible: productShown});
-        this.caption(() => productPoint().re, () => productPoint().im, 8, -8, () => t("euler_circle_graph_cap_product", {value0: this.productText()}),
-            GraphPalette.additionalCurves[3], {visible: productShown, anchorY: "top"});
     }
 
     private disposeScene(): void {
@@ -649,21 +616,18 @@ export class EulerCircleGraph extends BaseGraph<EulerCircleGraphState, EulerCirc
         const d = this.derived();
         return d.exact === undefined ? this.complexMessage(d.position, 4) : this.pair(this.exactMessage(d.exact.cos), this.exactMessage(d.exact.sin));
     }
-    private pointText(): string { return this.render(this.pointMessage()); }
 
     private secondMessage(): Message | MessageNumber {
         const q = this.derived().product.second;
         const exact = exactTrigOf(this.state.b);
         return exact === undefined ? this.complexMessage(q, 4) : this.pair(this.exactMessage(exact.cos), this.exactMessage(exact.sin));
     }
-    private secondText(): string { return this.render(this.secondMessage()); }
 
     /** The product point as (cos; sin) of the reduced sum: exact texts where exact, else doubles of seven digits (the row says computed). */
     private productMessage(): Message | MessageNumber {
         const {point, exact} = this.derived().product;
         return exact === undefined ? this.pair(messageNumber(point.re, 7), messageNumber(point.im, 7)) : this.pair(this.exactMessage(exact.cos), this.exactMessage(exact.sin));
     }
-    private productText(): string { return this.render(this.productMessage()); }
 
     private word(exact: boolean): Message {
         return exact ? message("euler_circle_graph_word_exact") : message("euler_circle_graph_word_computed");

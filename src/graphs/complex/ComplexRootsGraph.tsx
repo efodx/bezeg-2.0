@@ -1,6 +1,6 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, FunctionPanel, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, FunctionPanel, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionStatus} from "../functions/FunctionStatus";
 import {CountSetter} from "../../inputs/CountSetter";
 import {PointListInput} from "../../inputs/PointListInput";
@@ -302,24 +302,7 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
         axisName("Re", () => extent()[2] - 0.02 * (extent()[2] - extent()[0]), () => 0.01 * (extent()[1] - extent()[3]), "right", "bottom");
         axisName("Im", () => 0.015 * (extent()[2] - extent()[0]), () => extent()[1] - 0.02 * (extent()[1] - extent()[3]), "left", "top");
 
-        // w and n, the indexed roots (or the word hidden, or the w = 0 line) and the test point with z^n.
-        const rootLines = Array.from({length: ROOT_SLOTS}, (_, k) => ({
-            text: () => t("complex_roots_board_root", {value0: rootName(k), value1: formatComplex(this.rootPoint(view(), k) ?? ORIGIN, this.language())}),
-            visible: () => model().rootsVisible && view().result.kind === "roots" && k < model().degree, minBoardWidth: COMPACT_BOARD_WIDTH, math: true,
-        }));
-        this.caption("bottom-left", [
-            {text: () => t("complex_roots_board_operands", {value0: formatComplex(view().w, this.language()), value1: String(model().degree)}), scale: 1.15, math: true},
-            {text: () => t("complex_roots_board_roots_hidden"), visible: () => !model().rootsVisible},
-            {
-                text: () => t("complex_roots_board_zero", {value0: String(model().degree)}),
-                visible: () => model().rootsVisible && view().result.kind === "zero", math: true,
-            },
-            ...rootLines,
-            {
-                text: () => t("complex_roots_board_test", {value0: formatComplex(view().z, this.language()), value1: formatComplex(view().power, this.language())}),
-                visible: () => model().testVisible, math: true,
-            },
-        ]);
+        // w, n, the roots, the w = 0 case and the test point are declared rows and statuses; the board draws no caption.
     }
 
     protected override syncSceneToModel(): void {

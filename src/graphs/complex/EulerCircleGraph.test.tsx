@@ -582,28 +582,20 @@ describe('every stored-field change pauses a playing run', () => {
 });
 
 describe('captions and the legend', () => {
-    test('a caption names every element a readout names, with the scales stated', async () => {
+    test('the board draws no caption: the point, the second point, the product and the sum are rows, the arrows and the sum legend entries', async () => {
         const {graph} = mountGraph();
         await ready();
         flip('show-acceleration');
         productOn(graph);
-        const texts = captionTexts(graph);
-        const has = (text: string) => expect(texts, text).toContain(text);
-        has(t('euler_circle_graph_cap_point', {value0: '(√3/2; 1/2)'}));
-        has(t('euler_circle_graph_cap_second', {value0: '(√2/2; √2/2)'}));
-        has(t('euler_circle_graph_cap_product', {value0: '(0,258819; 0,9659258)'}));
-        has(t('euler_circle_graph_cap_velocity_near'));
-        has(t('euler_circle_graph_cap_acceleration_near'));
-        has(t('euler_circle_graph_cap_sum_near', {value0: '5'}));
-        expect(texts.every(text => !/NaN|undefined/.test(text))).toBe(true);
-        expect(texts.every(text => !text.includes('<sup>')), 'e^(...) must not be turned into a superscript').toBe(true);
-    });
-
-    test('the captions of parts that are not drawn are hidden', () => {
-        const {graph} = mountGraph();
-        const texts = captionTexts(graph);
-        expect(texts).not.toContain(t('euler_circle_graph_cap_acceleration_near'));
-        expect(texts.some(text => text.startsWith('e^(iφ)') || text.startsWith('e^(i(θ+φ))'))).toBe(false);
+        expect(captionTexts(graph).filter(text => /e\^|^[vaS]\b|[√=]/.test(text))).toEqual([]);
+        expect(readout('point')).toBe('(√3/2; 1/2)');
+        expect(readout('second')).toBe('(√2/2; √2/2)');
+        expect(readout('product')).toBe('(0,258819; 0,9659258)');
+        expect(readout('sum')).toBeTruthy();
+        expect(readout('velocity')).toBeTruthy();
+        expect(readout('acceleration')).toBeTruthy();
+        const legend = (graph.getDeclaration().legend ?? []).map((entry: {id: string}) => entry.id);
+        expect(legend).toEqual(expect.arrayContaining(['point', 'velocity', 'acceleration', 'sum', 'second', 'product']));
     });
 
     test('each legend entry states a style that the drawing attributes have', async () => {
@@ -780,13 +772,11 @@ describe('language and the catalog', () => {
         expect(document.querySelector(`[aria-label="${t('euler_board_label')}"]`)).not.toBeNull();
         expect(labelOf('period')).toBe(en.euler_circle_graph_r_period);
         expect(readout('cos')).toBe('0.9848078');
-        expect(captionTexts(graph)).toContain(t('euler_circle_graph_cap_point', {value0: formatComplex(graph.derived().position, 'en')}));
         expect(status()).toContain('0.98');
         expect(puckControl('euler-angle').getAttribute('aria-label') ?? '').toContain(t('euler_angle_name'));
         act(() => setLanguage('sl'));
         expect(document.querySelector(`[aria-label="${t('euler_board_label')}"]`)).not.toBeNull();
         expect(readout('cos')).toBe('0,9848078');
-        expect(captionTexts(graph)).toContain(t('euler_circle_graph_cap_point', {value0: formatComplex(graph.derived().position, 'sl')}));
     });
 
     test('numbers use the decimal comma and the true minus in Slovenian', async () => {

@@ -1,6 +1,6 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, FunctionPanel, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, FunctionPanel, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionStatus} from "../functions/FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {PointListInput} from "../../inputs/PointListInput";
@@ -23,7 +23,6 @@ import {
     ReciprocalVisibilityField, snapInversionRadius, setReciprocalRadius, setReciprocalVisibility,
 } from "../../analysis/complexReciprocalModel";
 import {complexReciprocalEditMessage} from "./complexMessages";
-import {formatComplex} from "../../analysis/complexFormat";
 import {GraphPalette} from "../styles/GraphPalette";
 import {complexReciprocalPresetCollection} from "./complexReciprocalPresets";
 import {RevealButton} from "../../inputs/RevealButton";
@@ -254,13 +253,6 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
         return visible ? argumentValue(argument) : message("complex_hidden");
     }
 
-    /** A board line "name = value", "name: hidden" or "name: undefined". */
-    private boardValue(name: string, visible: boolean, value: Complex | undefined): string {
-        if (!visible) return t("complex_recip_board_hidden", {value0: name});
-        if (value === undefined) return t("complex_recip_board_undefined", {value0: name});
-        return t("complex_recip_board_value", {value0: name, value1: formatComplex(value, this.language())});
-    }
-
     // ---- Board ---------------------------------------------------------------------------------------------------
 
     private labelPlacement(tip: Complex, others: Complex[]): LabelPlacement {
@@ -377,20 +369,8 @@ export class ComplexReciprocalGraph extends BaseFunctionGraph<ComplexReciprocalM
         axisName("Re", () => extent()[2] - 0.02 * (extent()[2] - extent()[0]), () => 0.01 * (extent()[1] - extent()[3]), "right", "bottom");
         axisName("Im", () => 0.015 * (extent()[2] - extent()[0]), () => extent()[1] - 0.02 * (extent()[1] - extent()[3]), "left", "top");
 
-        // The operands, z-bar, 1/z (or the word hidden), w/z and the circle inversion once shown, the warning and the key.
+        // The operands, results and pole are declared rows and status; only the warning for results outside the zoomed board stays here.
         this.caption("bottom-left", [
-            {
-                text: () => t("complex_board_operands", {value0: formatComplex(view().z, this.language()), value1: formatComplex(view().w, this.language())}),
-                scale: 1.15, math: true,
-            },
-            {text: () => this.boardValue("z̄", true, view().conjugate), math: true},
-            {text: () => this.boardValue("1/z", model().reciprocalVisible, view().reciprocal), math: true},
-            {text: () => this.boardValue("w/z", true, view().quotient), visible: () => model().quotientVisible, math: true},
-            {
-                text: () => model().circleVisible && view().inversion === undefined
-                    ? t("complex_recip_board_inversion_pole") : this.boardValue("z'", true, view().inversion),
-                visible: () => model().circleVisible, minBoardWidth: COMPACT_BOARD_WIDTH, math: true,
-            },
             {
                 text: () => t("complex_recip_board_off_view", {value0: this.resultsOutsideBoard().join(", ")}), color: GraphPalette.warningText,
                 visible: () => this.resultsOutsideBoard().length > 0,

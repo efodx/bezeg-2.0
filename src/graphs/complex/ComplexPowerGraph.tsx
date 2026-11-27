@@ -15,7 +15,6 @@ import {PuckOwned} from "../base/controls/PuckOwnership";
 import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutRow, ViewMarks} from "../base/declare/graphDeclaration";
 import {complexValueMessage} from "./complexValueMessage";
 import {formatNumber, formatSignificant} from "../../analysis/format";
-import {formatComplex} from "../../analysis/complexFormat";
 import {COMPLEX_POWER_MAX} from "../../analysis/complexPower";
 import {PointListInput} from "../../inputs/PointListInput";
 import {CountSetter} from "../../inputs/CountSetter";
@@ -335,9 +334,8 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
         this.elements.set("z", handle);
         this.wireDrag(handle);
 
-        // A caption for every element a readout names: z, each power, the powers beyond the view, z = 0.
-        this.caption(() => zOf(this.state).re, () => zOf(this.state).im, 8, 8, () => t("complex_power_graph_cap_z", {value0: formatComplex(zOf(this.state), currentLanguage())}),
-            GraphPalette.constructionAccent);
+        // Names on the geometry: z, each power, and the modulus of a power beyond the view. The values of z and z^n, and z = 0, are rows and the status.
+        this.caption(() => zOf(this.state).re, () => zOf(this.state).im, 8, 8, () => "z", GraphPalette.constructionAccent);
         for (const k of ks) {
             this.caption(() => this.power(k).re, () => this.power(k).im, 8, -6, () => t("complex_power_graph_cap_power", {value0: superscript(k)}),
                 GraphPalette.additionalCurves[1], {visible: () => this.drawnInside(k), anchorY: "top"});
@@ -345,7 +343,6 @@ export class ComplexPowerGraph extends BaseGraph<ComplexPowerGraphState, Complex
                 () => t("complex_power_graph_cap_out", {value0: superscript(k), value1: dec(Math.hypot(this.power(k).re, this.power(k).im), 2)}),
                 GraphPalette.additionalCurves[1], {visible: () => this.drawnOutside(k)});
         }
-        this.caption(() => 0, () => 0, 8, 8, () => t("complex_power_graph_cap_zero"), GraphPalette.label, {visible: () => this.derived().zero});
     }
 
     private disposeScene(): void {

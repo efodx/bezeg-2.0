@@ -70,11 +70,7 @@
         "θ = 30°: e^(iθ) = (√3/2; 1/2). Delna vsota stopnje 5: 0,8661 + 0,5i; njena razdalja od točke je 2,86·10⁻⁵ (izračunano)."
       ],
       "outputs": [],
-      "captions": [
-        "S, N = 5",
-        "e^(iθ) = (√3/2; 1/2)",
-        "v"
-      ]
+      "captions": []
     },
     {
       "name": "complex-euler-circle/m7-circle",
@@ -129,10 +125,7 @@
         "θ = 0°: e^(iθ) = (1; 0). Delna vsota stopnje 1: 1; njena razdalja od točke je 0 (izračunano)."
       ],
       "outputs": [],
-      "captions": [
-        "S, N = 1",
-        "e^(iθ) = (1; 0)"
-      ]
+      "captions": []
     },
     {
       "name": "complex-euler-circle/m7-uniform-motion",
@@ -187,10 +180,7 @@
         "θ = 60°: e^(iθ) = (1/2; √3/2). Delna vsota stopnje 1: 1 + 1,0472i; njena razdalja od točke je 0,532 (izračunano)."
       ],
       "outputs": [],
-      "captions": [
-        "S, N = 1",
-        "e^(iθ) = (1/2; √3/2)"
-      ]
+      "captions": []
     },
     {
       "name": "complex-euler-circle/m7-velocity",
@@ -245,10 +235,7 @@
         "θ = 30°: e^(iθ) = (√3/2; 1/2). Delna vsota stopnje 1: 1 + 0,5236i; njena razdalja od točke je 0,136 (izračunano)."
       ],
       "outputs": [],
-      "captions": [
-        "S, N = 1",
-        "e^(iθ) = (√3/2; 1/2)"
-      ]
+      "captions": []
     },
     {
       "name": "complex-euler-circle/m7-acceleration",
@@ -318,11 +305,7 @@
         "θ = 90°: e^(iθ) = (0; 1). Delna vsota stopnje 1: 1 + 1,5708i; njena razdalja od točke je 1,15 (izračunano)."
       ],
       "outputs": [],
-      "captions": [
-        "S, N = 1",
-        "e^(iθ) = (0; 1)",
-        "v"
-      ]
+      "captions": []
     },
     {
       "name": "complex-euler-circle/m7-series",
@@ -382,9 +365,7 @@
         "θ = 180°: e^(iθ) = (-1; 0). Delna vsota stopnje 1: 1 + 3,1416i; njena razdalja od točke je 3,72 (izračunano). Delna vsota je zunaj pogleda in ni narisana."
       ],
       "outputs": [],
-      "captions": [
-        "e^(iθ) = (-1; 0)"
-      ]
+      "captions": []
     }
   ]
 }
