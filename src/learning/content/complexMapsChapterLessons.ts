@@ -1,6 +1,7 @@
 import type {LessonAction, LessonDefinition, LessonStep, LocalizedText} from '../model';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {ComplexReciprocalIds} from '../../graphs/complex/ComplexReciprocalGraph';
+import type {ComplexRootsIds} from '../../graphs/complex/ComplexRootsGraph';
 
 // Complex maps chapter-owned guided activities (spec M1 and M2). Every number is recomputed in complexMapsChapter.test.ts from the kernel.
 // Scene actions run synchronously in one tick; each scene starts from the Demonstration default and then names its state.
@@ -15,6 +16,8 @@ const rootsExample = (value: string): LessonAction => ({kind: 'function-choice',
 
 /** Frame declarations of the reciprocal steps, typed by the graph's ids. */
 const recipFrame = frameDeclarer<ComplexReciprocalIds>();
+/** Frame declarations of the roots steps, typed by the graph's ids. */
+const rootsFrame = frameDeclarer<ComplexRootsIds>();
 
 /** A step with one frame (the id the synthesized frame had, so progress keeps its place) when `declare` names the rows and controls its text asks about. */
 function step(prefix: string, id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, actions: readonly LessonAction[], declare?: FrameDeclaration): LessonStep {
@@ -95,36 +98,43 @@ export const complexRootsLesson: LessonDefinition = {
             words('Tretja potenca kot vrtenje', 'The cube as a rotation'),
             words('Pri potenciranju \\(z^3\\) se modul kubira, argument pa potroji. Za \\(w=2i\\) velja \\(|w|=2\\) in \\(\\arg w=90^\\circ\\). Rešitev \\(z^3=w\\) mora imeti modul \\(2^{1/3}\\approx1{,}26\\) in argument \\(30^\\circ\\) plus večkratnik \\(120^\\circ\\), da se potrojen kot ujema z \\(90^\\circ\\) do polnega kroga.', 'Raising to the power \\(z^3\\) cubes the modulus and triples the argument. For \\(w=2i\\) we have \\(|w|=2\\) and \\(\\arg w=90^\\circ\\). A solution of \\(z^3=w\\) must have modulus \\(2^{1/3}\\approx1.26\\) and argument \\(30^\\circ\\) plus a multiple of \\(120^\\circ\\), so that the tripled angle matches \\(90^\\circ\\) up to a full turn.'),
             words('Napovej, kje so rešitve \\(z^3=2i\\), preden jih pokažeš.', 'Predict where the solutions of \\(z^3=2i\\) are before you show them.'),
-            [rootsExample('two-i')]),
+            [rootsExample('two-i')],
+            rootsFrame({highlight: ['w-modulus', 'w-argument']})),
         rootsStep('find-roots',
             words('Poišči točke, katerih kub je \\(w\\)', 'Find the points whose cube is \\(w\\)'),
             words('Koreni so \\(2^{1/3}e^{i\\pi/6}\\approx1{,}0911+0{,}63i\\), \\(\\approx-1{,}0911+0{,}63i\\) in \\(\\approx-1{,}26i\\), pri kotih \\(30^\\circ\\), \\(150^\\circ\\) in \\(270^\\circ\\) (glavni argument zadnjega je \\(-90^\\circ\\)). Kub vsakega je \\(2i\\).', 'The roots are \\(2^{1/3}e^{i\\pi/6}\\approx1.0911+0.63i\\), \\(\\approx-1.0911+0.63i\\) and \\(\\approx-1.26i\\), at \\(30^\\circ\\), \\(150^\\circ\\) and \\(270^\\circ\\) (the principal argument of the last is \\(-90^\\circ\\)). Each cubes to \\(2i\\).'),
-            words('Pokaži točko \\(z\\) in jo povleci proti korenu. Ob odčitku \\(z^3\\) primerjaj z \\(w\\).', 'Show the point \\(z\\) and drag it towards a root. Compare \\(z^3\\) with \\(w\\) in the readout.'),
-            [rootsExample('two-i'), show('complex-roots'), show('complex-test'), param('complex-z-re', 1.1), param('complex-z-im', 0.65)]),
+            words('Vklopi krmilnik Točka \\(z\\) in jo povleci proti korenu. Ob odčitku \\(z^3\\) primerjaj z \\(w\\).', 'Turn on the control Point \\(z\\) and drag it towards a root. Compare \\(z^3\\) with \\(w\\) in the readout.'),
+            [rootsExample('two-i'), show('complex-roots'), show('complex-test'), param('complex-z-re', 1.1), param('complex-z-im', 0.65)],
+            rootsFrame({highlight: ['w', 'test-power', 'test-gap'], uses: ['roots', 'test']})),
         rootsStep('polygon',
             words('Trikotnik', 'The triangle'),
             words('Trije koreni so oglišča enakostraničnega trikotnika s polmerom \\(2^{1/3}\\). Njihova vsota je \\(0\\) in produkt je \\(2i\\), to je \\((-1)^{n+1}w\\) za \\(n=3\\) (Vietove formule, navedene, ne izpeljane). To, da je rešitev natanko \\(n\\), je osnovni izrek algebre za \\(z^n-w\\) (naveden); slika pokaže mnogokotnik, tega ne dokazuje.', 'The three roots are the vertices of an equilateral triangle of radius \\(2^{1/3}\\). Their sum is \\(0\\) and their product is \\(2i\\), which is \\((-1)^{n+1}w\\) for \\(n=3\\) (Vieta, cited, not derived). That there are exactly \\(n\\) solutions is the fundamental theorem of algebra applied to \\(z^n-w\\) (cited); the picture shows the polygon, it does not prove this.'),
             words('Preveri, da se vsi trije koreni vidijo na isti krožnici, in izračunaj njihovo vsoto iz odčitkov.', 'Check that all three roots lie on one circle, and compute their sum from the readouts.'),
-            [rootsExample('two-i'), show('complex-roots'), show('complex-polygon')]),
+            [rootsExample('two-i'), show('complex-roots'), show('complex-polygon')],
+            rootsFrame({highlight: ['radius', 'root-0', 'root-1'], uses: ['polygon']})),
         rootsStep('rotate-w',
             words('Vrtenje \\(w\\) zavrti mnogokotnik', 'Rotating \\(w\\) turns the polygon'),
             words('Za \\(w=1+i\\) je \\(|w|=\\sqrt2\\) in \\(\\arg w=45^\\circ\\), polmer je \\(2^{1/6}\\approx1{,}1225\\) in prvi koren leži pri \\(15^\\circ\\); ostala dva sta pri \\(135^\\circ\\) in \\(-105^\\circ\\). Od \\(w=2i\\) smo \\(w\\) zavrteli za \\(-45^\\circ\\), mnogokotnik pa se je zavrtel za tretjino tega, za \\(-15^\\circ\\) (z \\(30^\\circ\\) na \\(15^\\circ\\)).', 'For \\(w=1+i\\) we have \\(|w|=\\sqrt2\\) and \\(\\arg w=45^\\circ\\), the radius is \\(2^{1/6}\\approx1.1225\\) and the first root is at \\(15^\\circ\\); the other two are at \\(135^\\circ\\) and \\(-105^\\circ\\). From \\(w=2i\\) we rotated \\(w\\) by \\(-45^\\circ\\), and the polygon turned by a third of that, by \\(-15^\\circ\\) (from \\(30^\\circ\\) to \\(15^\\circ\\)).'),
             words('Povleci \\(w\\) po krožnici okoli izhodišča. Za koliko se zavrti mnogokotnik, ko se \\(w\\) zavrti za \\(90^\\circ\\)?', 'Drag \\(w\\) around the origin. By how much does the polygon turn when \\(w\\) turns by \\(90^\\circ\\)?'),
-            [rootsExample('one-plus-i'), show('complex-roots'), show('complex-polygon')]),
+            [rootsExample('one-plus-i'), show('complex-roots'), show('complex-polygon')],
+            rootsFrame({highlight: ['w-argument', 'root-0']})),
         rootsStep('change-n',
             words('Spremeni stopnjo \\(n\\)', 'Change the degree \\(n\\)'),
             words('Za \\(w=1\\) in \\(n=6\\) so koreni šesti koreni enote, pri kotih \\(0^\\circ,60^\\circ,120^\\circ,180^\\circ,-120^\\circ,-60^\\circ\\) in s polmerom \\(1\\). Njihova vsota je \\(0\\) in produkt je \\((-1)^{7}\\cdot1=-1\\). Pri \\(n=4\\) so koreni \\(1,i,-1,-i\\), produkt je \\(-1\\) in vsota \\(0\\).', 'For \\(w=1\\) and \\(n=6\\) the roots are the sixth roots of unity, at \\(0^\\circ,60^\\circ,120^\\circ,180^\\circ,-120^\\circ,-60^\\circ\\) and with radius \\(1\\). Their sum is \\(0\\) and their product is \\((-1)^{7}\\cdot1=-1\\). For \\(n=4\\) the roots are \\(1,i,-1,-i\\), with product \\(-1\\) and sum \\(0\\).'),
             words('Spreminjaj \\(n\\) od \\(2\\) do \\(8\\). Koliko je oglišč in kje je vedno eno od njih?', 'Change \\(n\\) from \\(2\\) to \\(8\\). How many vertices are there, and where is one of them always?'),
-            [rootsExample('unity'), param('n', 6), show('complex-roots'), show('complex-polygon')]),
+            [rootsExample('unity'), param('n', 6), show('complex-roots'), show('complex-polygon')],
+            rootsFrame({highlight: ['degree', 'radius'], uses: ['n']})),
         rootsStep('labelling',
             words('Oštevilčenje in prelom pri negativni osi', 'The labelling and the jump at the negative axis'),
             words('Koren \\(k\\) je \\(|w|^{1/n}e^{i(\\operatorname{Arg}w+2\\pi k)/n}\\), \\(k=0,\\dots,n-1\\), z glavnim argumentom iz \\((-\\pi,\\pi]\\); koren \\(0\\) je glavni koren. Pri \\(w=-1\\) in \\(n=3\\) je \\(\\operatorname{Arg}w=\\pi\\) natančno in koreni \\(0,1,2\\) so pri \\(60^\\circ,180^\\circ,-60^\\circ\\). Tik nad osjo so oznake približno enake, tik pod njo (\\(\\operatorname{Arg}w\\approx-\\pi\\)) pa so koreni \\(0,1,2\\) pri približno \\(-60^\\circ,60^\\circ,-180^\\circ\\): oznake skočijo, množica korenov pa ostane ista.', 'Root \\(k\\) is \\(|w|^{1/n}e^{i(\\operatorname{Arg}w+2\\pi k)/n}\\), \\(k=0,\\dots,n-1\\), with the principal argument in \\((-\\pi,\\pi]\\); root \\(0\\) is the principal root. For \\(w=-1\\) and \\(n=3\\) we have \\(\\operatorname{Arg}w=\\pi\\) exactly and roots \\(0,1,2\\) are at \\(60^\\circ,180^\\circ,-60^\\circ\\). Just above the axis the labels are nearly the same, but just below it (\\(\\operatorname{Arg}w\\approx-\\pi\\)) roots \\(0,1,2\\) are at about \\(-60^\\circ,60^\\circ,-180^\\circ\\): the labels jump while the set of roots stays the same.'),
             words('Povleci \\(w\\) iz točke tik nad negativno realno osjo na točko tik pod njo. Kateri koren dobi katero oznako?', 'Drag \\(w\\) from just above the negative real axis to just below it. Which root gets which label?'),
-            [rootsExample('negative-real'), param('n', 3), param('complex-w-im', 0.05), show('complex-roots'), show('complex-polygon')]),
+            [rootsExample('negative-real'), param('n', 3), param('complex-w-im', 0.05), show('complex-roots'), show('complex-polygon')],
+            rootsFrame({highlight: ['w-argument', 'root-0', 'root-1']})),
         rootsStep('explore',
             words('Prosto raziskovanje', 'Free exploration'),
             words('Pokazano je vse. Za \\(w=0\\) je edini koren \\(0\\) z večkratnostjo \\(n\\) in mnogokotnika ni. Povleci \\(w\\) in \\(z\\) ter spreminjaj \\(n\\); vsaka postavitev je primer izreka, ne njegov dokaz.', 'Everything is shown. For \\(w=0\\) the only root is \\(0\\) with multiplicity \\(n\\) and there is no polygon. Drag \\(w\\) and \\(z\\) and change \\(n\\); each position is an instance of the theorem, not a proof of it.'),
             words('Postavi \\(w\\) na \\(0\\) in opiši, kaj se zgodi z mnogokotnikom.', 'Put \\(w\\) at \\(0\\) and describe what happens to the polygon.'),
-            [rootsExample('two-i'), show('complex-roots'), show('complex-polygon'), show('complex-test')]),
+            [rootsExample('two-i'), show('complex-roots'), show('complex-polygon'), show('complex-test')],
+            rootsFrame({highlight: ['w']})),
     ],
 };

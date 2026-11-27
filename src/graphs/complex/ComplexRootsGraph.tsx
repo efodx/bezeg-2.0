@@ -1,13 +1,17 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "../functions/FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FunctionLessonActions, FunctionPanel, LABEL_STYLE, LabelPlacement} from "../functions/BaseFunctionGraph";
 import {FunctionStatus} from "../functions/FunctionStatus";
 import {CountSetter} from "../../inputs/CountSetter";
 import {PointListInput} from "../../inputs/PointListInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, renderMessage, t, type Message, type MessageNumber} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
+import type {FormattedValue, GraphDeclaration, ParameterDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {argumentValue, complexValueMessage} from "./complexValueMessage";
 import {
     Complex, COMPLEX_COORDINATE_MAX, COMPLEX_COORDINATE_STEP, complexArgument, complexModulus, isZero, snapComplexCoordinate,
 } from "../../analysis/complex";
@@ -35,6 +39,16 @@ const ROOT_SLOTS = COMPLEX_ROOT_DEGREE_MAX;
 const ORIGIN: Complex = {re: 0, im: 0};
 
 type StatusKind = "predict" | "zero" | "on-cut" | "test-solves" | "test-fails";
+
+/** The ids of the roots declaration: the degree is the one bound parameter; the three reveals are board switch pucks. */
+export type ComplexRootsIds = {
+    param: "n";
+    row: "w" | "w-modulus" | "w-argument" | "degree" | "radius" | "roots" | `root-${number}` | "test" | "test-power" | "test-gap";
+    note: never;
+    legend: "w" | "roots" | "polygon" | "test";
+    section: never;
+    action: "roots" | "polygon" | "test";
+};
 
 /** The numbers every part of the display is derived from: one model gives one view, so the board and the inspector agree. */
 interface View {
@@ -86,6 +100,8 @@ function outwardPlacement({re, im}: Complex): LabelPlacement {
 export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
     private pointW?: JXG.Point;
     private pointZ?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     override presetCollection() {
         return complexRootsPresetCollection;
@@ -219,9 +235,9 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
         };
 
         // Layers, lowest first: the circle of the roots, the polygon edges, the arrow of w, the root markers, the draggable test z and w, the axis names.
-        this.own(board.create("curve", [
+        this.drawn.set("polygon", this.own(board.create("curve", [
             (angle: number) => polygonRadius() * Math.cos(angle), (angle: number) => polygonRadius() * Math.sin(angle), 0, 2 * Math.PI,
-        ], {strokeColor: colors.root, strokeWidth: thin, dash: 3, highlight: false, fixed: true, withLabel: false, visible: polygonShown}));
+        ], {strokeColor: colors.root, strokeWidth: thin, dash: 3, highlight: false, fixed: true, withLabel: false, visible: polygonShown})));
         // One straight edge per slot; slot k joins root k to root k + 1 (mod n) and is used only for k < n.
         for (let k = 0; k < ROOT_SLOTS; k++) {
             const from = () => this.rootPoint(view(), k) ?? ORIGIN;
@@ -231,20 +247,21 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
                 visible: () => polygonShown() && k < model().degree,
             }));
         }
-        this.own(board.create("curve", [(s: number) => s * model().wRe, (s: number) => s * model().wIm, 0, 1], {
+        this.drawn.set("w", this.own(board.create("curve", [(s: number) => s * model().wRe, (s: number) => s * model().wIm, 0, 1], {
             strokeColor: colors.w, strokeWidth, dash: W_DASH, lastArrow: {type: 2, size: 6}, doAdvancedPlot: false, numberPoints: 2,
             highlight: false, fixed: true, withLabel: false, visible: () => !isZero(view().w),
-        }));
+        })));
 
         const markerSize = () => Math.max(5, this.displaySettings.pointSize * 1.1);
         // A root marker is fixed; an unused slot sits at the origin, hidden, never at NaN or Infinity.
         for (let k = 0; k < ROOT_SLOTS; k++) {
             const shown = () => model().rootsVisible && this.rootPoint(view(), k) !== undefined && k < model().degree;
-            this.own(board.create("point", [() => this.rootPoint(view(), k)?.re ?? 0, () => this.rootPoint(view(), k)?.im ?? 0], {
+            const marker = this.own(board.create("point", [() => this.rootPoint(view(), k)?.re ?? 0, () => this.rootPoint(view(), k)?.im ?? 0], {
                 ...this.styles.point.fixed, name: `$$z_{${k}}$$`, face: "o", size: markerSize, fixed: true, visible: shown,
                 label: this.complexPointLabel(() => outwardPlacement(this.rootPoint(view(), k) ?? ORIGIN), shown),
                 fillColor: colors.root, highlightFillColor: colors.root, strokeColor: colors.root,
             }));
+            if (k === 0) this.drawn.set("roots", marker as JXG.GeometryElement);
         }
 
         // The operands are dragged on the grid inside the square; the model is written once per drag event.
@@ -267,11 +284,12 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
             return point;
         };
         this.pointZ = draggable("$$z$$", "<>", colors.test, {re: model().zRe, im: model().zIm}, () => model().testVisible, point => {
-            this.ignoreOutOfDomain(() => this.setTest(snapComplexCoordinate(clamp(point.X())), snapComplexCoordinate(clamp(point.Y())), {syncScene: false}));
+            runAs("learner", () => this.ignoreOutOfDomain(() => this.setTest(snapComplexCoordinate(clamp(point.X())), snapComplexCoordinate(clamp(point.Y())), {syncScene: false})));
             point.moveTo([model().zRe, model().zIm]);
         });
+        this.drawn.set("test", this.pointZ);
         this.pointW = draggable("$$w$$", "[]", colors.w, {re: model().wRe, im: model().wIm}, () => true, point => {
-            this.ignoreOutOfDomain(() => this.setW(snapComplexCoordinate(clamp(point.X())), snapComplexCoordinate(clamp(point.Y())), {syncScene: false}));
+            runAs("learner", () => this.ignoreOutOfDomain(() => this.setW(snapComplexCoordinate(clamp(point.X())), snapComplexCoordinate(clamp(point.Y())), {syncScene: false})));
             point.moveTo([model().wRe, model().wIm]);
         });
 
@@ -284,7 +302,7 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
         axisName("Re", () => extent()[2] - 0.02 * (extent()[2] - extent()[0]), () => 0.01 * (extent()[1] - extent()[3]), "right", "bottom");
         axisName("Im", () => 0.015 * (extent()[2] - extent()[0]), () => extent()[1] - 0.02 * (extent()[1] - extent()[3]), "left", "top");
 
-        // w and n, the indexed roots (or the word hidden, or the w = 0 line), the test point with z^n, and the key.
+        // w and n, the indexed roots (or the word hidden, or the w = 0 line) and the test point with z^n.
         const rootLines = Array.from({length: ROOT_SLOTS}, (_, k) => ({
             text: () => t("complex_roots_board_root", {value0: rootName(k), value1: formatComplex(this.rootPoint(view(), k) ?? ORIGIN, this.language())}),
             visible: () => model().rootsVisible && view().result.kind === "roots" && k < model().degree, minBoardWidth: COMPACT_BOARD_WIDTH, math: true,
@@ -301,7 +319,6 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
                 text: () => t("complex_roots_board_test", {value0: formatComplex(view().z, this.language()), value1: formatComplex(view().power, this.language())}),
                 visible: () => model().testVisible, math: true,
             },
-            {text: () => t("complex_roots_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH},
         ]);
     }
 
@@ -314,6 +331,7 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
     protected override onSceneRemoved(): void {
         this.pointW = undefined;
         this.pointZ = undefined;
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -329,11 +347,13 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
                                     ? undefined : t("complex_coordinate_rejected_hint")}/>
             </div>
             <div className="inspector-group">
-                <CountSetter label={t("complex_roots_degree_label")} n={state.degree} min={COMPLEX_ROOT_DEGREE_MIN} max={COMPLEX_ROOT_DEGREE_MAX}
-                             rejectedHint={t("complex_roots_degree_rejected_hint")}
-                             onPlus={() => this.ignoreOutOfDomain(() => this.setDegree(state.degree + 1))}
-                             onMinus={() => this.ignoreOutOfDomain(() => this.setDegree(state.degree - 1))}
-                             onSet={next => this.ignoreOutOfDomain(() => this.setDegree(next))}/>
+                <PuckOwned param="n">
+                    <CountSetter label={t("complex_roots_degree_label")} n={state.degree} min={COMPLEX_ROOT_DEGREE_MIN} max={COMPLEX_ROOT_DEGREE_MAX}
+                                 rejectedHint={t("complex_roots_degree_rejected_hint")}
+                                 onPlus={() => this.ignoreOutOfDomain(() => this.setDegree(state.degree + 1))}
+                                 onMinus={() => this.ignoreOutOfDomain(() => this.setDegree(state.degree - 1))}
+                                 onSet={next => this.ignoreOutOfDomain(() => this.setDegree(next))}/>
+                </PuckOwned>
                 <p className="inspector-help">{t("complex_roots_fields_help")}</p>
             </div>
             <div className="inspector-group">
@@ -347,72 +367,140 @@ export class ComplexRootsGraph extends BaseFunctionGraph<ComplexRootsModel> {
                                 min={-COMPLEX_COORDINATE_MAX} max={COMPLEX_COORDINATE_MAX} step={COMPLEX_COORDINATE_STEP} decimals={2}
                                 onCommit={(_index, [re, im]) => this.ignoreOutOfDomain(() => this.setTest(re, im))
                                     ? undefined : t("complex_coordinate_rejected_hint")}/>
-                {!state.testVisible && <p className="inspector-help" id={TEST_HIDDEN_HELP_ID}>{t("complex_roots_test_hidden_help")}</p>}
+                {!state.testVisible && <p className="inspector-help" id={TEST_HIDDEN_HELP_ID}>{t("complex_roots_test_hidden_puck_help")}</p>}
             </div>
         </>;
     }
 
     protected override renderReveals(): React.ReactNode {
         const state = this.model;
-        const toggle = (action: string, shown: boolean, show: string, hide: string, set: (visible: boolean) => void) => (
-            <RevealButton action={action} revealed={shown} showLabel={show} hideLabel={hide} onToggle={() => set(!shown)}/>
+        const toggle = (action: string, param: string, shown: boolean, show: string, hide: string, set: (visible: boolean) => void) => (
+            <PuckOwned param={param}>
+                <RevealButton action={action} revealed={shown} showLabel={show} hideLabel={hide} onToggle={() => set(!shown)}/>
+            </PuckOwned>
         );
-        return <>
+        return <PuckOwnedGroup params={["roots", "polygon", "test"]}>
             <div className={CONTROL_ROW_FILL} role="group" aria-label={t("complex_roots_actions_label")}>
-                {toggle("toggle-complex-roots", state.rootsVisible, t("complex_roots_show_roots"), t("complex_roots_hide_roots"), v => this.setRootsVisible(v))}
-                {toggle("toggle-complex-polygon", state.polygonVisible, t("complex_roots_show_polygon"), t("complex_roots_hide_polygon"), v => this.setPolygonVisible(v))}
-                {toggle("toggle-complex-test", state.testVisible, t("complex_roots_show_test"), t("complex_roots_hide_test"), v => this.setTestVisible(v))}
+                {toggle("toggle-complex-roots", "roots", state.rootsVisible, t("complex_roots_show_roots"), t("complex_roots_hide_roots"), v => this.setRootsVisible(v))}
+                {toggle("toggle-complex-polygon", "polygon", state.polygonVisible, t("complex_roots_show_polygon"), t("complex_roots_hide_polygon"), v => this.setPolygonVisible(v))}
+                {toggle("toggle-complex-test", "test", state.testVisible, t("complex_roots_show_test"), t("complex_roots_hide_test"), v => this.setTestVisible(v))}
             </div>
             <p className="inspector-help">{t("complex_roots_reveal_help")}</p>
-        </>;
+        </PuckOwnedGroup>;
     }
 
+    /** A declared legend replaces the graph's own legend panel. */
     protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "w", color: GraphPalette.comparisonCurve, label: t("complex_legend_w"), kind: "dashed-line"},
-            {id: "roots", color: GraphPalette.primaryCurve, label: t("complex_roots_legend_roots"), kind: "dot"},
-            {id: "polygon", color: GraphPalette.primaryCurve, label: t("complex_roots_legend_polygon"), kind: "line"},
-            {id: "test", color: GraphPalette.additionalCurves[0], label: t("complex_roots_legend_test"), kind: "ring"},
-        ]}/>;
+        return null;
     }
+
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
 
     /** The statuses to state in words, most important first; each has a stable id for tests and for assistive technology. */
-    private statuses(model: ComplexRootsModel, view: View): { id: StatusKind; text: string }[] {
-        const result: { id: StatusKind; text: string }[] = [];
-        if (!model.rootsVisible) result.push({id: "predict", text: t("complex_roots_status_predict")});
-        if (view.result.kind === "zero") result.push({id: "zero", text: t("complex_roots_status_zero")});
-        if (view.onCut) result.push({id: "on-cut", text: t("complex_roots_status_on_cut")});
+    private statuses(model: ComplexRootsModel, view: View): { id: StatusKind; text: Message }[] {
+        const result: { id: StatusKind; text: Message }[] = [];
+        if (!model.rootsVisible) result.push({id: "predict", text: message("complex_roots_status_predict_puck")});
+        if (view.result.kind === "zero") result.push({id: "zero", text: message("complex_roots_status_zero")});
+        if (view.onCut) result.push({id: "on-cut", text: message("complex_roots_status_on_cut")});
         if (model.testVisible) {
-            result.push(view.solves ? {id: "test-solves", text: t("complex_roots_status_test_solves")} : {id: "test-fails", text: t("complex_roots_status_test_fails")});
+            result.push(view.solves ? {id: "test-solves", text: message("complex_roots_status_test_solves")} : {id: "test-fails", text: message("complex_roots_status_test_fails")});
         }
         return result;
     }
 
-    protected renderReadout(): React.ReactNode {
+    /** "a + bi; |z| = r, arg z = angle" for root `index`, or "0, multiplicity n" for the root of w = 0, as a message. */
+    private rootValueMessage(view: View, index: number): Message {
+        if (view.result.kind === "zero") return message("complex_roots_zero_value", {value0: String(view.result.multiplicity)});
+        const root = view.result.kind === "roots" ? view.result.roots[index] : undefined;
+        if (view.result.kind !== "roots" || root === undefined) return message("complex_undefined");
+        return message("complex_roots_root_value", {
+            value0: complexValueMessage(root.point), value1: messageNumber(view.result.radius, 4),
+            value2: root.argument === undefined ? message("complex_undefined") : formatArgument(root.argument, this.language(), ""),
+        });
+    }
+
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
-        const language = this.language();
         const view = this.viewOf(model);
-        const hidden = t("complex_hidden");
+        const hidden = message("complex_hidden");
         const radius = view.result.kind === "roots" ? view.result.radius : 0;
+        const row = <Id extends ComplexRootsIds["row"]>(id: Id, name: Message, value: Message | MessageNumber | FormattedValue) => ({id, name, value});
         const rootRows = !model.rootsVisible
-            ? [{id: "roots", label: t("complex_roots_readout_roots"), value: hidden}]
-            : Array.from({length: view.result.kind === "zero" ? 1 : model.degree}, (_, k) => (
-                {id: `root-${k}`, label: t("complex_roots_readout_root", {value0: rootName(k)}), value: this.rootValue(view, k)}
-            ));
-        const rows = [
-            {id: "w", label: t("complex_readout_w"), value: formatComplex(view.w, language)},
-            {id: "w-modulus", label: t("complex_readout_w_modulus"), value: this.modulusText(view.wModulus)},
-            {id: "w-argument", label: t("complex_readout_w_argument"), value: this.argumentText(view.wArgument)},
-            {id: "degree", label: t("complex_roots_readout_degree"), value: String(model.degree)},
-            {id: "radius", label: t("complex_roots_readout_radius"), value: model.polygonVisible ? this.modulusText(radius) : hidden},
-            ...rootRows,
-            {id: "test", label: t("complex_roots_readout_test"), value: model.testVisible ? formatComplex(view.z, language) : hidden},
-            {id: "test-power", label: t("complex_roots_readout_test_power"), value: model.testVisible ? formatComplex(view.power, language) : hidden},
-            {id: "test-gap", label: t("complex_roots_readout_test_gap"), value: model.testVisible ? this.modulusText(view.gap) : hidden},
+            ? [row("roots", message("complex_roots_readout_roots"), hidden)]
+            : Array.from({length: view.result.kind === "zero" ? 1 : model.degree}, (_, k) =>
+                row(`root-${k}` as const, message("complex_roots_readout_root", {value0: rootName(k)}), this.rootValueMessage(view, k)));
+        const shownTest = (value: Message | MessageNumber) => model.testVisible ? value : hidden;
+        return {
+            rows: [
+                row("w", message("complex_readout_w"), complexValueMessage(view.w)),
+                row("w-modulus", message("complex_readout_w_modulus"), messageNumber(view.wModulus, 4)),
+                row("w-argument", message("complex_readout_w_argument"), argumentValue(view.wArgument)),
+                row("degree", message("complex_roots_readout_degree"), messageNumber(model.degree)),
+                row("radius", message("complex_roots_readout_radius"), model.polygonVisible ? messageNumber(radius, 4) : hidden),
+                ...rootRows,
+                row("test", message("complex_roots_readout_test"), shownTest(complexValueMessage(view.z))),
+                row("test-power", message("complex_roots_readout_test_power"), shownTest(complexValueMessage(view.power))),
+                row("test-gap", message("complex_roots_readout_test_gap"), shownTest(messageNumber(view.gap, 4))),
+            ],
+            help: message("complex_roots_note"),
+            status: this.statuses(model, view),
+            // Everything the learner watches: w, the shown roots (within 2^(3/4) of the origin, inside the default square) and the test point while shown.
+            must: [view.w, ...(model.rootsVisible ? Array.from({length: model.degree}, (_, k) => this.rootPoint(view, k)).flatMap(point => point ? [point] : []) : []),
+                ...(model.testVisible ? [view.z] : [])].map(({re, im}) => ({x: re, y: im})),
+        };
+    }
+
+    /** Parameter writes (ADR 0064): the lesson name is the key. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {n: {read: () => this.model.degree, apply: (value: number) => this.setDegree(value)}};
+    }
+
+    protected override declaration(): GraphDeclaration {
+        const model = this.model;
+        const view = this.viewOf(model);
+        const parameters: ParameterDeclaration[] = [
+            {key: "n", kind: "count", label: message("complex_roots_degree_name"), symbol: "n", placement: "board", min: COMPLEX_ROOT_DEGREE_MIN, max: COMPLEX_ROOT_DEGREE_MAX},
         ];
+        const entry = <Id extends ComplexRootsIds["legend"]>(id: Id, label: Message, kind: "line" | "dashed" | "point") => ({id, label, kind, object: id});
+        return {
+            ...this.commonDeclaration(),
+            parameters,
+            legend: [
+                ...(isZero(view.w) ? [] : [entry("w", message("complex_roots_key_w"), "dashed")]),
+                ...(model.rootsVisible ? [entry("roots", message("complex_roots_key_roots"), "point")] : []),
+                ...(model.polygonVisible && view.result.kind === "roots" ? [entry("polygon", message("complex_roots_key_polygon"), "line")] : []),
+                ...(model.testVisible ? [entry("test", message("complex_roots_key_test"), "point")] : []),
+            ],
+            actions: [
+                {id: "roots", label: message("complex_roots_puck_roots"), placement: "board", enabled: true, pressed: model.rootsVisible, puck: true},
+                {id: "polygon", label: message("complex_roots_puck_polygon"), placement: "board", enabled: true, pressed: model.polygonVisible, puck: true},
+                {id: "test", label: message("complex_roots_puck_test"), placement: "board", enabled: true, pressed: model.testVisible, puck: true},
+            ],
+        };
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const colorProperty = id === "roots" || id === "test" ? "fillcolor" : "strokecolor";
+        return {color: String(element.evalVisProp(colorProperty)), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        const model = this.model;
+        if (id === "roots") runAs("learner", () => this.setRootsVisible(!model.rootsVisible));
+        else if (id === "polygon") runAs("learner", () => this.setPolygonVisible(!model.polygonVisible));
+        else if (id === "test") runAs("learner", () => this.setTestVisible(!model.testVisible));
+        else throw new Error("Unknown action");
+    }
+
+    protected renderReadout(): React.ReactNode {
+        const panel = this.functionPanel();
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("complex_roots_note")}/>
-            <FunctionStatus className="demo-status" dataAttribute="complex-status" lines={this.statuses(model, view)}/>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus className="demo-status" dataAttribute="complex-status" lines={(panel.status ?? []).map(line => ({id: line.id, text: renderMessage(line.text)}))}/>
         </>;
     }
 }

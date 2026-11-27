@@ -132,7 +132,7 @@ test('initialization draws w = 2i with the roots, the n-gon and the test point h
     expect(shownEdges(graph)).toEqual([]);
     expect(shown(curves(graph)[CIRCLE])).toBe(false);
     expect(shown(curves(graph)[ARROW_W])).toBe(true);
-    expect(caption(graph)).toEqual(['w = 2i, n = 3', 'koreni: skriti', 'kvadrat: w; krog: koren z_k; romb: preizkusna točka z']);
+    expect(caption(graph)).toEqual(['w = 2i, n = 3', 'koreni: skriti']);
     expect(rows(graph)).toMatchObject({w: '2i', 'w-modulus': '2', roots: 'skrito', radius: 'skrito', test: 'skrito', 'test-power': 'skrito', 'test-gap': 'skrito', degree: '3'});
     expect(statusIds(graph)).toEqual(['predict']);
 });
@@ -289,14 +289,14 @@ const hiddenHelp = (graph: any) => (collect(graph.renderControls()).p ?? []).fin
 test('while the test point z is hidden one line under the z row names the button that shows it, and a typed z still commits', () => {
     const graph = makeGraph();
     const line = hiddenHelp(graph);
-    expect(line.props.children).toBe('Točka z je zdaj skrita; pokaže jo gumb Pokaži točko z.');
+    expect(line.props.children).toBe('Točka z je zdaj skrita; pokaže jo krmilnik Točka z.');
     expect(controls(graph).showTest.props.children).toBe('Pokaži točko z');
     expect(controls(graph).found.PointListInput[1].props.describedBy).toBe(line.props.id);
     expect(controls(graph).zRe.props.onChange(0.5)).toBe(true);
     expect(graph.model.zRe).toBe(0.5);
     expect(hiddenHelp(graph)).toBeDefined();
     setLanguage('en');
-    expect(hiddenHelp(graph).props.children).toBe('The point z is hidden now; Show point z reveals it.');
+    expect(hiddenHelp(graph).props.children).toBe('The point z is hidden now; the control Point z shows it.');
     set(graph, {testVisible: true});
     expect(hiddenHelp(graph)).toBeUndefined();
     expect(controls(graph).found.PointListInput[1].props.describedBy).toBeUndefined();
@@ -481,15 +481,15 @@ test('the board caption, readouts, statuses and legend follow the language, and 
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     expect(caption(graph)).toEqual([
-        'w = −1, n = 2', 'z₀ = i', 'z₁ = −i', 'z = i, z^n = −1', 'kvadrat: w; krog: koren z_k; romb: preizkusna točka z',
+        'w = −1, n = 2', 'z₀ = i', 'z₁ = −i', 'z = i, z^n = −1',
     ]);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
     expect(caption(graph)).toEqual([
-        'w = −1, n = 2', 'z₀ = i', 'z₁ = −i', 'z = i, z^n = −1', 'square: w; circle: root z_k; diamond: test point z',
+        'w = −1, n = 2', 'z₀ = i', 'z₁ = −i', 'z = i, z^n = −1',
     ]);
     expect(rows(graph)).toMatchObject({'root-0': 'i; |z| = 1, arg z = π/2 ≈ 1.571', 'w-argument': 'π ≈ 3.142', 'test-power': '−1'});
-    expect(graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: any) => status.text)).toEqual([
+    expect(graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: any) => renderMessage(status.text))).toEqual([
         'w is on the negative real axis, so arg w is exactly π. When w crosses the axis the labels of the roots move, though the set of roots stays the same.',
         'z^n = w up to rounding (difference below 10⁻⁹): the test point z is a root.',
     ]);
@@ -505,12 +505,12 @@ test('the board caption, readouts, statuses and legend follow the language, and 
     expect(controls(graph).showRoots.props.children).toBe('Pokaži korene');
     expect(controls(graph).degree.props.label).toBe('Stopnja n');
     expect(controls(graph).select.props.options[2].text).toBe('w = −1, n = 2 (negativna realna os)');
-    // below 520 px the root lines and the key are left out
+    // below 520 px the root lines are left out
     set(graph, {rootsVisible: true});
     graph.board.canvasWidth = 390;
     expect(caption(graph)).toEqual(['w = −1, n = 2', 'z = i, z^n = −1']);
     graph.board.canvasWidth = 700;
-    expect(caption(graph)).toHaveLength(5);
+    expect(caption(graph)).toHaveLength(4);
     unsubscribe();
 });
 

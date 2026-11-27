@@ -20,8 +20,8 @@ const routes: Record<string, () => BaseGraph<BaseGraphState>> = {
 };
 
 /** `first` is a label prefix of the first control; `later` are label prefixes of controls the plan places after it. */
-const plan: Record<string, {first: Label; later: Label[]}> = {
-    'complex-roots': {first: () => 'w, Re', later: [() => t('complex_roots_degree_label'), () => t('complex_roots_example_label')]},
+const plan: Record<string, {first: Label; later: Label[]; pucks: Label[]}> = {
+    'complex-roots': {first: () => 'w, Re', later: [() => t('complex_roots_example_label')], pucks: [() => t('complex_roots_degree_name'), () => t('complex_roots_puck_roots'), () => t('complex_roots_puck_polygon'), () => t('complex_roots_puck_test')]},
 };
 
 /** The Edit panel's controls in document order, by accessible name. */
@@ -39,9 +39,16 @@ describe.each(Object.keys(routes))('%s', key => {
         mountGraph(routes[key]());
         const names = editControls();
         const at = (label: Label) => names.findIndex(name => name.startsWith(label()));
-        const {first, later} = plan[key];
+        const {first, later, pucks} = plan[key];
         expect(at(first)).toBe(0);
         for (const label of later) expect(at(label), label()).toBeGreaterThan(0);
+        // The degree count and the three reveals are declared board pucks: on the puck strip, absent from Edit.
+        const strip = document.querySelector('[data-puck-strip]');
+        expect(strip, 'puck strip').not.toBeNull();
+        for (const label of pucks) {
+            expect(at(label), names.join(' | ')).toBe(-1);
+            expect(strip!.textContent).toContain(label());
+        }
     });
 });
 

@@ -1,0 +1,575 @@
+{
+  "graph": "complex-roots",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default, roots hidden",
+      "rows": [
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "2i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "2"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "π/2 ≈ 1,571"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "3"
+        },
+        {
+          "key": "Polmer n-kotnika |w|^(1/n)#0",
+          "label": "Polmer n-kotnika |w|^(1/n)",
+          "value": "skrito"
+        },
+        {
+          "key": "Koreni enačbe z^n = w#0",
+          "label": "Koreni enačbe z^n = w",
+          "value": "skrito"
+        },
+        {
+          "key": "Preizkusna točka z#0",
+          "label": "Preizkusna točka z",
+          "value": "skrito"
+        },
+        {
+          "key": "Potenca z^n#0",
+          "label": "Potenca z^n",
+          "value": "skrito"
+        },
+        {
+          "key": "Razdalja |z^n - w|#0",
+          "label": "Razdalja |z^n - w|",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Enačba z^n = w ima za w ≠ 0 natanko n rešitev (osnovni izrek algebre, uporabljen na z^n - w; slika tega ne dokazuje); ležijo v ogliščih pravilnega n-kotnika s polmerom |w|^(1/n). Koren z_k ima modul |w|^(1/n) in argument (Arg w + 2πk)/n z glavnim argumentom Arg w iz (-π, π]; koren z₀ je glavni. Oznake korenov skočijo, ko w prečka negativno realno os, množica korenov pa ostane ista. Vsota korenov je 0, produkt pa (-1)^(n+1) w. Vrednosti so izračunane iz koordinat na mreži in zaokrožene."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "koreni: skriti",
+        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
+        "w = 2i, n = 3"
+      ]
+    },
+    {
+      "name": "roots shown",
+      "rows": [
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "2i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "2"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "π/2 ≈ 1,571"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "3"
+        },
+        {
+          "key": "Polmer n-kotnika |w|^(1/n)#0",
+          "label": "Polmer n-kotnika |w|^(1/n)",
+          "value": "skrito"
+        },
+        {
+          "key": "Koren z₀#0",
+          "label": "Koren z₀",
+          "value": "1,0911 + 0,63i; |z| = 1,2599, arg z = π/6 ≈ 0,524"
+        },
+        {
+          "key": "Koren z₁#0",
+          "label": "Koren z₁",
+          "value": "-1,0911 + 0,63i; |z| = 1,2599, arg z = 5π/6 ≈ 2,618"
+        },
+        {
+          "key": "Koren z₂#0",
+          "label": "Koren z₂",
+          "value": "-1,2599i; |z| = 1,2599, arg z = -π/2 ≈ -1,571"
+        },
+        {
+          "key": "Preizkusna točka z#0",
+          "label": "Preizkusna točka z",
+          "value": "skrito"
+        },
+        {
+          "key": "Potenca z^n#0",
+          "label": "Potenca z^n",
+          "value": "skrito"
+        },
+        {
+          "key": "Razdalja |z^n - w|#0",
+          "label": "Razdalja |z^n - w|",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Enačba z^n = w ima za w ≠ 0 natanko n rešitev (osnovni izrek algebre, uporabljen na z^n - w; slika tega ne dokazuje); ležijo v ogliščih pravilnega n-kotnika s polmerom |w|^(1/n). Koren z_k ima modul |w|^(1/n) in argument (Arg w + 2πk)/n z glavnim argumentom Arg w iz (-π, π]; koren z₀ je glavni. Oznake korenov skočijo, ko w prečka negativno realno os, množica korenov pa ostane ista. Vsota korenov je 0, produkt pa (-1)^(n+1) w. Vrednosti so izračunane iz koordinat na mreži in zaokrožene."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
+        "w = 2i, n = 3",
+        "z₀ = 1,0911 + 0,63i",
+        "z₁ = -1,0911 + 0,63i",
+        "z₂ = -1,2599i"
+      ]
+    },
+    {
+      "name": "polygon shown",
+      "rows": [
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "2i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "2"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "π/2 ≈ 1,571"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "3"
+        },
+        {
+          "key": "Polmer n-kotnika |w|^(1/n)#0",
+          "label": "Polmer n-kotnika |w|^(1/n)",
+          "value": "1,2599"
+        },
+        {
+          "key": "Koren z₀#0",
+          "label": "Koren z₀",
+          "value": "1,0911 + 0,63i; |z| = 1,2599, arg z = π/6 ≈ 0,524"
+        },
+        {
+          "key": "Koren z₁#0",
+          "label": "Koren z₁",
+          "value": "-1,0911 + 0,63i; |z| = 1,2599, arg z = 5π/6 ≈ 2,618"
+        },
+        {
+          "key": "Koren z₂#0",
+          "label": "Koren z₂",
+          "value": "-1,2599i; |z| = 1,2599, arg z = -π/2 ≈ -1,571"
+        },
+        {
+          "key": "Preizkusna točka z#0",
+          "label": "Preizkusna točka z",
+          "value": "skrito"
+        },
+        {
+          "key": "Potenca z^n#0",
+          "label": "Potenca z^n",
+          "value": "skrito"
+        },
+        {
+          "key": "Razdalja |z^n - w|#0",
+          "label": "Razdalja |z^n - w|",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Enačba z^n = w ima za w ≠ 0 natanko n rešitev (osnovni izrek algebre, uporabljen na z^n - w; slika tega ne dokazuje); ležijo v ogliščih pravilnega n-kotnika s polmerom |w|^(1/n). Koren z_k ima modul |w|^(1/n) in argument (Arg w + 2πk)/n z glavnim argumentom Arg w iz (-π, π]; koren z₀ je glavni. Oznake korenov skočijo, ko w prečka negativno realno os, množica korenov pa ostane ista. Vsota korenov je 0, produkt pa (-1)^(n+1) w. Vrednosti so izračunane iz koordinat na mreži in zaokrožene."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
+        "w = 2i, n = 3",
+        "z₀ = 1,0911 + 0,63i",
+        "z₁ = -1,0911 + 0,63i",
+        "z₂ = -1,2599i"
+      ]
+    },
+    {
+      "name": "test point on a root",
+      "rows": [
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "2i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "2"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "π/2 ≈ 1,571"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "3"
+        },
+        {
+          "key": "Polmer n-kotnika |w|^(1/n)#0",
+          "label": "Polmer n-kotnika |w|^(1/n)",
+          "value": "skrito"
+        },
+        {
+          "key": "Koren z₀#0",
+          "label": "Koren z₀",
+          "value": "1,0911 + 0,63i; |z| = 1,2599, arg z = π/6 ≈ 0,524"
+        },
+        {
+          "key": "Koren z₁#0",
+          "label": "Koren z₁",
+          "value": "-1,0911 + 0,63i; |z| = 1,2599, arg z = 5π/6 ≈ 2,618"
+        },
+        {
+          "key": "Koren z₂#0",
+          "label": "Koren z₂",
+          "value": "-1,2599i; |z| = 1,2599, arg z = -π/2 ≈ -1,571"
+        },
+        {
+          "key": "Preizkusna točka z#0",
+          "label": "Preizkusna točka z",
+          "value": "1,1 + 0,65i"
+        },
+        {
+          "key": "Potenca z^n#0",
+          "label": "Potenca z^n",
+          "value": "-0,0632 + 2,0849i"
+        },
+        {
+          "key": "Razdalja |z^n - w|#0",
+          "label": "Razdalja |z^n - w|",
+          "value": "0,1059"
+        }
+      ],
+      "notes": [
+        "Enačba z^n = w ima za w ≠ 0 natanko n rešitev (osnovni izrek algebre, uporabljen na z^n - w; slika tega ne dokazuje); ležijo v ogliščih pravilnega n-kotnika s polmerom |w|^(1/n). Koren z_k ima modul |w|^(1/n) in argument (Arg w + 2πk)/n z glavnim argumentom Arg w iz (-π, π]; koren z₀ je glavni. Oznake korenov skočijo, ko w prečka negativno realno os, množica korenov pa ostane ista. Vsota korenov je 0, produkt pa (-1)^(n+1) w. Vrednosti so izračunane iz koordinat na mreži in zaokrožene."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
+        "w = 2i, n = 3",
+        "z = 1,1 + 0,65i, z^n = -0,0632 + 2,0849i",
+        "z₀ = 1,0911 + 0,63i",
+        "z₁ = -1,0911 + 0,63i",
+        "z₂ = -1,2599i"
+      ]
+    },
+    {
+      "name": "test point off the roots",
+      "rows": [
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "1 + i"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "1,4142"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "3"
+        },
+        {
+          "key": "Polmer n-kotnika |w|^(1/n)#0",
+          "label": "Polmer n-kotnika |w|^(1/n)",
+          "value": "skrito"
+        },
+        {
+          "key": "Koreni enačbe z^n = w#0",
+          "label": "Koreni enačbe z^n = w",
+          "value": "skrito"
+        },
+        {
+          "key": "Preizkusna točka z#0",
+          "label": "Preizkusna točka z",
+          "value": "1 + 0,5i"
+        },
+        {
+          "key": "Potenca z^n#0",
+          "label": "Potenca z^n",
+          "value": "0,25 + 1,375i"
+        },
+        {
+          "key": "Razdalja |z^n - w|#0",
+          "label": "Razdalja |z^n - w|",
+          "value": "0,8385"
+        }
+      ],
+      "notes": [
+        "Enačba z^n = w ima za w ≠ 0 natanko n rešitev (osnovni izrek algebre, uporabljen na z^n - w; slika tega ne dokazuje); ležijo v ogliščih pravilnega n-kotnika s polmerom |w|^(1/n). Koren z_k ima modul |w|^(1/n) in argument (Arg w + 2πk)/n z glavnim argumentom Arg w iz (-π, π]; koren z₀ je glavni. Oznake korenov skočijo, ko w prečka negativno realno os, množica korenov pa ostane ista. Vsota korenov je 0, produkt pa (-1)^(n+1) w. Vrednosti so izračunane iz koordinat na mreži in zaokrožene."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "koreni: skriti",
+        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
+        "w = 1 + i, n = 3",
+        "z = 1 + 0,5i, z^n = 0,25 + 1,375i"
+      ]
+    },
+    {
+      "name": "w on the negative axis, n 3",
+      "rows": [
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "-1"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "1"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "π ≈ 3,142"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "3"
+        },
+        {
+          "key": "Polmer n-kotnika |w|^(1/n)#0",
+          "label": "Polmer n-kotnika |w|^(1/n)",
+          "value": "1"
+        },
+        {
+          "key": "Koren z₀#0",
+          "label": "Koren z₀",
+          "value": "0,5 + 0,866i; |z| = 1, arg z = π/3 ≈ 1,047"
+        },
+        {
+          "key": "Koren z₁#0",
+          "label": "Koren z₁",
+          "value": "-1; |z| = 1, arg z = π ≈ 3,142"
+        },
+        {
+          "key": "Koren z₂#0",
+          "label": "Koren z₂",
+          "value": "0,5 - 0,866i; |z| = 1, arg z = -π/3 ≈ -1,047"
+        },
+        {
+          "key": "Preizkusna točka z#0",
+          "label": "Preizkusna točka z",
+          "value": "skrito"
+        },
+        {
+          "key": "Potenca z^n#0",
+          "label": "Potenca z^n",
+          "value": "skrito"
+        },
+        {
+          "key": "Razdalja |z^n - w|#0",
+          "label": "Razdalja |z^n - w|",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Enačba z^n = w ima za w ≠ 0 natanko n rešitev (osnovni izrek algebre, uporabljen na z^n - w; slika tega ne dokazuje); ležijo v ogliščih pravilnega n-kotnika s polmerom |w|^(1/n). Koren z_k ima modul |w|^(1/n) in argument (Arg w + 2πk)/n z glavnim argumentom Arg w iz (-π, π]; koren z₀ je glavni. Oznake korenov skočijo, ko w prečka negativno realno os, množica korenov pa ostane ista. Vsota korenov je 0, produkt pa (-1)^(n+1) w. Vrednosti so izračunane iz koordinat na mreži in zaokrožene."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
+        "w = -1, n = 3",
+        "z₀ = 0,5 + 0,866i",
+        "z₁ = -1",
+        "z₂ = 0,5 - 0,866i"
+      ]
+    },
+    {
+      "name": "roots of unity, n 6",
+      "rows": [
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "1"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "1"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "0"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "6"
+        },
+        {
+          "key": "Polmer n-kotnika |w|^(1/n)#0",
+          "label": "Polmer n-kotnika |w|^(1/n)",
+          "value": "1"
+        },
+        {
+          "key": "Koren z₀#0",
+          "label": "Koren z₀",
+          "value": "1; |z| = 1, arg z = 0"
+        },
+        {
+          "key": "Koren z₁#0",
+          "label": "Koren z₁",
+          "value": "0,5 + 0,866i; |z| = 1, arg z = π/3 ≈ 1,047"
+        },
+        {
+          "key": "Koren z₂#0",
+          "label": "Koren z₂",
+          "value": "-0,5 + 0,866i; |z| = 1, arg z = 2π/3 ≈ 2,094"
+        },
+        {
+          "key": "Koren z₃#0",
+          "label": "Koren z₃",
+          "value": "-1; |z| = 1, arg z = π ≈ 3,142"
+        },
+        {
+          "key": "Koren z₄#0",
+          "label": "Koren z₄",
+          "value": "-0,5 - 0,866i; |z| = 1, arg z = -2π/3 ≈ -2,094"
+        },
+        {
+          "key": "Koren z₅#0",
+          "label": "Koren z₅",
+          "value": "0,5 - 0,866i; |z| = 1, arg z = -π/3 ≈ -1,047"
+        },
+        {
+          "key": "Preizkusna točka z#0",
+          "label": "Preizkusna točka z",
+          "value": "skrito"
+        },
+        {
+          "key": "Potenca z^n#0",
+          "label": "Potenca z^n",
+          "value": "skrito"
+        },
+        {
+          "key": "Razdalja |z^n - w|#0",
+          "label": "Razdalja |z^n - w|",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "Enačba z^n = w ima za w ≠ 0 natanko n rešitev (osnovni izrek algebre, uporabljen na z^n - w; slika tega ne dokazuje); ležijo v ogliščih pravilnega n-kotnika s polmerom |w|^(1/n). Koren z_k ima modul |w|^(1/n) in argument (Arg w + 2πk)/n z glavnim argumentom Arg w iz (-π, π]; koren z₀ je glavni. Oznake korenov skočijo, ko w prečka negativno realno os, množica korenov pa ostane ista. Vsota korenov je 0, produkt pa (-1)^(n+1) w. Vrednosti so izračunane iz koordinat na mreži in zaokrožene."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
+        "w = 1, n = 6",
+        "z₀ = 1",
+        "z₁ = 0,5 + 0,866i",
+        "z₂ = -0,5 + 0,866i",
+        "z₃ = -1",
+        "z₄ = -0,5 - 0,866i",
+        "z₅ = 0,5 - 0,866i"
+      ]
+    },
+    {
+      "name": "w at the origin",
+      "rows": [
+        {
+          "key": "Število w#0",
+          "label": "Število w",
+          "value": "0"
+        },
+        {
+          "key": "Modul |w|#0",
+          "label": "Modul |w|",
+          "value": "0"
+        },
+        {
+          "key": "Argument arg w#0",
+          "label": "Argument arg w",
+          "value": "ni definiran"
+        },
+        {
+          "key": "Stopnja n#0",
+          "label": "Stopnja n",
+          "value": "3"
+        },
+        {
+          "key": "Polmer n-kotnika |w|^(1/n)#0",
+          "label": "Polmer n-kotnika |w|^(1/n)",
+          "value": "0"
+        },
+        {
+          "key": "Koren z₀#0",
+          "label": "Koren z₀",
+          "value": "0, večkratnost 3"
+        },
+        {
+          "key": "Preizkusna točka z#0",
+          "label": "Preizkusna točka z",
+          "value": "1 + 0,5i"
+        },
+        {
+          "key": "Potenca z^n#0",
+          "label": "Potenca z^n",
+          "value": "0,25 + 1,375i"
+        },
+        {
+          "key": "Razdalja |z^n - w|#0",
+          "label": "Razdalja |z^n - w|",
+          "value": "1,3975"
+        }
+      ],
+      "notes": [
+        "Enačba z^n = w ima za w ≠ 0 natanko n rešitev (osnovni izrek algebre, uporabljen na z^n - w; slika tega ne dokazuje); ležijo v ogliščih pravilnega n-kotnika s polmerom |w|^(1/n). Koren z_k ima modul |w|^(1/n) in argument (Arg w + 2πk)/n z glavnim argumentom Arg w iz (-π, π]; koren z₀ je glavni. Oznake korenov skočijo, ko w prečka negativno realno os, množica korenov pa ostane ista. Vsota korenov je 0, produkt pa (-1)^(n+1) w. Vrednosti so izračunane iz koordinat na mreži in zaokrožene."
+      ],
+      "outputs": [],
+      "captions": [
+        "Im",
+        "Re",
+        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
+        "w = 0, n = 3",
+        "w = 0: edini koren z₀ = 0, večkratnost 3",
+        "z = 1 + 0,5i, z^n = 0,25 + 1,375i"
+      ]
+    }
+  ]
+}

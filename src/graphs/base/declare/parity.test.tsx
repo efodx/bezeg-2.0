@@ -929,6 +929,23 @@ const SAMPLES: readonly Sample[] = [
             {name: 'z at the centre of the circle', apply: run('outside', g => { g.setCircleVisible(true); g.setCentre(1, 1); g.setRadius(0.5); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'complex/__parity__/complex-roots.json', demonstration: 'complex-roots', states: (() => {
+        type Roots = {setExample(id: string): void; setW(re: number, im: number): void; setTest(re: number, im: number): void; setDegree(n: number): void;
+            setRootsVisible(v: boolean): void; setPolygonVisible(v: boolean): void; setTestVisible(v: boolean): void};
+        // every state starts from an example (which hides every reveal), so a state does not inherit the previous one
+        const run = (example: string, change: (g: Roots) => void = () => undefined): ParityState['apply'] =>
+            graph => { runAs('learner', () => { const g = graph as unknown as Roots; g.setExample(example); change(g); }); };
+        return [
+            {name: 'default, roots hidden', apply: run('two-i')},
+            {name: 'roots shown', apply: run('two-i', g => g.setRootsVisible(true))},
+            {name: 'polygon shown', apply: run('two-i', g => { g.setRootsVisible(true); g.setPolygonVisible(true); })},
+            {name: 'test point on a root', apply: run('two-i', g => { g.setRootsVisible(true); g.setTestVisible(true); g.setTest(1.1, 0.65); })},
+            {name: 'test point off the roots', apply: run('one-plus-i', g => { g.setTestVisible(true); g.setTest(1, 0.5); })},
+            {name: 'w on the negative axis, n 3', apply: run('negative-real', g => { g.setDegree(3); g.setRootsVisible(true); g.setPolygonVisible(true); })},
+            {name: 'roots of unity, n 6', apply: run('unity', g => { g.setDegree(6); g.setRootsVisible(true); g.setPolygonVisible(true); })},
+            {name: 'w at the origin', apply: run('zero', g => { g.setRootsVisible(true); g.setPolygonVisible(true); g.setTestVisible(true); })},
+        ] satisfies ParityState[];
+    })()},
 ];
 
 const root =path.resolve(__dirname, '../..');

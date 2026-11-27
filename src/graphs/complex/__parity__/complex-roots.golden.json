@@ -59,7 +59,6 @@
         "Im",
         "Re",
         "koreni: skriti",
-        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
         "w = 2i, n = 3"
       ]
     },
@@ -129,7 +128,6 @@
       "captions": [
         "Im",
         "Re",
-        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
         "w = 2i, n = 3",
         "z = 1,1 + 0,65i, z^n = -0,0632 + 2,0849i",
         "z₀ = 1,0911 + 0,63i",
@@ -203,7 +201,6 @@
       "captions": [
         "Im",
         "Re",
-        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
         "w = 2i, n = 3",
         "z₀ = 1,0911 + 0,63i",
         "z₁ = -1,0911 + 0,63i",
@@ -276,7 +273,6 @@
       "captions": [
         "Im",
         "Re",
-        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
         "w = 1 + i, n = 3",
         "z₀ = 1,0842 + 0,2905i",
         "z₁ = -0,7937 + 0,7937i",
@@ -364,7 +360,6 @@
       "captions": [
         "Im",
         "Re",
-        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
         "w = 1, n = 6",
         "z₀ = 1",
         "z₁ = 0,5 + 0,866i",
@@ -440,7 +435,6 @@
       "captions": [
         "Im",
         "Re",
-        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
         "w = -1 + 0,05i, n = 3",
         "z₀ = 0,5146 + 0,8579i",
         "z₁ = -1,0003 + 0,0167i",
@@ -513,7 +507,6 @@
       "captions": [
         "Im",
         "Re",
-        "kvadrat: w; krog: koren z_k; romb: preizkusna točka z",
         "w = 2i, n = 3",
         "z = 1 + 0,5i, z^n = 0,25 + 1,375i",
         "z₀ = 1,0911 + 0,63i",
