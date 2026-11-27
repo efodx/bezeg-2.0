@@ -37,18 +37,15 @@ export function ContourPlayback(props: {graph: ContourMapGraph}) {
     </div>;
 }
 
-/** The status sentence, the labelled readout rows and the legend of the drawn elements. */
+/** The status sentence and the labelled readout rows (the declared Odčitki card shows them; the legend is the legend card). */
 export function ContourReadout(props: {graph: ContourMapGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    return <div className="inspector-group">
+    return <div className="inspector-group" data-declared-panel="">
         <ReadoutHeading>{text("levelsets_graph_readout_title")}</ReadoutHeading>
-        <p data-contour-status="">{graph.statusText()}</p>
+        <p data-contour-status="" data-readout-note="">{graph.statusText()}</p>
         <ReadoutList label={text("levelsets_graph_readout_title")} rows={graph.readoutRows()}/>
-        <ul className="readout-list readout-list-sentences" aria-label={text("levelsets_graph_legend_title")} data-contour-legend="">
-            {graph.legend().map(row => <li key={row.id} data-legend={row.id}>{row.text}</li>)}
-        </ul>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
     </div>;
 }

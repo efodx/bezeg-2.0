@@ -7,6 +7,7 @@ import {installBoardShims} from '../base/realGraphTestHarness';
 import {CATALOGUE_IDS} from '../../levelsets/functions2';
 import ContourMapGraph from './ContourMapGraph';
 import {CONTOUR_PRESET_KEY} from './contourPresetCollection';
+import {runAs} from '../base/writes/writeSource';
 
 beforeAll(installBoardShims);
 afterEach(() => localStorage.clear());
@@ -28,7 +29,7 @@ const functionReadout = () => document.querySelector('[data-readout="function"] 
 /** Changes the function and the level count away from the default. */
 const reshape = (graph: ContourMapGraph) => {
     const fn = CATALOGUE_IDS.find(id => id !== graph.state.fn)!;
-    act(() => { graph.setFunction(fn); graph.setLevelCount(graph.state.levelCount === 3 ? 5 : 3); });
+    act(() => runAs('learner', () => { graph.setFunction(fn); graph.setLevelCount(graph.state.levelCount === 3 ? 5 : 3); }));
 };
 
 describe('Contour Preset round trip', () => {

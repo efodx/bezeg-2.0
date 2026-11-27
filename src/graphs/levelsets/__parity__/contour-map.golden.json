@@ -41,13 +41,12 @@
           "value": "1"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Skleda: x² + y²: nivojnica pri c = 1; število nivojnic: 1."
+      ],
       "outputs": [],
       "captions": [
-        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
-        "Sonda (0,6; 0,8)",
-        "Sonda: točka, ki jo vlečeš",
-        "Črtkana črta: nivojnica skozi izbrano točko"
+        "Sonda (0,6; 0,8)"
       ]
     },
     {
@@ -89,14 +88,12 @@
           "value": "1"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Skleda: x² + y²: nivojnica pri c = 1; število nivojnic: 3."
+      ],
       "outputs": [],
       "captions": [
-        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
-        "Sonda (0,6; 0,8)",
-        "Sonda: točka, ki jo vlečeš",
-        "Tanjše polne črte: dodatne nivojnice na enakih razmikih vrednosti",
-        "Črtkana črta: nivojnica skozi izbrano točko"
+        "Sonda (0,6; 0,8)"
       ]
     },
     {
@@ -138,14 +135,12 @@
           "value": "3,5"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Dolina: x² + 10y²: nivojnica pri c = 1; število nivojnic: 3."
+      ],
       "outputs": [],
       "captions": [
-        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
-        "Sonda (1; 0,5)",
-        "Sonda: točka, ki jo vlečeš",
-        "Tanjše polne črte: dodatne nivojnice na enakih razmikih vrednosti",
-        "Črtkana črta: nivojnica skozi izbrano točko"
+        "Sonda (1; 0,5)"
       ]
     },
     {
@@ -187,14 +182,12 @@
           "value": "0,75"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Sedlo: x² - y²: nivojnica pri c = 0; število nivojnic: 3."
+      ],
       "outputs": [],
       "captions": [
-        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
-        "Sonda (1; 0,5)",
-        "Sonda: točka, ki jo vlečeš",
-        "Tanjše polne črte: dodatne nivojnice na enakih razmikih vrednosti",
-        "Črtkana črta: nivojnica skozi izbrano točko"
+        "Sonda (1; 0,5)"
       ]
     },
     {
@@ -236,13 +229,12 @@
           "value": "0"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Sedlo: x² - y²: nivojnica pri c = 0; število nivojnic: 1."
+      ],
       "outputs": [],
       "captions": [
-        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
-        "Sonda (1; 1)",
-        "Sonda: točka, ki jo vlečeš",
-        "Črtkana črta: nivojnica skozi izbrano točko"
+        "Sonda (1; 1)"
       ]
     },
     {
@@ -284,13 +276,12 @@
           "value": "0,999568"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Griči: sin x · sin y: nivojnica pri c = 0,625; število nivojnic: 1."
+      ],
       "outputs": [],
       "captions": [
-        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
-        "Sonda (1,55; 1,55)",
-        "Sonda: točka, ki jo vlečeš",
-        "Črtkana črta: nivojnica skozi izbrano točko"
+        "Sonda (1,55; 1,55)"
       ]
     },
     {
@@ -357,15 +348,12 @@
           "value": "prava dolžina"
         }
       ],
-      "notes": [],
+      "notes": [
+        "V točki (1; 1) je gradient (0,4546; 0,4546), dolžina 0,643; pravokoten je na nivojnico."
+      ],
       "outputs": [],
       "captions": [
-        "Polna daljica: tangenta nivojnice, pravokotna na gradient",
-        "Polna puščica: gradient v točki (točno)",
-        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
-        "Sonda (1; 1)",
-        "Sonda: točka, ki jo vlečeš",
-        "Črtkana črta: nivojnica skozi izbrano točko"
+        "Sonda (1; 1)"
       ]
     },
     {
@@ -437,14 +425,12 @@
           "value": "zgornja meja korakov, zadnji korak: 200"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Korak: 0 od 200. Dolina: x² + 10y²: začetek (2; 1), korak h = 0,03. Dolina: pri tem koraku in tem začetku pot konvergira k (0; 0)."
+      ],
       "outputs": [],
       "captions": [
-        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
-        "Polna črta: pot spusta (izračunano)",
-        "Votel kvadrat: izbrani korak",
-        "Začetek (2; 1)",
-        "Začetek: točka, ki jo vlečeš"
+        "Začetek (2; 1)"
       ]
     },
     {
@@ -516,14 +502,12 @@
           "value": "zgornja meja korakov, zadnji korak: 200"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Korak: 0 od 200. Dolina: x² + 10y²: začetek (2; 1), korak h = 0,09. Dolina: pri tem koraku in tem začetku pot konvergira k (0; 0)."
+      ],
       "outputs": [],
       "captions": [
-        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
-        "Polna črta: pot spusta (izračunano)",
-        "Votel kvadrat: izbrani korak",
-        "Začetek (2; 1)",
-        "Začetek: točka, ki jo vlečeš"
+        "Začetek (2; 1)"
       ]
     },
     {
@@ -595,14 +579,12 @@
           "value": "zgornja meja korakov, zadnji korak: 200"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Korak: 0 od 200. Dolina: x² + 10y²: začetek (2; 1), korak h = 0,1. Dolina: pri H = 10 y niha med dvema vrednostma."
+      ],
       "outputs": [],
       "captions": [
-        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
-        "Polna črta: pot spusta (izračunano)",
-        "Votel kvadrat: izbrani korak",
-        "Začetek (2; 1)",
-        "Začetek: točka, ki jo vlečeš"
+        "Začetek (2; 1)"
       ]
     },
     {
@@ -674,19 +656,12 @@
           "value": "(1; 2)"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Vezni pogoj: Premica x + 2y = 5. Točka (0; 2,5), f = 6,25. Gradienta nista vzporedna; determinanta je -5 (točno)."
+      ],
       "outputs": [],
       "captions": [
-        "Križec: dotikališče, kjer sta gradienta vzporedna",
-        "Polna puščica: gradient funkcije f",
-        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
-        "Puščice so skrajšane na 0,32 prave dolžine",
-        "Tanjše polne črte: dodatne nivojnice na enakih razmikih vrednosti",
-        "Točka (0; 2,5)",
-        "Točka na veznem pogoju: točka, ki jo vlečeš",
-        "Zelo debela polna črta: vezni pogoj",
-        "Črtkana puščica: gradient veznega pogoja g",
-        "Črtkana črta: nivojnica skozi izbrano točko"
+        "Točka (0; 2,5)"
       ]
     },
     {
@@ -728,14 +703,12 @@
           "value": "0,48"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Produkt: x · y: nivojnica pri c = 0; število nivojnic: 3."
+      ],
       "outputs": [],
       "captions": [
-        "Polna črta: nivojnica pri izbrani vrednosti c (izračunano)",
-        "Sonda (0,6; 0,8)",
-        "Sonda: točka, ki jo vlečeš",
-        "Tanjše polne črte: dodatne nivojnice na enakih razmikih vrednosti",
-        "Črtkana črta: nivojnica skozi izbrano točko"
+        "Sonda (0,6; 0,8)"
       ]
     }
   ]

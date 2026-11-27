@@ -2,13 +2,14 @@ import React from 'react';
 import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {afterEach, beforeAll, beforeEach, describe, expect, test} from 'vitest';
-import {setLanguage} from '../../localization';
+import {renderMessage, setLanguage} from '../../localization';
 import {legendLines} from '../legend/legendLines';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {ContourMapGraph} from './ContourMapGraph';
 import {LinearProgramGraph} from './LinearProgramGraph';
 import {contourWindow} from '../../levelsets/contourModel';
+import {runAs} from '../base/writes/writeSource';
 
 beforeAll(installBoardShims);
 
@@ -27,21 +28,21 @@ describe('a Preset file with a stored view keeps that view', () => {
         const view: [number, number, number, number] = [-1.5, 2, 4.5, -2]; // 3:2 like the 600 x 400 board
         const source = mountGraph(new ViewedContour());
         const defaultBox = boxOf(source);
-        act(() => { source.setFunction('hills'); });
+        act(() => runAs('learner', () => { source.setFunction('hills'); }));
         expect(boxOf(source)).not.toEqual(defaultBox);
         const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
         const fresh = mountGraph(new ViewedContour());
-        act(() => { fresh.importPreset(preset); });
+        act(() => runAs('learner', () => { fresh.importPreset(preset); }));
         expect(fresh.state.fn).toBe('hills');
         expect(boxOf(fresh)).toEqual(view);
     });
     test('contour map: a Preset without a stored view is framed to its function window', () => {
         const source = mountGraph(new ViewedContour());
-        act(() => { source.setFunction('hills'); });
+        act(() => runAs('learner', () => { source.setFunction('hills'); }));
         const framed = boxOf(source);
         const preset = json(source.exportPreset());
         const fresh = mountGraph(new ViewedContour());
-        act(() => { fresh.importPreset(preset); });
+        act(() => runAs('learner', () => { fresh.importPreset(preset); }));
         expect(boxOf(fresh)).toEqual(framed);
     });
     test('linear program: a larger region imported with a stored boardState is not reframed to its window', () => {
@@ -80,7 +81,7 @@ describe('an element a state change makes visible is drawn at once', () => {
     test('contour map: every mode shows the same curves before and after a full board update', () => {
         const graph = mountGraph(new ViewedContour());
         for (const mode of ['gradient', 'descent', 'lagrange', 'level-sets'] as const) {
-            act(() => { graph.setMode(mode); });
+            act(() => runAs('learner', () => { graph.setMode(mode); }));
             const committed = drawnPoints(graph.liveBoard());
             act(() => { graph.liveBoard().fullUpdate(); });
             expect(committed, mode).toEqual(drawnPoints(graph.liveBoard()));
@@ -117,31 +118,26 @@ describe('the legend on a narrow board (390 x 480 px)', () => {
         .filter(o => o.visPropCalc.visible && o.evalVisProp('anchory') === 'top' && o.evalVisProp('anchorx') === 'left' && o.Y() > board.getBoundingBox()[1] - 200 / board.unitY && o.Y() <= board.getBoundingBox()[1])
         .sort((a, b) => b.Y() - a.Y());
     for (const language of ['sl', 'en'] as const) {
-        // The linear program's legend is the legend card, not board text, so only the contour map keeps rows to space.
-        for (const [name, create] of [['contour map', () => new ViewedContour()]] as const) {
-            test(`${name}: a row that wraps leaves room for its lines (${language})`, () => {
-                setLanguage(language);
-                const graph = mountGraph(create());
-                let wrapped = false;
-                for (const mode of graph instanceof ContourMapGraph ? ['level-sets', 'gradient', 'descent', 'lagrange'] as const : [undefined]) {
-                    if (mode && graph instanceof ContourMapGraph) act(() => { graph.setMode(mode); });
-                    const board = graph.liveBoard();
-                    const rows = legendRows(board);
-                    expect(rows.length).toBeGreaterThanOrEqual(3);
-                    wrapped ||= rows.some(row => legendLines(String(row.plaintext), 390) > 1);
-                    for (let i = 0; i + 1 < rows.length; i++) {
-                        const gapPx = (rows[i].Y() - rows[i + 1].Y()) * board.unitY;
-                        expect(gapPx, String(rows[i].plaintext)).toBeGreaterThanOrEqual(legendLines(String(rows[i].plaintext), 390) * 20 - 0.5);
-                    }
-                }
-                // The Slovenian contour legend is short enough to take one line per row at 390 px; the linear program's merged board rows are too.
-                if (name === 'contour map' && language === 'en') expect(wrapped, 'some row wraps at 390 px').toBe(true);
-            });
-        }
+        // Both legends are legend cards now (task 08 lanes L29 and the linear program): the board draws no legend rows to space, and a
+        // long entry wraps inside the card, not into the data.
+        test(`contour map: the legend is the card, the board draws no legend rows (${language})`, () => {
+            setLanguage(language);
+            const graph = mountGraph(new ViewedContour());
+            let wrapped = false;
+            for (const mode of ['level-sets', 'gradient', 'descent', 'lagrange'] as const) {
+                act(() => runAs('learner', () => { graph.setMode(mode); }));
+                expect(legendRows(graph.liveBoard()), mode).toHaveLength(0);
+                const card = graph.getDeclaration()?.legend ?? [];
+                expect(card.length).toBeGreaterThanOrEqual(3);
+                wrapped ||= card.some(entry => legendLines(renderMessage(entry.label), 390) > 1);
+            }
+            // The Slovenian contour legend is short enough to take one line per entry at 390 px.
+            if (language === 'en') expect(wrapped, 'some entry wraps at 390 px').toBe(true);
+        });
     }
 });
 
-// The opening view frames the data below the legend: the legend is its own strip at the top of the board, the data starts under it.
+// The opening view frames the data on the board: both legends are cards, so no board strip pushes the data down.
 describe('the opening view keeps the legend off the data', () => {
     const restore = [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const;
     const sizeBoard = (width: number, height: number) => {
@@ -154,13 +150,6 @@ describe('the opening view keeps the legend off the data', () => {
         setLanguage('sl');
     });
     type Row = {plaintext: unknown; Y(): number; visPropCalc: {visible: boolean}; evalVisProp(name: string): unknown};
-    /** The lowest pixel (from the top of the board) a legend row reaches, wrapped lines included. */
-    const legendBottomPx = (board: JXG.Board, width: number): number => {
-        const rows = (board.objectsList as unknown as Row[])
-            .filter(o => o.visPropCalc.visible && o.evalVisProp('anchory') === 'top' && o.evalVisProp('anchorx') === 'left' && o.Y() > board.getBoundingBox()[1] - 400 / board.unitY && o.Y() <= board.getBoundingBox()[1]);
-        expect(rows.length).toBeGreaterThanOrEqual(3);
-        return Math.max(...rows.map(row => (board.getBoundingBox()[1] - row.Y()) * board.unitY + legendLines(String(row.plaintext), width) * 20));
-    };
     const pxFromTop = (board: JXG.Board, y: number): number => (board.getBoundingBox()[1] - y) * board.unitY;
     const sizes = [[600, 400], [390, 480]] as const;
     for (const [width, height] of sizes) {
@@ -183,13 +172,16 @@ describe('the opening view keeps the legend off the data', () => {
             });
         }
         for (const mode of ['level-sets', 'gradient', 'descent', 'lagrange'] as const) {
-            test(`contour map ${mode}: the window starts below the legend (${width} x ${height})`, () => {
+            test(`contour map ${mode}: no board legend, the window starts on the board (${width} x ${height})`, () => {
                 sizeBoard(width, height);
                 const graph = mountGraph(new ViewedContour());
-                act(() => { graph.setMode(mode); });
+                act(() => runAs('learner', () => { graph.setMode(mode); }));
                 const board = graph.liveBoard();
                 const window = contourWindow(graph.state.fn, mode);
-                expect(pxFromTop(board, window.yMax)).toBeGreaterThanOrEqual(legendBottomPx(board, width));
+                // the legend is the card (task 08 lane L29): no board legend strip for the window to start under
+                expect((board.objectsList as unknown as Row[]).filter(o => o.visPropCalc.visible && o.evalVisProp('anchory') === 'top' && o.evalVisProp('anchorx') === 'left')).toHaveLength(0);
+                expect(pxFromTop(board, window.yMax)).toBeGreaterThanOrEqual(0);
+                expect(pxFromTop(board, window.yMin)).toBeLessThanOrEqual(height + 0.5);
             });
         }
     }

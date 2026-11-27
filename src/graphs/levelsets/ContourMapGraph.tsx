@@ -1,10 +1,17 @@
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
+import {fitBoundingBox} from "../base/fitBoundingBox";
 import React from "react";
 import {prefersReducedMotion} from "../base/controls/reducedMotion";
 import BaseGraph, {BaseGraphState} from "../base/BaseGraph";
 import type {TransientState} from "../base/BaseGraph";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, renderMessage, t, type Message} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned} from "../base/controls/PuckOwnership";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import {runAs} from "../base/writes/writeSource";
+import {playbackBlocks} from "../base/controls/PlaybackButtons";
+import type {ActionDeclaration, FormattedValue, GraphDeclaration, LegendEntry, LegendKind, ParameterDeclaration, ReadoutRow, ViewMarks} from "../base/declare/graphDeclaration";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
@@ -34,7 +41,6 @@ import {
     type DescentInfo, type GradientInfo, type LagrangeInfo, type LevelDrawing, type Poly, type SurfaceMeshData,
 } from "./contourScene";
 import {ContourPlayback, ContourReadout, ContourSurfacePanel} from "./ContourPanels";
-import {frameBelowLegend, legendBandPx, legendRowOffset} from "../legend/legendLines";
 import {Memo} from "./Memo";
 import {contourPresetCollection, type ContourPresetData} from "./contourPresetCollection";
 import type {PresetCollection} from "../base/presets/PresetCollection";
@@ -122,12 +128,37 @@ const viewBox = (state: ContourState): [number, number, number, number] => {
     return [w.xMin - margin, w.yMax + margin, w.xMax + margin, w.yMin - margin];
 };
 
+/**
+ * Ids of the declaration (task 08 lane L29). Pucks: the level c, the level count, the mode (four options), the step H (descent), the
+ * point on the line or the circle angle (lagrange) and the numeric-estimate switch (gradient), each asked for by a lesson step. Orodja:
+ * the function (five options) and the constraint (setup), the points' rows, the playback group with its step slider, the surface and
+ * its camera. The legend is a card; the status sentence is a note.
+ */
+export type ContourMapIds = {
+    param: "contour-level" | "contour-count" | "contour-mode" | "contour-fn" | "contour-step" | "contour-constraint" | "contour-line-x" | "contour-circle";
+    row: "function" | "level" | "length" | "window" | "zscale" | "probe" | "probe-f" | "gradient" | "norm" | "tangent" | "dot" | "scale" | "numeric"
+        | "numeric-error" | "start" | "step" | "steps" | "iterate" | "iterate-f" | "settled" | "claim" | "stop" | "drawn" | "constraint" | "point" | "point-f"
+        | "grad-f" | "grad-g" | "tangency" | "tangent-points";
+    note: "status";
+    legend: "levels" | "levels-more" | "probe" | "through" | "gradient" | "tangent" | "start" | "path" | "current" | "cut" | "constraint" | "point" | "grad-f"
+        | "grad-g" | "tangency" | "scale";
+    section: never;
+    action: "numeric" | "next-step" | "play-pause" | "reset-run";
+};
+
+type LegendId = ContourMapIds["legend"];
+
 /** One row of the legend: what an element of the board is, with its drawing style said in words. */
 export interface LegendRow {
-    readonly id: string;
+    readonly id: LegendId;
     readonly text: string;
+    readonly label: Message;
+    readonly kind: LegendKind;
     readonly color: string;
 }
+
+const pointMessage = (x: number, y: number, digits = 3): Message => message("levelsets_graph_point_format", {value0: dec(x, digits), value1: dec(y, digits)});
+const formatted = (text: string): FormattedValue => ({kind: "formatted", text});
 
 type LevelCurves = {readonly chosen: Poly; readonly others: Poly; readonly length: number};
 
@@ -159,7 +190,7 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
     private sceneRevision = 0;
     private drawnView = "";
     private driver?: AnimationDriver;
-    private notice?: {readonly state: ContourMapGraphState; readonly text: () => string};
+    private notice?: {readonly state: ContourMapGraphState; readonly text: Message};
     /** The one announcement region of the graph. */
     readonly status = new SettledReadout();
     // ---- Host state: not in the model, not in a Preset ------------------------------------------------------------------
@@ -262,7 +293,14 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
     private notifyHost(): void {
         this.hostVersion++;
         this.hostListeners.forEach(listener => listener());
+        // The declaration reads the step and the playing flag (rows, status, playback actions): the cards re-render on the store's version.
+        const declared = `${this.stepValue}|${this.playingValue}`;
+        if (declared !== this.declaredHost) {
+            this.declaredHost = declared;
+            this.store.notify();
+        }
     }
+    private declaredHost = "0|false";
 
     /** The descent step shown (0 is the start). */
     get step(): number { return this.stepValue; }
@@ -511,32 +549,17 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         this.markFramed();
     }
 
-    /** What decides a reframe: the window and the height of the legend band (which follows the mode and the board width). */
+    /** What decides a reframe: the window of the state (the legend is a card, so the board has no legend band). */
     private viewKeyOf(state: ContourState): string {
-        return `${viewKey(viewBox(state))}|${this.legendBand(state.mode)}`;
+        return viewKey(viewBox(state));
     }
 
-    /**
-     * The pixels the legend takes from the top of the board: its own strip, above the framed window. It is the height of every caption
-     * the mode can show, stacked, whatever the state shows, so a state change, a Preset import or Reset never moves a view that was kept.
-     */
-    private legendBand(mode: ContourState["mode"]): number {
-        const captions = [t("levelsets_graph_cap_levels"), t("levelsets_graph_cap_levels_more")];
-        if (mode !== "descent") captions.push(t("levelsets_graph_cap_through"));
-        if (mode === "level-sets" || mode === "gradient") captions.push(t("levelsets_graph_cap_probe"));
-        if (mode === "gradient") captions.push(t("levelsets_graph_cap_gradient"), t("levelsets_graph_cap_tangent"), t("levelsets_graph_cap_scale", {value0: dec(1, 3)}));
-        if (mode === "descent") captions.push(t("levelsets_graph_cap_start"), t("levelsets_graph_cap_path"), t("levelsets_graph_cap_current"), t("levelsets_graph_cap_cut"));
-        if (mode === "lagrange") {
-            captions.push(t("levelsets_graph_cap_constraint"), t("levelsets_graph_cap_point"), t("levelsets_graph_cap_grad_f"), t("levelsets_graph_cap_grad_g"), t("levelsets_graph_cap_tangency"));
-        }
-        return legendBandPx(captions, this.board.canvasWidth);
-    }
-
-    /** The window of the state framed with margin below the legend band. */
+    /** The window of the state with its margin. */
     private frameOf(state: ContourState): [number, number, number, number] {
+        // The framing of the former board legend with no band: the legend is a card now, so the whole board holds the window.
         const [left, top, right, bottom] = viewBox(state);
         const {canvasWidth, canvasHeight} = this.board;
-        return frameBelowLegend([[left, top], [right, bottom]], canvasWidth, canvasHeight, this.legendBand(state.mode)) ?? [left, top, right, bottom];
+        return fitBoundingBox([[left, top], [right, bottom]], canvasWidth, canvasHeight) ?? [left, top, right, bottom];
     }
 
     /** Moves every handle to the stored value (idempotent). */
@@ -590,30 +613,32 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
     private showsDescent(): boolean { return this.state.mode === "descent"; }
     private showsLagrange(): boolean { return this.state.mode === "lagrange"; }
 
-    /** The legend: one row for every element the readouts name, the drawing style in words. Used by the board and by the panel list. */
+    /** The legend: one row for every element drawn now, the drawing style in words. The declared legend card and `drawnObject` read it. */
     legend(): LegendRow[] {
-        const rows: LegendRow[] = [{id: "levels", text: t("levelsets_graph_cap_levels"), color: GraphPalette.primaryCurve}];
-        if (this.state.levelCount > 1) rows.push({id: "levels-more", text: t("levelsets_graph_cap_levels_more"), color: GraphPalette.comparisonCurve});
-        if (this.showsProbe()) rows.push({id: "probe", text: t("levelsets_graph_cap_probe"), color: GraphPalette.controlPoint});
-        if (this.state.mode !== "descent") rows.push({id: "through", text: t("levelsets_graph_cap_through"), color: GraphPalette.constructionAccent});
+        const rows: LegendRow[] = [];
+        const row = (id: LegendId, label: Message, kind: LegendKind, color: string) => rows.push({id, label, text: renderMessage(label), kind, color});
+        row("levels", message("levelsets_graph_cap_levels"), "line", GraphPalette.primaryCurve);
+        if (this.state.levelCount > 1) row("levels-more", message("levelsets_graph_cap_levels_more"), "line", GraphPalette.comparisonCurve);
+        if (this.showsProbe()) row("probe", message("levelsets_graph_cap_probe"), "point", GraphPalette.controlPoint);
+        if (this.state.mode !== "descent") row("through", message("levelsets_graph_cap_through"), "dashed", GraphPalette.constructionAccent);
         if (this.showsGradient()) {
-            rows.push({id: "gradient", text: t("levelsets_graph_cap_gradient"), color: GraphPalette.additionalCurves[1]});
-            if (!this.gradient().stationary) rows.push({id: "tangent", text: t("levelsets_graph_cap_tangent"), color: GraphPalette.additionalCurves[3]});
+            row("gradient", message("levelsets_graph_cap_gradient"), "line", GraphPalette.additionalCurves[1]);
+            if (!this.gradient().stationary) row("tangent", message("levelsets_graph_cap_tangent"), "line", GraphPalette.additionalCurves[3]);
         }
         if (this.showsDescent()) {
-            rows.push({id: "start", text: t("levelsets_graph_cap_start"), color: GraphPalette.controlPoint});
-            rows.push({id: "path", text: t("levelsets_graph_cap_path"), color: GraphPalette.additionalCurves[1]});
-            rows.push({id: "current", text: t("levelsets_graph_cap_current"), color: GraphPalette.label});
-            if (firstOutsideDrawing(this.descent(), this.half()) !== null) rows.push({id: "cut", text: t("levelsets_graph_cap_cut"), color: GraphPalette.warningText});
+            row("start", message("levelsets_graph_cap_start"), "point", GraphPalette.controlPoint);
+            row("path", message("levelsets_graph_cap_path"), "line", GraphPalette.additionalCurves[1]);
+            row("current", message("levelsets_graph_cap_current"), "ring", GraphPalette.label);
+            if (firstOutsideDrawing(this.descent(), this.half()) !== null) row("cut", message("levelsets_graph_cap_cut"), "line", GraphPalette.warningText);
         }
         if (this.showsLagrange()) {
-            rows.push({id: "constraint", text: t("levelsets_graph_cap_constraint"), color: GraphPalette.additionalCurves[3]});
-            rows.push({id: "point", text: t("levelsets_graph_cap_point"), color: GraphPalette.controlPoint});
-            rows.push({id: "grad-f", text: t("levelsets_graph_cap_grad_f"), color: GraphPalette.additionalCurves[1]});
-            rows.push({id: "grad-g", text: t("levelsets_graph_cap_grad_g"), color: GraphPalette.additionalCurves[4]});
-            if (this.marksTangency()) rows.push({id: "tangency", text: t("levelsets_graph_cap_tangency"), color: GraphPalette.label});
+            row("constraint", message("levelsets_graph_cap_constraint"), "line", GraphPalette.additionalCurves[3]);
+            row("point", message("levelsets_graph_cap_point"), "point", GraphPalette.controlPoint);
+            row("grad-f", message("levelsets_graph_cap_grad_f"), "line", GraphPalette.additionalCurves[1]);
+            row("grad-g", message("levelsets_graph_cap_grad_g"), "dashed", GraphPalette.additionalCurves[4]);
+            if (this.marksTangency()) row("tangency", message("levelsets_graph_cap_tangency"), "cross", GraphPalette.label);
         }
-        if (this.arrowFactor() !== 1) rows.push({id: "scale", text: t("levelsets_graph_cap_scale", {value0: dec(this.arrowFactor(), 3)}), color: GraphPalette.label});
+        if (this.arrowFactor() !== 1) row("scale", message("levelsets_graph_cap_scale", {value0: dec(this.arrowFactor(), 3)}), "line", GraphPalette.label);
         return rows;
     }
 
@@ -698,17 +723,6 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
             GraphPalette.controlPoint, () => this.showsDescent());
         this.pixelText(() => pointHandle.X(), () => pointHandle.Y(), 10, 10, () => t("levelsets_graph_label_point", {value0: point(pointHandle.X(), pointHandle.Y())}),
             GraphPalette.controlPoint, () => this.showsLagrange());
-
-        // The legend: stacked from the top left. It names every element the readout names.
-        const MAX_ROWS = 12;
-        for (let index = 0; index < MAX_ROWS; index++) {
-            this.scene.own(board.create("text", [
-                () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
-                () => { const {top, uy} = this.scaleOf(); return top - legendRowOffset(this.legend().map(row => row.text), index, board.canvasWidth) / uy; },
-                () => this.legend()[index]?.text ?? "",
-            ], {strokeColor: GraphPalette.label, fontSize: 14, anchorX: "left", anchorY: "top", fixed: true, highlight: false,
-                withLabel: false, visible: () => index < this.legend().length}));
-        }
     }
 
     private disposeScene(): void {
@@ -723,8 +737,10 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
     private wireDrag(handle: JXG.Point, onDrag: () => void): void {
         const board = this.board;
         const releaseCursor = bindMovablePointCursor(handle, board);
-        handle.on("drag", onDrag);
-        this.scene.listen(() => { handle.off("drag", onDrag); releaseCursor(); });
+        // A JSXGraph drag is a learner write outside the DOM's input tagging.
+        const tagged = () => runAs("learner", onDrag);
+        handle.on("drag", tagged);
+        this.scene.listen(() => { handle.off("drag", tagged); releaseCursor(); });
     }
 
     /** The coordinate pair a drag snapped to, clamped to the grid range and to the window of the function (like the LP handle), or undefined for a non-finite drag. */
@@ -860,7 +876,7 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
         const valid = typeof step === "number" && Number.isInteger(step) && step >= 0 && step <= this.lastStep();
         // A saved step outside the path is refused, not clamped (restored values are never changed); the step is 0 and the status says so.
         this.stepValue = valid ? step : 0;
-        if (step !== undefined && !valid) this.notice = {state: this.state, text: () => t("levelsets_graph_notice_step_refused")};
+        if (step !== undefined && !valid) this.notice = {state: this.state, text: message("levelsets_graph_notice_step_refused")};
         this.notifyHost();
     }
 
@@ -1076,133 +1092,290 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
 
     fnName(): string { return t(FUNCTION_KEYS[this.state.fn]); }
 
-    private behaviourText(): string {
+    private behaviourMessage(): Message {
         const info = this.descent();
-        return info.behaviour === undefined ? t("levelsets_graph_claim_none") : t(BEHAVIOUR_KEYS[info.behaviour]);
+        return info.behaviour === undefined ? message("levelsets_graph_claim_none") : message(BEHAVIOUR_KEYS[info.behaviour]);
     }
 
     /** The exact line test or the approximate circle test, in words. */
-    tangencyText(): string {
+    private tangencyMessage(): Message {
         const info = this.lagrange();
         const tangency = info.tangency;
         if (tangency.kind === "exact") {
             return tangency.tangency.tangent
-                ? t("levelsets_graph_tangency_line_yes", {value0: tangency.tangency.lambda === null ? "0" : rationalText(tangency.tangency.lambda)})
-                : t("levelsets_graph_tangency_line_no", {value0: rationalText(tangency.tangency.determinant)});
+                ? message("levelsets_graph_tangency_line_yes", {value0: tangency.tangency.lambda === null ? "0" : rationalText(tangency.tangency.lambda)})
+                : message("levelsets_graph_tangency_line_no", {value0: rationalText(tangency.tangency.determinant)});
         }
         const circle = tangency.tangency;
-        if (circle.status === "stationary") return t("levelsets_graph_tangency_circle_stationary");
-        return t(circle.status === "approximately-tangent" ? "levelsets_graph_tangency_circle_yes" : "levelsets_graph_tangency_circle_no", {value0: dec(circle.sin, 4)});
+        if (circle.status === "stationary") return message("levelsets_graph_tangency_circle_stationary");
+        return message(circle.status === "approximately-tangent" ? "levelsets_graph_tangency_circle_yes" : "levelsets_graph_tangency_circle_no", {value0: dec(circle.sin, 4)});
     }
 
+    tangencyText(): string { return renderMessage(this.tangencyMessage()); }
+
     /** The wording without the step: what the picture shows in the current mode, and the notice. */
-    sentence(): string {
+    private sentenceMessage(): Message {
         const state = this.state;
-        let text: string;
+        const join = (first: Message, second: Message): Message => message("contour_status_join", {value0: first, value1: second});
+        let text: Message;
         if (state.mode === "level-sets") {
-            text = t("levelsets_graph_status_level_sets", {value0: this.fnName(), value1: dec(levelOf(state.level)), value2: String(state.levelCount)});
+            text = message("levelsets_graph_status_level_sets", {value0: message(FUNCTION_KEYS[state.fn]), value1: dec(levelOf(state.level)), value2: String(state.levelCount)});
         } else if (state.mode === "gradient") {
             const g = this.gradient();
             const p = this.probePoint();
             text = g.stationary
-                ? t("levelsets_graph_status_stationary", {value0: point(p.x, p.y)})
-                : t("levelsets_graph_status_gradient", {value0: point(p.x, p.y), value1: point(g.gradient[0], g.gradient[1], 4), value2: dec(g.norm, 4)});
-            if (state.numeric && !g.stationary) text += " " + t("levelsets_graph_status_numeric", {value0: dec(numericGradient(state.fn, p.x, p.y).error, 7)});
+                ? message("levelsets_graph_status_stationary", {value0: pointMessage(p.x, p.y)})
+                : message("levelsets_graph_status_gradient", {value0: pointMessage(p.x, p.y), value1: pointMessage(g.gradient[0], g.gradient[1], 4), value2: dec(g.norm, 4)});
+            if (state.numeric && !g.stationary) text = join(text, message("levelsets_graph_status_numeric", {value0: dec(numericGradient(state.fn, p.x, p.y).error, 7)}));
         } else if (state.mode === "descent") {
-            text = t("levelsets_graph_status_descent", {
-                value0: this.fnName(), value1: point(startOf(state.start[0]), startOf(state.start[1])), value2: dec(stepOf(state.step), 2), value3: this.behaviourText()});
+            text = message("levelsets_graph_status_descent", {
+                value0: message(FUNCTION_KEYS[state.fn]), value1: pointMessage(startOf(state.start[0]), startOf(state.start[1])), value2: dec(stepOf(state.step), 2),
+                value3: this.behaviourMessage()});
         } else {
             const info = this.lagrange();
-            text = t("levelsets_graph_status_lagrange", {value0: t(CONSTRAINT_KEYS[this.constraint()]), value1: point(info.x, info.y), value2: dec(info.f, 4), value3: this.tangencyText()});
+            text = message("levelsets_graph_status_lagrange", {
+                value0: message(CONSTRAINT_KEYS[this.constraint()]), value1: pointMessage(info.x, info.y), value2: dec(info.f, 4), value3: this.tangencyMessage()});
         }
-        return this.notice && this.notice.state === state ? `${text} ${this.notice.text()}` : text;
+        return this.notice && this.notice.state === state ? join(text, this.notice.text) : text;
     }
 
-    /** The status sentence; while descending it begins with the step. */
-    statusText(): string {
-        if (this.state.mode !== "descent") return this.sentence();
-        return `${t("levelsets_graph_status_step", {value0: String(this.stepValue), value1: String(this.lastStep())})} ${this.sentence()}`;
+    /** The wording without the step (announced while the descent plays). */
+    sentence(): string { return renderMessage(this.sentenceMessage()); }
+
+    /** The status sentence as a catalog message; while descending it begins with the step. */
+    private statusMessage(): Message {
+        if (this.state.mode !== "descent") return this.sentenceMessage();
+        return message("contour_status_join", {
+            value0: message("levelsets_graph_status_step", {value0: String(this.stepValue), value1: String(this.lastStep())}), value1: this.sentenceMessage()});
     }
 
-    readoutRows(): ReadoutListRow[] {
+    statusText(): string { return renderMessage(this.statusMessage()); }
+
+    /** The rows of the readout, as declared (same words, same order); `readoutRows` gives the panel's text of them. */
+    private declaredRows(): ReadoutRow<ContourMapIds>[] {
         const state = this.state;
-        const rows: ReadoutListRow[] = [{id: "function", label: t("levelsets_graph_r_function"), value: this.fnName()}];
+        const rows: ReadoutRow<ContourMapIds>[] = [{id: "function", name: message("levelsets_graph_r_function"), value: message(FUNCTION_KEYS[state.fn])}];
         const curves = this.levelCurves();
         const c = levelOf(state.level);
         const values = levelValues(c, state.levelCount, state.fn);
-        rows.push({id: "level", label: t("levelsets_graph_r_level"), value: state.levelCount === 1 ? dec(c)
-            : t("levelsets_graph_levels_value", {value0: dec(values[0]), value1: dec(values[values.length - 1]), value2: dec(values[1] - values[0])})});
-        rows.push({id: "length", label: t("levelsets_graph_r_length"), value: dec(curves.length, 4)});
-        rows.push({id: "window", label: t("levelsets_graph_r_window"), value: t("levelsets_graph_window_value", {value0: dec(this.half(), 0), value1: String(GRID_N), value2: String(SURFACE_N)})});
-        rows.push({id: "zscale", label: t("levelsets_graph_r_zscale"), value: t("levelsets_graph_zscale_value", {value0: dec(this.zScale(), 6)})});
+        rows.push({id: "level", name: message("levelsets_graph_r_level"), value: state.levelCount === 1 ? formatted(dec(c))
+            : message("levelsets_graph_levels_value", {value0: dec(values[0]), value1: dec(values[values.length - 1]), value2: dec(values[1] - values[0])})});
+        rows.push({id: "length", name: message("levelsets_graph_r_length"), value: formatted(dec(curves.length, 4))});
+        rows.push({id: "window", name: message("levelsets_graph_r_window"), value: message("levelsets_graph_window_value", {value0: dec(this.half(), 0), value1: String(GRID_N), value2: String(SURFACE_N)})});
+        rows.push({id: "zscale", name: message("levelsets_graph_r_zscale"), value: message("levelsets_graph_zscale_value", {value0: dec(this.zScale(), 6)})});
         if (this.showsProbe()) this.probeRows(rows);
         if (this.showsDescent()) this.descentRows(rows);
         if (this.showsLagrange()) this.lagrangeRows(rows);
         return rows;
     }
 
-    private probeRows(rows: ReadoutListRow[]): void {
+    readoutRows(): ReadoutListRow[] {
+        return this.declaredRows().map(({id, name, value}): ReadoutListRow => ({
+            id,
+            label: name ? renderMessage(name) : "",
+            value: "kind" in value && value.kind === "formatted" ? value.text : renderMessage(value as Message),
+        }));
+    }
+
+    private scaleValue(): Message {
+        return this.arrowFactor() === 1 ? message("levelsets_graph_scale_full") : message("levelsets_graph_scale_value", {value0: dec(this.arrowFactor(), 3)});
+    }
+
+    private probeRows(rows: ReadoutRow<ContourMapIds>[]): void {
         const state = this.state;
         const p = this.probePoint();
         const g = this.gradient();
-        rows.push({id: "probe", label: t("levelsets_graph_r_probe"), value: point(p.x, p.y)});
-        rows.push({id: "probe-f", label: t("levelsets_graph_r_probe_f"), value: dec(CATALOGUE[state.fn].value(p.x, p.y), 6)});
+        rows.push({id: "probe", name: message("levelsets_graph_r_probe"), value: pointMessage(p.x, p.y), legend: "probe"});
+        rows.push({id: "probe-f", name: message("levelsets_graph_r_probe_f"), value: formatted(dec(CATALOGUE[state.fn].value(p.x, p.y), 6))});
         if (state.mode !== "gradient") return;
-        rows.push({id: "gradient", label: t("levelsets_graph_r_gradient"), value: g.stationary ? t("levelsets_graph_gradient_zero") : point(g.gradient[0], g.gradient[1], 7)});
-        rows.push({id: "norm", label: t("levelsets_graph_r_norm"), value: dec(g.norm, 7)});
-        rows.push({id: "tangent", label: t("levelsets_graph_r_tangent"), value: g.tangent === null ? t("levelsets_graph_tangent_none") : point(g.tangent[0], g.tangent[1], 7)});
-        rows.push({id: "dot", label: t("levelsets_graph_r_dot"), value: g.dot === null ? t("levelsets_graph_tangent_none") : dec(g.dot, 7)});
-        rows.push({id: "scale", label: t("levelsets_graph_r_scale"), value: this.arrowFactor() === 1 ? t("levelsets_graph_scale_full") : t("levelsets_graph_scale_value", {value0: dec(this.arrowFactor(), 3)})});
+        rows.push({id: "gradient", name: message("levelsets_graph_r_gradient"), value: g.stationary ? message("levelsets_graph_gradient_zero") : pointMessage(g.gradient[0], g.gradient[1], 7),
+            ...(g.stationary ? {} : {legend: "gradient" as const})});
+        rows.push({id: "norm", name: message("levelsets_graph_r_norm"), value: formatted(dec(g.norm, 7))});
+        rows.push({id: "tangent", name: message("levelsets_graph_r_tangent"), value: g.tangent === null ? message("levelsets_graph_tangent_none") : pointMessage(g.tangent[0], g.tangent[1], 7)});
+        rows.push({id: "dot", name: message("levelsets_graph_r_dot"), value: g.dot === null ? message("levelsets_graph_tangent_none") : formatted(dec(g.dot, 7))});
+        rows.push({id: "scale", name: message("levelsets_graph_r_scale"), value: this.scaleValue()});
         if (state.numeric) {
             const n = numericGradient(state.fn, p.x, p.y);
-            rows.push({id: "numeric", label: t("levelsets_graph_r_numeric"), value: point(n.estimate[0], n.estimate[1], 7)});
-            rows.push({id: "numeric-error", label: t("levelsets_graph_r_numeric_error"), value: dec(n.error, 7)});
+            rows.push({id: "numeric", name: message("levelsets_graph_r_numeric"), value: pointMessage(n.estimate[0], n.estimate[1], 7)});
+            rows.push({id: "numeric-error", name: message("levelsets_graph_r_numeric_error"), value: formatted(dec(n.error, 7))});
         }
     }
 
-    private descentRows(rows: ReadoutListRow[]): void {
+    private descentRows(rows: ReadoutRow<ContourMapIds>[]): void {
         const state = this.state;
         const info = this.descent();
         const path = info.result.path;
         const here = path[Math.min(this.stepValue, path.length - 1)];
         const outside = firstOutsideDrawing(info, this.half());
-        rows.push({id: "start", label: t("levelsets_graph_r_start"), value: point(startOf(state.start[0]), startOf(state.start[1]))});
-        rows.push({id: "step", label: t("levelsets_graph_r_step"), value: t("levelsets_graph_step_value", {value0: String(state.step), value1: dec(stepOf(state.step), 2)})});
-        rows.push({id: "steps", label: t("levelsets_graph_r_steps"), value: t("levelsets_graph_steps_value", {value0: String(this.stepValue), value1: String(this.lastStep())})});
-        rows.push({id: "iterate", label: t("levelsets_graph_r_iterate", {value0: subscript(this.stepValue)}), value: point(here.x, here.y, 6)});
-        rows.push({id: "iterate-f", label: t("levelsets_graph_r_iterate_f"), value: dec(CATALOGUE[state.fn].value(here.x, here.y), 6)});
-        rows.push({id: "settled", label: t("levelsets_graph_r_settled"), value: info.settledAt === null ? t("levelsets_graph_settled_never", {value0: String(DESCENT_MAX_STEPS)}) : String(info.settledAt)});
-        rows.push({id: "claim", label: t("levelsets_graph_r_claim"), value: this.behaviourText()});
-        rows.push({id: "stop", label: t("levelsets_graph_r_stop"), value: info.result.stop === "cap"
-            ? t("levelsets_graph_stop_cap", {value0: String(path.length - 1)}) : t("levelsets_graph_stop_escaped", {value0: String(path.length - 1)})});
-        if (outside !== null) rows.push({id: "drawn", label: t("levelsets_graph_r_drawn"), value: t("levelsets_graph_drawn_value", {value0: String(outside - 1)})});
+        rows.push({id: "start", name: message("levelsets_graph_r_start"), value: pointMessage(startOf(state.start[0]), startOf(state.start[1])), legend: "start"});
+        rows.push({id: "step", name: message("levelsets_graph_r_step"), value: message("levelsets_graph_step_value", {value0: String(state.step), value1: dec(stepOf(state.step), 2)})});
+        rows.push({id: "steps", name: message("levelsets_graph_r_steps"), value: message("levelsets_graph_steps_value", {value0: String(this.stepValue), value1: String(this.lastStep())})});
+        rows.push({id: "iterate", name: message("levelsets_graph_r_iterate", {value0: subscript(this.stepValue)}), value: pointMessage(here.x, here.y, 6), legend: "current"});
+        rows.push({id: "iterate-f", name: message("levelsets_graph_r_iterate_f"), value: formatted(dec(CATALOGUE[state.fn].value(here.x, here.y), 6))});
+        rows.push({id: "settled", name: message("levelsets_graph_r_settled"), value: info.settledAt === null
+            ? message("levelsets_graph_settled_never", {value0: String(DESCENT_MAX_STEPS)}) : formatted(String(info.settledAt))});
+        rows.push({id: "claim", name: message("levelsets_graph_r_claim"), value: this.behaviourMessage()});
+        rows.push({id: "stop", name: message("levelsets_graph_r_stop"), value: info.result.stop === "cap"
+            ? message("levelsets_graph_stop_cap", {value0: String(path.length - 1)}) : message("levelsets_graph_stop_escaped", {value0: String(path.length - 1)})});
+        if (outside !== null) rows.push({id: "drawn", name: message("levelsets_graph_r_drawn"), value: message("levelsets_graph_drawn_value", {value0: String(outside - 1)})});
     }
 
-    private lagrangeRows(rows: ReadoutListRow[]): void {
+    private lagrangeRows(rows: ReadoutRow<ContourMapIds>[]): void {
         const info = this.lagrange();
-        rows.push({id: "constraint", label: t("levelsets_graph_r_constraint"), value: t(CONSTRAINT_KEYS[this.constraint()])});
-        rows.push({id: "point", label: t("levelsets_graph_r_point"), value: point(info.x, info.y, 4)});
-        rows.push({id: "point-f", label: t("levelsets_graph_r_point_f"), value: dec(info.f, 6)});
-        rows.push({id: "grad-f", label: t("levelsets_graph_r_grad_f"), value: point(info.gradF[0], info.gradF[1], 5)});
-        rows.push({id: "grad-g", label: t("levelsets_graph_r_grad_g"), value: point(info.gradG[0], info.gradG[1], 5)});
-        rows.push({id: "tangency", label: t("levelsets_graph_r_tangency"), value: this.tangencyText()});
-        rows.push({id: "scale", label: t("levelsets_graph_r_scale"), value: this.arrowFactor() === 1 ? t("levelsets_graph_scale_full") : t("levelsets_graph_scale_value", {value0: dec(this.arrowFactor(), 3)})});
+        rows.push({id: "constraint", name: message("levelsets_graph_r_constraint"), value: message(CONSTRAINT_KEYS[this.constraint()]), legend: "constraint"});
+        rows.push({id: "point", name: message("levelsets_graph_r_point"), value: pointMessage(info.x, info.y, 4), legend: "point"});
+        rows.push({id: "point-f", name: message("levelsets_graph_r_point_f"), value: formatted(dec(info.f, 6))});
+        rows.push({id: "grad-f", name: message("levelsets_graph_r_grad_f"), value: pointMessage(info.gradF[0], info.gradF[1], 5), legend: "grad-f"});
+        rows.push({id: "grad-g", name: message("levelsets_graph_r_grad_g"), value: pointMessage(info.gradG[0], info.gradG[1], 5), legend: "grad-g"});
+        rows.push({id: "tangency", name: message("levelsets_graph_r_tangency"), value: this.tangencyMessage()});
+        rows.push({id: "scale", name: message("levelsets_graph_r_scale"), value: this.scaleValue()});
         if (info.tangency.kind === "exact") {
             const points = info.tangency.points;
-            const text = points.kind === "point" ? this.exactPointText(points.point.x, points.point.y)
-                : points.kind === "none" ? t("levelsets_graph_tangent_points_none") : t("levelsets_graph_tangent_points_everywhere");
-            rows.push({id: "tangent-points", label: t("levelsets_graph_r_tangent_points"), value: text});
+            const value = points.kind === "point" ? this.exactPointMessage(points.point.x, points.point.y)
+                : points.kind === "none" ? message("levelsets_graph_tangent_points_none") : message("levelsets_graph_tangent_points_everywhere");
+            rows.push({id: "tangent-points", name: message("levelsets_graph_r_tangent_points"), value});
         } else {
-            rows.push({id: "tangent-points", label: t("levelsets_graph_r_tangent_count"),
-                value: t("levelsets_graph_tangent_count_value", {value0: String(circleTangentCount(this.state.fn)), value1: String(CIRCLE_STEPS)})});
+            rows.push({id: "tangent-points", name: message("levelsets_graph_r_tangent_count"),
+                value: message("levelsets_graph_tangent_count_value", {value0: String(circleTangentCount(this.state.fn)), value1: String(CIRCLE_STEPS)})});
         }
     }
 
     /** An exact point as fractions, with the decimals beside it when either coordinate is a fraction (as the linear program does). */
-    private exactPointText(x: Rational, y: Rational): string {
-        const exact = t("levelsets_graph_point_format", {value0: rationalText(x), value1: rationalText(y)});
+    private exactPointMessage(x: Rational, y: Rational): Message {
+        const exact = message("levelsets_graph_point_format", {value0: rationalText(x), value1: rationalText(y)});
         return x.den === 1n && y.den === 1n ? exact
-            : t("levelsets_graph_lp_exact_decimal", {value0: exact, value1: point(x.toNumber(), y.toNumber(), 4)});
+            : message("levelsets_graph_lp_exact_decimal", {value0: exact, value1: pointMessage(x.toNumber(), y.toNumber(), 4)});
+    }
+
+    // ---- Declaration ------------------------------------------------------------------------------------------------------
+
+    /** The circle angle in degrees: one step of the 48 around the circle. */
+    private static readonly CIRCLE_DEGREES = 360 / CIRCLE_STEPS;
+
+    /**
+     * Parameter writes (ADR 0064): the setters the Orodja controls call, so a value off the grid or out of range is refused with the
+     * control's own message, never rounded or clamped. The step H and the point on the constraint are bound in every mode (their pucks
+     * appear only in the mode that uses them).
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const levelArgs = {value0: dec(LEVEL_RANGE.min / LEVEL_SCALE, 0), value1: dec(LEVEL_RANGE.max / LEVEL_SCALE, 0), value2: dec(1 / LEVEL_SCALE, 3)};
+        const degrees = ContourMapGraph.CIRCLE_DEGREES;
+        const circleArgs = {value0: dec(CIRCLE_PARAM_RANGE.min * degrees, 1), value1: dec(CIRCLE_PARAM_RANGE.max * degrees, 1), value2: dec(degrees, 1)};
+        const refuse = (accepted: boolean, refusal: () => Message) => { if (!accepted) throw new DomainError(refusal()); };
+        const choice = <T extends string>(options: readonly T[], value: unknown): T => {
+            const found = options.find(option => option === value);
+            if (found === undefined) throw new DomainError(message("contour_choice_rejected", {value0: String(value)}));
+            return found;
+        };
+        return {
+            "contour-level": {read: () => levelOf(this.state.level), apply: (value: unknown) => refuse(typeof value === "number" && this.setLevel(value), () => message("levelsets_graph_level_rejected", levelArgs))},
+            "contour-count": {
+                read: () => this.state.levelCount,
+                apply: (value: unknown) => refuse(typeof value === "number" && this.setLevelCount(value),
+                    () => message("contour_count_rejected", {value0: String(LEVEL_COUNT_RANGE.min), value1: String(LEVEL_COUNT_RANGE.max)})),
+            },
+            "contour-mode": {read: () => this.state.mode, apply: (value: unknown) => this.setMode(choice(CONTOUR_MODES, value))},
+            "contour-fn": {read: () => this.state.fn, apply: (value: unknown) => this.setFunction(choice(CATALOGUE_IDS, value))},
+            "contour-step": {
+                read: () => this.state.step,
+                apply: (value: unknown) => refuse(typeof value === "number" && this.setStep(value),
+                    () => message("levelsets_graph_step_rejected", {value0: String(STEP_RANGE.min), value1: String(STEP_RANGE.max)})),
+            },
+            "contour-constraint": {
+                read: () => this.constraint(),
+                apply: (value: unknown) => refuse(this.setConstraint(choice(CONSTRAINT_IDS, value)), () => message("levelsets_graph_constraint_hills_reason")),
+            },
+            "contour-line-x": {
+                read: () => lineParamOf(this.state.lineParam),
+                apply: (value: unknown) => refuse(typeof value === "number" && this.setLineX(value), () => message("contour_line_x_rejected", {
+                    value0: dec(lineParamOf(LINE_PARAM_RANGE.min), 2), value1: dec(lineParamOf(LINE_PARAM_RANGE.max), 2), value2: dec(1 / LINE_PARAM_SCALE, 2)})),
+            },
+            "contour-circle": {
+                read: () => this.state.circleParam * degrees,
+                apply: (value: unknown) => refuse(typeof value === "number" && this.setCircleAngle(value), () => message("levelsets_graph_circle_rejected", circleArgs)),
+            },
+        };
+    }
+
+    /**
+     * Pure data from the state and the shown step: the pucks the lessons ask for (the level c and the count; the mode; the step H in
+     * descent; the point on the line or the circle angle in lagrange; the numeric switch in gradient), the function and the constraint in
+     * Orodja (setup), the playback actions in the Edit group, the rows, the status sentence as a note and the legend of what is drawn.
+     */
+    protected override declaration(): GraphDeclaration<ContourMapIds> {
+        const state = this.state;
+        const degrees = ContourMapGraph.CIRCLE_DEGREES;
+        const parameters: ParameterDeclaration<ContourMapIds["param"]>[] = [
+            {key: "contour-level", kind: "range", label: message("contour_level_name"), symbol: "c", placement: "board", min: LEVEL_RANGE.min / LEVEL_SCALE,
+                max: LEVEL_RANGE.max / LEVEL_SCALE, step: 1 / LEVEL_SCALE, bigStep: 1, maxDecimals: 3},
+            {key: "contour-count", kind: "count", label: message("contour_count_name"), placement: "board", min: LEVEL_COUNT_RANGE.min, max: LEVEL_COUNT_RANGE.max,
+                help: message("levelsets_graph_count_help", {value0: String(LEVEL_COUNT_RANGE.min), value1: String(LEVEL_COUNT_RANGE.max)})},
+            {key: "contour-mode", kind: "choice", label: message("levelsets_graph_mode"), help: message(MODE_HELP_KEYS[state.mode]), placement: "board", puck: true,
+                options: CONTOUR_MODES.map(value => ({value, label: message(MODE_KEYS[value])}))},
+            {key: "contour-fn", kind: "choice", label: message("levelsets_graph_fn"), help: message("levelsets_graph_fn_help"), placement: "tools", tab: "edit",
+                options: CATALOGUE_IDS.map(value => ({value, label: message(FUNCTION_KEYS[value])}))},
+        ];
+        if (this.showsDescent()) {
+            parameters.push({key: "contour-step", kind: "range", label: message("contour_step_name"), symbol: "H", placement: "board", min: STEP_RANGE.min, max: STEP_RANGE.max,
+                step: 1, bigStep: 1, maxDecimals: 0,
+                help: message("levelsets_graph_step_help", {value0: String(STEP_RANGE.min), value1: String(STEP_RANGE.max), value2: dec(STEP_RANGE.min / STEP_SCALE, 2),
+                    value3: dec(STEP_RANGE.max / STEP_SCALE, 2)})});
+        }
+        if (this.showsLagrange()) {
+            parameters.push({key: "contour-constraint", kind: "choice", label: message("levelsets_graph_constraint"), help: message("levelsets_graph_constraint_help"),
+                placement: "tools", tab: "edit", options: CONSTRAINT_IDS.filter(id => constraintAccepts(state.fn, id)).map(value => ({value, label: message(CONSTRAINT_KEYS[value])}))});
+            parameters.push(this.constraint() === "line"
+                ? {key: "contour-line-x", kind: "range", label: message("contour_line_x_name"), symbol: "x", placement: "board", min: lineParamOf(LINE_PARAM_RANGE.min),
+                    max: lineParamOf(LINE_PARAM_RANGE.max), step: 1 / LINE_PARAM_SCALE, bigStep: 1, maxDecimals: 2}
+                : {key: "contour-circle", kind: "range", label: message("contour_circle_name"), placement: "board", min: CIRCLE_PARAM_RANGE.min * degrees,
+                    max: CIRCLE_PARAM_RANGE.max * degrees, step: degrees, bigStep: 45, maxDecimals: 1, unit: message("contour_degrees"),
+                    help: message("levelsets_graph_circle_help", {value0: dec(CIRCLE_PARAM_RANGE.min * degrees, 1), value1: dec(CIRCLE_PARAM_RANGE.max * degrees, 1), value2: dec(degrees, 1)})});
+        }
+        const actions: ActionDeclaration<ContourMapIds>[] = [];
+        if (this.showsGradient()) {
+            actions.push({id: "numeric", label: message("contour_numeric_puck"), help: message("levelsets_graph_numeric_help"), placement: "board", puck: true, enabled: true, pressed: state.numeric});
+        }
+        if (this.showsDescent()) {
+            const last = this.lastStep();
+            const playing = this.playingValue;
+            const blocks = playbackBlocks({atStart: this.stepValue === 0, atEnd: this.stepValue === last, playing});
+            const playback = {placement: "tools" as const, tab: "edit" as const};
+            actions.push(
+                {id: "next-step", label: message("next_step"), enabled: blocks.nextBlock === undefined, ...playback},
+                {id: "play-pause", label: message("play"), enabled: playing || (blocks.playBlock === undefined && !this.reducedMotion()), pressed: playing, ...playback},
+                {id: "reset-run", label: message("reset"), enabled: blocks.resetBlock === undefined, ...playback},
+            );
+        }
+        const legend: LegendEntry<ContourMapIds>[] = this.legend().map(row => ({id: row.id, label: row.label, kind: row.kind, object: row.id}));
+        return {
+            parameters, actions, legend,
+            readouts: [{id: "values", title: message("levelsets_graph_readout_title"), rows: this.declaredRows()}],
+            notes: [{id: "status", text: this.statusMessage()}],
+            marks: this.viewMarks(),
+        };
+    }
+
+    /** What the view director keeps visible: the window of the function, where every contour, handle and path is drawn. */
+    private viewMarks(): ViewMarks {
+        const w = this.window();
+        return {must: [{kind: "box", left: w.xMin, top: w.yMax, right: w.xMax, bottom: w.yMin}]};
+    }
+
+    /** The legend card names what is drawn now: colour and visibility come from the same rule as the board's objects (`legend`). */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const row = this.legend().find(entry => entry.id === id);
+        return row ? {color: row.color, visible: true} : undefined;
+    }
+
+    /** A declared action pressed as the learner: the method the Orodja control calls. */
+    override performAction(id: string): void {
+        switch (id) {
+            case "numeric": runAs("learner", () => this.setNumeric(!this.state.numeric)); return;
+            case "next-step": runAs("learner", () => this.nextStep()); return;
+            case "play-pause": runAs("learner", () => { if (this.playingValue) this.pausePlayback(); else this.play(); }); return;
+            case "reset-run": runAs("learner", () => this.resetSteps()); return;
+            default: throw new Error("Unknown action");
+        }
     }
 
     // ---- Controls -------------------------------------------------------------------------------------------------------
@@ -1216,21 +1389,21 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
             if (!accepted) return t("levelsets_graph_point_rejected", {value0: dec(this.half(), 0), value1: dec(1 / scale, 2)});
         };
         const commands: JSX.Element[] = [
-            <ChoiceSelect key="mode" label={t("levelsets_graph_mode")} value={state.mode} help={t(MODE_HELP_KEYS[state.mode])}
+            <PuckOwned key="mode" param="contour-mode"><ChoiceSelect label={t("levelsets_graph_mode")} value={state.mode} help={t(MODE_HELP_KEYS[state.mode])}
                           options={CONTOUR_MODES.map(value => ({value, text: t(MODE_KEYS[value])}))}
-                          onChange={value => { const mode = CONTOUR_MODES.find(candidate => candidate === value); if (mode) this.setMode(mode); }}/>,
+                          onChange={value => { const mode = CONTOUR_MODES.find(candidate => candidate === value); if (mode) this.setMode(mode); }}/></PuckOwned>,
             <ChoiceSelect key="fn" label={t("levelsets_graph_fn")} value={state.fn} help={t("levelsets_graph_fn_help")}
                           options={CATALOGUE_IDS.map(value => ({value, text: t(FUNCTION_KEYS[value])}))}
                           onChange={value => { const fn = CATALOGUE_IDS.find(candidate => candidate === value); if (fn) this.setFunction(fn); }}/>,
-            <Slider key="level" customText={t("levelsets_graph_level")} min={LEVEL_RANGE.min / LEVEL_SCALE} max={LEVEL_RANGE.max / LEVEL_SCALE} step={1 / LEVEL_SCALE}
+            <PuckOwned key="level" param="contour-level"><Slider customText={t("levelsets_graph_level")} min={LEVEL_RANGE.min / LEVEL_SCALE} max={LEVEL_RANGE.max / LEVEL_SCALE} step={1 / LEVEL_SCALE}
                     bigStep={1} decimals={3} value={levelOf(state.level)}
                     rejectedHint={t("levelsets_graph_level_rejected", {value0: dec(LEVEL_RANGE.min / LEVEL_SCALE, 0), value1: dec(LEVEL_RANGE.max / LEVEL_SCALE, 0), value2: dec(1 / LEVEL_SCALE, 3)})}
-                    valueText={value => t("levelsets_graph_level_value", {value0: dec(value, 3)})} onChange={value => this.setLevel(value)}/>,
-            <CountSetter key="count" label={t("levelsets_graph_count")} n={state.levelCount} min={LEVEL_COUNT_RANGE.min} max={LEVEL_COUNT_RANGE.max} bigStep={1}
+                    valueText={value => t("levelsets_graph_level_value", {value0: dec(value, 3)})} onChange={value => this.setLevel(value)}/></PuckOwned>,
+            <PuckOwned key="count" param="contour-count"><CountSetter label={t("levelsets_graph_count")} n={state.levelCount} min={LEVEL_COUNT_RANGE.min} max={LEVEL_COUNT_RANGE.max} bigStep={1}
                          minusLabel={t("levelsets_graph_count_minus")} plusLabel={t("levelsets_graph_count_plus")}
                          help={t("levelsets_graph_count_help", {value0: String(LEVEL_COUNT_RANGE.min), value1: String(LEVEL_COUNT_RANGE.max)})}
                          onPlus={() => this.setLevelCount(state.levelCount + 1)} onMinus={() => this.setLevelCount(state.levelCount - 1)}
-                         onSet={value => this.setLevelCount(value)}/>,
+                         onSet={value => this.setLevelCount(value)}/></PuckOwned>,
         ];
         if (this.showsProbe()) {
             const p = this.probePoint();
@@ -1239,19 +1412,19 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
                                           onCommit={(_index, value) => commitPoint([p.x, p.y], value, PROBE_SCALE, (axis, next) => this.setProbe(axis, next))}/>);
         }
         if (this.showsGradient()) {
-            commands.push(<BooleanField key="numeric" variant="checkbox" label={t("levelsets_graph_numeric")} help={t("levelsets_graph_numeric_help")} checked={state.numeric}
-                                        onChange={checked => this.setNumeric(checked)}/>);
+            commands.push(<PuckOwned key="numeric" param="numeric"><BooleanField variant="checkbox" label={t("levelsets_graph_numeric")} help={t("levelsets_graph_numeric_help")} checked={state.numeric}
+                                        onChange={checked => this.setNumeric(checked)}/></PuckOwned>);
         }
         if (this.showsDescent()) {
             const start: [number, number] = [startOf(state.start[0]), startOf(state.start[1])];
             commands.push(<PointListInput key="start" title={t("levelsets_graph_start_title")} points={[start]} pointLabel={() => "P0"}
                                           min={-this.half()} max={this.half()} step={1 / START_SCALE} bigStep={1} decimals={2}
                                           onCommit={(_index, value) => commitPoint(start, value, START_SCALE, (axis, next) => this.setStart(axis, next))}/>,
-                <Slider key="step" customText={t("levelsets_graph_step")} min={STEP_RANGE.min} max={STEP_RANGE.max} step={1} grid={1} bigStep={1} decimals={0} value={state.step}
+                <PuckOwned key="step" param="contour-step"><Slider customText={t("levelsets_graph_step")} min={STEP_RANGE.min} max={STEP_RANGE.max} step={1} grid={1} bigStep={1} decimals={0} value={state.step}
                         help={t("levelsets_graph_step_help", {value0: String(STEP_RANGE.min), value1: String(STEP_RANGE.max), value2: dec(STEP_RANGE.min / STEP_SCALE, 2), value3: dec(STEP_RANGE.max / STEP_SCALE, 2)})}
                         rejectedHint={t("levelsets_graph_step_rejected", {value0: String(STEP_RANGE.min), value1: String(STEP_RANGE.max)})}
                         valueText={value => t("levelsets_graph_step_value", {value0: dec(value, 0), value1: dec(stepOf(Math.round(value)), 2)})}
-                        onChange={value => this.setStep(value)}/>);
+                        onChange={value => this.setStep(value)}/></PuckOwned>);
         }
         if (this.showsLagrange()) {
             const hills = !constraintAccepts(state.fn, "line");
@@ -1260,18 +1433,18 @@ export class ContourMapGraph extends BaseGraph<ContourMapGraphState, ContourPres
                                         reason={hills ? t("levelsets_graph_constraint_hills_reason") : undefined}
                                         onChange={value => { const id = CONSTRAINT_IDS.find(candidate => candidate === value); if (id) this.setConstraint(id); }}/>);
             if (this.constraint() === "line") {
-                commands.push(<Slider key="line-x" customText={t("levelsets_graph_line_x")} value={lineParamOf(state.lineParam)} step={1 / LINE_PARAM_SCALE} bigStep={1}
+                commands.push(<PuckOwned key="line-x" param="contour-line-x"><Slider customText={t("levelsets_graph_line_x")} value={lineParamOf(state.lineParam)} step={1 / LINE_PARAM_SCALE} bigStep={1}
                                       min={lineParamOf(LINE_PARAM_RANGE.min)} max={lineParamOf(LINE_PARAM_RANGE.max)} decimals={2}
-                                      onChange={value => this.setLineX(value)}/>);
+                                      onChange={value => this.setLineX(value)}/></PuckOwned>);
             } else {
                 const stepDegrees = 360 / CIRCLE_STEPS;
                 const degreesText = {value0: dec(CIRCLE_PARAM_RANGE.min * stepDegrees, 1), value1: dec(CIRCLE_PARAM_RANGE.max * stepDegrees, 1), value2: dec(stepDegrees, 1)};
-                commands.push(<Slider key="circle" customText={t("levelsets_graph_circle_angle")} min={CIRCLE_PARAM_RANGE.min * stepDegrees} max={CIRCLE_PARAM_RANGE.max * stepDegrees}
+                commands.push(<PuckOwned key="circle" param="contour-circle"><Slider customText={t("levelsets_graph_circle_angle")} min={CIRCLE_PARAM_RANGE.min * stepDegrees} max={CIRCLE_PARAM_RANGE.max * stepDegrees}
                                       step={stepDegrees} bigStep={45} decimals={1} value={state.circleParam * stepDegrees}
                                       help={t("levelsets_graph_circle_help", degreesText)}
                                       rejectedHint={t("levelsets_graph_circle_rejected", degreesText)}
                                       valueText={value => t("levelsets_graph_circle_value", {value0: dec(value, 1)})}
-                                      onChange={value => this.setCircleAngle(value)}/>);
+                                      onChange={value => this.setCircleAngle(value)}/></PuckOwned>);
             }
         }
         // The first task leads: the level value and its contour, then the marked point; mode, function and overlay count follow.

@@ -759,6 +759,28 @@ const SAMPLES: readonly Sample[] = [
             {name: 'five rows', apply: lp([...dflt, {a: 1, b: 0, c: 3}, {a: 0, b: 1, c: 3}, {a: 1, b: 1, c: 5}], {p: 2, q: 3}, 10)},
         ] satisfies ParityState[];
     })()},
+    {file: 'levelsets/__parity__/contour-map.json', demonstration: 'contour-map', states: (() => {
+        type Contour = {setState(state: Record<string, unknown>): void; setStepIndex(value: number): boolean};
+        const fresh = {mode: 'level-sets', fn: 'bowl', level: 8, levelCount: 1, probe: [12, 16], numeric: false, start: [8, 4], step: 3, constraint: 'line', lineParam: 4, circleParam: 6};
+        // every state starts from the default fields, so a state does not inherit the previous one
+        const run = (state: Record<string, unknown>, stepIndex?: number): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Contour;
+                g.setState({...fresh, ...state});
+                if (stepIndex !== undefined) g.setStepIndex(stepIndex);
+            });
+        };
+        return [
+            {name: 'default', apply: run({})},
+            {name: 'saddle, three levels at 0, probe (1; 0,5)', apply: run({fn: 'saddle', level: 0, levelCount: 3, probe: [20, 10]})},
+            {name: 'gradient on the hills with the estimate', apply: run({fn: 'hills', level: 5, probe: [20, 20], mode: 'gradient', numeric: true})},
+            {name: 'gradient at a stationary point', apply: run({fn: 'hills', level: 5, probe: [0, 0], mode: 'gradient'})},
+            {name: 'descent on the valley, H 11, step 3', apply: run({fn: 'valley', mode: 'descent', step: 11}, 3)},
+            {name: 'descent on the bowl, step 0', apply: run({mode: 'descent', step: 9})},
+            {name: 'lagrange on the line at x 1', apply: run({mode: 'lagrange', levelCount: 3, lineParam: 4})},
+            {name: 'lagrange on the circle, product', apply: run({mode: 'lagrange', fn: 'product', level: 0, constraint: 'circle', circleParam: 18})},
+        ] satisfies ParityState[];
+    })()},
     {file: 'lines/__parity__/line-geometry.json', demonstration: 'line-geometry', states: (() => {
         type Lines = {setState(state: Record<string, unknown>): void};
         const at = (x: number, y: number) => ({x, y});

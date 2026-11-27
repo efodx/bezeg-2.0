@@ -1,14 +1,14 @@
 /**
  * LS1 and LS2 (level sets, batch B), part A: every scene lands, in both languages, in the state and readouts the text states (the real contour graph, one synchronous sequence of
  * actions from a restored checkpoint, out of order and twice in one act); no opening is already the state the prompt asks the learner to produce; every control or readout the
- * prompts name exists in the graph strings; and the learner actions the text asks for (the mode and function choosers, the level field and count buttons, the probe fields, the
- * numeric checkbox) give the readouts the text quotes. Expected values are computed here from the closed forms of the five functions, not with the graph.
+ * prompts name exists in the graph strings; and the learner actions the text asks for (the mode puck and the function chooser, the level and count pucks, the probe fields, the
+ * numeric switch puck) give the readouts the text quotes. Expected values are computed here from the closed forms of the five functions, not with the graph.
  */
 import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../graphs/base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {chooseOnPuckNow, installBoardShims, openTools, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../graphs/base/realGraphTestHarness';
 import type {SurfaceScene, SurfaceView} from '../../graphs/patches/surface-view/surfaceScene';
 import ContourMapGraph from '../../graphs/levelsets/ContourMapGraph';
 import {enterNumber} from '../../inputs/testEntry';
@@ -139,18 +139,29 @@ function mountContour() {
     return {graph, capabilities, scene, sceneTwice, restore, free};
 }
 
+/** A mount on which the learner can act: the puck strip laid out and Orodja open (the function and the probe stay there). */
+async function mountForLearner() {
+    const m = mountContour();
+    await waitForPucks('contour-mode');
+    await openTools();
+    return m;
+}
+
 // ---- learner controls ------------------------------------------------------------------------------------------------------------------
 
+// The level c, the count, the mode and the numeric switch are pucks (task 08 lane L29); the function and the probe stay in Orodja.
 const loc = (value: string, language: Language) => (language === 'sl' ? value : value.replace(',', '.'));
 const choose = (label: string, value: string) => act(() => { fireEvent.change(screen.getByLabelText(label), {target: {value}}); });
 const typeInto = (name: string, value: string, language: Language) => act(() => { enterNumber(screen.getByRole('spinbutton', {name}) as HTMLInputElement, loc(value, language)); });
-const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
-const toggleNumeric = () => act(() => { fireEvent.click(screen.getByRole('checkbox', {name: t('levelsets_graph_numeric')})); });
-const chooseMode = (mode: 'level-sets' | 'gradient') => choose(t('levelsets_graph_mode'), mode);
+const toggleNumeric = () => act(() => { fireEvent.click(puckControl('numeric')); });
+const chooseMode = (mode: 'level-sets' | 'gradient') => chooseOnPuckNow('contour-mode', mode);
 const chooseFunction = (fn: Fn) => choose(t('levelsets_graph_fn'), fn);
-const typeLevel = (value: string, language: Language) => typeInto(t('number_field_label', {value0: t('levelsets_graph_level')}), value, language);
+const typeLevel = (value: string, language: Language) => typePuck('contour-level', loc(value, language));
 const typeProbe = (x: string, y: string, language: Language) => { typeInto('P, x', x, language); typeInto('P, y', y, language); };
-const morePlus = () => press(t('levelsets_graph_count_plus'));
+/** The count puck's increase button (the last of its two step buttons). */
+const morePlus = () => act(() => { fireEvent.click([...document.querySelectorAll('.puck-strip [data-puck-key="contour-count"] .puck-step')].pop()!); });
+/** The text of a puck (its label and value), or null when the strip does not show it. */
+const puckText = (key: string) => document.querySelector(`.puck-strip [data-puck-key="${key}"]`)?.textContent ?? null;
 
 // ---- steps: the opening state and the learner actions the text asks for -----------------------------------------------------------------
 
@@ -267,9 +278,9 @@ describe.each(LANGUAGES)('LS1 and LS2 scenes in %s', language => {
         }
     });
 
-    test('the learner actions the text asks for give the state and readouts it quotes', () => {
+    test('the learner actions the text asks for give the state and readouts it quotes', async () => {
         setLanguage(language);
-        const m = mountContour();
+        const m = await mountForLearner();
         for (const plan of PLANS) {
             m.scene(plan.lesson, plan.id);
             let before = JSON.stringify(plain(m.graph));
@@ -284,9 +295,9 @@ describe.each(LANGUAGES)('LS1 and LS2 scenes in %s', language => {
         }
     });
 
-    test('the quoted readouts after the actions: hills levels, the length at c = 1, the valley and saddle level ranges', () => {
+    test('the quoted readouts after the actions: hills levels, the length at c = 1, the valley and saddle level ranges', async () => {
         setLanguage(language);
-        const m = mountContour();
+        const m = await mountForLearner();
         const hills = PLANS.find(plan => plan.id === 'ls1-hills')!;
         m.scene(hills.lesson, hills.id);
         for (const ask of hills.asks) ask.act(language);
@@ -307,15 +318,15 @@ describe.each(LANGUAGES)('LS1 and LS2 scenes in %s', language => {
 // ---- the controls and readouts the prompts name ----------------------------------------------------------------------------------------
 
 const L = {
-    count: () => t('levelsets_graph_count'), plus: () => t('levelsets_graph_count_plus'), level: () => t('levelsets_graph_level'), rLevel: () => t('levelsets_graph_r_level'),
+    count: () => t('contour_count_name'), level: () => `${t('contour_level_name')} c`, rLevel: () => t('levelsets_graph_r_level'),
     probeF: () => t('levelsets_graph_r_probe_f'), probe: () => t('levelsets_graph_probe_title'), fn: () => t('levelsets_graph_fn'), mode: () => t('levelsets_graph_mode'),
     gradientMode: () => t('levelsets_graph_mode_gradient'), gradient: () => t('levelsets_graph_r_gradient'), norm: () => t('levelsets_graph_r_norm'), tangent: () => t('levelsets_graph_r_tangent'),
-    dot: () => t('levelsets_graph_r_dot'), numericLabel: () => t('levelsets_graph_numeric'), numeric: () => t('levelsets_graph_r_numeric'), error: () => t('levelsets_graph_r_numeric_error'),
+    dot: () => t('levelsets_graph_r_dot'), numericLabel: () => t('contour_numeric_puck'), numeric: () => t('levelsets_graph_r_numeric'), error: () => t('levelsets_graph_r_numeric_error'),
     length: () => t('levelsets_graph_r_length'), scale: () => t('levelsets_graph_r_scale'),
     valley: () => t('levelsets_graph_fn_valley'), saddle: () => t('levelsets_graph_fn_saddle'), hills: () => t('levelsets_graph_fn_hills'), product: () => t('levelsets_graph_fn_product'),
 };
 const NAMED: Record<string, readonly (() => string)[]> = {
-    'ls1-bowl': [L.plus, L.count, L.rLevel],
+    'ls1-bowl': [L.count, L.rLevel],
     'ls1-probe': [L.probeF, L.probe],
     'ls1-valley': [L.fn, L.valley],
     'ls1-saddle': [L.fn, L.saddle, L.level, L.rLevel],
@@ -345,17 +356,19 @@ describe.each(LANGUAGES)('LS1 and LS2 prompt labels in %s', language => {
         for (const label of NAMED[id]) expect({id, label: label(), named: forms(label()).some(form => prompt.includes(form))}).toEqual({id, label: label(), named: true});
     });
 
-    test('the labels exist in the mounted graph: control labels and readout labels', () => {
+    test('the labels exist in the mounted graph: control labels and readout labels', async () => {
         setLanguage(language);
-        const m = mountContour();
+        const m = await mountForLearner();
         const gradientPlan = PLANS.find(plan => plan.id === 'ls2-numeric')!;
         m.scene(gradientPlan.lesson, gradientPlan.id);
         toggleNumeric();
         const dts = [...document.querySelectorAll('[data-readout] dt')].map(node => node.textContent ?? '');
         for (const label of [L.rLevel, L.probeF, L.gradient, L.norm, L.tangent, L.dot, L.numeric, L.error, L.length]) expect({label: label(), shown: dts.includes(label())}).toEqual({label: label(), shown: true});
-        for (const label of [L.fn, L.mode]) expect({label: label(), control: screen.queryAllByLabelText(label()).length > 0}).toEqual({label: label(), control: true});
-        expect(screen.queryByRole('checkbox', {name: L.numericLabel()})).not.toBeNull();
-        expect(screen.queryByRole('button', {name: L.plus()})).not.toBeNull();
+        expect({label: L.fn(), control: screen.queryAllByLabelText(L.fn()).length > 0}).toEqual({label: L.fn(), control: true});
+        // the pucks show their bare label (the level's symbol c is typeset next to it)
+        const pucks = {mode: puckText('contour-mode'), count: puckText('contour-count'), level: puckText('contour-level'), numeric: puckText('numeric')};
+        expect({mode: pucks.mode?.includes(L.mode()), count: pucks.count?.includes(L.count()), level: pucks.level?.includes(t('contour_level_name')), numeric: pucks.numeric?.includes(L.numericLabel())})
+            .toEqual({mode: true, count: true, level: true, numeric: true});
     });
 });
 

@@ -14,10 +14,13 @@
  * extremum is a necessary condition (Lagrange); the paths and arrows in the picture are an illustration.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {ContourMapIds} from '../../graphs/levelsets/ContourMapGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<ContourMapIds>();
 
 interface StepContent {
     readonly id: string;
@@ -29,11 +32,13 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights, opens and asks the learner to use (task 08). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation', declare)],
 });
 
 /**
@@ -116,7 +121,7 @@ const LAB = {
     levelSets: text('Nivojnice', 'Level sets'),
     fn: text('Funkcija', 'Function'),
     valley: text('Dolina: \\(x^2+10y^2\\)', 'Valley: \\(x^2+10y^2\\)'),
-    step: text('Korak \\(h\\) (\\(H=100h\\))', 'Step \\(h\\) (\\(H=100h\\))'),
+    step: text('Korak \\(H\\)', 'Step \\(H\\)'),
     next: text('Naslednji korak', 'Next step'),
     playStep: text('Korak spusta', 'Descent step'),
     p0y: text('\\(P_0\\), \\(y\\)', '\\(P_0\\), \\(y\\)'),
@@ -125,8 +130,8 @@ const LAB = {
     first: text('Prvi korak z \\(f<0{,}000001\\)', 'First step with \\(f<0.000001\\)'),
     behaviour: text('Obnašanje', 'Behaviour'),
     end: text('Konec izračuna', 'End of the computation'),
-    lineX: text('Točka na premici, \\(x\\)', 'Point on the line, \\(x\\)'),
-    circleAngle: text('Točka na krožnici, kot', 'Point on the circle, angle'),
+    lineX: text('Točka na premici \\(x\\)', 'Line point \\(x\\)'),
+    circleAngle: text('Kot na krožnici', 'Circle angle'),
     tangent: text('Dotikališče (točno)', 'Point of tangency (exact)'),
     touch: text('Dotikanje', 'Tangency'),
     gradF: text('Gradient funkcije \\(f\\)', 'Gradient of \\(f\\)'),
@@ -180,6 +185,7 @@ const ls3Formulas: readonly FormulaBlock[] = [
 const ls3Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'ls3-bowl', order: 1,
+        declare: f({open: ['tools'], uses: ['next-step'], highlight: ['iterate', 'iterate-f']}),
         title: text('Skleda in spust', 'The bowl and the descent'),
         purpose: text('Napovedati smer prvega koraka in obliko poti gradientnega spusta, preden ju graf nariše.', 'Predicting the direction of the first step and the shape of the path of gradient descent before the graph draws them.'),
         explanation: text(
@@ -201,6 +207,7 @@ const ls3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls3-valley', order: 2,
+        declare: f({open: ['tools'], uses: ['contour-fn', 'next-step'], highlight: ['iterate', 'iterate-f', 'settled']}),
         title: text('Dolina', 'The valley'),
         purpose: text('Napovedati, kako strma funkcija v eni smeri spremeni pot spusta pri istem začetku in koraku.', 'Predicting how a function that is steep in one direction changes the path of the descent at the same start and step.'),
         explanation: text(
@@ -222,6 +229,7 @@ const ls3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls3-step-9', order: 3,
+        declare: f({open: ['tools'], uses: ['contour-step', 'next-step'], highlight: ['iterate', 'settled', 'claim']}),
         title: text('Večji korak', 'A larger step'),
         purpose: text('Napovedati iz faktorjev, kaj večji korak stori s potjo po dolini.', 'Predicting from the factors what a larger step does to the path along the valley.'),
         explanation: text(
@@ -230,8 +238,8 @@ const ls3Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['valley-factors'],
         observationPrompt: text(
-            `Zapiši napoved. Nato v polje ${LAB.step.sl} vpiši \\(9\\), trikrat pritisni ${LAB.next.sl}, preberi ${LAB.point.sl} in ${LAB.valueF.sl} ter preberi ${LAB.behaviour.sl} in ${LAB.first.sl}.`,
-            `Write down your prediction. Then in the field ${LAB.step.en} enter \\(9\\), press ${LAB.next.en} three times, read ${LAB.point.en} and ${LAB.valueF.en}, and read ${LAB.behaviour.en} and ${LAB.first.en}.`,
+            `Zapiši napoved. Nato v krmilnik ${LAB.step.sl} vpiši \\(9\\), trikrat pritisni ${LAB.next.sl}, preberi ${LAB.point.sl} in ${LAB.valueF.sl} ter preberi ${LAB.behaviour.sl} in ${LAB.first.sl}.`,
+            `Write down your prediction. Then in the control ${LAB.step.en} enter \\(9\\), press ${LAB.next.en} three times, read ${LAB.point.en} and ${LAB.valueF.en}, and read ${LAB.behaviour.en} and ${LAB.first.en}.`,
         ),
         expectedObservations: [text(
             'Faktorja sta \\(1-2h=0{,}82\\) in \\(1-20h=-0{,}8\\). Točke so \\((1{,}64;\\ -0{,}8)\\), \\((1{,}3448;\\ 0{,}64)\\) in \\((1{,}102736;\\ -0{,}512)\\), vrednosti \\(f\\) pa \\(9{,}0896\\), \\(5{,}904487\\) in \\(3{,}837467\\). Koordinata \\(y\\) v vsakem koraku zamenja predznak in se skrči na \\(0{,}8\\) prejšnje velikosti, zato pot cik-cak preskakuje čez os \\(x\\) in se vseeno približuje \\((0;\\ 0)\\); odčitek ' + LAB.behaviour.sl + ' pravi, da pot konvergira k \\((0;\\ 0)\\). Koordinata \\(x\\) pada hitreje kot pri \\(H=3\\) in odčitek ' + LAB.first.sl + ' je \\(40\\) namesto \\(123\\).',
@@ -243,6 +251,7 @@ const ls3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls3-step-10', order: 4,
+        declare: f({open: ['tools'], uses: ['contour-step', 'next-step'], highlight: ['iterate', 'settled', 'claim']}),
         title: text('Še večji korak', 'A still larger step'),
         purpose: text('Napovedati iz faktorja, kaj se zgodi s koordinato \\(y\\) in vrednostjo \\(f\\) pri še večjem koraku.', 'Predicting from the factor what happens to the coordinate \\(y\\) and the value of \\(f\\) at a still larger step.'),
         explanation: text(
@@ -251,8 +260,8 @@ const ls3Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            `Zapiši napoved. Nato v polje ${LAB.step.sl} vpiši \\(10\\), trikrat pritisni ${LAB.next.sl} in preberi ${LAB.point.sl} ter ${LAB.valueF.sl}; nato v polje ${LAB.playStep.sl} vpiši \\(200\\) in preberi isto ter ${LAB.first.sl} in ${LAB.behaviour.sl}.`,
-            `Write down your prediction. Then in the field ${LAB.step.en} enter \\(10\\), press ${LAB.next.en} three times and read ${LAB.point.en} and ${LAB.valueF.en}; then in the field ${LAB.playStep.en} enter \\(200\\) and read the same, and ${LAB.first.en} and ${LAB.behaviour.en}.`,
+            `Zapiši napoved. Nato v krmilnik ${LAB.step.sl} vpiši \\(10\\), trikrat pritisni ${LAB.next.sl} in preberi ${LAB.point.sl} ter ${LAB.valueF.sl}; nato v polje ${LAB.playStep.sl} vpiši \\(200\\) in preberi isto ter ${LAB.first.sl} in ${LAB.behaviour.sl}.`,
+            `Write down your prediction. Then in the control ${LAB.step.en} enter \\(10\\), press ${LAB.next.en} three times and read ${LAB.point.en} and ${LAB.valueF.en}; then in the field ${LAB.playStep.en} enter \\(200\\) and read the same, and ${LAB.first.en} and ${LAB.behaviour.en}.`,
         ),
         expectedObservations: [text(
             'Faktor za \\(y\\) je \\(1-20h=-1\\), za \\(x\\) pa \\(1-2h=0{,}8\\). Po treh korakih so točke \\((1{,}6;\\ -1)\\), \\((1{,}28;\\ 1)\\) in \\((1{,}024;\\ -1)\\), vrednosti \\(f\\) pa \\(12{,}56\\), \\(11{,}6384\\) in \\(11{,}048576\\). Koordinata \\(y\\) ostane za vedno \\(1\\) ali \\(-1\\), \\(x\\) gre proti \\(0\\): pri koraku \\(200\\) je \\(p_{200}=(0;\\ 1)\\) in \\(f=10\\), ne \\(0\\). Odčitek ' + LAB.first.sl + ' pravi, da ni dosežen v \\(200\\) korakih, odčitek ' + LAB.behaviour.sl + ' pa, da \\(y\\) niha med dvema vrednostma.',
@@ -264,6 +273,7 @@ const ls3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls3-step-11', order: 5,
+        declare: f({open: ['tools'], uses: ['contour-step', 'next-step'], highlight: ['iterate', 'stop', 'claim']}),
         title: text('Največji korak', 'The largest step'),
         purpose: text('Napovedati iz faktorja, kaj se zgodi, ko je korak še malo večji.', 'Predicting from the factor what happens when the step is a little larger still.'),
         explanation: text(
@@ -272,8 +282,8 @@ const ls3Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            `Zapiši napoved. Nato v polje ${LAB.step.sl} vpiši \\(11\\), trikrat pritisni ${LAB.next.sl} in preberi ${LAB.point.sl} ter ${LAB.valueF.sl}; nato v polje ${LAB.playStep.sl} vpiši \\(75\\) in preberi isto ter ${LAB.end.sl} in ${LAB.behaviour.sl}.`,
-            `Write down your prediction. Then in the field ${LAB.step.en} enter \\(11\\), press ${LAB.next.en} three times and read ${LAB.point.en} and ${LAB.valueF.en}; then in the field ${LAB.playStep.en} enter \\(75\\) and read the same, and ${LAB.end.en} and ${LAB.behaviour.en}.`,
+            `Zapiši napoved. Nato v krmilnik ${LAB.step.sl} vpiši \\(11\\), trikrat pritisni ${LAB.next.sl} in preberi ${LAB.point.sl} ter ${LAB.valueF.sl}; nato v polje ${LAB.playStep.sl} vpiši \\(75\\) in preberi isto ter ${LAB.end.sl} in ${LAB.behaviour.sl}.`,
+            `Write down your prediction. Then in the control ${LAB.step.en} enter \\(11\\), press ${LAB.next.en} three times and read ${LAB.point.en} and ${LAB.valueF.en}; then in the field ${LAB.playStep.en} enter \\(75\\) and read the same, and ${LAB.end.en} and ${LAB.behaviour.en}.`,
         ),
         expectedObservations: [text(
             'Faktor za \\(y\\) je \\(1-20h=-1{,}2\\). Po treh korakih so točke \\((1{,}56;\\ -1{,}2)\\), \\((1{,}2168;\\ 1{,}44)\\) in \\((0{,}949104;\\ -1{,}728)\\), vrednosti \\(f\\) pa \\(16{,}8336\\), \\(22{,}216602\\) in \\(30{,}760638\\): vrednost \\(f\\) narašča. Graf konča izračun pri koraku \\(75\\) (odčitek ' + LAB.end.sl + ': pot je ušla predaleč), kjer je \\(p_{75}=(0;\\ -868147{,}369314)\\), kar je \\(1{,}2^{75}\\approx8{,}68\\cdot10^5\\). Odčitek ' + LAB.behaviour.sl + ' pravi, da pot divergira.',
@@ -285,6 +295,7 @@ const ls3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls3-threshold', order: 6,
+        declare: f({open: ['tools'], uses: ['next-step'], highlight: ['start', 'settled', 'claim']}),
         title: text('Prag koraka', 'The step threshold'),
         purpose: text('Napovedati prag koraka iz faktorja in preizkusiti, da začetek na osi \\(x\\) prag zaobide.', 'Predicting the threshold of the step from the factor and testing that a start on the \\(x\\) axis avoids it.'),
         explanation: text(
@@ -347,6 +358,7 @@ const ls4Formulas: readonly FormulaBlock[] = [
 const ls4Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'ls4-line', order: 1,
+        declare: f({uses: ['contour-mode']}),
         title: text('Funkcija na premici', 'A function on a line'),
         purpose: text('Napovedati, v kateri točki premice je vrednost \\(f\\) najmanjša, preden graf izpiše točko.', 'Predicting at which point of a line the value of \\(f\\) is smallest before the graph shows the point.'),
         explanation: text(
@@ -355,8 +367,8 @@ const ls4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            `Zapiši napoved. Nato v izbirniku ${LAB.mode.sl} izberi ${LAB.lagrange.sl}, premakni drsnik ${LAB.lineX.sl} (ali vleci točko po premici) in preberi ${LAB.valueF.sl} pri \\(x=0\\), \\(1\\) in \\(2\\).`,
-            `Write down your prediction. Then in the chooser ${LAB.mode.en} choose ${LAB.lagrange.en}, move the slider ${LAB.lineX.en} (or drag the point along the line) and read ${LAB.valueF.en} at \\(x=0\\), \\(1\\) and \\(2\\).`,
+            `Zapiši napoved. Nato v krmilniku ${LAB.mode.sl} izberi ${LAB.lagrange.sl}, premakni krmilnik ${LAB.lineX.sl} (ali vleci točko po premici) in preberi ${LAB.valueF.sl} pri \\(x=0\\), \\(1\\) in \\(2\\).`,
+            `Write down your prediction. Then in the control ${LAB.mode.en} choose ${LAB.lagrange.en}, move the control ${LAB.lineX.en} (or drag the point along the line) and read ${LAB.valueF.en} at \\(x=0\\), \\(1\\) and \\(2\\).`,
         ),
         expectedObservations: [text(
             'Točka na premici je \\((x;\\ (5-x)/2)\\), zato je \\(f=x^2+\\bigl((5-x)/2\\bigr)^2=5+1{,}25\\,(x-1)^2\\). Pri \\(x=0\\) je točka \\((0;\\ 2{,}5)\\) in \\(f=6{,}25\\), pri \\(x=2\\) je \\((2;\\ 1{,}5)\\) in \\(f=6{,}25\\), pri \\(x=1\\) pa \\((1;\\ 2)\\) in \\(f=5\\), kar je najmanj: za vsak drug \\(x\\) je \\(f>5\\). Graf ob preklopu v ' + LAB.lagrange.sl + ' izpiše tudi vrstico ' + LAB.tangent.sl + ' z vrednostjo \\((1;\\ 2)\\).',
@@ -368,6 +380,7 @@ const ls4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls4-touch', order: 2,
+        declare: f({uses: ['contour-mode']}),
         title: text('Nivojnica in premica', 'The level set and the line'),
         purpose: text('Napovedati, koliko skupnih točk ima nivojnica skozi točko premice s premico, in najti vrednost, pri kateri je ena.', 'Predicting how many points the level set through a point of the line shares with the line, and finding the value at which it is one.'),
         explanation: text(
@@ -376,8 +389,8 @@ const ls4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            `Zapiši napovedi. Nato v izbirniku ${LAB.mode.sl} izberi ${LAB.lagrange.sl}, primerjaj črtkano nivojnico skozi točko s premico, v polje ${LAB.lineX.sl} vpiši \\(1\\) in preberi ${LAB.pointC.sl}, ${LAB.valueF.sl} in ${LAB.tangent.sl}.`,
-            `Write down your predictions. Then in the chooser ${LAB.mode.en} choose ${LAB.lagrange.en}, compare the dashed level set through the point with the line, enter \\(1\\) in the field ${LAB.lineX.en} and read ${LAB.pointC.en}, ${LAB.valueF.en} and ${LAB.tangent.en}.`,
+            `Zapiši napovedi. Nato v krmilniku ${LAB.mode.sl} izberi ${LAB.lagrange.sl}, primerjaj črtkano nivojnico skozi točko s premico, v krmilnik ${LAB.lineX.sl} vpiši \\(1\\) in preberi ${LAB.pointC.sl}, ${LAB.valueF.sl} in ${LAB.tangent.sl}.`,
+            `Write down your predictions. Then in the control ${LAB.mode.en} choose ${LAB.lagrange.en}, compare the dashed level set through the point with the line, enter \\(1\\) in the control ${LAB.lineX.en} and read ${LAB.pointC.en}, ${LAB.valueF.en} and ${LAB.tangent.en}.`,
         ),
         expectedObservations: [text(
             'Nivojnica \\(f=6{,}25\\) je krožnica s polmerom \\(2{,}5\\), ki seka premico v dveh točkah, \\((0;\\ 2{,}5)\\) in \\((2;\\ 1{,}5)\\). Pri \\(x=1\\) je točka \\((1;\\ 2)\\) in \\(f=5\\): nivojnica \\(f=5\\) se premice le dotakne (premica leži sicer zunaj nje), vsaka nivojnica z manjšim \\(f\\) pa premice sploh ne doseže. Vrstica ' + LAB.tangent.sl + ' ima pri vsakem \\(x\\) vrednost \\((1;\\ 2)\\); to je točen izračun, ne ocena.',
@@ -389,6 +402,7 @@ const ls4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls4-gradients', order: 3,
+        declare: f({uses: ['contour-line-x'], highlight: ['grad-f', 'grad-g', 'tangency']}),
         title: text('Gradienta', 'The two gradients'),
         purpose: text('Napovedati iz formul, kakšna sta gradienta funkcij \\(f\\) in \\(g\\) v točki \\((1;\\ 2)\\) in kako sta povezana.', 'Predicting from the formulas what the gradients of \\(f\\) and \\(g\\) are at the point \\((1,\\ 2)\\) and how they are related.'),
         explanation: text(
@@ -397,8 +411,8 @@ const ls4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['lagrange-condition'],
         observationPrompt: text(
-            `Zapiši napoved. Nato v polje ${LAB.lineX.sl} vpiši \\(1\\) in preberi ${LAB.gradF.sl}, ${LAB.gradG.sl} in ${LAB.touch.sl}; nato vpiši še \\(2\\) in primerjaj ${LAB.touch.sl}.`,
-            `Write down your prediction. Then in the field ${LAB.lineX.en} enter \\(1\\) and read ${LAB.gradF.en}, ${LAB.gradG.en} and ${LAB.touch.en}; then enter \\(2\\) as well and compare ${LAB.touch.en}.`,
+            `Zapiši napoved. Nato v krmilnik ${LAB.lineX.sl} vpiši \\(1\\) in preberi ${LAB.gradF.sl}, ${LAB.gradG.sl} in ${LAB.touch.sl}; nato vpiši še \\(2\\) in primerjaj ${LAB.touch.sl}.`,
+            `Write down your prediction. Then in the control ${LAB.lineX.en} enter \\(1\\) and read ${LAB.gradF.en}, ${LAB.gradG.en} and ${LAB.touch.en}; then enter \\(2\\) as well and compare ${LAB.touch.en}.`,
         ),
         expectedObservations: [text(
             'Pri \\(x=1\\) je \\(\\nabla f=(2;\\ 4)\\), \\(\\nabla g=(1;\\ 2)\\), torej \\(\\nabla f=2\\,\\nabla g\\) in \\(\\lambda=2\\); vrstica ' + LAB.touch.sl + ' pove, da sta gradienta vzporedna, \\(\\lambda=2\\) (točno). Pri \\(x=2\\) je \\(\\nabla f=(4;\\ 3)\\) in \\(\\nabla g=(1;\\ 2)\\), determinanta je \\(5\\), gradienta nista vzporedna. Pri \\(x=0\\) je determinanta \\(-5\\), pri \\(x=1\\) je \\(0\\) (po računu je enaka \\(5x-5\\)). Enačba velja na veznem pogoju v točki ekstrema (izrek, potreben pogoj); puščice v grafu so ponazoritev.',
@@ -410,6 +424,7 @@ const ls4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls4-circle', order: 4,
+        declare: f({uses: ['contour-mode']}),
         title: text('Produkt na krožnici', 'A product on a circle'),
         purpose: text('Napovedati, kje na krožnici je produkt \\(xy\\) največji in najmanjši in v koliko točkah se nivojnica dotika krožnice.', 'Predicting where on a circle the product \\(xy\\) is largest and smallest and at how many points a level set touches the circle.'),
         explanation: text(
@@ -418,8 +433,8 @@ const ls4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            `Zapiši napoved. Nato v izbirniku ${LAB.mode.sl} izberi ${LAB.lagrange.sl} in pri drsniku ${LAB.circleAngle.sl} (kot je izpisan v stopinjah) nastavi kote \\(45^\\circ\\), \\(135^\\circ\\), \\(225^\\circ\\) in \\(315^\\circ\\) ter še \\(0^\\circ\\); pri vsakem preberi ${LAB.pointC.sl}, ${LAB.valueF.sl} in ${LAB.touch.sl} (ali sta gradienta vzporedna). Preberi še ${LAB.angles.sl}.`,
-            `Write down your prediction. Then in the chooser ${LAB.mode.en} choose ${LAB.lagrange.en} and at the slider ${LAB.circleAngle.en} (the angle is shown in degrees) set the angles \\(45^\\circ\\), \\(135^\\circ\\), \\(225^\\circ\\) and \\(315^\\circ\\) and also \\(0^\\circ\\); at each read ${LAB.pointC.en}, ${LAB.valueF.en} and ${LAB.touch.en} (whether the gradients are parallel). Also read ${LAB.angles.en}.`,
+            `Zapiši napoved. Nato v krmilniku ${LAB.mode.sl} izberi ${LAB.lagrange.sl} in s krmilnikom ${LAB.circleAngle.sl} (kot je izpisan v stopinjah) nastavi kote \\(45^\\circ\\), \\(135^\\circ\\), \\(225^\\circ\\) in \\(315^\\circ\\) ter še \\(0^\\circ\\); pri vsakem preberi ${LAB.pointC.sl}, ${LAB.valueF.sl} in ${LAB.touch.sl} (ali sta gradienta vzporedna). Preberi še ${LAB.angles.sl}.`,
+            `Write down your prediction. Then in the control ${LAB.mode.en} choose ${LAB.lagrange.en} and with the control ${LAB.circleAngle.en} (the angle is shown in degrees) set the angles \\(45^\\circ\\), \\(135^\\circ\\), \\(225^\\circ\\) and \\(315^\\circ\\) and also \\(0^\\circ\\); at each read ${LAB.pointC.en}, ${LAB.valueF.en} and ${LAB.touch.en} (whether the gradients are parallel). Also read ${LAB.angles.en}.`,
         ),
         expectedObservations: [text(
             'Pri \\(45^\\circ\\) je točka \\((1;\\ 1)\\) in \\(f=1\\), pri \\(135^\\circ\\) \\((-1;\\ 1)\\) in \\(f=-1\\), pri \\(225^\\circ\\) \\((-1;\\ -1)\\) in \\(f=1\\), pri \\(315^\\circ\\) \\((1;\\ -1)\\) in \\(f=-1\\); povsod graf pravi, da sta gradienta približno vzporedna, \\(\\lvert\\sin\\rvert=0\\) (izračunano, toleranca \\(\\lvert\\sin\\rvert<0{,}01\\)), in ' + LAB.angles.sl + ' je \\(4\\) od \\(48\\) kotov. Največja vrednost \\(1\\) je torej v \\((1;\\ 1)\\) in \\((-1;\\ -1)\\), najmanjša \\(-1\\) pa v \\((1;\\ -1)\\) in \\((-1;\\ 1)\\). Pri \\(0^\\circ\\), \\(90^\\circ\\), \\(180^\\circ\\) in \\(270^\\circ\\) je \\(f=0\\) in gradienta nista vzporedna (\\(\\lvert\\sin\\rvert=1\\)). Dotik je na vseh štirih točkah enak pogoj, zato po njem ne ločimo največjega od najmanjšega; dotik, ki ni ne eno ne drugo, imenujemo le: \\(f=x^3\\) na premici \\(y=0\\) ima v \\((0;\\ 0)\\) enačbo \\(\\nabla f=\\lambda\\nabla g\\) z \\(\\lambda=0\\), a tam ni ekstrema (graf tega ne nariše).',

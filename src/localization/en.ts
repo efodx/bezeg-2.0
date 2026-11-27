@@ -4190,7 +4190,6 @@ export const en: Record<keyof typeof sl, string> = {
     "levelsets_graph_steps_rejected": "The step must be a whole number from {value0} to {value1}.",
     "levelsets_graph_notice_step_refused": "Step refused: it is outside the path.",
     "levelsets_graph_readout_title": "Level-set readout",
-    "levelsets_graph_legend_title": "Legend",
     "levelsets_graph_point_format": "({value0}, {value1})",
     "levelsets_graph_label_probe": "Probe {value0}",
     "levelsets_graph_label_start": "Start {value0}",

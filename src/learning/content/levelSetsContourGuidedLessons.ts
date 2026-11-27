@@ -9,10 +9,13 @@
  * tangent in the picture are an illustration.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {ContourMapIds} from '../../graphs/levelsets/ContourMapGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<ContourMapIds>();
 
 interface StepContent {
     readonly id: string;
@@ -24,11 +27,13 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights, opens and asks the learner to use (task 08). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation', declare)],
 });
 
 /**
@@ -115,6 +120,7 @@ const ls1Formulas: readonly FormulaBlock[] = [
 const ls1Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'ls1-bowl', order: 1,
+        declare: f({uses: ['contour-count'], highlight: ['level']}),
         title: text('Skleda in nivojnica', 'The bowl and a level set'),
         purpose: text('Napovedati nivojnice za več vrednosti \\(c\\), preden jih graf nariše.', 'Predicting the level sets for several values of \\(c\\) before the graph draws them.'),
         explanation: text(
@@ -123,8 +129,8 @@ const ls1Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['level-set'],
         observationPrompt: text(
-            'Zapiši napoved. Nato z gumbom Več nivojnic nastavi Število nivojnic na \\(3\\) (dvakrat pritisni), v odčitku preberi Vrednost c in primerjaj narisane nivojnice z napovedjo.',
-            'Write down your prediction. Then with the button More level sets set Number of level sets to \\(3\\) (press it twice), read Value c in the readout and compare the drawn level sets with your prediction.',
+            'Zapiši napoved. Nato krmilnik Število nivojnic nastavi na \\(3\\), v odčitku preberi Vrednost c in primerjaj narisane nivojnice z napovedjo.',
+            'Write down your prediction. Then set the control Level sets to \\(3\\), read Value c in the readout and compare the drawn level sets with your prediction.',
         ),
         expectedObservations: [text(
             'Odčitek Vrednost c kaže od 1 do 3 v korakih po 1. Nivojnice so krožnice \\(x^2+y^2=c\\) s polmeri \\(1\\), \\(\\sqrt2\\approx1{,}414\\) in \\(\\sqrt3\\approx1{,}732\\), vse s središčem v \\((0;\\ 0)\\). Razmika med njimi sta \\(\\approx0{,}414\\) in \\(\\approx0{,}318\\), torej se manjšata: vrednost se med sosednjima nivojnicama poveča za isto število \\(1\\), zato bližje nivojnice pomenijo hitrejše naraščanje ploskve.',
@@ -136,6 +142,7 @@ const ls1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls1-probe', order: 2,
+        declare: f({open: ['tools'], highlight: ['probe', 'probe-f']}),
         title: text('Sonda', 'The probe'),
         purpose: text('Napovedati vrednost \\(f\\) v sondi in nivojnico skozi sondo.', 'Predicting the value of \\(f\\) at the probe and the level set through the probe.'),
         explanation: text(
@@ -157,6 +164,7 @@ const ls1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls1-valley', order: 3,
+        declare: f({open: ['tools'], uses: ['contour-fn'], highlight: ['function']}),
         title: text('Dolina', 'The valley'),
         purpose: text('Napovedati, kje nivojnica seka osi, preden izbereš drugo funkcijo.', 'Predicting where a level set meets the axes before you choose another function.'),
         explanation: text(
@@ -178,6 +186,7 @@ const ls1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls1-saddle', order: 4,
+        declare: f({open: ['tools'], uses: ['contour-fn', 'contour-level'], highlight: ['level']}),
         title: text('Sedlo', 'The saddle'),
         purpose: text('Napovedati nivojnico sedla pri \\(c=0\\), preden jo graf nariše.', 'Predicting the level set of the saddle at \\(c=0\\) before the graph draws it.'),
         explanation: text(
@@ -186,8 +195,8 @@ const ls1Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Izberi Funkcija Sedlo: x² − y², nato v polju Vrednost nivojnice c vpiši \\(0\\) in primerjaj narisane nivojnice z napovedjo.',
-            'Choose Function Saddle: x² − y², then in the box Level value c enter \\(0\\) and compare the drawn level sets with your prediction.',
+            'Izberi Funkcija Sedlo: x² − y², nato v krmilnik Vrednost \\(c\\) vpiši \\(0\\) in primerjaj narisane nivojnice z napovedjo.',
+            'Choose Function Saddle: x² − y², then type \\(0\\) into the control Value \\(c\\) and compare the drawn level sets with your prediction.',
         ),
         expectedObservations: [text(
             'Odčitek Vrednost c kaže od 0 do 2 v korakih po 1. Pri \\(c=0\\) je \\(x^2-y^2=(x-y)(x+y)=0\\), torej \\(y=x\\) ali \\(y=-x\\): slika kaže dve črti, ki se križata v \\((0;\\ 0)\\). Pri \\(c=1\\) in \\(c=2\\) je \\(x^2=y^2+c\\), torej \\(|x|\\ge\\sqrt c\\): vsaka nivojnica ima dve veji, levo in desno. V \\((0;\\ 0)\\) je \\(f(x,0)=x^2\\ge0\\) in \\(f(0,y)=-y^2\\le0\\): ploskev tam narašča v smeri \\(x\\) in pada v smeri \\(y\\), kar je sedlo; nivojnica se v njem križa.',
@@ -199,6 +208,7 @@ const ls1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls1-hills', order: 5,
+        declare: f({open: ['tools'], uses: ['contour-fn', 'contour-level'], highlight: ['level', 'length']}),
         title: text('Griči', 'The hills'),
         purpose: text('Napovedati, pri katerih vrednostih \\(c\\) funkcija \\(\\sin x\\sin y\\) sploh ima nivojnico, in najti maksimume, minimume in sedla.', 'Predicting for which values \\(c\\) the function \\(\\sin x\\sin y\\) has a level set at all, and finding maxima, minima and saddles.'),
         explanation: text(
@@ -207,8 +217,8 @@ const ls1Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Izberi Funkcija Griči: sin x · sin y in preglej nivojnice pri \\(c=0\\). Nato v polju Vrednost nivojnice c vpiši \\(0{,}625\\), nato \\(-0{,}875\\), nato \\(1\\) in na koncu še \\(2\\); pri vsakem preberi odčitek Vrednost c in poglej narisano.',
-            'Choose Function Hills: sin x · sin y and look at the level sets at \\(c=0\\). Then in the box Level value c enter \\(0.625\\), then \\(-0.875\\), then \\(1\\) and finally \\(2\\) too; at each read the readout Value c and look at the drawing.',
+            'Izberi Funkcija Griči: sin x · sin y in preglej nivojnice pri \\(c=0\\). Nato v krmilnik Vrednost \\(c\\) vpiši \\(0{,}625\\), nato \\(-0{,}875\\), nato \\(1\\) in na koncu še \\(2\\); pri vsakem preberi odčitek Vrednost c in poglej narisano.',
+            'Choose Function Hills: sin x · sin y and look at the level sets at \\(c=0\\). Then in the control Value \\(c\\) enter \\(0.625\\), then \\(-0.875\\), then \\(1\\) and finally \\(2\\) too; at each read the readout Value c and look at the drawing.',
         ),
         expectedObservations: [text(
             'Pri \\(c=0\\) je \\(\\sin x\\sin y=0\\), ko je \\(x=k\\pi\\) ali \\(y=m\\pi\\): slika kaže mrežo črt, ki se križajo; križišča, na primer \\((0;\\ 0)\\), so sedla. Pri \\(c=0{,}625\\) (odčitek od 0,625 do 0,875 v korakih po 0,125) so zaprte krivulje okrog maksimumov \\((\\pi/2,\\ \\pi/2)\\) in \\((-\\pi/2,\\ -\\pi/2)\\), kjer je \\(f=1\\); pri \\(c=-0{,}875\\) (od −0,875 do −0,625) okrog minimumov \\((\\pi/2,\\ -\\pi/2)\\) in \\((-\\pi/2,\\ \\pi/2)\\), kjer je \\(f=-1\\). Pri \\(c=1\\) je Dolžina nivojnice \\(0\\): množica \\(f=1\\) so le izolirane točke (maksimumi), ki jih vzorčena slika ne nariše; pri \\(c=2\\) odčitek Vrednost c kaže od 2 do 2,25 v korakih po 0,125, Dolžina nivojnice je \\(0\\) in polne nivojnice ni nobene, ostane le črtkana nivojnica skozi sondo: množica \\(f=2\\) je prazna, ker \\(\\sin x\\sin y\\) ne preseže \\(1\\). Slika je ponazoritev; majhna nivojnica znotraj ene celice mreže bi se lahko izgubila.',
@@ -220,11 +230,12 @@ const ls1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls1-explore', order: 6,
+        declare: f({open: ['tools'], uses: ['contour-fn', 'contour-count'], highlight: ['probe-f']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Preizkusiti naučeno na funkciji, ki je lekcija ne obravnava.', 'Trying what you have learned on a function the lesson did not cover.'),
         explanation: text(
-            'Graf je spet v začetnem stanju (Skleda, \\(c=1\\), ena nivojnica). Izberi Produkt: x · y, nastavi Število nivojnic na \\(3\\) in napovej, kakšne krivulje so nivojnice \\(xy=c\\) za \\(c>0\\) in kakšna je nivojnica pri \\(c=0\\). Nato premikaj sondo in opazuj Vrednost f v sondi ter črtkano nivojnico. Preizkusi tudi druge funkcije in vrednosti \\(c\\): kje so nivojnice goste, kje redke in kje se križajo?',
-            'The graph is back in its starting state (Bowl, \\(c=1\\), one level set). Choose Product: x · y, set Number of level sets to \\(3\\) and predict what curves the level sets \\(xy=c\\) are for \\(c>0\\) and what the level set at \\(c=0\\) is. Then move the probe and watch Value of f at the probe and the dashed level set. Try other functions and values of \\(c\\) too: where are the level sets dense, where sparse, and where do they cross?',
+            'Graf je spet v začetnem stanju (Skleda, \\(c=1\\), ena nivojnica). Izberi Produkt: x · y, nastavi krmilnik Število nivojnic na \\(3\\) in napovej, kakšne krivulje so nivojnice \\(xy=c\\) za \\(c>0\\) in kakšna je nivojnica pri \\(c=0\\). Nato premikaj sondo in opazuj Vrednost f v sondi ter črtkano nivojnico. Preizkusi tudi druge funkcije in vrednosti \\(c\\): kje so nivojnice goste, kje redke in kje se križajo?',
+            'The graph is back in its starting state (Bowl, \\(c=1\\), one level set). Choose Product: x · y, set the control Level sets to \\(3\\) and predict what curves the level sets \\(xy=c\\) are for \\(c>0\\) and what the level set at \\(c=0\\) is. Then move the probe and watch Value of f at the probe and the dashed level set. Try other functions and values of \\(c\\) too: where are the level sets dense, where sparse, and where do they cross?',
         ),
         formulaIds: [],
         observationPrompt: text(
@@ -285,6 +296,7 @@ const ls2Formulas: readonly FormulaBlock[] = [
 const ls2Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'ls2-bowl', order: 1,
+        declare: f({uses: ['contour-mode'], highlight: ['status']}),
         title: text('Gradient na skledi', 'The gradient on the bowl'),
         purpose: text('Izračunati gradient v sondi na roke in napovedati njegovo lego glede na nivojnico, preden ga graf pokaže.', 'Computing the gradient at the probe by hand and predicting its position relative to the level set before the graph shows it.'),
         explanation: text(
@@ -293,8 +305,8 @@ const ls2Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['gradient'],
         observationPrompt: text(
-            'Zapiši napoved. Nato v polju Način izberi Gradient in primerjaj status ter odčitke Gradient (točno), Tangenta nivojnice in Skalarni produkt gradienta in tangente z napovedjo.',
-            'Write down your prediction. Then in the box Mode choose Gradient and compare the status and the readouts Gradient (exact), Tangent of the level set and Dot product of the gradient and the tangent with your prediction.',
+            'Zapiši napoved. Nato v krmilniku Način izberi Gradient in primerjaj status ter odčitke Gradient (točno), Tangenta nivojnice in Skalarni produkt gradienta in tangente z napovedjo.',
+            'Write down your prediction. Then in the control Mode choose Gradient and compare the status and the readouts Gradient (exact), Tangent of the level set and Dot product of the gradient and the tangent with your prediction.',
         ),
         expectedObservations: [text(
             'Status kaže, da je v točki \\((0{,}6;\\ 0{,}8)\\) gradient \\((1{,}2;\\ 1{,}6)\\), dolžina \\(2\\), in da je pravokoten na nivojnico. To ustreza \\(\\nabla f=(2x,\\ 2y)\\) in \\(\\sqrt{1{,}2^2+1{,}6^2}=\\sqrt4=2\\); gradient je dvakratnik krajevnega vektorja sonde, torej kaže stran od središča. Tangenta je \\((-0{,}8;\\ 0{,}6)\\), skalarni produkt je \\(0\\).',
@@ -306,6 +318,7 @@ const ls2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls2-tangent', order: 2,
+        declare: f({uses: ['contour-mode'], highlight: ['probe']}),
         title: text('Gradient in tangenta', 'The gradient and the tangent'),
         purpose: text('Z izrekom določiti tangento nivojnice iz gradienta, preden jo graf pokaže.', 'Using the theorem to find the tangent of the level set from the gradient before the graph shows it.'),
         explanation: text(
@@ -314,8 +327,8 @@ const ls2Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['chain-rule'],
         observationPrompt: text(
-            'Zapiši napoved. Nato v polju Način izberi Gradient in primerjaj Gradient (točno), Tangenta nivojnice in Skalarni produkt gradienta in tangente z napovedjo.',
-            'Write down your prediction. Then in the box Mode choose Gradient and compare Gradient (exact), Tangent of the level set and Dot product of the gradient and the tangent with your prediction.',
+            'Zapiši napoved. Nato v krmilniku Način izberi Gradient in primerjaj Gradient (točno), Tangenta nivojnice in Skalarni produkt gradienta in tangente z napovedjo.',
+            'Write down your prediction. Then in the control Mode choose Gradient and compare Gradient (exact), Tangent of the level set and Dot product of the gradient and the tangent with your prediction.',
         ),
         expectedObservations: [text(
             'Gradient je \\((2;\\ -2)\\) (po formuli \\((2x,\\ -2y)\\)), dolžina \\(2{,}8284\\approx2\\sqrt2\\). Pravokotna smer nanj je \\((1;\\ 1)\\): graf kaže tangento \\((0{,}7071068;\\ 0{,}7071068)\\) in skalarni produkt \\(0\\), kar ustreza \\(2\\cdot1+(-2)\\cdot1=0\\). Smer tangente je do predznaka natančno določena z izrekom; slika to le ponazori.',
@@ -327,6 +340,7 @@ const ls2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls2-valley', order: 3,
+        declare: f({open: ['tools'], uses: ['contour-mode'], highlight: ['probe']}),
         title: text('Dolina', 'The valley'),
         purpose: text('Napovedati gradient v dveh točkah, enako oddaljenih od izhodišča, in primerjati njuni dolžini.', 'Predicting the gradient at two points at the same distance from the origin and comparing their lengths.'),
         explanation: text(
@@ -335,8 +349,8 @@ const ls2Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'V polju Način izberi Gradient in preberi Gradient (točno) v \\((1;\\ 0)\\). Nato v polju Sonda vpiši \\(x=0\\), \\(y=1\\) in preberi znova; primerjaj z napovedjo.',
-            'In the box Mode choose Gradient and read Gradient (exact) at \\((1,\\ 0)\\). Then in the box Probe enter \\(x=0\\), \\(y=1\\) and read again; compare with your prediction.',
+            'V krmilniku Način izberi Gradient in preberi Gradient (točno) v \\((1;\\ 0)\\). Nato v polju Sonda vpiši \\(x=0\\), \\(y=1\\) in preberi znova; primerjaj z napovedjo.',
+            'In the control Mode choose Gradient and read Gradient (exact) at \\((1,\\ 0)\\). Then in the box Probe enter \\(x=0\\), \\(y=1\\) and read again; compare with your prediction.',
         ),
         expectedObservations: [text(
             'V \\((1;\\ 0)\\) je gradient \\((2;\\ 0)\\), dolžina \\(2\\), tangenta \\((0;\\ 1)\\); v \\((0;\\ 1)\\) je gradient \\((0;\\ 20)\\), dolžina \\(20\\), tangenta \\((-1;\\ 0)\\). To ustreza \\(\\nabla f=(2x,\\ 20y)\\). V teh dveh točkah je gradient v smeri \\(y\\) desetkrat daljši: dolina je čez (v smeri \\(y\\)) strmejša kot vzdolž (v smeri \\(x\\)); v obeh točkah je gradient pravokoten na tangento.',
@@ -348,6 +362,7 @@ const ls2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls2-hills', order: 4,
+        declare: f({open: ['tools'], uses: ['contour-mode'], highlight: ['status', 'probe']}),
         title: text('Griči', 'The hills'),
         purpose: text('Napovedati dolžino gradienta ob vrhu in v točki \\((0;\\ 0)\\), kjer je nivojnica mreža.', 'Predicting the length of the gradient near a peak and at the point \\((0,\\ 0)\\), where the level set is a grid.'),
         explanation: text(
@@ -356,8 +371,8 @@ const ls2Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'V polju Način izberi Gradient in preberi status ter Dolžino gradienta. Nato v polju Sonda vpiši \\(x=0\\), \\(y=0\\) in preberi status; primerjaj z napovedjo.',
-            'In the box Mode choose Gradient and read the status and the Length of the gradient. Then in the box Probe enter \\(x=0\\), \\(y=0\\) and read the status; compare with your prediction.',
+            'V krmilniku Način izberi Gradient in preberi status ter Dolžino gradienta. Nato v polju Sonda vpiši \\(x=0\\), \\(y=0\\) in preberi status; primerjaj z napovedjo.',
+            'In the control Mode choose Gradient and read the status and the Length of the gradient. Then in the box Probe enter \\(x=0\\), \\(y=0\\) and read the status; compare with your prediction.',
         ),
         expectedObservations: [text(
             'V \\((1{,}55;\\ 1{,}55)\\), tik ob vrhu, kjer je Vrednost f v sondi \\(0{,}999568\\), je gradient približno \\((0{,}0208;\\ 0{,}0208)\\), dolžina približno \\(0{,}0294\\): puščica je zelo kratka, vendar ni ničelna, ker vrh \\((\\pi/2,\\ \\pi/2)\\) ni na mreži sonde (korak \\(0{,}05\\)). V samem vrhu je \\(\\nabla f=(0;\\ 0)\\) natančno, ker je \\(\\cos(\\pi/2)=0\\). V \\((0;\\ 0)\\) status kaže, da je gradient ničeln in da tangente nivojnice ni; ta točka je sedlo, ne vrh: ničeln gradient je potreben pogoj za lokalni ekstrem, ne zadosten.',
@@ -369,6 +384,7 @@ const ls2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls2-numeric', order: 5,
+        declare: f({uses: ['numeric'], highlight: ['gradient']}),
         title: text('Numerična ocena gradienta', 'The numeric estimate of the gradient'),
         purpose: text('Napovedati, kako natančna je ocena s centralno razliko pri \\(h=0{,}01\\), preden jo graf pokaže.', 'Predicting how accurate the central-difference estimate at \\(h=0.01\\) is before the graph shows it.'),
         explanation: text(
@@ -377,8 +393,8 @@ const ls2Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['central-difference'],
         observationPrompt: text(
-            'Obkljukaj Pokaži numerično oceno gradienta in primerjaj odčitka Ocena gradienta (centralna razlika, \\(h=0{,}01\\), izračunano) in Napaka ocene z napovedjo.',
-            'Tick Show the numeric gradient estimate and compare the readouts Gradient estimate (central difference, \\(h=0.01\\), computed) and Error of the estimate with your prediction.',
+            'Vklopi krmilnik Numerična ocena in primerjaj odčitka Ocena gradienta (centralna razlika, \\(h=0{,}01\\), izračunano) in Napaka ocene z napovedjo.',
+            'Switch on the control Numeric estimate and compare the readouts Gradient estimate (central difference, \\(h=0.01\\), computed) and Error of the estimate with your prediction.',
         ),
         expectedObservations: [text(
             'Ocena je \\((0{,}4546411;\\ 0{,}4546411)\\), točni gradient \\((0{,}4546487;\\ 0{,}4546487)\\): ujemata se v \\(5\\) decimalkah (\\(0{,}45464\\)), vsaka komponenta se razlikuje za \\(0{,}0000076\\), odčitek Napaka ocene je \\(0{,}0000076\\). Napaka centralne razlike je pri gladki funkciji reda \\(h^2\\): \\(\\tfrac{h^2}{6}\\,|f_{xxx}|=\\tfrac{0{,}01^2}{6}\\cdot0{,}4546\\approx7{,}6\\cdot10^{-6}\\), kar se ujema. Ocena je izračunan približek, točni gradient je izračunan po formuli.',
@@ -390,6 +406,7 @@ const ls2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'ls2-explore', order: 6,
+        declare: f({open: ['tools'], uses: ['contour-fn', 'contour-mode'], highlight: ['probe']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Preizkusiti naučeno na funkciji, ki je lekcija ne obravnava.', 'Trying what you have learned on a function the lesson did not cover.'),
         explanation: text(

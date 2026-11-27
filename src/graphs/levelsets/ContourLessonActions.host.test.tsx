@@ -2,7 +2,7 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {chooseOnPuckNow, installBoardShims, openTools, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import type {LessonAction} from '../../learning/model';
 import type {SurfaceScene, SurfaceView} from '../patches/surface-view/surfaceScene';
 import {setLanguage, t} from '../../localization';
@@ -44,60 +44,70 @@ const setLevel = (level?: number, levelCount?: number): LessonAction => ({kind: 
 const setProbe = (X: number, Y: number): LessonAction => ({kind: 'levelsets', operation: 'set-probe', X, Y});
 const setNumeric = (numeric: boolean): LessonAction => ({kind: 'levelsets', operation: 'set-numeric', numeric});
 
+/** A mount that waits until the puck strip has laid out, so a test can type into a puck, flip a switch puck or pick a mode. */
+const mountWithPucks = async (): Promise<TestGraph> => {
+    const graph = mount();
+    await waitForPucks('contour-mode');
+    await openTools(); // the probe and start rows, the function and the constraint stay in Orodja
+    return graph;
+};
+
 const choose = (label: string, value: string) => act(() => { fireEvent.change(screen.getByLabelText(label), {target: {value}}); });
 const type = (label: string, value: string) => act(() => { enterNumber(screen.getByRole('spinbutton', {name: label}) as HTMLInputElement, value); });
-const typeLevel = (value: string) => type(t('number_field_label', {value0: t('levelsets_graph_level')}), value);
-const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
+// The level c, the count, the step H, the point on the line, the circle angle, the mode and the numeric switch are pucks (task 08 lane L29).
+const typeLevel = (value: string) => typePuck('contour-level', value);
+const typeCount = (value: string) => typePuck('contour-count', value);
+const toggleNumeric = () => act(() => { fireEvent.click(puckControl('numeric')); });
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const status = () => document.querySelector('[data-contour-status]')?.textContent;
 const stateOf = (graph: TestGraph) => JSON.parse(JSON.stringify(graph.state)) as Record<string, unknown>;
 
 /** The state, the readouts and the status line after running `edit` on a fresh graph and then unmounting it. */
-function after(edit: (graph: TestGraph) => void) {
-    const graph = mount();
+async function after(edit: (graph: TestGraph) => void) {
+    const graph = await mountWithPucks();
     edit(graph);
     const result = {state: stateOf(graph), readouts: readouts(), status: status()};
     cleanup();
     return result;
 }
 
-const modeChooser = (mode: string) => choose(t('levelsets_graph_mode'), mode);
+const modeChooser = (mode: string) => chooseOnPuckNow('contour-mode', mode);
 const functionChooser = (fn: string) => choose(t('levelsets_graph_fn'), fn);
 
-test('set-mode and set-function reach the state of the chooser, including the probe fallback', () => {
-    const viaMode = after(graph => apply(graph, setMode('gradient')));
-    expect(viaMode).toEqual(after(() => modeChooser('gradient')));
+test('set-mode and set-function reach the state of the chooser, including the probe fallback', async () => {
+    const viaMode = await after(graph => apply(graph, setMode('gradient')));
+    expect(viaMode).toEqual(await after(() => modeChooser('gradient')));
     expect(viaMode.state).toEqual(expect.objectContaining({mode: 'gradient'}));
-    const viaFunction = after(graph => apply(graph, setFunction('valley')));
-    expect(viaFunction).toEqual(after(() => functionChooser('valley')));
+    const viaFunction = await after(graph => apply(graph, setFunction('valley')));
+    expect(viaFunction).toEqual(await after(() => functionChooser('valley')));
     expect(viaFunction.state).toEqual(expect.objectContaining({fn: 'valley'}));
     // A probe outside the window of the new function returns to its default, as the chooser does.
-    const viaFallback = after(graph => { apply(graph, setFunction('hills')); apply(graph, setProbe(60, 60)); apply(graph, setFunction('bowl')); });
-    expect(viaFallback).toEqual(after(() => { functionChooser('hills'); modeChooser('gradient'); type('P, x', '3'); type('P, y', '3'); modeChooser('level-sets'); functionChooser('bowl'); }));
+    const viaFallback = await after(graph => { apply(graph, setFunction('hills')); apply(graph, setProbe(60, 60)); apply(graph, setFunction('bowl')); });
+    expect(viaFallback).toEqual(await after(() => { functionChooser('hills'); modeChooser('gradient'); type('P, x', '3'); type('P, y', '3'); modeChooser('level-sets'); functionChooser('bowl'); }));
     expect(viaFallback.state).toEqual(expect.objectContaining({fn: 'bowl', probe: [12, 16]}));
 });
 
-test('set-level reaches the state of the level field and the count buttons', () => {
-    const viaLevel = after(graph => apply(graph, setLevel(10)));
-    expect(viaLevel).toEqual(after(() => typeLevel('1,25')));
+test('set-level reaches the state of the level field and the count buttons', async () => {
+    const viaLevel = await after(graph => apply(graph, setLevel(10)));
+    expect(viaLevel).toEqual(await after(() => typeLevel('1,25')));
     expect(viaLevel.state).toEqual(expect.objectContaining({level: 10}));
-    const viaCount = after(graph => apply(graph, setLevel(undefined, 3)));
-    expect(viaCount).toEqual(after(() => { press(t('levelsets_graph_count_plus')); press(t('levelsets_graph_count_plus')); }));
+    const viaCount = await after(graph => apply(graph, setLevel(undefined, 3)));
+    expect(viaCount).toEqual(await after(() => { typeCount('3'); }));
     expect(viaCount.state).toEqual(expect.objectContaining({levelCount: 3}));
-    const both = after(graph => apply(graph, setLevel(-4, 5)));
+    const both = await after(graph => apply(graph, setLevel(-4, 5)));
     expect(both.state).toEqual(expect.objectContaining({level: -4, levelCount: 5}));
 });
 
-test('set-probe reaches the state of the typed probe point; set-numeric the checkbox', () => {
-    const viaProbe = after(graph => { apply(graph, setMode('gradient')); apply(graph, setProbe(20, 10)); });
-    expect(viaProbe).toEqual(after(() => { modeChooser('gradient'); type('P, x', '1'); type('P, y', '0,5'); }));
+test('set-probe reaches the state of the typed probe point; set-numeric the checkbox', async () => {
+    const viaProbe = await after(graph => { apply(graph, setMode('gradient')); apply(graph, setProbe(20, 10)); });
+    expect(viaProbe).toEqual(await after(() => { modeChooser('gradient'); type('P, x', '1'); type('P, y', '0,5'); }));
     expect(viaProbe.state).toEqual(expect.objectContaining({probe: [20, 10]}));
-    const viaNumeric = after(graph => { apply(graph, setMode('gradient')); apply(graph, setNumeric(true)); });
-    expect(viaNumeric).toEqual(after(() => { modeChooser('gradient'); act(() => { fireEvent.click(screen.getByRole('checkbox', {name: t('levelsets_graph_numeric')})); }); }));
+    const viaNumeric = await after(graph => { apply(graph, setMode('gradient')); apply(graph, setNumeric(true)); });
+    expect(viaNumeric).toEqual(await after(() => { modeChooser('gradient'); toggleNumeric(); }));
     expect(viaNumeric.state).toEqual(expect.objectContaining({numeric: true}));
 });
 
-test('a scene runs its actions in one synchronous sequence, each reading what the earlier one wrote', () => {
+test('a scene runs its actions in one synchronous sequence, each reading what the earlier one wrote', async () => {
     const graph = mount();
     const free = stateOf(graph);
     act(() => {
@@ -113,15 +123,13 @@ test('a scene runs its actions in one synchronous sequence, each reading what th
     expect(stateOf(graph)).not.toEqual(free);
     const here = {state: stateOf(graph), readouts: readouts(), status: status()};
     cleanup();
-    const viaControl = after(() => {
+    const viaControl = await after(() => {
         functionChooser('hills');
         modeChooser('gradient');
         type('P, x', '1');
         type('P, y', '1');
-        act(() => { fireEvent.click(screen.getByRole('checkbox', {name: t('levelsets_graph_numeric')})); });
-        press(t('levelsets_graph_count_plus'));
-        press(t('levelsets_graph_count_plus'));
-        press(t('levelsets_graph_count_plus'));
+        toggleNumeric();
+        typeCount('4');
         functionChooser('valley');
     });
     expect(viaControl).toEqual(here);
@@ -188,35 +196,34 @@ const setStart = (X: number, Y: number): LessonAction => ({kind: 'levelsets', op
 const setStep = (step: number): LessonAction => ({kind: 'levelsets', operation: 'set-step', step});
 const setConstraint = (constraint?: 'line' | 'circle', lineParam?: number, circleParam?: number): LessonAction => ({kind: 'levelsets', operation: 'set-constraint', constraint, lineParam, circleParam});
 const typeStart = (axis: 'x' | 'y', value: string) => type(`P0, ${axis}`, value);
-const typeSlider = (label: string, value: string) => type(t('number_field_label', {value0: label}), value);
 const nextStep = () => act(() => { fireEvent.click(document.querySelector('[data-action="next-step"]') as Element); });
 
-test('set-start reaches the state of the start fields; set-step the step slider', () => {
-    const viaStart = after(graph => { apply(graph, setMode('descent')); apply(graph, setStart(-8, 4)); });
-    expect(viaStart).toEqual(after(() => { modeChooser('descent'); typeStart('x', '-2'); }));
+test('set-start reaches the state of the start fields; set-step the step slider', async () => {
+    const viaStart = await after(graph => { apply(graph, setMode('descent')); apply(graph, setStart(-8, 4)); });
+    expect(viaStart).toEqual(await after(() => { modeChooser('descent'); typeStart('x', '-2'); }));
     expect(viaStart.state).toEqual(expect.objectContaining({start: [-8, 4]}));
-    const viaBoth = after(graph => { apply(graph, setMode('descent')); apply(graph, setStart(6, -2)); });
-    expect(viaBoth).toEqual(after(() => { modeChooser('descent'); typeStart('x', '1,5'); typeStart('y', '-0,5'); }));
+    const viaBoth = await after(graph => { apply(graph, setMode('descent')); apply(graph, setStart(6, -2)); });
+    expect(viaBoth).toEqual(await after(() => { modeChooser('descent'); typeStart('x', '1,5'); typeStart('y', '-0,5'); }));
     expect(viaBoth.state).toEqual(expect.objectContaining({start: [6, -2]}));
-    const viaStep = after(graph => { apply(graph, setMode('descent')); apply(graph, setStep(10)); });
-    expect(viaStep).toEqual(after(() => { modeChooser('descent'); typeSlider(t('levelsets_graph_step'), '10'); }));
+    const viaStep = await after(graph => { apply(graph, setMode('descent')); apply(graph, setStep(10)); });
+    expect(viaStep).toEqual(await after(() => { modeChooser('descent'); typePuck('contour-step', '10'); }));
     expect(viaStep.state).toEqual(expect.objectContaining({step: 10}));
 });
 
-test('set-constraint reaches the state of the chooser and of the point controls', () => {
-    const viaCircle = after(graph => { apply(graph, setMode('lagrange')); apply(graph, setConstraint('circle', undefined, 12)); });
-    expect(viaCircle).toEqual(after(() => { modeChooser('lagrange'); choose(t('levelsets_graph_constraint'), 'circle'); typeSlider(t('levelsets_graph_circle_angle'), '90'); }));
+test('set-constraint reaches the state of the chooser and of the point controls', async () => {
+    const viaCircle = await after(graph => { apply(graph, setMode('lagrange')); apply(graph, setConstraint('circle', undefined, 12)); });
+    expect(viaCircle).toEqual(await after(() => { modeChooser('lagrange'); choose(t('levelsets_graph_constraint'), 'circle'); typePuck('contour-circle', '90'); }));
     expect(viaCircle.state).toEqual(expect.objectContaining({constraint: 'circle', circleParam: 12}));
-    const viaLine = after(graph => { apply(graph, setMode('lagrange')); apply(graph, setConstraint(undefined, 8)); });
-    expect(viaLine).toEqual(after(() => { modeChooser('lagrange'); typeSlider(t('levelsets_graph_line_x'), '2'); }));
+    const viaLine = await after(graph => { apply(graph, setMode('lagrange')); apply(graph, setConstraint(undefined, 8)); });
+    expect(viaLine).toEqual(await after(() => { modeChooser('lagrange'); typePuck('contour-line-x', '2'); }));
     expect(viaLine.state).toEqual(expect.objectContaining({constraint: 'line', lineParam: 8}));
 });
 
-test('the circle angle slider takes degrees on the 7,5 degree grid and refuses anything else', () => {
-    const graph = mount();
+test('the circle angle slider takes degrees on the 7,5 degree grid and refuses anything else', async () => {
+    const graph = await mountWithPucks();
     modeChooser('lagrange');
     choose(t('levelsets_graph_constraint'), 'circle');
-    const angle = (value: string) => typeSlider(t('levelsets_graph_circle_angle'), value);
+    const angle = (value: string) => typePuck('contour-circle', value);
     angle('90');
     expect(graph.state).toEqual(expect.objectContaining({constraint: 'circle', circleParam: 12}));
     angle('45');
@@ -229,7 +236,7 @@ test('the circle angle slider takes degrees on the 7,5 degree grid and refuses a
     expect(graph.state).toEqual(expect.objectContaining({circleParam: 47}));
 });
 
-test('a descent and Lagrange scene runs in one synchronous sequence with the Batch B actions; no action sets the step counter', () => {
+test('a descent and Lagrange scene runs in one synchronous sequence with the Batch B actions; no action sets the step counter', async () => {
     const graph = mount();
     act(() => {
         const capabilities = graph.getLessonCapabilities();
@@ -243,13 +250,13 @@ test('a descent and Lagrange scene runs in one synchronous sequence with the Bat
     expect(graph.state).toEqual(expect.objectContaining({fn: 'valley', mode: 'lagrange', start: [8, 4], step: 9, constraint: 'circle', circleParam: 18}));
     const here = {state: stateOf(graph), readouts: readouts(), status: status()};
     cleanup();
-    const viaControl = after(() => {
+    const viaControl = await after(() => {
         functionChooser('valley');
         modeChooser('descent');
-        typeSlider(t('levelsets_graph_step'), '9');
+        typePuck('contour-step', '9');
         modeChooser('lagrange');
         choose(t('levelsets_graph_constraint'), 'circle');
-        typeSlider(t('levelsets_graph_circle_angle'), '135');
+        typePuck('contour-circle', '135');
     });
     expect(viaControl).toEqual(here);
     // The step counter is not an action's business: pressing step moves it, and a changing action returns it to 0 as the matching control does.

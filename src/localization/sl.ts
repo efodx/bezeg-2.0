@@ -4189,7 +4189,6 @@ export const sl = {
     "levelsets_graph_steps_rejected": "Korak mora biti celo število od {value0} do {value1}.",
     "levelsets_graph_notice_step_refused": "Korak je zavrnjen: zunaj poti.",
     "levelsets_graph_readout_title": "Odčitek nivojnic",
-    "levelsets_graph_legend_title": "Legenda",
     "levelsets_graph_point_format": "({value0}; {value1})",
     "levelsets_graph_label_probe": "Sonda {value0}",
     "levelsets_graph_label_start": "Začetek {value0}",

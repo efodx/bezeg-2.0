@@ -2,14 +2,14 @@
  * LS3 and LS4 (level sets, batch C), part A: every scene lands, in both languages, in the state and readouts the text states (the real contour graph, one synchronous sequence of
  * actions from a restored checkpoint, out of order and twice in one act); the descent step counter is 0 at every opening; no opening is already the state the prompt asks the
  * learner to produce (LS4 steps 1 and 4 open in level-sets mode, where the constraint is not shown); every control or readout the prompts name exists in the graph strings; and the
- * learner actions the text asks for (Naslednji korak, the function chooser, the step slider H, the start field y, the mode chooser, the line x and the circle angle) give the readouts
+ * learner actions the text asks for (Naslednji korak, the function chooser, the step puck H, the start field y, the mode puck, the line x and circle angle pucks) give the readouts
  * the text quotes. Expected values are computed here (the descent iteration and the closed forms of the line and the circle), not with the graph.
  */
 import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../graphs/base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {chooseOnPuckNow, installBoardShims, openTools, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../graphs/base/realGraphTestHarness';
 import type {SurfaceScene, SurfaceView} from '../../graphs/patches/surface-view/surfaceScene';
 import ContourMapGraph from '../../graphs/levelsets/ContourMapGraph';
 import {enterNumber} from '../../inputs/testEntry';
@@ -123,13 +123,17 @@ const loc = (value: string, language: Language) => (language === 'sl' ? value : 
 const choose = (label: string, value: string) => act(() => { fireEvent.change(screen.getByLabelText(label), {target: {value}}); });
 const typeInto = (name: string, value: string, language: Language) => act(() => { enterNumber(screen.getByRole('spinbutton', {name}) as HTMLInputElement, loc(value, language)); });
 const typeField = (label: string, value: string, language: Language) => typeInto(t('number_field_label', {value0: label}), value, language);
+// The mode, the step H, the point on the line and the circle angle are pucks (task 08 lane L29); Naslednji korak, Korak spusta, the
+// function and the start stay in Orodja.
 const nextStep = () => act(() => { fireEvent.click(screen.getByRole('button', {name: t('next_step')})); });
-const chooseMode = (mode: Mode) => choose(t('levelsets_graph_mode'), mode);
+const chooseMode = (mode: Mode) => chooseOnPuckNow('contour-mode', mode);
 const chooseFunction = (fn: Fn) => choose(t('levelsets_graph_fn'), fn);
-const typeH = (value: string, language: Language) => typeField(t('levelsets_graph_step'), value, language);
+const typeH = (value: string, language: Language) => typePuck('contour-step', loc(value, language));
 const typeIndex = (value: string, language: Language) => typeField(t('levelsets_graph_steps_label'), value, language);
-const typeLineX = (value: string, language: Language) => typeField(t('levelsets_graph_line_x'), value, language);
-const typeAngle = (value: string, language: Language) => typeField(t('levelsets_graph_circle_angle'), value, language);
+const typeLineX = (value: string, language: Language) => typePuck('contour-line-x', loc(value, language));
+const typeAngle = (value: string, language: Language) => typePuck('contour-circle', loc(value, language));
+/** The text of a puck (its label and value), or null when the strip does not show it. */
+const puckText = (key: string) => document.querySelector(`.puck-strip [data-puck-key="${key}"]`)?.textContent ?? null;
 
 /** The readouts of the descent at step k of the path. */
 function expectIterate(label: string, fn: Fn, start: Pair, H: number, k: number, language: Language) {
@@ -272,6 +276,14 @@ const LESSONS = [levelSetsDescentLesson, levelSetsLagrangeLesson] as const;
 let current: TestGraph | null = null;
 const graphOf = (): TestGraph => current!;
 const use = () => { const m = mountContour(); current = m.graph; return m; };
+/** A mount on which the learner can act: the puck strip laid out and Orodja open. */
+const mountForLearner = async () => {
+    const m = mountContour();
+    current = m.graph;
+    await waitForPucks('contour-mode');
+    await openTools();
+    return m;
+};
 
 test('every LS3 and LS4 step has a plan', () => {
     expect(new Set(PLANS.map(plan => plan.id))).toEqual(new Set(LESSONS.flatMap(lesson => lesson.steps.map(step => step.id))));
@@ -308,9 +320,9 @@ describe.each(LANGUAGES)('LS3 and LS4 scenes in %s', language => {
         expect(plain(m.graph)).toEqual(DEFAULT_STATE);
     });
 
-    test('no opening is already the state the prompt asks for; LS4 steps 1 and 4 do not show the constraint', () => {
+    test('no opening is already the state the prompt asks for; LS4 steps 1 and 4 do not show the constraint', async () => {
         setLanguage(language);
-        const m = use();
+        const m = await mountForLearner();
         for (const plan of PLANS.filter(candidate => candidate.id !== 'ls3-explore' && candidate.id !== 'ls4-explore')) {
             m.scene(plan.lesson, plan.id);
             const before = JSON.stringify(plain(m.graph));
@@ -326,9 +338,9 @@ describe.each(LANGUAGES)('LS3 and LS4 scenes in %s', language => {
         }
     });
 
-    test('the learner actions the text asks for give the state and readouts it quotes (each step from its own scene)', () => {
+    test('the learner actions the text asks for give the state and readouts it quotes (each step from its own scene)', async () => {
         setLanguage(language);
-        const m = use();
+        const m = await mountForLearner();
         for (const plan of order) {
             m.scene(plan.lesson, plan.id);
             plan.learn(language);
@@ -344,9 +356,9 @@ function nextStepIfDescent(graph: TestGraph) {
 
 const L = {
     mode: () => t('levelsets_graph_mode'), descent: () => t('levelsets_graph_mode_descent'), lagrange: () => t('levelsets_graph_mode_lagrange'), levelSets: () => t('levelsets_graph_mode_level_sets'),
-    fn: () => t('levelsets_graph_fn'), valley: () => t('levelsets_graph_fn_valley'), step: () => t('levelsets_graph_step'), next: () => t('next_step'), playStep: () => t('levelsets_graph_steps_label'),
+    fn: () => t('levelsets_graph_fn'), valley: () => t('levelsets_graph_fn_valley'), step: () => `${t('contour_step_name')} H`, next: () => t('next_step'), playStep: () => t('levelsets_graph_steps_label'),
     point: () => t('levelsets_graph_r_iterate', {value0: '_k'}), valueF: () => t('levelsets_graph_r_iterate_f'), first: () => t('levelsets_graph_r_settled'), behaviour: () => t('levelsets_graph_r_claim'),
-    end: () => t('levelsets_graph_r_stop'), lineX: () => t('levelsets_graph_line_x'), circleAngle: () => t('levelsets_graph_circle_angle'), tangent: () => t('levelsets_graph_r_tangent_points'),
+    end: () => t('levelsets_graph_r_stop'), lineX: () => `${t('contour_line_x_name')} x`, circleAngle: () => t('contour_circle_name'), tangent: () => t('levelsets_graph_r_tangent_points'),
     touch: () => t('levelsets_graph_r_tangency'), gradF: () => t('levelsets_graph_r_grad_f'), gradG: () => t('levelsets_graph_r_grad_g'), angles: () => t('levelsets_graph_r_tangent_count'),
     constraint: () => t('levelsets_graph_constraint'), pointC: () => t('levelsets_graph_r_point'),
 };
@@ -379,24 +391,25 @@ describe.each(LANGUAGES)('LS3 and LS4 prompt labels in %s', language => {
         for (const label of NAMED[id]) expect({id, label: label(), named: forms(label()).some(form => prompt.includes(form))}).toEqual({id, label: label(), named: true});
     });
 
-    test('the labels exist in the mounted graph: the controls and the readout rows of both modes', () => {
+    test('the labels exist in the mounted graph: the controls and the readout rows of both modes', async () => {
         setLanguage(language);
-        const m = use();
+        const m = await mountForLearner();
         m.scene(levelSetsDescentLesson, 'ls3-bowl');
         const descentRows = [...document.querySelectorAll('[data-readout] dt')].map(node => node.textContent ?? '');
         for (const label of [L.valueF, L.first, L.behaviour, L.end]) expect({label: label(), shown: descentRows.includes(label())}).toEqual({label: label(), shown: true});
-        for (const label of [L.fn, L.mode]) expect({label: label(), control: screen.queryAllByLabelText(label()).length > 0}).toEqual({label: label(), control: true});
+        expect({label: L.fn(), control: screen.queryAllByLabelText(L.fn()).length > 0}).toEqual({label: L.fn(), control: true});
         expect(screen.queryByRole('button', {name: t('next_step')})).not.toBeNull();
-        expect(screen.queryByRole('spinbutton', {name: t('number_field_label', {value0: L.step()})})).not.toBeNull();
         expect(screen.queryByRole('spinbutton', {name: t('number_field_label', {value0: L.playStep()})})).not.toBeNull();
         expect(screen.queryByRole('spinbutton', {name: 'P0, y'})).not.toBeNull();
+        // the pucks show their bare label (a symbol such as H or x is typeset next to it)
+        expect({mode: puckText('contour-mode')?.includes(L.mode()), step: puckText('contour-step')?.includes(t('contour_step_name'))}).toEqual({mode: true, step: true});
         m.scene(levelSetsLagrangeLesson, 'ls4-gradients');
         const lagrangeRows = [...document.querySelectorAll('[data-readout] dt')].map(node => node.textContent ?? '');
         for (const label of [L.pointC, L.valueF, L.gradF, L.gradG, L.touch, L.tangent]) expect({label: label(), shown: lagrangeRows.includes(label())}).toEqual({label: label(), shown: true});
-        expect(screen.queryByRole('spinbutton', {name: t('number_field_label', {value0: L.lineX()})})).not.toBeNull();
+        expect(puckText('contour-line-x')?.includes(t('contour_line_x_name'))).toBe(true);
         m.scene(levelSetsLagrangeLesson, 'ls4-circle');
         chooseMode('lagrange');
-        expect(screen.queryByRole('spinbutton', {name: t('number_field_label', {value0: L.circleAngle()})})).not.toBeNull();
+        expect(puckText('contour-circle')?.includes(L.circleAngle())).toBe(true);
         expect([...document.querySelectorAll('[data-readout] dt')].map(node => node.textContent ?? '')).toContain(L.angles());
     });
 });

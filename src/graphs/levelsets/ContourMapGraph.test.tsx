@@ -2,7 +2,7 @@ import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, settle} from '../base/realGraphTestHarness';
+import {installBoardShims, openTools, puckControl, settle, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import {en} from '../../localization/en';
 import {sl} from '../../localization/sl';
 import {setLanguage, t} from '../../localization';
@@ -14,6 +14,10 @@ import {DESCENT_MAX_STEPS} from '../../levelsets/descent';
 import ContourMapGraph, {DRAWN_STYLE, STEP_MS} from './ContourMapGraph';
 import {ContourSurfacePanel} from './ContourPanels';
 import {enterNumber} from '../../inputs/testEntry';
+import {runAs} from '../base/writes/writeSource';
+
+/** A write as the learner (the source the Orodja controls and drags carry). */
+const learn = (work: () => void) => act(() => { runAs('learner', work); });
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -71,7 +75,7 @@ describe('ContourMapGraph', () => {
 
     it('bowl probe (0,6; 0,8): gradient (1,2; 1,6), tangent (-0,8; 0,6)', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setMode('gradient'); });
+        learn(() => { graph.setMode('gradient'); });
         const info = graph.gradient();
         expect(info.gradient[0]).toBeCloseTo(1.2, 12);
         expect(info.gradient[1]).toBeCloseTo(1.6, 12);
@@ -83,9 +87,9 @@ describe('ContourMapGraph', () => {
 
     it('hills at (1, 1): df/dx = 0,4546487', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setMode('gradient'); graph.setFunction('hills'); });
-        expect(graph.setProbe(0, 1)).toBe(true);
-        expect(graph.setProbe(1, 1)).toBe(true);
+        learn(() => { graph.setMode('gradient'); graph.setFunction('hills'); });
+        expect(runAs('learner', () => graph.setProbe(0, 1))).toBe(true);
+        expect(runAs('learner', () => graph.setProbe(1, 1))).toBe(true);
         expect(graph.gradient().gradient[0]).toBeCloseTo(0.4546487, 7);
     });
 
@@ -97,35 +101,37 @@ describe('ContourMapGraph', () => {
         expect(graph.state).toBe(before);
     });
 
-    it('the probe and the descent start are point rows, the point on the line a slider; a typed value goes through the same checked edit', () => {
+    it('the probe and the descent start are point rows, the point on the line a slider puck; a typed value goes through the same checked edit', async () => {
         const {graph} = mountGraph();
         const spin = (name: string) => screen.getByRole('spinbutton', {name}) as HTMLInputElement;
-        act(() => { graph.setMode('gradient'); });
+        learn(() => { graph.setMode('gradient'); });
         expect(screen.getByRole('group', {name: t('levelsets_graph_probe_title')})).toBeInTheDocument();
         act(() => { enterNumber(spin('P, x'), '1,5'); });
         expect(graph.probePoint().x).toBe(1.5);
         act(() => { enterNumber(spin('P, y'), '0,123'); });
         expect(graph.probePoint().y).not.toBe(0.123);
         expect(screen.getByText(t('levelsets_graph_point_rejected', {value0: '2', value1: '0,05'}))).toBeInTheDocument();
-        act(() => { graph.setMode('descent'); });
+        learn(() => { graph.setMode('descent'); });
         expect(screen.getByRole('group', {name: t('levelsets_graph_start_title')})).toBeInTheDocument();
         act(() => { enterNumber(spin('P0, x'), '1,25'); });
         expect(graph.state.start[0]).toBe(5);
-        act(() => { graph.setMode('lagrange'); });
-        act(() => { enterNumber(screen.getByRole('spinbutton', {name: t('number_field_label', {value0: t('levelsets_graph_line_x')})}), '1,5'); });
+        learn(() => { graph.setMode('lagrange'); });
+        // the point on the line is a slider puck on the board now (task 08 lane L29)
+        await waitForPucks('contour-line-x');
+        typePuck('contour-line-x', '1,5');
         expect(graph.state.lineParam).toBe(6);
-        expect(screen.getByRole('slider', {name: t('levelsets_graph_line_x')})).toBeInTheDocument();
+        expect(puckControl('contour-line-x').getAttribute('role')).toBe('slider');
     });
 
     it('descent: steps, refused index, and reduced motion blocks Play', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setMode('descent'); });
+        learn(() => { graph.setMode('descent'); });
         expect(graph.step).toBe(0);
-        act(() => { graph.nextStep(); });
+        learn(() => { graph.nextStep(); });
         expect(graph.step).toBe(1);
         expect(graph.setStepIndex(-1)).toBe(false);
         expect(graph.setStepIndex(graph.lastStep() + 1)).toBe(false);
-        act(() => { graph.resetSteps(); });
+        learn(() => { graph.resetSteps(); });
         expect(graph.step).toBe(0);
         graph.reduced = true;
         expect(graph.reducedMotion()).toBe(true);
@@ -133,7 +139,7 @@ describe('ContourMapGraph', () => {
 
     it('lagrange mode renders a status sentence', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setMode('lagrange'); });
+        learn(() => { graph.setMode('lagrange'); });
         expect(statusText()).not.toBe('');
     });
 
@@ -160,9 +166,10 @@ function dragHandleTo(point: JXG.Point, x: number, y: number) {
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 
-function playFrom(graph: ObservedGraph) {
-    act(() => { graph.setMode('descent'); });
-    press(t('play'));
+/** Starts the descent playing: by the Play button, or by the declared action it calls (no button feedback timer of the workspace). */
+function playFrom(graph: ObservedGraph, byAction = false) {
+    learn(() => { graph.setMode('descent'); });
+    if (byAction) act(() => graph.performAction('play-pause')); else press(t('play'));
     expect(graph.playing).toBe(true);
     graph.frames.tick(0);
     graph.frames.tick(STEP_MS);
@@ -175,7 +182,7 @@ describe('ownership', () => {
         // JSXGraph leaves a timer of its own for every redrawn step (text.js), measured with one step set from outside; a played run must leave the same number.
         const before = vi.getTimerCount();
         const reference = mountGraph();
-        act(() => { reference.graph.setMode('descent'); reference.graph.setStepIndex(1); });
+        learn(() => { reference.graph.setMode('descent'); reference.graph.setStepIndex(1); });
         reference.view.unmount();
         const plainDelta = vi.getTimerCount() - before;
         const afterPlain = vi.getTimerCount();
@@ -188,7 +195,7 @@ describe('ownership', () => {
         const handles = graph.handles();
         const all = [handles.probe!, handles.start!, handles.point!];
         for (const handle of all) expect(handlerCounts(handle)).toEqual([1, 1, 1]);
-        playFrom(graph);
+        playFrom(graph, true);
         expect(graph.ownedObjectCount()).toBe(owned); // playing creates nothing
         expect(graph.frames.pending()).toBe(true);
         view.unmount();
@@ -205,7 +212,7 @@ describe('ownership', () => {
     it('switching mode and function keeps the object count', () => {
         const {graph} = mountGraph();
         const owned = graph.ownedObjectCount();
-        act(() => { graph.setMode('lagrange'); graph.setFunction('saddle'); graph.setMode('descent'); graph.setMode('level-sets'); graph.setFunction('bowl'); });
+        learn(() => { graph.setMode('lagrange'); graph.setFunction('saddle'); graph.setMode('descent'); graph.setMode('level-sets'); graph.setFunction('bowl'); });
         expect(graph.ownedObjectCount()).toBe(owned);
     });
 });
@@ -215,7 +222,7 @@ describe('every mode and function', () => {
         const {graph} = mountGraph();
         for (const mode of CONTOUR_MODES) {
             for (const fn of CATALOGUE_IDS) {
-                act(() => { graph.setMode(mode); graph.setFunction(fn); });
+                learn(() => { graph.setMode(mode); graph.setFunction(fn); });
                 expect(statusText(), `${mode} ${fn}`).not.toBe('');
                 expect(graph.ownedObjectCount(), `${mode} ${fn}`).toBeGreaterThan(0);
                 noBadText();
@@ -225,7 +232,7 @@ describe('every mode and function', () => {
 
     it('lagrange mode with hills refuses the line (the constraint falls back to the circle)', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setMode('lagrange'); graph.setFunction('hills'); });
+        learn(() => { graph.setMode('lagrange'); graph.setFunction('hills'); });
         expect(graph.setConstraint('line')).toBe(false);
         expect(graph.state.constraint).toBe('circle');
     });
@@ -253,7 +260,7 @@ describe('dragging snaps', () => {
 
     it('the descent start is clamped to the window edge as well', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setMode('descent'); });
+        learn(() => { graph.setMode('descent'); });
         const edge = CATALOGUE[graph.state.fn].window.xMax;
         dragHandleTo(graph.handles().start!, 9 * edge, -9 * edge);
         expect(graph.state.start).toEqual([edge * 4, -edge * 4]);
@@ -261,7 +268,7 @@ describe('dragging snaps', () => {
 
     it('the descent start snaps to the quarter grid', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setMode('descent'); });
+        learn(() => { graph.setMode('descent'); });
         dragHandleTo(graph.handles().start!, -1.1, 0.4);
         expect(graph.state.start).toEqual([-4, 2]);
         expect(graph.step).toBe(0);
@@ -269,12 +276,12 @@ describe('dragging snaps', () => {
 
     it('the constrained point stays on the line (nearest quarter of x) and on the circle (nearest of 48 angles)', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setMode('lagrange'); });
+        learn(() => { graph.setMode('lagrange'); });
         dragHandleTo(graph.handles().point!, 1.37, 99);
         expect(graph.state.lineParam).toBe(5);
         expect(graph.handles().point!.X()).toBe(1.25);
         expect(graph.handles().point!.Y()).toBe(1.875);
-        act(() => { graph.setConstraint('circle'); });
+        learn(() => { graph.setConstraint('circle'); });
         dragHandleTo(graph.handles().point!, 3, 3);
         expect(graph.state.circleParam).toBe(6);
         expect(graph.handles().point!.X()).toBeCloseTo(1, 12);
@@ -292,7 +299,7 @@ describe('the pause rule', () => {
     it.each(Object.keys(patches))('a direct setState of %s pauses the playback', key => {
         const {graph} = mountGraph();
         playFrom(graph);
-        act(() => { graph.setState(patches[key] as never); });
+        learn(() => { graph.setState(patches[key] as never); });
         expect(graph.playing, key).toBe(false);
         expect(graph.frames.pending(), key).toBe(false);
     });
@@ -300,9 +307,9 @@ describe('the pause rule', () => {
     it('a write that stores the same content keeps playing, and so does a repaint', () => {
         const {graph} = mountGraph();
         playFrom(graph);
-        act(() => { graph.setState({probe: [graph.state.probe[0], graph.state.probe[1]], camera: {...graph.state.camera, target: [0, 0, 0]}} as never); });
+        learn(() => { graph.setState({probe: [graph.state.probe[0], graph.state.probe[1]], camera: {...graph.state.camera, target: [0, 0, 0]}} as never); });
         expect(graph.playing).toBe(true);
-        act(() => { graph.setState({} as never); });
+        learn(() => { graph.setState({} as never); });
         expect(graph.playing).toBe(true);
         graph.frames.tick(2 * STEP_MS);
         expect(graph.playing).toBe(true);
@@ -311,7 +318,7 @@ describe('the pause rule', () => {
     it('a typed edit, the step slider and Pause stop the run; Pause keeps the step', () => {
         const {graph} = mountGraph();
         playFrom(graph);
-        act(() => { expect(graph.setStart(0, 1)).toBe(true); });
+        learn(() => { expect(graph.setStart(0, 1)).toBe(true); });
         expect(graph.playing).toBe(false);
         playFrom(graph);
         press(t('pause'));
@@ -319,7 +326,7 @@ describe('the pause rule', () => {
         expect(graph.playing).toBe(false);
         expect(graph.step).toBe(kept);
         press(t('play'));
-        act(() => { expect(graph.setStepIndex(3)).toBe(true); });
+        learn(() => { expect(graph.setStepIndex(3)).toBe(true); });
         expect(graph.playing).toBe(false);
         expect(graph.step).toBe(3);
     });
@@ -338,7 +345,7 @@ describe('reduced motion', () => {
     it('Play is blocked through the rendered button, says why, and the step controls still work', () => {
         const {graph} = mountGraph();
         graph.reduced = true;
-        act(() => { graph.setMode('descent'); });
+        learn(() => { graph.setMode('descent'); });
         const play = screen.getByRole('button', {name: t('play')});
         expect(play.getAttribute('aria-disabled')).toBe('true');
         // The reason is visible text before Play is pressed, and the button is described by it.
@@ -357,7 +364,7 @@ describe('reduced motion', () => {
 describe('language switch', () => {
     it('the readout changes its decimal separator, keeps a true minus, and the status follows', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setMode('gradient'); graph.setProbe(0, -0.6); });
+        learn(() => { graph.setMode('gradient'); graph.setProbe(0, -0.6); });
         const slStatus = statusText();
         expect(readout('probe')).toBe('(−0,6; 0,8)');
         expect(readout('gradient')).toBe('(−1,2; 1,6)');
@@ -371,7 +378,7 @@ describe('language switch', () => {
 
     it('the numeric toggle shows the central-difference error at h = 0,01', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setMode('gradient'); graph.setFunction('hills'); graph.setProbe(0, 1); graph.setProbe(1, 1); graph.setNumeric(true); });
+        learn(() => { graph.setMode('gradient'); graph.setFunction('hills'); graph.setProbe(0, 1); graph.setProbe(1, 1); graph.setNumeric(true); });
         expect(readout('numeric-error')).toBe('0,0000076');
     });
 });
@@ -388,6 +395,7 @@ describe('the surface panel when the view cannot start', () => {
         // The note is set from a microtask: the react-hooks lint rule forbids setting state synchronously in the effect.
         await act(async () => { await Promise.resolve(); });
         expect(warn).toHaveBeenCalledWith('The surface view could not start.', expect.objectContaining({message: 'no WebGL'}));
+        await openTools(); // the surface panel is in Orodja, folded on the jsdom board
         expect(screen.getByRole('alert').textContent).toBe(t('levelsets_graph_surface_unavailable'));
         expect(graph.ownedObjectCount()).toBeGreaterThan(0);
         view.unmount();
@@ -411,6 +419,7 @@ describe('the surface panel failures', () => {
         expect(screen.queryByRole('alert')).toBeNull();
         await act(async () => { graph.view.reject(new Error('late failure')); await Promise.resolve(); });
         expect(warn).toHaveBeenCalledWith('The surface view could not start.', expect.objectContaining({message: 'late failure'}));
+        await openTools(); // the surface panel is in Orodja, folded on the jsdom board
         expect(screen.getByRole('alert').textContent).toBe(t('levelsets_graph_surface_unavailable'));
     });
 
@@ -451,7 +460,7 @@ describe('the legend and the drawing agree', () => {
             it(`${language}, ${mode}: the style a legend row names is the dash of the drawn element`, () => {
                 setLanguage(language);
                 const {graph} = mountGraph();
-                act(() => { graph.setMode(mode); });
+                learn(() => { graph.setMode(mode); });
                 const board = (graph as unknown as {board: JXG.Board}).board;
                 const drawn = (board.objectsList as unknown as Array<{visProp: Record<string, unknown>; visPropCalc: {visible: boolean}}>).filter(o => o.visPropCalc?.visible);
                 let checked = 0;
@@ -491,7 +500,7 @@ describe('the legend and the drawing agree', () => {
 describe('readout wording', () => {
     it('the point of tangency is shown as fractions with the decimals beside them', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setFunction('valley'); graph.setMode('lagrange'); });
+        learn(() => { graph.setFunction('valley'); graph.setMode('lagrange'); });
         expect(readout('tangent-points')).toMatch(/^\(25\/7; 5\/7\) ≈ \(3,5714; 0,7143\)$/);
     });
 
@@ -530,7 +539,7 @@ describe('the view follows the board size (a mode changes the board height after
     });
     const settleTo = (board: SizedBoard, height: number, move?: () => void) => {
         setHeight(height);
-        board.resizeContainer(390, height);
+        runAs('learner', () => board.resizeContainer(390, height));
         move?.();
         vi.useFakeTimers();
         callbacks.forEach(callback => callback());
@@ -549,7 +558,7 @@ describe('the view follows the board size (a mode changes the board height after
         settleTo(board, 498);
         const settled = [...board.getBoundingBox()];
         expect(settled).not.toEqual(first);
-        await settle(() => graph.reset());
+        await settle(() => runAs('learner', () => graph.reset()));
         near(settled, board.getBoundingBox());
     });
 
@@ -566,7 +575,7 @@ describe('the view follows the board size (a mode changes the board height after
         const {graph} = mountGraph();
         const board = graph.liveBoard() as unknown as SizedBoard;
         const preset = {...JSON.parse(JSON.stringify(graph.exportPreset())), boardState: {boundingBox: [-1.5, 2, 4.5, -2]}};
-        act(() => { graph.importPreset(preset); });
+        learn(() => { graph.importPreset(preset); });
         let kept: number[] = [];
         settleTo(board, 498, () => { kept = [...board.getBoundingBox()]; });
         near(board.getBoundingBox(), kept);
