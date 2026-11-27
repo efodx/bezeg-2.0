@@ -1,0 +1,71 @@
+{
+  "graph": "curve-offset",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (d = -0,25, no cusps)",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Razdalja d = -0,25.",
+        "Vzporednica nima osti.",
+        "Črtkana vzporednica je vzorčena, zato približna."
+      ]
+    },
+    {
+      "name": "d = -0,5 (first cusp)",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Osti vzporednice: 1.",
+        "Razdalja d = -0,5.",
+        "Črtkana vzporednica je vzorčena, zato približna."
+      ]
+    },
+    {
+      "name": "d = -1, cusps and speed plot",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Osti vzporednice: 2.",
+        "Razdalja d = -1.",
+        "Črtkana vzporednica je vzorčena, zato približna."
+      ]
+    },
+    {
+      "name": "the PH curve at d = -0,5",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Polna črta je točna racionalna vzporednica.",
+        "Razdalja d = -0,5.",
+        "Vzporednica nima osti.",
+        "Črtkana vzporednica je vzorčena, zato približna."
+      ]
+    },
+    {
+      "name": "offset hidden",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Razdalja d = -0,5.",
+        "Vzporednica nima osti."
+      ]
+    },
+    {
+      "name": "d = 0,75, 64 samples",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Razdalja d = 0,75.",
+        "Vzporednica nima osti."
+      ]
+    }
+  ]
+}

@@ -7,6 +7,11 @@ import {OFFSET_CUSP_MARKERS} from './OffsetOverlay';
 import {OFFSET_SAMPLES_DEFAULT, offsetTrace} from './curveOffset';
 import {setLanguage, t} from '../../../localization';
 import {GraphHost} from '../../base/GraphHost';
+import type {GraphDeclaration} from '../../base/declare/graphDeclaration';
+import type {OffsetIds} from './CurveOffsetGraph';
+import {runAs} from '../../base/writes/writeSource';
+
+const learner = <T,>(work: () => T): T => runAs('learner', work);
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -40,7 +45,7 @@ describe('CurveOffsetGraph smoke', () => {
             expect(owned.length).toBeGreaterThan(0);
             expect(owned.every(element => board.objectsList.includes(element))).toBe(true);
             expect(graph.offset()!.cuspCount()).toBe(0);
-            act(() => graph.setOffsetDistance(-1));
+            act(() => learner(() => graph.setOffsetDistance(-1)));
             expect(graph.offset()!.cuspCount()).toBe(2);
             expect(graph.speedPlot().lastData()!.cusps).toHaveLength(2);
             graph.offset()!.dispose();
@@ -58,7 +63,7 @@ describe('CurveOffsetGraph smoke', () => {
             const ph = graph.getFirstCurve() as unknown as {getOffsetCurves(): unknown[]; getOffsetCurveDistance(): number};
             expect(ph.getOffsetCurves()).toHaveLength(1);
             expect(ph.getOffsetCurveDistance()).toBe(OFFSET_DISTANCE_DEFAULT);
-            act(() => graph.setOffsetDistance(0.5));
+            act(() => learner(() => graph.setOffsetDistance(0.5)));
             expect(ph.getOffsetCurveDistance()).toBe(0.5);
         } finally { view.unmount(); }
     });
@@ -72,6 +77,9 @@ class OffsetGraphProbe extends ObservedOffsetGraph {
     owned() { return this.offset()!.ownedElements() as unknown as BoardObject[]; }
     trace() { return this.owned().find(element => element.elType === 'curve')!; }
     markers() { return this.owned().filter(element => element.elType === 'point'); }
+    declared() { return this.getDeclaration() as GraphDeclaration<OffsetIds>; }
+    rowValue(id: string) { return (this.declared().readouts![0].rows.find(row => row.id === id)?.value as {value: number} | undefined)?.value; }
+    noteIds() { return (this.declared().notes ?? []).map(note => note.id as string); }
     captions() { return this.owned().filter(element => element.elType === 'text').map(element => element.plaintext ?? '').filter(Boolean); }
     setBoardWidth(width: number) {
         const board = this.liveBoard();
@@ -111,7 +119,7 @@ describe('the sampled trace on the board', () => {
         const {graph, view} = mount();
         try {
             expectTraceIsKernel(graph, OFFSET_DISTANCE_DEFAULT, OFFSET_SAMPLES_DEFAULT);
-            act(() => graph.setOffsetDistance(0.7));
+            act(() => learner(() => graph.setOffsetDistance(0.7)));
             expectTraceIsKernel(graph, 0.7, OFFSET_SAMPLES_DEFAULT);
             act(() => graph.setOffsetSamples(64));
             expectTraceIsKernel(graph, 0.7, 64);
@@ -146,15 +154,16 @@ describe('the cusps of the default parabola (spec L5 numbers)', () => {
     test('d = -0.5 has one cusp at (0, 0.5); d = -1 has two at (+-0.2251, 0.9406)', () => {
         const {graph, view} = mount();
         try {
-            act(() => { graph.setOffsetCuspsShown(true); graph.setOffsetDistance(-0.5); });
+            act(() => { graph.setOffsetCuspsShown(true); learner(() => graph.setOffsetDistance(-0.5)); });
             expect(graph.offset()!.cuspCount()).toBe(1);
             let shown = visibleMarkers(graph);
             expect(shown).toHaveLength(1);
             expect(Math.abs(shown[0].X!())).toBeLessThan(1e-4);
             expect(Math.abs(shown[0].Y!() - 0.5)).toBeLessThan(1e-4);
-            expect(graph.captions()).toContain(t('offset_readout_cusps', {value0: '1'}));
+            expect(graph.rowValue('cusps')).toBe(1);
+            expect(graph.captions()).toEqual([]);
 
-            act(() => graph.setOffsetDistance(-1));
+            act(() => learner(() => graph.setOffsetDistance(-1)));
             expect(graph.offset()!.cuspCount()).toBe(2);
             shown = visibleMarkers(graph);
             expect(shown).toHaveLength(2);
@@ -163,7 +172,7 @@ describe('the cusps of the default parabola (spec L5 numbers)', () => {
             expect(Math.abs(points[1][0] - 0.2251)).toBeLessThan(1e-4);
             expect(Math.abs(points[0][1] - 0.9406)).toBeLessThan(1e-4);
             expect(Math.abs(points[1][1] - 0.9406)).toBeLessThan(1e-4);
-            expect(graph.captions()).toContain(t('offset_readout_cusps', {value0: '2'}));
+            expect(graph.rowValue('cusps')).toBe(2);
             expect(graph.offset()!.readoutText()).toContain(t('offset_readout_cusps', {value0: '2'}));
             // The unused pool slots stay invisible.
             expect(graph.markers()).toHaveLength(OFFSET_CUSP_MARKERS);
@@ -174,16 +183,17 @@ describe('the cusps of the default parabola (spec L5 numbers)', () => {
     test('the markers show only while the cusps switch is on, and no cusp reads as none', () => {
         const {graph, view} = mount();
         try {
-            act(() => graph.setOffsetDistance(-1));
+            act(() => learner(() => graph.setOffsetDistance(-1)));
             expect(visibleMarkers(graph)).toHaveLength(0);
-            expect(graph.captions()).toContain(t('offset_readout_cusps', {value0: '2'}));
+            expect(graph.rowValue('cusps')).toBe(2);
             act(() => graph.setOffsetCuspsShown(true));
             expect(visibleMarkers(graph)).toHaveLength(2);
             act(() => graph.setOffsetCuspsShown(false));
             expect(visibleMarkers(graph)).toHaveLength(0);
-            act(() => graph.setOffsetDistance(0.5));
+            act(() => learner(() => graph.setOffsetDistance(0.5)));
             expect(graph.offset()!.cuspCount()).toBe(0);
-            expect(graph.captions()).toContain(t('offset_readout_cusps_none'));
+            expect(graph.rowValue('cusps')).toBe(0);
+            expect(graph.rowValue('distance')).toBeCloseTo(0.5, 9);
         } finally { view.unmount(); }
     });
 });
@@ -233,7 +243,7 @@ describe('the PH curve kind', () => {
             expect(ph.getOffsetCurveDistance()).toBe(OFFSET_DISTANCE_DEFAULT);
             expectExactOnSampled(graph);
             for (const d of [-1.5, 1.5, 0.4]) {
-                act(() => graph.setOffsetDistance(d));
+                act(() => learner(() => graph.setOffsetDistance(d)));
                 expect(ph.getOffsetCurveDistance()).toBe(d);
                 expect(ph.getOffsetCurves()).toHaveLength(1);
                 expectExactOnSampled(graph);
@@ -244,7 +254,7 @@ describe('the PH curve kind', () => {
     test('a PH Preset stored with 3 offsets and d = 1.2 imports to one curve at the distance of the graph state', async () => {
         const {graph, view} = mount();
         try {
-            act(() => { graph.setCurveKind('ph'); graph.setOffsetDistance(-0.75); });
+            act(() => { graph.setCurveKind('ph'); learner(() => graph.setOffsetDistance(-0.75)); });
             act(() => graph.saveCurrentPreset('ph3'));
             const key = Object.keys(localStorage).find(name => name.includes('preset-curve-offset'))!;
             const stored = JSON.parse(localStorage.getItem(key)!);
@@ -267,7 +277,7 @@ describe('the PH curve kind', () => {
         const {graph, view} = mount();
         try {
             act(() => {
-                graph.setOffsetDistance(-0.9); graph.setOffsetSamples(200); graph.setOffsetCuspsShown(true);
+                learner(() => graph.setOffsetDistance(-0.9)); graph.setOffsetSamples(200); graph.setOffsetCuspsShown(true);
                 graph.setOffsetSpeedPlotShown(true); graph.setOffsetShown(false);
             });
             act(() => graph.setCurveKind('ph'));
@@ -280,41 +290,32 @@ describe('the PH curve kind', () => {
 });
 
 describe('copy', () => {
-    test('a narrow board drops the wrapping notes from the caption; the live text and the inspector keep them', () => {
+    test('the board draws no caption; the notes are declared rows of the Readouts card, follow the switch and the kind, and the live text keeps them', () => {
         const {graph, view} = mount();
         const inspectorNotes = () => Array.from(view.container.querySelectorAll('.inspector-help')).map(element => element.textContent);
         const notes = [t('offset_readout_approx'), t('offset_readout_exact_ph')];
         try {
+            expect(graph.captions()).toEqual([]);
+            expect(graph.noteIds()).toEqual(['approx']);
             act(() => graph.setCurveKind('ph'));
-            act(() => graph.setBoardWidth(364));
-            expect(graph.captions()).toHaveLength(2);
-            notes.forEach(note => expect(graph.captions()).not.toContain(note));
+            expect(graph.captions()).toEqual([]);
+            expect(graph.noteIds()).toEqual(['approx', 'exact']);
             notes.forEach(note => expect(graph.offset()!.readoutText()).toContain(note));
-            expect(inspectorNotes()).toEqual(expect.arrayContaining(notes));
-            act(() => graph.setBoardWidth(1000));
-            expect(graph.captions()).toEqual(expect.arrayContaining(notes));
-            act(() => graph.setOffsetShown(false));
             notes.forEach(note => expect(inspectorNotes()).not.toContain(note));
+            act(() => graph.setOffsetShown(false));
+            expect(graph.noteIds()).toEqual([]);
+            expect(graph.offset()!.readoutText()).not.toContain(notes[0]);
             act(() => { graph.setOffsetShown(true); graph.setCurveKind('bezier'); });
-            expect(inspectorNotes()).toContain(notes[0]);
-            expect(inspectorNotes()).not.toContain(notes[1]);
+            expect(graph.noteIds()).toEqual(['approx']);
         } finally { view.unmount(); }
     });
 
-    test('the Bezier caption says approximate and has no exact line; the PH caption adds it; off shows neither', () => {
+    test('the distance row follows d', () => {
         const {graph, view} = mount();
         try {
-            expect(graph.captions()).toContain(t('offset_readout_approx'));
-            expect(graph.captions()).not.toContain(t('offset_readout_exact_ph'));
-            act(() => graph.setCurveKind('ph'));
-            expect(graph.captions()).toContain(t('offset_readout_approx'));
-            expect(graph.captions()).toContain(t('offset_readout_exact_ph'));
-            act(() => graph.setOffsetShown(false));
-            expect(graph.captions()).not.toContain(t('offset_readout_approx'));
-            expect(graph.captions()).not.toContain(t('offset_readout_exact_ph'));
-            expect(graph.captions()).toHaveLength(2);
-            act(() => graph.setCurveKind('bezier'));
-            expect(graph.captions()).not.toContain(t('offset_readout_approx'));
+            expect(graph.rowValue('distance')).toBeCloseTo(OFFSET_DISTANCE_DEFAULT, 9);
+            act(() => learner(() => graph.setOffsetDistance(0.7)));
+            expect(graph.rowValue('distance')).toBeCloseTo(0.7, 9);
         } finally { view.unmount(); }
     });
 
@@ -325,15 +326,14 @@ describe('copy', () => {
         } finally { view.unmount(); }
     });
 
-    test('a language switch to English changes the board caption', () => {
+    test('a language switch to English changes the live text', () => {
         const {graph, view} = mount();
         try {
-            const slovenian = graph.captions();
+            const slovenian = graph.offset()!.readoutText();
             expect(slovenian).toContain(t('offset_readout_approx'));
             act(() => setLanguage('en'));
-            expect(graph.captions()).toContain(t('offset_readout_approx'));
-            expect(graph.captions()).not.toEqual(slovenian);
-            expect(graph.captions().some(line => slovenian.includes(line))).toBe(false);
+            expect(graph.offset()!.readoutText()).toContain(t('offset_readout_approx'));
+            expect(graph.offset()!.readoutText()).not.toEqual(slovenian);
         } finally { view.unmount(); }
     });
 });

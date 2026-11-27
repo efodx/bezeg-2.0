@@ -1,9 +1,14 @@
 import React from "react";
-import {t} from "../../../localization";
+import {message, messageNumber, t} from "../../../localization";
 import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
-import BaseCurveGraph, {BaseGraphStates} from "../../base/BaseCurveGraph";
+import BaseCurveGraph, {BaseCurveIds, BaseGraphStates} from "../../base/BaseCurveGraph";
+import type {GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ReadoutRow, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
+import {PuckOwned} from "../../base/controls/PuckOwnership";
+import {runAs} from "../../base/writes/writeSource";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
+import {DomainError} from "../../functions/BaseFunctionGraph";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {fitBoundingBox} from "../../base/fitBoundingBox";
 import {curveOffsetPresetCollection} from "../geometry/collections";
@@ -11,7 +16,7 @@ import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {LiveReadout, SettledReadout} from "../../base/controls/LiveReadout";
 import {JXGPHBezierCurve, OFFSET_DISTANCE_MAX, OFFSET_DISTANCE_MIN} from "../object/JXGPHBezierCurve";
 import {OFFSET_SAMPLES_DEFAULT, OFFSET_SAMPLES_MAX, OFFSET_SAMPLES_MIN} from "./curveOffset";
-import {OffsetCurveKind, OffsetOverlay} from "./OffsetOverlay";
+import {OFFSET_CUSP_MARKERS, OffsetCurveKind, OffsetOverlay} from "./OffsetOverlay";
 import {SpeedFactorPlot, SpeedFactorPlotController} from "./SpeedFactorPlot";
 
 export type {OffsetCurveKind};
@@ -72,6 +77,21 @@ export interface CurveOffsetStates extends BaseGraphStates {
     offsetSpeedPlotShown: boolean;
 }
 
+/**
+ * The ids this graph declares: the distance d (a puck parameter, bound in the arbiter), the switch of the sampled offset (a switch
+ * puck), the distance and the cusp count as rows, the approximation and exactness sentences as notes, and the legend of the curve,
+ * its control points, the dashed offset and the cusp markers. The cusp switch, the sample count, the curve kind and the speed
+ * factor plot stay in Orodja.
+ */
+export type OffsetIds = {
+    param: 'offset-d'; row: 'distance' | 'cusps'; note: 'approx' | 'exact'; section: never;
+    legend: BaseCurveIds['legend'] | 'offset' | 'cusps';
+    action: BaseCurveIds['action'] | 'offset-shown';
+};
+
+/** A trace sample counts for the view while it lies within this many extents of the curve's own samples. */
+const OFFSET_WATCH_EXTENTS = 1.6;
+
 function clampNumber(value: unknown, min: number, max: number, fallback: number): number {
     return typeof value === 'number' && Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback;
 }
@@ -109,6 +129,8 @@ class CurveOffsetGraph extends BaseCurveGraph<CurveOffsetStates> {
 
     /** Structured editing renders the Bezier tools (add or delete a point), which the fixed-degree PH curve does not have. */
     protected override workspaceUsesStructuredEditing() { return this.curveKind() === 'bezier'; }
+
+    protected override declaresCurveWorkspace() { return true; }
 
     override getInitialState(): CurveOffsetStates {
         return {
@@ -206,7 +228,6 @@ class CurveOffsetGraph extends BaseCurveGraph<CurveOffsetStates> {
                 return this.effectiveShown();
             },
             cuspsShown: () => this.state.offsetCuspsShown,
-            fontSize: () => this.displaySettings.fontSize,
             plot: this.plot,
             onReadout: text => this.liveReadout.report(text),
         });
@@ -305,6 +326,126 @@ class CurveOffsetGraph extends BaseCurveGraph<CurveOffsetStates> {
         registry.on('offset-samples', action => this.setOffsetSamples(action.value));
     }
 
+    // ---- Declaration -----------------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the key reads and writes d through the validated setter. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            'offset-d': {
+                read: () => this.effectiveD(),
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isFinite(value) || value < OFFSET_DISTANCE_MIN || value > OFFSET_DISTANCE_MAX) {
+                        throw new DomainError(message('offset_d_refused', {value0: String(OFFSET_DISTANCE_MIN), value1: String(OFFSET_DISTANCE_MAX)}));
+                    }
+                    this.setOffsetDistance(value);
+                },
+            },
+        };
+    }
+
+    private readoutRows(): ReadoutRow<OffsetIds>[] {
+        if (!this.overlay || !this.getFirstCurve()) return [];
+        return [
+            {id: 'distance', name: message('offset_d_name'), symbol: 'd', value: messageNumber(this.effectiveD(), 4)},
+            {id: 'cusps', name: message('offset_cusps_name'), value: messageNumber(this.overlay.cuspCount(), 0)},
+        ];
+    }
+
+    /** The sentences the board caption carried while the offset is drawn: it is sampled, and for a PH curve the solid line is exact. */
+    private readoutNotes(): ReadoutNote<OffsetIds>[] {
+        if (!this.getFirstCurve() || !this.effectiveShown()) return [];
+        const notes: ReadoutNote<OffsetIds>[] = [{id: 'approx', text: message('offset_readout_approx')}];
+        if (this.curveKind() === 'ph') notes.push({id: 'exact', text: message('offset_readout_exact_ph')});
+        return notes;
+    }
+
+    private offsetMarksCache: {key: string; base: ViewMarks; marks: ViewMarks} | undefined;
+
+    /**
+     * The curve's marks plus what the learner watches of the offset: its cusps and the samples of the dashed trace, as polylines broken
+     * where a sample is far from the curve or not a number. Memoized on d, the samples and the switches.
+     */
+    protected override curveViewMarks(): ViewMarks {
+        const base = super.curveViewMarks();
+        const overlay = this.overlay;
+        if (!overlay || !this.effectiveShown()) return base;
+        const key = [this.effectiveD(), this.effectiveSamples(), this.state.offsetCuspsShown].join('|');
+        const cached = this.offsetMarksCache;
+        if (cached && cached.key === key && cached.base === base) return cached.marks;
+        const own = base.nice?.find(mark => mark.kind === 'polyline');
+        const reference = own?.kind === 'polyline' ? own.points.map(p => [p[0], p[1]]) : (this.controlRows() ?? []);
+        if (reference.length === 0) return base;
+        const xs = reference.map(p => p[0]), ys = reference.map(p => p[1]);
+        const left = Math.min(...xs), right = Math.max(...xs), bottom = Math.min(...ys), top = Math.max(...ys);
+        const reach = OFFSET_WATCH_EXTENTS * Math.max(right - left, top - bottom, 1e-9);
+        const near = (x: number, y: number) => Number.isFinite(x) && Number.isFinite(y) && x >= left - reach && x <= right + reach && y >= bottom - reach && y <= top + reach;
+        const {trace, cusps} = overlay.geometry();
+        const must: ViewMark[] = [...base.must];
+        let piece: [number, number][] = [];
+        const flush = () => { if (piece.length >= 2) must.push({kind: 'polyline', points: piece}); piece = []; };
+        trace.x.forEach((x, i) => { if (near(x, trace.y[i])) piece.push([x, trace.y[i]]); else flush(); });
+        flush();
+        if (this.state.offsetCuspsShown) for (const cusp of cusps.slice(0, OFFSET_CUSP_MARKERS)) if (near(cusp.point[0], cusp.point[1])) must.push({kind: 'point', x: cusp.point[0], y: cusp.point[1]});
+        const marks: ViewMarks = {...base, must};
+        this.offsetMarksCache = {key, base, marks};
+        return marks;
+    }
+
+    /**
+     * The common curve declaration plus the d puck, the switch puck of the sampled offset, the distance and the cusp count as rows, the
+     * approximation and exactness sentences as notes, and the dashed offset and the cusps in the legend while they are drawn (a declared
+     * entry must be drawn). The old board caption lines are the rows and notes (owner, 2026-11-27).
+     */
+    protected override declaration(): GraphDeclaration<OffsetIds> {
+        const common = this.commonCurveDeclaration();
+        const parameters: ParameterDeclaration<OffsetIds['param']>[] = [
+            {key: 'offset-d', kind: 'range', label: message('offset_d_name'), symbol: 'd', placement: 'board', min: OFFSET_DISTANCE_MIN, max: OFFSET_DISTANCE_MAX, step: 0.01, maxDecimals: 2},
+        ];
+        const cuspsDrawn = this.state.offsetCuspsShown && (this.overlay?.cuspCount() ?? 0) > 0;
+        const legend: LegendEntry<OffsetIds>[] = [
+            ...(common.legend ?? []),
+            ...(this.effectiveShown() ? [{id: 'offset' as const, label: message('offset_shown'), kind: 'dashed' as const, object: 'offset'}] : []),
+            ...(this.effectiveShown() && cuspsDrawn ? [{id: 'cusps' as const, label: message('offset_cusps_shown'), kind: 'point' as const, object: 'cusps'}] : []),
+        ];
+        const marks = this.curveViewMarks();
+        return {
+            ...common, parameters, legend,
+            actions: [...(common.actions ?? []), {id: 'offset-shown', label: message('offset_shown_puck'), enabled: true, pressed: this.effectiveShown(), placement: 'board', puck: true}],
+            readouts: [{id: 'offset', rows: this.readoutRows()}],
+            notes: this.readoutNotes(),
+            marks, followView: this.watchedBox(marks),
+        };
+    }
+
+    /**
+     * The box around what the learner watches: the control points, the offset's samples and its cusps, grown by a fifth, with room above
+     * for the point labels. Without it the view director frames the lesson scene's box, widened to the canvas aspect, inside the narrow
+     * card-free strip, and the curve shrinks.
+     */
+    private watchedBox(marks: ViewMarks): [number, number, number, number] | undefined {
+        const points = marks.must.flatMap(mark => mark.kind === 'point' ? [[mark.x, mark.y]] : mark.kind === 'polyline' ? mark.points.map(p => [p[0], p[1]]) : []);
+        if (points.length === 0) return undefined;
+        const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
+        const left = Math.min(...xs), right = Math.max(...xs), bottom = Math.min(...ys), top = Math.max(...ys);
+        const pad = Math.max(0.2 * Math.max(right - left, top - bottom), 0.3);
+        return [left - pad, top + 2 * pad, right + pad, bottom - pad];
+    }
+
+    /** The dashed trace stands for the offset and the first cusp marker for the pool of markers; the base owns the curve and its control points. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id !== 'offset' && id !== 'cusps') return super.drawnObject(id);
+        const element = id === 'offset' ? this.overlay?.traceElement() : this.overlay?.cuspElement();
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as typeof element & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp('strokecolor')), visible: Boolean(drawn.evalVisProp('visible'))};
+    }
+
+    override performAction(id: string): void {
+        if (id === 'offset-shown') runAs('learner', () => this.setOffsetShown(!this.effectiveShown()));
+        else super.performAction(id);
+    }
+
     // ---- Controls --------------------------------------------------------------------------------------------------
 
     /** Structured editing does not render `getGraphCommands`, so the offset has its own Edit group, first. */
@@ -315,16 +456,14 @@ class CurveOffsetGraph extends BaseCurveGraph<CurveOffsetStates> {
     private offsetControls() {
         const kind = this.curveKind();
         return <div className="inspector-group">
-            <Slider min={OFFSET_DISTANCE_MIN} max={OFFSET_DISTANCE_MAX} step={0.01} value={this.effectiveD()} customText={t("offset_distance")}
-                    onChange={value => this.setOffsetDistance(value)}/>
-            <OnOffSwitch label={t("offset_shown")} checked={this.effectiveShown()} onChange={checked => this.setOffsetShown(checked)}/>
+            <PuckOwned param="offset-d"><Slider min={OFFSET_DISTANCE_MIN} max={OFFSET_DISTANCE_MAX} step={0.01} value={this.effectiveD()} customText={t("offset_distance")}
+                    onChange={value => this.setOffsetDistance(value)}/></PuckOwned>
+            <PuckOwned param="offset-shown"><OnOffSwitch label={t("offset_shown")} checked={this.effectiveShown()} onChange={checked => this.setOffsetShown(checked)}/></PuckOwned>
             <ChoiceSelect label={t("parametric_curve_label")} value={kind}
                           options={OFFSET_CURVE_KINDS.map(value => ({value, text: curveLabel(value)}))}
                           onChange={value => { if (isOffsetCurveKind(value) && value !== kind) this.setCurveKind(value); }}/>
             <p className="inspector-help">{t("offset_help")}</p>
             <p className="inspector-help">{t("offset_local_note")}</p>
-            {this.effectiveShown() && <p className="inspector-help">{t("offset_readout_approx")}</p>}
-            {this.effectiveShown() && kind === 'ph' && <p className="inspector-help">{t("offset_readout_exact_ph")}</p>}
             <OnOffSwitch label={t("offset_cusps_shown")} checked={this.state.offsetCuspsShown} onChange={checked => this.setOffsetCuspsShown(checked)}/>
             <Slider min={OFFSET_SAMPLES_MIN} max={OFFSET_SAMPLES_MAX} step={1} value={this.effectiveSamples()} customText={t("offset_samples")}
                     onChange={value => this.setOffsetSamples(Math.round(value))}/>

@@ -121,6 +121,13 @@ const envelopeAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the board caption lines "Število premic: N.", "t = .." and the collinear sentence were board text (the recording holds them as captions); the lines only repeated the values, so they are removed and the values are the declared rows and the note of the Odčitki card (owner, 2026-11-27)'},
 ];
 
+const OFFSET_CAPTION_REASON = 'the board caption lines "Razdalja d = ..", "Osti vzporednice: N." / "Vzporednica nima osti." and the two notes "Črtkana vzporednica je vzorčena, zato približna." and "Polna črta je točna racionalna vzporednica." were board text (the recording holds them as captions); the lines only repeated the values, so they are removed and the values are the declared rows and notes of the Odčitki card (owner, 2026-11-27)';
+const offsetAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'row distance', reason: OFFSET_CAPTION_REASON},
+    {kind: 'extra', where: 'row cusps', reason: OFFSET_CAPTION_REASON},
+    {kind: 'extra', where: 'note', reason: OFFSET_CAPTION_REASON},
+];
+
 const quadratureAccepted:readonly AcceptedDifference[] = [];
 
 const eulerAccepted:readonly AcceptedDifference[] = [
@@ -914,6 +921,19 @@ const SAMPLES: readonly Sample[] = [
             {name: '200 lines, curve shown', apply: run(g => { g.setEnvelopeLineCount(200); g.setEnvelopeCurveShown(true); })},
             {name: 'the middle point at (1, 1)', apply: run(g => replace(g, [[1, 0], [1, 1], [0, 1]]))},
             {name: 'collinear control points', apply: run(g => replace(g, [[1, 0], [0.5, 0.5], [0, 1]]))},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/offset/__parity__/curve-offset.json', demonstration: 'curve-offset', accepted: offsetAccepted, states: (() => {
+        type Off = {setOffsetDistance(value: number): void; setOffsetSamples(value: number): void; setOffsetShown(shown: boolean): void; setOffsetCuspsShown(shown: boolean): void;
+            setOffsetSpeedPlotShown(shown: boolean): void; setCurveKind(kind: 'bezier' | 'ph'): void};
+        const run = (edit: (graph: Off) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Off)); };
+        return [
+            {name: 'default (d = -0,25, no cusps)', apply: () => undefined},
+            {name: 'd = -0,5 (first cusp)', apply: run(g => { g.setOffsetDistance(-0.5); g.setOffsetCuspsShown(true); })},
+            {name: 'd = -1, cusps and speed plot', apply: run(g => { g.setOffsetDistance(-1); g.setOffsetCuspsShown(true); g.setOffsetSpeedPlotShown(true); })},
+            {name: 'the PH curve at d = -0,5', apply: run(g => { g.setCurveKind('ph'); g.setOffsetDistance(-0.5); })},
+            {name: 'offset hidden', apply: run(g => g.setOffsetShown(false))},
+            {name: 'd = 0,75, 64 samples', apply: run(g => { g.setOffsetDistance(0.75); g.setOffsetSamples(64); })},
         ] satisfies ParityState[];
     })()},
     {file: 'curves/reduction/__parity__/reduction.json', demonstration: 'reduction', accepted: reductionAccepted, states: (() => {

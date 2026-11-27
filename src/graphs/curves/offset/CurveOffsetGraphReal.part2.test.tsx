@@ -6,6 +6,9 @@ import CurveOffsetGraph, {OFFSET_DISTANCE_DEFAULT, OFFSET_PARABOLA_POINTS} from 
 import {OFFSET_SAMPLES_DEFAULT, OFFSET_SAMPLES_MAX, offsetTrace} from './curveOffset';
 import {setLanguage, t} from '../../../localization';
 import {GraphHost} from '../../base/GraphHost';
+import {runAs} from '../../base/writes/writeSource';
+
+const learner = <T,>(work: () => T): T => runAs('learner', work);
 import {LessonAction} from '../../../learning/model';
 
 /** Counts live language subscriptions, so a leaked listener shows even though the overlay also guards its callback. */
@@ -128,11 +131,11 @@ describe('Preset round trip and Reset', () => {
         const {graph, view} = mount();
         try {
             act(() => {
-                graph.setOffsetDistance(-0.8); graph.setOffsetSamples(200); graph.setOffsetCuspsShown(true);
+                learner(() => graph.setOffsetDistance(-0.8)); graph.setOffsetSamples(200); graph.setOffsetCuspsShown(true);
                 graph.setOffsetSpeedPlotShown(true); graph.setOffsetShown(false);
             });
             act(() => graph.saveCurrentPreset('mine'));
-            act(() => { graph.setOffsetDistance(1); graph.setOffsetSamples(64); graph.setOffsetCuspsShown(false); graph.setOffsetShown(true); });
+            act(() => { learner(() => graph.setOffsetDistance(1)); graph.setOffsetSamples(64); graph.setOffsetCuspsShown(false); graph.setOffsetShown(true); });
             await settle(() => graph.selectPreset('mine'));
             expect(graph.state).toMatchObject({offsetD: -0.8, offsetSamples: 200, offsetCuspsShown: true, offsetSpeedPlotShown: true, offsetShown: false});
             expect(graph.offset()).toBeDefined();
@@ -151,11 +154,11 @@ describe('Preset round trip and Reset', () => {
             stored.data[0].graphState.offsetSamples = 9999;
             localStorage.setItem(key, JSON.stringify(stored));
             const shown = graph.trace().dataX?.slice();
-            const distance = (screen.getByRole('slider', {name: t('offset_distance')}) as HTMLInputElement).value;
+            const distance = graph.state.offsetD;
             // The collection refuses offsetD and offsetSamples outside their ranges, as the file import does; nothing is drawn from them.
             await settle(() => graph.selectPreset('wild'));
             expect(graph.trace().dataX).toEqual(shown);
-            expect(screen.getByRole('slider', {name: t('offset_distance')})).toHaveValue(distance);
+            expect(graph.state.offsetD).toBe(distance);
             act(() => graph.setState({offsetD: NaN, offsetSamples: 100.4}));
             expect(graph.trace().dataX).toEqual(offsetTrace(OFFSET_PARABOLA_POINTS, OFFSET_DISTANCE_DEFAULT, 100).x);
         } finally { view.unmount(); }
@@ -165,7 +168,7 @@ describe('Preset round trip and Reset', () => {
         const {graph, view} = mount();
         const setBox = vi.spyOn(graph.liveBoard(), 'setBoundingBox');
         try {
-            act(() => { graph.setCurveKind('ph'); graph.setOffsetDistance(1); });
+            act(() => { graph.setCurveKind('ph'); learner(() => graph.setOffsetDistance(1)); });
             expect(setBox).toHaveBeenLastCalledWith([-6, 5, 6, -5], true);
             setBox.mockClear();
             await settle(() => graph.reset());
@@ -174,7 +177,7 @@ describe('Preset round trip and Reset', () => {
             expect(setBox).toHaveBeenLastCalledWith([-2.6, 2.2, 2.6, -1.6], true);
             expect(graph.trace().dataX).toEqual(offsetTrace(OFFSET_PARABOLA_POINTS, graph.state.offsetD, graph.state.offsetSamples).x);
             expect(graph.state.offsetD).toBe(OFFSET_DISTANCE_DEFAULT);
-            expect(graph.captions()).not.toContain(t('offset_readout_exact_ph'));
+            expect(graph.offset()!.readoutText()).not.toContain(t('offset_readout_exact_ph'));
         } finally { view.unmount(); }
     });
 
@@ -201,7 +204,7 @@ describe('the live region', () => {
         try {
             const first = graph.published();
             expect(first).toBe(graph.offset()!.readoutText());
-            act(() => graph.setOffsetDistance(-1));
+            act(() => learner(() => graph.setOffsetDistance(-1)));
             // A change is settled after a quiet period, so the region still shows the earlier text.
             expect(graph.published()).toBe(first);
             act(() => graph.setCurveKind('ph'));

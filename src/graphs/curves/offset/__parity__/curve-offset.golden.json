@@ -7,56 +7,7 @@
       "rows": [],
       "notes": [],
       "outputs": [],
-      "captions": [
-        "Razdalja d = -0,25.",
-        "Vzporednica nima osti.",
-        "Črtkana vzporednica je vzorčena, zato približna."
-      ]
-    },
-    {
-      "name": "curve-offset-guided/offset-predict",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Razdalja d = -0,5.",
-        "Vzporednica nima osti.",
-        "Črtkana vzporednica je vzorčena, zato približna."
-      ]
-    },
-    {
-      "name": "curve-offset-guided/offset-first-cusp",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Osti vzporednice: 1.",
-        "Razdalja d = -0,5.",
-        "Črtkana vzporednica je vzorčena, zato približna."
-      ]
-    },
-    {
-      "name": "curve-offset-guided/offset-ph",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Polna črta je točna racionalna vzporednica.",
-        "Razdalja d = -0,5.",
-        "Vzporednica nima osti.",
-        "Črtkana vzporednica je vzorčena, zato približna."
-      ]
-    },
-    {
-      "name": "curve-offset-guided/offset-cusps-plot",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Osti vzporednice: 2.",
-        "Razdalja d = -1.",
-        "Črtkana vzporednica je vzorčena, zato približna."
-      ]
+      "captions": []
     }
   ]
 }

@@ -321,7 +321,7 @@ test('the PH scene: the sampled offset equals the exact rational offset on the b
     }
 });
 
-test('the captions say the sampled offset is approximate in every scene and name the exact offset only on the PH step, in both languages', () => {
+test('the notes say the sampled offset is approximate in every scene and name the exact offset only on the PH step, in both languages', () => {
     const h = mount();
     try {
         for (const language of ['sl', 'en'] as const) {
@@ -332,13 +332,15 @@ test('the captions say the sampled offset is approximate in every scene and name
                 h.graph.board.update();
                 const lines = h.graph.offset()!.readoutLines();
                 expect(lines, `${language} ${id}`).toContain(t('offset_readout_approx'));
-                expect(captionsOf(h.graph), `${language} ${id} board`).toContain(t('offset_readout_approx'));
+                const notes = (h.graph.getDeclaration()?.notes ?? []).map(note => note.id as string);
+                expect(notes, `${language} ${id} notes`).toContain('approx');
+                expect(captionsOf(h.graph), `${language} ${id} board`).toEqual([]);
                 if (id === 'offset-ph') {
                     expect(lines).toContain(t('offset_readout_exact_ph'));
-                    expect(captionsOf(h.graph)).toContain(t('offset_readout_exact_ph'));
+                    expect(notes).toContain('exact');
                 } else {
                     expect(lines, `${language} ${id} exact`).not.toContain(t('offset_readout_exact_ph'));
-                    expect(captionsOf(h.graph)).not.toContain(t('offset_readout_exact_ph'));
+                    expect(notes).not.toContain('exact');
                 }
             }
         }

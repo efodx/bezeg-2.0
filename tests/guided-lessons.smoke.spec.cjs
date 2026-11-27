@@ -2221,8 +2221,8 @@ const curveEvolute = {
     },
 };
 
-// Offset: the board readout names the distance d of each step (steps 1, 3 and 4 d = -1/2, steps 2 and 6 d = -1/4, step 5 d = -1).
-const OFFSET_READOUTS = [/d = [-−]0[.,]5\b/, /d = [-−]0[.,]25\b/, /d = [-−]0[.,]5\b/, /d = [-−]0[.,]5\b/, /d = [-−]1\b/, /d = [-−]0[.,]25\b/];
+// Offset: the Odčitki card names the distance d of each step (steps 1, 3 and 4 d = -1/2, steps 2 and 6 d = -1/4, step 5 d = -1).
+const OFFSET_READOUTS = [/[-−]0[.,]5(?![\d.,])/, /[-−]0[.,]25(?![\d.,])/, /[-−]0[.,]5(?![\d.,])/, /[-−]0[.,]5(?![\d.,])/, /[-−]1(?![\d.,])/, /[-−]0[.,]25(?![\d.,])/];
 const curveOffset = {
     id: 'curve-offset',
     path: `${BASE}/curve-geometry/offset`,
@@ -2230,7 +2230,7 @@ const curveOffset = {
     steps: 6,
     minFrames: 13, // 2 frames per step, 3 on step 5 (calculation)
     stepProbe: async (page, ctx, step, label) => {
-        await expect(boardText(page, OFFSET_READOUTS[step - 1]).first(), `offset readout at ${label}`).toBeVisible();
+        await expect(page.locator('#board-card-readouts').filter({hasText: OFFSET_READOUTS[step - 1]}).first(), `offset readout at ${label}`).toBeVisible();
     },
 };
 

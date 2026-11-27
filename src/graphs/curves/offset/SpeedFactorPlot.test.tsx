@@ -6,6 +6,9 @@ import {SPEED_PLOT_Y_MAX, SPEED_PLOT_Y_MIN, SpeedFactorPlot, SpeedFactorPlotCont
 import {speedFactorSamples} from './curveOffset';
 import {setLanguage, t} from '../../../localization';
 import {GraphHost} from '../../base/GraphHost';
+import {runAs} from '../../base/writes/writeSource';
+
+const learner = <T,>(work: () => T): T => runAs('learner', work);
 
 beforeAll(() => {
     const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
@@ -153,7 +156,7 @@ describe('the plot of the offset graph', () => {
         const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
         try {
             expect(screen.queryByTestId('offset-speed-plot')).toBeNull();
-            act(() => { graph.setOffsetSpeedPlotShown(true); graph.setOffsetDistance(-1); });
+            act(() => { graph.setOffsetSpeedPlotShown(true); learner(() => graph.setOffsetDistance(-1)); });
             const rows = graph.controlRows()!;
             const factor = speedFactorSamples(rows, -1, 128);
             const expected = (cusps: readonly number[]) => ({t: factor.t, factor: factor.factor, cusps});

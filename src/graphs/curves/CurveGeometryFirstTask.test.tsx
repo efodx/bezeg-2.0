@@ -34,7 +34,8 @@ const routes: Record<string, () => BaseGraph<BaseGraphState>> = {
 const plan: Record<string, {first: Label; later: Label[]}> = {
     // The comb switch and the gain are pucks on the board (task 08): Orodja opens with the count of teeth.
     comb: {first: () => t('comb_count'), later: [() => t('parametric_curve_label')]},
-    offset: {first: () => t('offset_distance'), later: [() => t('offset_shown'), () => t('parametric_curve_label')]},
+    // The distance d and the offset switch are pucks on the board (task 08): Orodja opens with the curve choice.
+    offset: {first: () => t('parametric_curve_label'), later: [() => t('offset_cusps_shown'), () => t('offset_samples'), () => t('offset_speed_plot_shown')]},
     // t is a puck on the board (task 08): Orodja opens with the trace choice.
     evolute: {first: () => t('evolute_trace_label'), later: [() => t('evolute_normal_label')]},
     // The line count, the curve switch and t are pucks on the board (task 08): Orodja opens with the family switch.
@@ -119,5 +120,19 @@ describe('curve-envelope pucks', () => {
             expect(within(root).queryAllByLabelText(new RegExp(`^${t(label)}`)), label).toEqual([]);
         }
         expect(within(root).getAllByLabelText(new RegExp(`^${t('envelope_lines_shown')}`)).length).toBeGreaterThan(0);
+    });
+});
+
+describe('curve-offset pucks', () => {
+    // The distance d and the offset switch are pucks on the board (task 08): there once, and not in Orodja, which keeps the curve choice, the cusps, the samples and the plot.
+    test('the distance and the offset switch are pucks and Orodja holds no second copy', async () => {
+        mountGraph(new CurveOffsetGraph());
+        await waitUntil(() => document.querySelector('.puck-strip [data-puck-key="offset-d"]') !== null); // the strip stays hidden without a board layout in this jsdom
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const key of ['offset-d', 'offset-shown']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of ['offset_distance', 'offset_shown'] as const) expect(within(root).queryAllByLabelText(new RegExp(`^${t(label)}`)), label).toEqual([]);
+        expect(within(root).getAllByLabelText(new RegExp(`^${t('offset_samples')}`)).length).toBeGreaterThan(0);
     });
 });
