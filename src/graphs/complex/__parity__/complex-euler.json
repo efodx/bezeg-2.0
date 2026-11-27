@@ -1,0 +1,676 @@
+{
+  "graph": "complex-euler",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default, 30 degrees",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "30°, π/6 ≈ 0,524 rad"
+        },
+        {
+          "key": "Kotna hitrost ω#0",
+          "label": "Kotna hitrost ω",
+          "value": "2"
+        },
+        {
+          "key": "Čas t = θ/ω, izračunano#0",
+          "label": "Čas t = θ/ω, izračunano",
+          "value": "π/12 ≈ 0,262"
+        },
+        {
+          "key": "Obhodni čas 2π/ω#0",
+          "label": "Obhodni čas 2π/ω",
+          "value": "π ≈ 3,142"
+        },
+        {
+          "key": "cos θ, natančno#0",
+          "label": "cos θ, natančno",
+          "value": "√3/2 ≈ 0,8660254"
+        },
+        {
+          "key": "sin θ, natančno#0",
+          "label": "sin θ, natančno",
+          "value": "1/2"
+        },
+        {
+          "key": "Vektor hitrosti iω·e^(iθ), izračunano#0",
+          "label": "Vektor hitrosti iω·e^(iθ), izračunano",
+          "value": "-1 + 1,7320508i"
+        },
+        {
+          "key": "Velikost hitrosti, izračunano#0",
+          "label": "Velikost hitrosti, izračunano",
+          "value": "2"
+        },
+        {
+          "key": "Kot med krajevnim vektorjem in vektorjem hitrosti, izračunano#0",
+          "label": "Kot med krajevnim vektorjem in vektorjem hitrosti, izračunano",
+          "value": "90°"
+        },
+        {
+          "key": "Delna vsota stopnje 5, izračunano#0",
+          "label": "Delna vsota stopnje 5, izračunano",
+          "value": "0,8661 + 0,5i"
+        },
+        {
+          "key": "Točka (cos θ; sin θ), natančno#0",
+          "label": "Točka (cos θ; sin θ), natančno",
+          "value": "(√3/2; 1/2)"
+        },
+        {
+          "key": "Razdalja delne vsote stopnje 5 od točke, izračunano (pod 10⁻¹² prikazano kot 0)#0",
+          "label": "Razdalja delne vsote stopnje 5 od točke, izračunano (pod 10⁻¹² prikazano kot 0)",
+          "value": "2,86·10⁻⁵"
+        }
+      ],
+      "notes": [
+        "θ = 30°: e^(iθ) = (√3/2; 1/2). Delna vsota stopnje 5: 0,8661 + 0,5i; njena razdalja od točke je 2,86·10⁻⁵ (izračunano)."
+      ],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (dolgo črtkano)",
+        "S, N = 5",
+        "S, delna vsota stopnje 5 (romb)",
+        "Točka e^(iθ), premakljiva (poln krog)",
+        "cos θ in sin θ: daljici do osi (pikčasto)",
+        "e^(iθ) = (√3/2; 1/2)",
+        "v",
+        "v = iω·e^(iθ), narisano v merilu 0,4 (puščica s polno črto)"
+      ]
+    },
+    {
+      "name": "45 degrees, omega 1, velocity off",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "45°, π/4 ≈ 0,785 rad"
+        },
+        {
+          "key": "Kotna hitrost ω#0",
+          "label": "Kotna hitrost ω",
+          "value": "1"
+        },
+        {
+          "key": "Čas t = θ/ω, izračunano#0",
+          "label": "Čas t = θ/ω, izračunano",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Obhodni čas 2π/ω#0",
+          "label": "Obhodni čas 2π/ω",
+          "value": "2π ≈ 6,283"
+        },
+        {
+          "key": "cos θ, natančno#0",
+          "label": "cos θ, natančno",
+          "value": "√2/2 ≈ 0,7071068"
+        },
+        {
+          "key": "sin θ, natančno#0",
+          "label": "sin θ, natančno",
+          "value": "√2/2 ≈ 0,7071068"
+        },
+        {
+          "key": "Delna vsota stopnje 5, izračunano#0",
+          "label": "Delna vsota stopnje 5, izračunano",
+          "value": "0,7074 + 0,7071i"
+        },
+        {
+          "key": "Točka (cos θ; sin θ), natančno#0",
+          "label": "Točka (cos θ; sin θ), natančno",
+          "value": "(√2/2; √2/2)"
+        },
+        {
+          "key": "Razdalja delne vsote stopnje 5 od točke, izračunano (pod 10⁻¹² prikazano kot 0)#0",
+          "label": "Razdalja delne vsote stopnje 5 od točke, izračunano (pod 10⁻¹² prikazano kot 0)",
+          "value": "0,000324"
+        }
+      ],
+      "notes": [
+        "θ = 45°: e^(iθ) = (√2/2; √2/2). Delna vsota stopnje 5: 0,7074 + 0,7071i; njena razdalja od točke je 0,000324 (izračunano)."
+      ],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (dolgo črtkano)",
+        "S, N = 5",
+        "S, delna vsota stopnje 5 (romb)",
+        "Točka e^(iθ), premakljiva (poln krog)",
+        "cos θ in sin θ: daljici do osi (pikčasto)",
+        "e^(iθ) = (√2/2; √2/2)"
+      ]
+    },
+    {
+      "name": "100 degrees, computed, omega 3, N 9",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "100°, 5π/9 ≈ 1,745 rad"
+        },
+        {
+          "key": "Kotna hitrost ω#0",
+          "label": "Kotna hitrost ω",
+          "value": "3"
+        },
+        {
+          "key": "Čas t = θ/ω, izračunano#0",
+          "label": "Čas t = θ/ω, izračunano",
+          "value": "5π/27 ≈ 0,582"
+        },
+        {
+          "key": "Obhodni čas 2π/ω#0",
+          "label": "Obhodni čas 2π/ω",
+          "value": "2π/3 ≈ 2,094"
+        },
+        {
+          "key": "cos θ, izračunano#0",
+          "label": "cos θ, izračunano",
+          "value": "-0,1736482"
+        },
+        {
+          "key": "sin θ, izračunano#0",
+          "label": "sin θ, izračunano",
+          "value": "0,9848078"
+        },
+        {
+          "key": "Vektor hitrosti iω·e^(iθ), izračunano#0",
+          "label": "Vektor hitrosti iω·e^(iθ), izračunano",
+          "value": "-2,9544233 - 0,5209445i"
+        },
+        {
+          "key": "Velikost hitrosti, izračunano#0",
+          "label": "Velikost hitrosti, izračunano",
+          "value": "3"
+        },
+        {
+          "key": "Kot med krajevnim vektorjem in vektorjem hitrosti, izračunano#0",
+          "label": "Kot med krajevnim vektorjem in vektorjem hitrosti, izračunano",
+          "value": "90°"
+        },
+        {
+          "key": "Delna vsota stopnje 9, izračunano#0",
+          "label": "Delna vsota stopnje 9, izračunano",
+          "value": "-0,1736 + 0,9848i"
+        },
+        {
+          "key": "Točka (cos θ; sin θ), izračunano#0",
+          "label": "Točka (cos θ; sin θ), izračunano",
+          "value": "-0,1736 + 0,9848i"
+        },
+        {
+          "key": "Razdalja delne vsote stopnje 9 od točke, izračunano (pod 10⁻¹² prikazano kot 0)#0",
+          "label": "Razdalja delne vsote stopnje 9 od točke, izračunano (pod 10⁻¹² prikazano kot 0)",
+          "value": "7,15·10⁻⁵"
+        }
+      ],
+      "notes": [
+        "θ = 100°: e^(iθ) ≈ -0,1736 + 0,9848i, izračunano. Delna vsota stopnje 9: -0,1736 + 0,9848i; njena razdalja od točke je 7,15·10⁻⁵ (izračunano)."
+      ],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (dolgo črtkano)",
+        "S, N = 9",
+        "S, delna vsota stopnje 9 (romb)",
+        "Točka e^(iθ), premakljiva (poln krog)",
+        "cos θ in sin θ: daljici do osi (pikčasto)",
+        "e^(iθ) = -0,1736 + 0,9848i",
+        "v",
+        "v = iω·e^(iθ), narisano v merilu 0,4 (puščica s polno črto)"
+      ]
+    },
+    {
+      "name": "velocity and acceleration, 90 degrees",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "90°, π/2 ≈ 1,571 rad"
+        },
+        {
+          "key": "Kotna hitrost ω#0",
+          "label": "Kotna hitrost ω",
+          "value": "2"
+        },
+        {
+          "key": "Čas t = θ/ω, izračunano#0",
+          "label": "Čas t = θ/ω, izračunano",
+          "value": "π/4 ≈ 0,785"
+        },
+        {
+          "key": "Obhodni čas 2π/ω#0",
+          "label": "Obhodni čas 2π/ω",
+          "value": "π ≈ 3,142"
+        },
+        {
+          "key": "cos θ, natančno#0",
+          "label": "cos θ, natančno",
+          "value": "0"
+        },
+        {
+          "key": "sin θ, natančno#0",
+          "label": "sin θ, natančno",
+          "value": "1"
+        },
+        {
+          "key": "Vektor hitrosti iω·e^(iθ), izračunano#0",
+          "label": "Vektor hitrosti iω·e^(iθ), izračunano",
+          "value": "-2"
+        },
+        {
+          "key": "Velikost hitrosti, izračunano#0",
+          "label": "Velikost hitrosti, izračunano",
+          "value": "2"
+        },
+        {
+          "key": "Kot med krajevnim vektorjem in vektorjem hitrosti, izračunano#0",
+          "label": "Kot med krajevnim vektorjem in vektorjem hitrosti, izračunano",
+          "value": "90°"
+        },
+        {
+          "key": "Vektor pospeška -ω²·e^(iθ), izračunano#0",
+          "label": "Vektor pospeška -ω²·e^(iθ), izračunano",
+          "value": "-4i"
+        },
+        {
+          "key": "Delna vsota stopnje 5, izračunano#0",
+          "label": "Delna vsota stopnje 5, izračunano",
+          "value": "0,02 + 1,0045i"
+        },
+        {
+          "key": "Točka (cos θ; sin θ), natančno#0",
+          "label": "Točka (cos θ; sin θ), natančno",
+          "value": "(0; 1)"
+        },
+        {
+          "key": "Razdalja delne vsote stopnje 5 od točke, izračunano (pod 10⁻¹² prikazano kot 0)#0",
+          "label": "Razdalja delne vsote stopnje 5 od točke, izračunano (pod 10⁻¹² prikazano kot 0)",
+          "value": "0,0205"
+        }
+      ],
+      "notes": [
+        "θ = 90°: e^(iθ) = (0; 1). Delna vsota stopnje 5: 0,02 + 1,0045i; njena razdalja od točke je 0,0205 (izračunano)."
+      ],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (dolgo črtkano)",
+        "S, N = 5",
+        "S, delna vsota stopnje 5 (romb)",
+        "Točka e^(iθ), premakljiva (poln krog)",
+        "a",
+        "a = -ω²·e^(iθ), narisano v merilu 0,225 (črtkano-pikčasta puščica)",
+        "cos θ in sin θ: daljici do osi (pikčasto)",
+        "e^(iθ) = (0; 1)",
+        "v",
+        "v = iω·e^(iθ), narisano v merilu 0,4 (puščica s polno črto)"
+      ]
+    },
+    {
+      "name": "partial sum out of view, 180 degrees, N 1",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "180°, π ≈ 3,142 rad"
+        },
+        {
+          "key": "Kotna hitrost ω#0",
+          "label": "Kotna hitrost ω",
+          "value": "2"
+        },
+        {
+          "key": "Čas t = θ/ω, izračunano#0",
+          "label": "Čas t = θ/ω, izračunano",
+          "value": "π/2 ≈ 1,571"
+        },
+        {
+          "key": "Obhodni čas 2π/ω#0",
+          "label": "Obhodni čas 2π/ω",
+          "value": "π ≈ 3,142"
+        },
+        {
+          "key": "cos θ, natančno#0",
+          "label": "cos θ, natančno",
+          "value": "-1"
+        },
+        {
+          "key": "sin θ, natančno#0",
+          "label": "sin θ, natančno",
+          "value": "0"
+        },
+        {
+          "key": "Delna vsota stopnje 1, izračunano#0",
+          "label": "Delna vsota stopnje 1, izračunano",
+          "value": "1 + 3,1416i"
+        },
+        {
+          "key": "Točka (cos θ; sin θ), natančno#0",
+          "label": "Točka (cos θ; sin θ), natančno",
+          "value": "(-1; 0)"
+        },
+        {
+          "key": "Razdalja delne vsote stopnje 1 od točke, izračunano (pod 10⁻¹² prikazano kot 0)#0",
+          "label": "Razdalja delne vsote stopnje 1 od točke, izračunano (pod 10⁻¹² prikazano kot 0)",
+          "value": "3,72"
+        },
+        {
+          "key": "Ali je delna vsota stopnje 1 v pogledu?#0",
+          "label": "Ali je delna vsota stopnje 1 v pogledu?",
+          "value": "ne, zunaj pogleda in ni narisana"
+        }
+      ],
+      "notes": [
+        "θ = 180°: e^(iθ) = (-1; 0). Delna vsota stopnje 1: 1 + 3,1416i; njena razdalja od točke je 3,72 (izračunano). Delna vsota je zunaj pogleda in ni narisana."
+      ],
+      "outputs": [],
+      "captions": [
+        "Delna vsota stopnje 1 je zunaj pogleda",
+        "Enotska krožnica (dolgo črtkano)",
+        "Točka e^(iθ), premakljiva (poln krog)",
+        "cos θ in sin θ: daljici do osi (pikčasto)",
+        "e^(iθ) = (-1; 0)"
+      ]
+    },
+    {
+      "name": "product, 30 and 45 degrees",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "30°, π/6 ≈ 0,524 rad"
+        },
+        {
+          "key": "Kotna hitrost ω#0",
+          "label": "Kotna hitrost ω",
+          "value": "2"
+        },
+        {
+          "key": "Čas t = θ/ω, izračunano#0",
+          "label": "Čas t = θ/ω, izračunano",
+          "value": "π/12 ≈ 0,262"
+        },
+        {
+          "key": "Obhodni čas 2π/ω#0",
+          "label": "Obhodni čas 2π/ω",
+          "value": "π ≈ 3,142"
+        },
+        {
+          "key": "cos θ, natančno#0",
+          "label": "cos θ, natančno",
+          "value": "√3/2 ≈ 0,8660254"
+        },
+        {
+          "key": "sin θ, natančno#0",
+          "label": "sin θ, natančno",
+          "value": "1/2"
+        },
+        {
+          "key": "Vektor hitrosti iω·e^(iθ), izračunano#0",
+          "label": "Vektor hitrosti iω·e^(iθ), izračunano",
+          "value": "-1 + 1,7320508i"
+        },
+        {
+          "key": "Velikost hitrosti, izračunano#0",
+          "label": "Velikost hitrosti, izračunano",
+          "value": "2"
+        },
+        {
+          "key": "Kot med krajevnim vektorjem in vektorjem hitrosti, izračunano#0",
+          "label": "Kot med krajevnim vektorjem in vektorjem hitrosti, izračunano",
+          "value": "90°"
+        },
+        {
+          "key": "Drugi kot φ#0",
+          "label": "Drugi kot φ",
+          "value": "45°"
+        },
+        {
+          "key": "Kota se seštejeta: θ + φ#0",
+          "label": "Kota se seštejeta: θ + φ",
+          "value": "30° + 45° = 75°"
+        },
+        {
+          "key": "Točka e^(iφ), natančno#0",
+          "label": "Točka e^(iφ), natančno",
+          "value": "(√2/2; √2/2)"
+        },
+        {
+          "key": "Zmnožek e^(iθ)·e^(iφ) = e^(i(θ+φ)), izračunano#0",
+          "label": "Zmnožek e^(iθ)·e^(iφ) = e^(i(θ+φ)), izračunano",
+          "value": "(0,258819; 0,9659258)"
+        },
+        {
+          "key": "Delna vsota stopnje 5, izračunano#0",
+          "label": "Delna vsota stopnje 5, izračunano",
+          "value": "0,8661 + 0,5i"
+        },
+        {
+          "key": "Točka (cos θ; sin θ), natančno#0",
+          "label": "Točka (cos θ; sin θ), natančno",
+          "value": "(√3/2; 1/2)"
+        },
+        {
+          "key": "Razdalja delne vsote stopnje 5 od točke, izračunano (pod 10⁻¹² prikazano kot 0)#0",
+          "label": "Razdalja delne vsote stopnje 5 od točke, izračunano (pod 10⁻¹² prikazano kot 0)",
+          "value": "2,86·10⁻⁵"
+        }
+      ],
+      "notes": [
+        "θ = 30°: e^(iθ) = (√3/2; 1/2). Delna vsota stopnje 5: 0,8661 + 0,5i; njena razdalja od točke je 2,86·10⁻⁵ (izračunano). θ + φ = 75°: e^(iθ)·e^(iφ) ≈ (0,258819; 0,9659258), izračunano."
+      ],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (dolgo črtkano)",
+        "Polmeri do treh točk (tanka polna črta)",
+        "S, N = 5",
+        "S, delna vsota stopnje 5 (romb)",
+        "Točka e^(iθ), premakljiva (poln krog)",
+        "Točka e^(iφ), premakljiva (poln kvadrat)",
+        "Zmnožek e^(i(θ+φ)) (trikotnik)",
+        "cos θ in sin θ: daljici do osi (pikčasto)",
+        "e^(i(θ+φ)) = (0,258819; 0,9659258)",
+        "e^(iθ) = (√3/2; 1/2)",
+        "e^(iφ) = (√2/2; √2/2)",
+        "v",
+        "v = iω·e^(iθ), narisano v merilu 0,4 (puščica s polno črto)"
+      ]
+    },
+    {
+      "name": "product reduced, 250 and 200 degrees, acceleration",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "250°, 25π/18 ≈ 4,363 rad"
+        },
+        {
+          "key": "Kotna hitrost ω#0",
+          "label": "Kotna hitrost ω",
+          "value": "4"
+        },
+        {
+          "key": "Čas t = θ/ω, izračunano#0",
+          "label": "Čas t = θ/ω, izračunano",
+          "value": "25π/72 ≈ 1,091"
+        },
+        {
+          "key": "Obhodni čas 2π/ω#0",
+          "label": "Obhodni čas 2π/ω",
+          "value": "π/2 ≈ 1,571"
+        },
+        {
+          "key": "cos θ, izračunano#0",
+          "label": "cos θ, izračunano",
+          "value": "-0,3420201"
+        },
+        {
+          "key": "sin θ, izračunano#0",
+          "label": "sin θ, izračunano",
+          "value": "-0,9396926"
+        },
+        {
+          "key": "Vektor hitrosti iω·e^(iθ), izračunano#0",
+          "label": "Vektor hitrosti iω·e^(iθ), izračunano",
+          "value": "3,7587705 - 1,3680806i"
+        },
+        {
+          "key": "Velikost hitrosti, izračunano#0",
+          "label": "Velikost hitrosti, izračunano",
+          "value": "4"
+        },
+        {
+          "key": "Kot med krajevnim vektorjem in vektorjem hitrosti, izračunano#0",
+          "label": "Kot med krajevnim vektorjem in vektorjem hitrosti, izračunano",
+          "value": "90°"
+        },
+        {
+          "key": "Drugi kot φ#0",
+          "label": "Drugi kot φ",
+          "value": "200°"
+        },
+        {
+          "key": "Kota se seštejeta: θ + φ#0",
+          "label": "Kota se seštejeta: θ + φ",
+          "value": "250° + 200° = 450°, brez 360° je 90°"
+        },
+        {
+          "key": "Točka e^(iφ), izračunano#0",
+          "label": "Točka e^(iφ), izračunano",
+          "value": "-0,9397 - 0,342i"
+        },
+        {
+          "key": "Zmnožek e^(iθ)·e^(iφ) = e^(i(θ+φ)), natančno#0",
+          "label": "Zmnožek e^(iθ)·e^(iφ) = e^(i(θ+φ)), natančno",
+          "value": "(0; 1)"
+        },
+        {
+          "key": "Vektor pospeška -ω²·e^(iθ), izračunano#0",
+          "label": "Vektor pospeška -ω²·e^(iθ), izračunano",
+          "value": "5,4723223 + 15,0350819i"
+        },
+        {
+          "key": "Delna vsota stopnje 5, izračunano#0",
+          "label": "Delna vsota stopnje 5, izračunano",
+          "value": "6,5835 + 3,6978i"
+        },
+        {
+          "key": "Točka (cos θ; sin θ), izračunano#0",
+          "label": "Točka (cos θ; sin θ), izračunano",
+          "value": "-0,342 - 0,9397i"
+        },
+        {
+          "key": "Razdalja delne vsote stopnje 5 od točke, izračunano (pod 10⁻¹² prikazano kot 0)#0",
+          "label": "Razdalja delne vsote stopnje 5 od točke, izračunano (pod 10⁻¹² prikazano kot 0)",
+          "value": "8,33"
+        },
+        {
+          "key": "Ali je delna vsota stopnje 5 v pogledu?#0",
+          "label": "Ali je delna vsota stopnje 5 v pogledu?",
+          "value": "ne, zunaj pogleda in ni narisana"
+        }
+      ],
+      "notes": [
+        "θ = 250°: e^(iθ) ≈ -0,342 - 0,9397i, izračunano. Delna vsota stopnje 5: 6,5835 + 3,6978i; njena razdalja od točke je 8,33 (izračunano). θ + φ = 90°: e^(iθ)·e^(iφ) = (0; 1). Delna vsota je zunaj pogleda in ni narisana."
+      ],
+      "outputs": [],
+      "captions": [
+        "Delna vsota stopnje 5 je zunaj pogleda",
+        "Enotska krožnica (dolgo črtkano)",
+        "Polmeri do treh točk (tanka polna črta)",
+        "Točka e^(iθ), premakljiva (poln krog)",
+        "Točka e^(iφ), premakljiva (poln kvadrat)",
+        "Zmnožek e^(i(θ+φ)) (trikotnik)",
+        "a",
+        "a = -ω²·e^(iθ), narisano v merilu 0,05625 (črtkano-pikčasta puščica)",
+        "cos θ in sin θ: daljici do osi (pikčasto)",
+        "e^(i(θ+φ)) = (0; 1)",
+        "e^(iθ) = -0,342 - 0,9397i",
+        "e^(iφ) = -0,9397 - 0,342i",
+        "v",
+        "v = iω·e^(iθ), narisano v merilu 0,4 (puščica s polno črto)"
+      ]
+    },
+    {
+      "name": "full turn, N 30",
+      "rows": [
+        {
+          "key": "Kot θ#0",
+          "label": "Kot θ",
+          "value": "360°, 2π ≈ 6,283 rad"
+        },
+        {
+          "key": "Kotna hitrost ω#0",
+          "label": "Kotna hitrost ω",
+          "value": "1"
+        },
+        {
+          "key": "Čas t = θ/ω, izračunano#0",
+          "label": "Čas t = θ/ω, izračunano",
+          "value": "2π ≈ 6,283"
+        },
+        {
+          "key": "Obhodni čas 2π/ω#0",
+          "label": "Obhodni čas 2π/ω",
+          "value": "2π ≈ 6,283"
+        },
+        {
+          "key": "cos θ, natančno#0",
+          "label": "cos θ, natančno",
+          "value": "1"
+        },
+        {
+          "key": "sin θ, natančno#0",
+          "label": "sin θ, natančno",
+          "value": "0"
+        },
+        {
+          "key": "Vektor hitrosti iω·e^(iθ), izračunano#0",
+          "label": "Vektor hitrosti iω·e^(iθ), izračunano",
+          "value": "i"
+        },
+        {
+          "key": "Velikost hitrosti, izračunano#0",
+          "label": "Velikost hitrosti, izračunano",
+          "value": "1"
+        },
+        {
+          "key": "Kot med krajevnim vektorjem in vektorjem hitrosti, izračunano#0",
+          "label": "Kot med krajevnim vektorjem in vektorjem hitrosti, izračunano",
+          "value": "90°"
+        },
+        {
+          "key": "Delna vsota stopnje 30, izračunano#0",
+          "label": "Delna vsota stopnje 30, izračunano",
+          "value": "1"
+        },
+        {
+          "key": "Točka (cos θ; sin θ), natančno#0",
+          "label": "Točka (cos θ; sin θ), natančno",
+          "value": "(1; 0)"
+        },
+        {
+          "key": "Razdalja delne vsote stopnje 30 od točke, izračunano (pod 10⁻¹² prikazano kot 0)#0",
+          "label": "Razdalja delne vsote stopnje 30 od točke, izračunano (pod 10⁻¹² prikazano kot 0)",
+          "value": "6,62·10⁻¹⁰"
+        }
+      ],
+      "notes": [
+        "θ = 360°: e^(iθ) = (1; 0). Delna vsota stopnje 30: 1; njena razdalja od točke je 6,62·10⁻¹⁰ (izračunano)."
+      ],
+      "outputs": [],
+      "captions": [
+        "Enotska krožnica (dolgo črtkano)",
+        "S, N = 30",
+        "S, delna vsota stopnje 30 (romb)",
+        "Točka e^(iθ), premakljiva (poln krog)",
+        "cos θ in sin θ: daljici do osi (pikčasto)",
+        "e^(iθ) = (1; 0)",
+        "v",
+        "v = iω·e^(iθ), narisano v merilu 0,4 (puščica s polno črto)"
+      ]
+    }
+  ]
+}

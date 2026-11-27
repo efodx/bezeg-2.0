@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {beforeAll, describe, expect, test} from 'vitest';
 import {GraphHost} from '../../base/GraphHost';
 import {installBoardShims} from '../../base/realGraphTestHarness';
+import {runAs} from '../../base/writes/writeSource';
 import {ComplexPowerGraph} from '../ComplexPowerGraph';
 import {EulerCircleGraph} from '../EulerCircleGraph';
 
@@ -43,7 +44,7 @@ describe('a Preset file with a stored view keeps that view', () => {
     test('Euler circle: product mode at another angle imported with a stored boardState keeps the stored box', () => {
         const view: [number, number, number, number] = [-1.5, 2, 4.5, -2];
         const source = mountGraph(new ViewedEuler());
-        act(() => { source.setState({degrees: 150, mode: 'product', b: 80}); });
+        act(() => { runAs('learner', () => source.setState({degrees: 150, mode: 'product', b: 80})); });
         const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
         const fresh = mountGraph(new ViewedEuler());
         act(() => { fresh.importPreset(preset); });
@@ -53,7 +54,7 @@ describe('a Preset file with a stored view keeps that view', () => {
     test('Euler circle: a Preset without a stored view shows the opening view', () => {
         const source = mountGraph(new ViewedEuler());
         const opening = boxOf(source);
-        act(() => { source.setState({degrees: 150, mode: 'product', b: 80}); });
+        act(() => { runAs('learner', () => source.setState({degrees: 150, mode: 'product', b: 80})); });
         const preset = json(source.exportPreset());
         const fresh = mountGraph(new ViewedEuler());
         act(() => { fresh.importPreset(preset); });

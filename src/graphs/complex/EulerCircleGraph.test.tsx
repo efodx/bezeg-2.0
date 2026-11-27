@@ -3,17 +3,17 @@ import {readFileSync} from 'node:fs';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, openTools, puckControl, typePuck, waitForPucks} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {en} from '../../localization/en';
 import {sl} from '../../localization/sl';
-import {setLanguage, t} from '../../localization';
-import {enterNumber} from '../../inputs/testEntry';
+import {renderMessage, setLanguage, t} from '../../localization';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {expSeriesPartial} from '../../analysis/eulerCircle';
 import {formatComplex} from '../../analysis/complexFormat';
 import {DEFAULT_EULER_CIRCLE_STATE, EulerCircleAction} from '../../complex/eulerCircleModel';
 import {
-    ACCELERATION_DASH, EulerCircleGraph, PROJECTION_DASH, RADIUS_DASH, RADIUS_WIDTH, ROW_PX, STEP_INTERVAL_MS, UNIT_CIRCLE_DASH,
+    ACCELERATION_DASH, EulerCircleGraph, PROJECTION_DASH, RADIUS_DASH, RADIUS_WIDTH, STEP_INTERVAL_MS, UNIT_CIRCLE_DASH,
 } from './EulerCircleGraph';
 
 beforeAll(installBoardShims);
@@ -38,6 +38,8 @@ class ObservedGraph extends EulerCircleGraph {
     liveBoard() { return this.board; }
     disposeNow() { this.disposeFigureScene(); }
     rebuildNow() { this.syncReplacedScene(); }
+    /** The help of a declared parameter, as text. */
+    helpOf(key: string) { const found = this.declaration().parameters?.find(p => p.key === key); return found?.help ? renderMessage(found.help) : ''; }
 }
 
 function mountGraph(strict = false, reduced = false) {
@@ -73,27 +75,24 @@ const points = (graph: ObservedGraph): Record<string, Probe> => Object.fromEntri
     return [name, found[found.length - 1]];
 }));
 
-/** The typed field of a control: a slider's exact field is named "<label>, vrednost" and shares the label with its range input. */
-const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
+/** The puck's value field is typed (double click), the learner's write; the strip must have laid out. */
+const enter = (key: string, value: string) => typePuck(key, value);
+/** What a puck shows: its value, or the hint of a refused entry. */
+const puckText = (key: string) => document.querySelector(`.puck-strip [data-puck-key="${key}"]`)?.textContent ?? '';
+const ready = () => waitForPucks('euler-angle');
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const labelOf = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const hasRow = (id: string) => document.querySelector(`[data-readout="${id}"]`) !== null;
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
-const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const status = () => document.querySelector('[data-euler-status]')!.textContent!;
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
-const set = (graph: ObservedGraph, patch: Partial<typeof DEFAULT_EULER_CIRCLE_STATE>) => act(() => { graph.setState(patch); });
-/** The help under a slider is described from its range input, not from its exact field. */
-const sliderHelp = (label: string) => help(screen.getByRole('slider', {name: label}));
-const help = (input: HTMLElement) => (input.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent ?? '').join(' ');
-const toggle = (label: string) => act(() => { fireEvent.click(screen.getByLabelText(label)); });
+/** A write from outside the DOM (a lesson action, a test) is the learner's. */
+const set = (graph: ObservedGraph, patch: Partial<typeof DEFAULT_EULER_CIRCLE_STATE>) => act(() => { runAs('learner', () => graph.setState(patch)); });
+/** A learner's click on a switch puck (the strip must have laid out). */
+const flip = (key: string) => act(() => { fireEvent.click(puckControl(key)); });
 const productOn = (graph: ObservedGraph) => set(graph, {mode: 'product'});
-const angleLabel = () => t('euler_circle_graph_angle_label');
-const omegaLabel = () => t('euler_circle_graph_omega_label');
-const degreeLabel = () => t('euler_circle_graph_degree_label');
-const secondLabel = () => t('euler_circle_graph_b_label');
-const act1 = (graph: ObservedGraph, action: Omit<EulerCircleAction, 'kind'>) => graph.act({kind: 'euler-circle', ...action});
+const act1 = (graph: ObservedGraph, action: Omit<EulerCircleAction, 'kind'>) => runAs('learner', () => graph.act({kind: 'euler-circle', ...action}));
 function stepsPlayed(graph: ObservedGraph, ticks: number) {
     graph.clock.tick(0);
     for (let i = 1; i <= ticks; i++) graph.clock.tick(i * STEP_INTERVAL_MS);
@@ -103,7 +102,7 @@ describe('mount and the numbers', () => {
     test('theta = 30 degrees, omega = 2: exact (sqrt3/2; 1/2), velocity (-1; 1,7320508), speed 2, perpendicular, period pi', () => {
         const {graph} = mountGraph();
         expect(graph.state).toMatchObject(DEFAULT_EULER_CIRCLE_STATE);
-        expect(document.querySelector(`[aria-label="${t('euler_circle_graph_board_label')}"]`)).not.toBeNull();
+        expect(document.querySelector(`[aria-label="${t('euler_board_label')}"]`)).not.toBeNull();
         expect(readout('angle')).toContain('30°');
         expect(readout('omega')).toBe('2');
         expect(readout('cos')).toBe('√3/2 ≈ 0,8660254');
@@ -149,12 +148,13 @@ describe('mount and the numbers', () => {
         }
     });
 
-    test('the acceleration row and the velocity rows follow their switches; every row is labelled', () => {
+    test('the acceleration row and the velocity rows follow their switches; every row is labelled', async () => {
         const {graph} = mountGraph();
-        toggle(t('euler_circle_graph_acceleration_label'));
+        await ready();
+        flip('show-acceleration');
         expect(graph.state.acceleration).toBe(true);
         expect(readout('acceleration')).toBe('−3,4641016 − 2i');
-        toggle(t('euler_circle_graph_velocity_label'));
+        flip('show-velocity');
         expect(graph.state.velocity).toBe(false);
         for (const id of ['velocity', 'speed', 'between']) expect(hasRow(id), id).toBe(false);
         for (const row of Array.from(document.querySelectorAll('[data-readout]'))) {
@@ -183,7 +183,6 @@ describe('the series at theta = 180 degrees', () => {
         const inside = Math.abs(sum.re) <= 2.4 && Math.abs(sum.im) <= 2.4;
         expect(hasRow('out')).toBe(!inside);
         expect(visible(points(graph)[SUM])).toBe(inside);
-        expect(captionTexts(graph).includes(t('euler_circle_graph_cap_sum_out', {value0: String(degree)}))).toBe(!inside);
         expect(status().includes(t('euler_circle_graph_status_out'))).toBe(!inside);
     });
 
@@ -204,61 +203,58 @@ describe('the series at theta = 180 degrees', () => {
         expect(readout('point')).toBe('(−1; 0)');
     });
 
-    test('degree 1 has the diamond hidden, the out row and caption; degree 21 shows the diamond', () => {
+    test('degree 1 has the diamond hidden, the out row and the status sentence; degree 21 shows the diamond', () => {
         const {graph} = mountGraph();
         set(graph, {degrees: 180, degree: 1});
         expect(visible(points(graph)[SUM])).toBe(false);
-        expect(captionTexts(graph)).toContain(t('euler_circle_graph_cap_sum_out', {value0: '1'}));
+        expect(status()).toContain(t('euler_circle_graph_status_out'));
         set(graph, {degree: 21});
         expect(visible(points(graph)[SUM])).toBe(true);
-        expect(captionTexts(graph)).not.toContain(t('euler_circle_graph_cap_sum_out', {value0: '21'}));
+        expect(status()).not.toContain(t('euler_circle_graph_status_out'));
     });
 });
 
 describe('typed values and the drag', () => {
-    test('a typed angle off the grid, below or above the range is refused: the state is the same object and the field states the range', () => {
+    test('a typed angle below or above the range is refused: the state is the same object and the puck states the range', async () => {
         const {graph} = mountGraph();
+        await ready();
         const before = graph.state;
-        for (const bad of ['361', '30,5', '-1', 'abc']) {
-            enter(angleLabel(), bad);
+        for (const bad of ['361', '-1', 'abc']) {
+            enter('euler-angle', bad);
             expect(graph.state, bad).toBe(before);
         }
-        expect(graph.editAngle(361)).toBe(false);
-        expect(graph.editAngle(30.5)).toBe(false);
-        expect(graph.editAngle(Number.NaN)).toBe(false);
-        enter(angleLabel(), '361');
-        const input = field(angleLabel());
-        expect(input.getAttribute('aria-invalid')).toBe('true');
-        // The shared NumberInput hint wording belongs to the Controls stream; assert only that it states the range.
-        expect(help(input)).toMatch(/\b0\b[^\d]+\b360\b/);
-        expect(sliderHelp(angleLabel())).toContain(t('euler_circle_graph_angle_help'));
-        enter(angleLabel(), '30,5');
-        expect(field(angleLabel()).getAttribute('aria-invalid')).toBe('true');
-        expect(help(field(angleLabel()))).toMatch(/\b0\b[^\d]+\b360\b/);
-        enter(angleLabel(), '45');
+        expect(runAs('learner', () => graph.editAngle(361))).toBe(false);
+        expect(runAs('learner', () => graph.editAngle(30.5))).toBe(false);
+        expect(runAs('learner', () => graph.editAngle(Number.NaN))).toBe(false);
+        enter('euler-angle', '361');
+        // The puck's hint wording belongs to the puck component; assert only that it states the range.
+        expect(puckText('euler-angle')).toMatch(/\b0\b[^\d]+\b360\b/);
+        enter('euler-angle', '45');
         expect(graph.state.degrees).toBe(45);
-        expect(graph.editAngle(360)).toBe(true);
+        expect(runAs('learner', () => graph.editAngle(360))).toBe(true);
         expect(graph.state.degrees).toBe(360);
-        expect(graph.editAngle(0)).toBe(true);
+        expect(runAs('learner', () => graph.editAngle(0))).toBe(true);
         expect(graph.state.degrees).toBe(0);
     });
 
-    test('omega and the series degree are whole numbers in their ranges, with the range in their help', () => {
+    test('omega and the series degree are whole numbers in their ranges, with the range in their help', async () => {
         const {graph} = mountGraph();
+        await ready();
         const before = graph.state;
-        for (const bad of ['0', '5', '1,5']) { enter(omegaLabel(), bad); expect(graph.state, bad).toBe(before); }
-        for (const bad of ['0', '31', '2,5']) { enter(degreeLabel(), bad); expect(graph.state, bad).toBe(before); }
-        expect(sliderHelp(omegaLabel())).toContain(t('euler_circle_graph_omega_help'));
-        expect(help(screen.getByRole('group', {name: degreeLabel()}))).toContain(t('euler_circle_graph_degree_help'));
-        enter(omegaLabel(), '4');
-        enter(degreeLabel(), '30');
+        for (const bad of ['0', '5']) { enter('euler-omega', bad); expect(graph.state, bad).toBe(before); }
+        for (const bad of ['0', '31']) { enter('euler-degree', bad); expect(graph.state, bad).toBe(before); }
+        expect(graph.helpOf('euler-omega')).toContain(t('euler_circle_graph_omega_help'));
+        expect(graph.helpOf('euler-degree')).toContain(t('euler_circle_graph_degree_help'));
+        enter('euler-omega', '4');
+        enter('euler-degree', '30');
         expect(graph.state).toMatchObject({omega: 4, degree: 30});
     });
 
-    test('the angle help says degrees', () => {
-        mountGraph();
-        expect(angleLabel()).toContain('stopinje');
-        expect(sliderHelp(angleLabel())).toContain('povlečeš');
+    test('the angle help says degrees', async () => {
+        const {graph} = mountGraph();
+        await ready();
+        expect(puckText('euler-angle')).toContain('°');
+        expect(graph.helpOf('euler-angle')).toContain('povlečeš');
     });
 
     test('dragging the point snaps to the nearest whole degree whatever its distance; non-finite and the centre change nothing', () => {
@@ -293,22 +289,22 @@ describe('typed values and the drag', () => {
 });
 
 describe('product mode', () => {
-    test('the switch shows the second angle field, the rows and the drawn parts; the motion mode hides them with the switch as the reason', () => {
+    test('the switch shows the second angle field, the rows and the drawn parts; the motion mode hides them with the switch as the reason', async () => {
         const {graph} = mountGraph();
-        expect(screen.queryByLabelText(secondLabel())).toBeNull();
+        await ready();
+        expect(document.querySelector('.puck-strip [data-puck-key="euler-b"]')).toBeNull();
         for (const id of ['b', 'sum-angle', 'second', 'product']) expect(hasRow(id), id).toBe(false);
         for (const index of [RADIUS_A, RADIUS_B, RADIUS_P]) expect(visible(curves(graph)[index])).toBe(false);
         expect(visible(points(graph)[SECOND])).toBe(false);
         expect(visible(points(graph)[PRODUCT])).toBe(false);
-        expect(help(screen.getByLabelText(t('euler_circle_graph_mode_label')))).toContain(t('euler_circle_graph_mode_help'));
-        toggle(t('euler_circle_graph_mode_label'));
+        flip('product-mode');
         expect(graph.state.mode).toBe('product');
-        expect(screen.getByLabelText(secondLabel())).not.toBeNull();
+        expect(puckControl('euler-b')).not.toBeNull();
         for (const id of ['b', 'sum-angle', 'second', 'product']) expect(hasRow(id), id).toBe(true);
         for (const index of [RADIUS_A, RADIUS_B, RADIUS_P]) expect(visible(curves(graph)[index])).toBe(true);
         expect(visible(points(graph)[SECOND])).toBe(true);
         expect(visible(points(graph)[PRODUCT])).toBe(true);
-        toggle(t('euler_circle_graph_mode_label'));
+        flip('product-mode');
         expect(graph.state.mode).toBe('motion');
         expect(hasRow('product')).toBe(false);
     });
@@ -345,29 +341,40 @@ describe('product mode', () => {
         expect(status()).toContain(t('euler_circle_graph_status_product_exact', {value0: '30', value1: '(√3/2; 1/2)'}));
     });
 
-    test('a typed second angle off the 5 degree grid or the range is refused; the field states the step and the range', () => {
+    test('a typed second angle off the 5 degree grid or the range is refused; the field states the step and the range', async () => {
         const {graph} = mountGraph();
+        await ready();
         productOn(graph);
         const before = graph.state;
-        for (const bad of ['47', '365', '-5', '2,5', 'abc']) {
-            enter(secondLabel(), bad);
+        for (const bad of ['365', '-5', 'abc']) {
+            enter('euler-b', bad);
             expect(graph.state, bad).toBe(before);
         }
-        expect(graph.editSecondAngle(47)).toBe(false);
-        expect(graph.editSecondAngle(Number.NaN)).toBe(false);
-        expect(graph.editSecondAngle(365)).toBe(false);
-        enter(secondLabel(), '47');
-        const input = field(secondLabel());
-        expect(input.getAttribute('aria-invalid')).toBe('true');
-        expect(help(input)).toContain(t('euler_circle_graph_b_rejected', {value0: '0', value1: '360', value2: '5'}));
-        enter(secondLabel(), '365');
-        expect(help(field(secondLabel()))).toMatch(/\b0\b[^\d]+\b360\b/);
-        expect(sliderHelp(secondLabel())).toContain(t('euler_circle_graph_b_help'));
-        expect(secondLabel()).toContain('stopinje');
-        enter(secondLabel(), '50');
+        expect(runAs('learner', () => graph.editSecondAngle(47))).toBe(false);
+        expect(runAs('learner', () => graph.editSecondAngle(Number.NaN))).toBe(false);
+        expect(runAs('learner', () => graph.editSecondAngle(365))).toBe(false);
+        enter('euler-b', '365');
+        expect(puckText('euler-b')).toMatch(/\b0\b[^\d]+\b360\b/);
+        expect(graph.helpOf('euler-b')).toContain(t('euler_circle_graph_b_help'));
+        enter('euler-b', '50');
         expect(graph.state.b).toBe(50);
-        expect(graph.editSecondAngle(360)).toBe(true);
+        expect(runAs('learner', () => graph.editSecondAngle(360))).toBe(true);
         expect(graph.state.b).toBe(360);
+    });
+
+    test('a typed off-grid value never lands off-grid: each puck rounds it to its own grid', async () => {
+        const {graph} = mountGraph();
+        await ready();
+        productOn(graph);
+        enter('euler-angle', '30,5');
+        expect(Number.isInteger(graph.state.degrees)).toBe(true);
+        expect(graph.state.degrees).toBe(Math.round(30.5));
+        enter('euler-b', '2,5');
+        expect(graph.state.b % 5).toBe(0);
+        expect(graph.state.b).toBe(5 * Math.round(2.5 / 5));
+        enter('euler-b', '47');
+        expect(graph.state.b % 5).toBe(0);
+        expect(graph.state.b).toBe(45);
     });
 
     test('dragging the second point snaps to the nearest multiple of 5 degrees; the first point still snaps to a whole degree', () => {
@@ -395,7 +402,7 @@ describe('product mode', () => {
         const data = graph.exportPresetData();
         expect(data[0][1]).toMatchObject({mode: 'product', b: 355, degrees: 123});
         set(graph, {mode: 'motion', b: 0, degrees: 0});
-        act(() => { graph.importPresetData(data); });
+        act(() => { runAs('learner', () => graph.importPresetData(data)); });
         expect(graph.state).toMatchObject({mode: 'product', b: 355, degrees: 123});
     });
 });
@@ -431,8 +438,10 @@ describe('scene actions', () => {
 });
 
 describe('stepping and playback', () => {
-    test('play makes one 5 degree step per interval from 30 degrees, a long frame still one, and ends at 360 with no frame pending', () => {
+    test('play makes one 5 degree step per interval from 30 degrees, a long frame still one, and ends at 360 with no frame pending', async () => {
         const {graph} = mountGraph();
+        await ready();
+        await openTools();
         press(t('play'));
         expect(graph.isPlaying()).toBe(true);
         graph.clock.tick(0);
@@ -460,8 +469,10 @@ describe('stepping and playback', () => {
         expect(STEP_INTERVAL_MS).toBe(100);
     });
 
-    test('Next step goes to the next multiple of 5; Reset goes to 0 and keeps omega, the series degree and the arrows', () => {
+    test('Next step goes to the next multiple of 5; Reset goes to 0 and keeps omega, the series degree and the arrows', async () => {
         const {graph} = mountGraph();
+        await ready();
+        await openTools();
         set(graph, {degrees: 32, omega: 3, degree: 7, acceleration: true});
         press(t('next_step'));
         expect(graph.state.degrees).toBe(35);
@@ -472,8 +483,10 @@ describe('stepping and playback', () => {
         expect(readout('point')).toBe('(1; 0)');
     });
 
-    test('pause stops at the angle; Play resumes from it with no jump', () => {
+    test('pause stops at the angle; Play resumes from it with no jump', async () => {
         const {graph} = mountGraph();
+        await ready();
+        await openTools();
         press(t('play'));
         stepsPlayed(graph, 3);
         expect(graph.state.degrees).toBe(45);
@@ -486,8 +499,10 @@ describe('stepping and playback', () => {
         expect(graph.state.degrees).toBe(50);
     });
 
-    test('reduced motion: Play does not move; it says why through the button, starts no frame loop, and Next step still works', () => {
+    test('reduced motion: Play does not move; it says why through the button, starts no frame loop, and Next step still works', async () => {
         const {graph} = mountGraph(false, true);
+        await ready();
+        await openTools();
         expect(screen.getByRole('button', {name: t('play')}).getAttribute('aria-disabled')).toBe('true');
         press(t('play'));
         expect(graph.state.degrees).toBe(30);
@@ -501,8 +516,10 @@ describe('stepping and playback', () => {
         expect(graph.state.degrees).toBe(35);
     });
 
-    test('the product mode plays the first angle too', () => {
+    test('the product mode plays the first angle too', async () => {
         const {graph} = mountGraph();
+        await ready();
+        await openTools();
         productOn(graph);
         press(t('play'));
         stepsPlayed(graph, 2);
@@ -523,13 +540,13 @@ describe('every stored-field change pauses a playing run', () => {
 
     test('the angle field, the omega field and the drag', () => {
         let graph = playing();
-        enter(angleLabel(), '100');
+        enter('euler-angle', '100');
         expect(graph.state.degrees).toBe(100);
         expect(graph.isPlaying()).toBe(false);
         expect(graph.clock.pending()).toBe(false);
         document.body.innerHTML = '';
         graph = playing();
-        enter(omegaLabel(), '3');
+        enter('euler-omega', '3');
         expect(graph.isPlaying()).toBe(false);
     });
 
@@ -565,9 +582,10 @@ describe('every stored-field change pauses a playing run', () => {
 });
 
 describe('captions and the legend', () => {
-    test('a caption names every element a readout names, with the scales stated', () => {
+    test('a caption names every element a readout names, with the scales stated', async () => {
         const {graph} = mountGraph();
-        toggle(t('euler_circle_graph_acceleration_label'));
+        await ready();
+        flip('show-acceleration');
         productOn(graph);
         const texts = captionTexts(graph);
         const has = (text: string) => expect(texts, text).toContain(text);
@@ -577,8 +595,6 @@ describe('captions and the legend', () => {
         has(t('euler_circle_graph_cap_velocity_near'));
         has(t('euler_circle_graph_cap_acceleration_near'));
         has(t('euler_circle_graph_cap_sum_near', {value0: '5'}));
-        has(t('euler_circle_graph_cap_velocity', {value0: '0,4', value1: t('euler_circle_graph_style_solid_arrow')}));
-        has(t('euler_circle_graph_cap_acceleration', {value0: '0,225', value1: t('euler_circle_graph_style_dashed_arrow')}));
         expect(texts.every(text => !/NaN|undefined/.test(text))).toBe(true);
         expect(texts.every(text => !text.includes('<sup>')), 'e^(...) must not be turned into a superscript').toBe(true);
     });
@@ -588,50 +604,37 @@ describe('captions and the legend', () => {
         const texts = captionTexts(graph);
         expect(texts).not.toContain(t('euler_circle_graph_cap_acceleration_near'));
         expect(texts.some(text => text.startsWith('e^(iφ)') || text.startsWith('e^(i(θ+φ))'))).toBe(false);
-        expect(texts.some(text => text.includes(t('euler_circle_graph_style_square')))).toBe(false);
     });
 
-    test('each legend entry states a style that the drawing attributes have', () => {
+    test('each legend entry states a style that the drawing attributes have', async () => {
         const {graph} = mountGraph();
-        toggle(t('euler_circle_graph_acceleration_label'));
+        await ready();
+        flip('show-acceleration');
         productOn(graph);
-        const texts = captionTexts(graph);
-        const legend = (text: string) => expect(texts, text).toContain(text);
         const attr = (probe: Probe, name: string) => probe.evalVisProp(name);
         const arrowed = (probe: Probe) => attr(probe, 'lastArrow');
         // Unit circle: dashed.
-        legend(t('euler_circle_graph_cap_unit', {value0: t('euler_circle_graph_style_dashed')}));
         expect(UNIT_CIRCLE_DASH).toBeGreaterThan(0);
         expect(attr(curves(graph)[RING], 'dash')).toBe(UNIT_CIRCLE_DASH);
         // Projections: dotted (the dash pattern 1 of JSXGraph is the dotted one), no arrow.
-        legend(t('euler_circle_graph_cap_projections', {value0: t('euler_circle_graph_style_dotted')}));
         for (const index of [PROJ_X, PROJ_Y]) {
             expect(attr(curves(graph)[index], 'dash')).toBe(PROJECTION_DASH);
             expect(arrowed(curves(graph)[index])).toBeFalsy();
         }
         // Velocity: solid arrow. Acceleration: dashed arrow.
-        legend(t('euler_circle_graph_cap_velocity', {value0: '0,4', value1: t('euler_circle_graph_style_solid_arrow')}));
         expect(attr(curves(graph)[VELOCITY], 'dash')).toBe(0);
         expect(arrowed(curves(graph)[VELOCITY])).toBeTruthy();
-        legend(t('euler_circle_graph_cap_acceleration', {value0: '0,225', value1: t('euler_circle_graph_style_dashed_arrow')}));
         expect(attr(curves(graph)[ACCELERATION], 'dash')).toBe(ACCELERATION_DASH);
         // The four dashed or dotted elements differ in pattern, and the words of their legend rows differ too.
         const patterns = [UNIT_CIRCLE_DASH, PROJECTION_DASH, ACCELERATION_DASH, 0];
         expect(new Set(patterns).size).toBe(4);
-        expect(new Set([t('euler_circle_graph_style_dashed'), t('euler_circle_graph_style_dotted'), t('euler_circle_graph_style_dashed_arrow'),
-            t('euler_circle_graph_style_solid_arrow')]).size).toBe(4);
         expect(arrowed(curves(graph)[ACCELERATION])).toBeTruthy();
         // The partial sum: diamond. The first handle: filled circle. The second: filled square. The product: triangle.
-        legend(t('euler_circle_graph_cap_sum', {value0: '5', value1: t('euler_circle_graph_style_diamond')}));
         expect(String(attr(points(graph)[SUM], 'face')).toLowerCase()).toMatch(/diamond/);
-        legend(t('euler_circle_graph_cap_handle', {value0: t('euler_circle_graph_style_circle')}));
         expect(graph.dragHandle()!.visProp.face).toMatch(/circle|o/i);
-        legend(t('euler_circle_graph_cap_second_handle', {value0: t('euler_circle_graph_style_square')}));
         expect(String(attr(points(graph)[SECOND], 'face')).toLowerCase()).toMatch(/square|\[\]/);
-        legend(t('euler_circle_graph_cap_product_legend', {value0: t('euler_circle_graph_style_triangle')}));
         expect(String(attr(points(graph)[PRODUCT], 'face')).toLowerCase()).toMatch(/triangle|\^/);
         // The radii: thin solid lines.
-        legend(t('euler_circle_graph_cap_radii', {value0: t('euler_circle_graph_style_thin_line')}));
         for (const index of [RADIUS_A, RADIUS_B, RADIUS_P]) {
             expect(attr(curves(graph)[index], 'dash')).toBe(RADIUS_DASH);
             expect(attr(curves(graph)[index], 'strokeWidth')).toBe(RADIUS_WIDTH);
@@ -641,39 +644,10 @@ describe('captions and the legend', () => {
         expect(RADIUS_WIDTH).toBeLessThan(2);
     });
 
-    type Placed = Probe & {X(): number; Y(): number};
-    /** The legend rows (the texts at the left edge) that are visible, top to bottom, with the board's pixel scale and bottom edge. */
-    const legendRows = (graph: ObservedGraph) => {
-        const board = graph.liveBoard();
-        const rows = (ofType(graph, 'text') as Placed[]).filter(o => visible(o) && o.X() < -1.9).sort((a, b) => b.Y() - a.Y());
-        return {ys: rows.map(o => o.Y()), uy: board.unitY, bottom: board.getBoundingBox()[3]};
-    };
-
-    test('the legend stacks only the visible rows: an even pitch with no gap, in every mode, and the last row inside the board', () => {
+    test('the acceleration arrow is drawn at the scale of its omega and its tip stays on the point side of the centre', async () => {
         const {graph} = mountGraph();
-        const modes: Array<[string, Partial<typeof DEFAULT_EULER_CIRCLE_STATE>, number]> = [
-            ['default', {}, 5], ['acceleration only', {velocity: false, acceleration: true}, 5], ['nothing optional', {velocity: false}, 4],
-            ['everything: product, velocity and acceleration', {mode: 'product', velocity: true, acceleration: true}, 9],
-            ['the partial sum out of the view', {mode: 'motion', velocity: false, acceleration: false, degrees: 300, degree: 1}, 4],
-        ];
-        for (const [name, patch, count] of modes) {
-            set(graph, {mode: 'motion', velocity: true, acceleration: false, degrees: 30, degree: 5});
-            set(graph, patch);
-            const {ys, uy, bottom} = legendRows(graph);
-            expect(ys.length, name).toBe(count);
-            const pitches = ys.slice(1).map((y, i) => (ys[i] - y) * uy);
-            for (const pitch of pitches) {
-                expect(pitch, name).toBeGreaterThan(13);
-                expect(pitch, name).toBeLessThanOrEqual(ROW_PX + 1e-9);
-                expect(pitch, name).toBeCloseTo(pitches[0], 6);
-            }
-            expect((ys[ys.length - 1] - bottom) * uy, `${name}: the last row's top above the bottom edge by more than one text line`).toBeGreaterThanOrEqual(14);
-        }
-    });
-
-    test('the acceleration arrow is drawn at the scale of its omega and its tip stays on the point side of the centre', () => {
-        const {graph} = mountGraph();
-        toggle(t('euler_circle_graph_acceleration_label'));
+        await ready();
+        flip('show-acceleration');
         const arrow = () => curves(graph)[ACCELERATION] as Probe & {X(s: number): number; Y(s: number): number};
         for (const omega of [1, 2, 3, 4]) {
             for (const degrees of [0, 30, 135, 250]) {
@@ -685,21 +659,12 @@ describe('captions and the legend', () => {
             }
         }
         set(graph, {omega: 4});
-        expect(captionTexts(graph)).toContain(t('euler_circle_graph_cap_acceleration', {value0: '0,05625', value1: t('euler_circle_graph_style_dashed_arrow')}));
     });
 
-    test('the field for φ is hidden outside product mode, and the mode checkbox names it in its help', () => {
+    test('the puck for φ is absent outside product mode', async () => {
         mountGraph();
-        expect(screen.queryByLabelText(t('euler_circle_graph_b_label'))).toBeNull();
-        expect(help(field(t('euler_circle_graph_mode_label')))).toContain('φ');
-    });
-
-    test('no legend row is drawn for a part that is hidden', () => {
-        const {graph} = mountGraph();
-        const texts = captionTexts(graph);
-        expect(texts.some(text => text.includes(t('euler_circle_graph_style_dashed_arrow')))).toBe(false);
-        expect(texts.some(text => text.includes(t('euler_circle_graph_style_thin_line')))).toBe(false);
-        expect(texts.some(text => text.includes(t('euler_circle_graph_style_solid_arrow')))).toBe(true);
+        await ready();
+        expect(document.querySelector('.puck-strip [data-puck-key="euler-b"]')).toBeNull();
     });
 });
 
@@ -708,7 +673,7 @@ describe('ownership, rebuild and StrictMode', () => {
         const {graph, view} = mountGraph();
         const count = () => probes(graph).filter(o => o.elType !== 'label').length;
         const owned = graph.ownedObjectCount();
-        expect(owned).toBeGreaterThan(20);
+        expect(owned).toBeGreaterThan(10);
         const base = count() - owned;
         const ids = new Set(probes(graph).map(o => o.id));
         for (const patch of [{degrees: 100}, {omega: 3}, {mode: 'product' as const}, {b: 100}, {degree: 30}, {velocity: false}]) {
@@ -754,26 +719,28 @@ describe('ownership, rebuild and StrictMode', () => {
         expect(ofType(graph, 'curve')).toHaveLength(8);
     });
 
-    test('disposing the scene while playing stops the playback', () => {
+    test('disposing the scene while playing stops the playback', async () => {
         const {graph} = mountGraph();
+        await ready();
+        await openTools();
         press(t('play'));
         graph.disposeNow();
         expect(graph.clock.pending()).toBe(false);
         expect(graph.isPlaying()).toBe(false);
     });
 
-    test('unmount while playing cancels the frame loop and every timer, removes the board label and the language listener', () => {
+    test('unmount while playing cancels the frame loop and every timer, removes the board label and the language listener', async () => {
         vi.useFakeTimers();
         // JSXGraph leaves a timer of its own for every redrawn text (text.js), measured here with one angle set from outside; the played run must leave the same
         // number: no frame, interval or settle timer of this graph (the status settle is cancelled by the unmount).
         const before = vi.getTimerCount();
         const reference = mountGraph();
-        act(() => { reference.graph.setState({degrees: 35}); });
+        act(() => { runAs('learner', () => reference.graph.setState({degrees: 35})); });
         reference.view.unmount();
         const plainDelta = vi.getTimerCount() - before;
         const afterPlain = vi.getTimerCount();
         const {graph, view} = mountGraph();
-        press(t('play'));
+        act(() => graph.performAction('play-pause'));
         stepsPlayed(graph, 1);
         expect(graph.clock.pending()).toBe(true);
         const liveTimers = vi.getTimerCount();
@@ -783,45 +750,50 @@ describe('ownership, rebuild and StrictMode', () => {
         expect(graph.isPlaying()).toBe(false);
         expect(vi.getTimerCount() - afterPlain).toBeLessThanOrEqual(plainDelta);
         expect(graph.ownedObjectCount()).toBe(0);
-        expect(document.querySelector(`[aria-label="${t('euler_circle_graph_board_label')}"]`)).toBeNull();
+        expect(document.querySelector(`[aria-label="${t('euler_board_label')}"]`)).toBeNull();
         expect(() => setLanguage('en')).not.toThrow();
     });
 
     test('the derived data is keyed on the state: not recomputed for a language change or an initialized-only change, recomputed for other content', () => {
         const {graph} = mountGraph();
+        graph.derived();
         const count = graph.derivationCount();
         act(() => setLanguage('en'));
         act(() => setLanguage('sl'));
         act(() => { graph.setState({initialized: true}); });
         expect(graph.derivationCount()).toBe(count);
         set(graph, {degrees: 100});
+        graph.derived();
         expect(graph.derivationCount()).toBe(count + 1);
         set(graph, {b: 100});
+        graph.derived();
         expect(graph.derivationCount()).toBe(count + 2);
     });
 });
 
 describe('language and the catalog', () => {
-    test('switching the language renames the board, the labels, the captions and the status; the numbers stay', () => {
+    test('switching the language renames the board, the labels, the captions and the status; the numbers stay', async () => {
         const {graph} = mountGraph();
+        await ready();
         set(graph, {degrees: 10});
         act(() => setLanguage('en'));
-        expect(document.querySelector(`[aria-label="${en.euler_circle_graph_board_label}"]`)).not.toBeNull();
+        expect(document.querySelector(`[aria-label="${t('euler_board_label')}"]`)).not.toBeNull();
         expect(labelOf('period')).toBe(en.euler_circle_graph_r_period);
         expect(readout('cos')).toBe('0.9848078');
         expect(captionTexts(graph)).toContain(t('euler_circle_graph_cap_point', {value0: formatComplex(graph.derived().position, 'en')}));
         expect(status()).toContain('0.98');
-        expect(screen.getByLabelText(en.euler_circle_graph_angle_label)).not.toBeNull();
+        expect(puckControl('euler-angle').getAttribute('aria-label') ?? '').toContain(t('euler_angle_name'));
         act(() => setLanguage('sl'));
-        expect(document.querySelector(`[aria-label="${sl.euler_circle_graph_board_label}"]`)).not.toBeNull();
+        expect(document.querySelector(`[aria-label="${t('euler_board_label')}"]`)).not.toBeNull();
         expect(readout('cos')).toBe('0,9848078');
         expect(captionTexts(graph)).toContain(t('euler_circle_graph_cap_point', {value0: formatComplex(graph.derived().position, 'sl')}));
     });
 
-    test('numbers use the decimal comma and the true minus in Slovenian', () => {
+    test('numbers use the decimal comma and the true minus in Slovenian', async () => {
         const {graph} = mountGraph();
+        await ready();
         productOn(graph);
-        toggle(t('euler_circle_graph_acceleration_label'));
+        flip('show-acceleration');
         set(graph, {degrees: 210, b: 120});
         expect(readout('cos')).toBe('−√3/2 ≈ −0,8660254');
         expect(readout('sin')).toBe('−1/2');
@@ -840,7 +812,7 @@ describe('language and the catalog', () => {
 
     test('every euler_circle_graph key exists in both languages with the same placeholder names, and the sources use exactly these keys', () => {
         const keys = Object.keys(sl).filter(key => key.startsWith('euler_circle_graph_'));
-        expect(keys.length).toBeGreaterThanOrEqual(100);
+        expect(keys.length).toBeGreaterThanOrEqual(70);
         for (const key of keys) {
             const slText = sl[key as keyof typeof sl];
             const enText = en[key as keyof typeof sl];

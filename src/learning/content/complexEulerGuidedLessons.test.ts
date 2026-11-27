@@ -9,9 +9,8 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../graphs/base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
+import {installBoardShims, openTools, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../graphs/base/realGraphTestHarness';
 import {EulerCircleGraph} from '../../graphs/complex/EulerCircleGraph';
-import {enterNumber} from '../../inputs/testEntry';
 import {setLanguage, t} from '../../localization';
 import {sceneActions} from '../runtime/lessonCatalog';
 import {complexEulerLesson} from './complexEulerGuidedLessons';
@@ -116,9 +115,10 @@ const plain = (graph: EulerCircleGraph): S => {
     return {degrees, omega, degree, velocity, acceleration, mode, b};
 };
 
-function mountEuler() {
+async function mountEuler() {
     const graph = new EulerCircleGraph();
     render(React.createElement(MemoryRouter, null, React.createElement(GraphHost, {create: () => graph})));
+    await waitForPucks('euler-angle'); // the pucks sit in a strip on the board once it has laid out
     const capabilities = graph.getLessonCapabilities();
     const checkpoint = capabilities.captureState();
     const free = JSON.stringify(graph.state);
@@ -135,17 +135,17 @@ function mountEuler() {
 
 // ---- learner controls ------------------------------------------------------------------------------------------------------------------
 
-const field = (label: string) => (screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)})[0] ?? screen.getByLabelText(label)) as HTMLInputElement;
-const typeInto = (label: string, value: number) => act(() => { enterNumber(field(label), String(value)); });
-const toggle = (label: string) => act(() => { fireEvent.click(screen.getByLabelText(label)); });
+const typeInto = (key: string, value: number) => typePuck(key, String(value));
+/** A learner's click on a switch puck. */
+const toggle = (key: string) => act(() => { fireEvent.click(puckControl(key)); });
 const press = (name: string) => act(() => { fireEvent.click(screen.getByRole('button', {name})); });
-const typeAngle = (value: number) => typeInto(t('euler_circle_graph_angle_label'), value);
-const typeOmega = (value: number) => typeInto(t('euler_circle_graph_omega_label'), value);
-const typeDegree = (value: number) => typeInto(t('euler_circle_graph_degree_label'), value);
-const typeSecond = (value: number) => typeInto(t('euler_circle_graph_b_label'), value);
-const toggleMode = () => toggle(t('euler_circle_graph_mode_label'));
-const toggleVelocity = () => toggle(t('euler_circle_graph_velocity_label'));
-const toggleAcceleration = () => toggle(t('euler_circle_graph_acceleration_label'));
+const typeAngle = (value: number) => typeInto('euler-angle', value);
+const typeOmega = (value: number) => typeInto('euler-omega', value);
+const typeDegree = (value: number) => typeInto('euler-degree', value);
+const typeSecond = (value: number) => typeInto('euler-b', value);
+const toggleMode = () => toggle('product-mode');
+const toggleVelocity = () => toggle('show-velocity');
+const toggleAcceleration = () => toggle('show-acceleration');
 
 // ---- steps: the opening state, the readouts and the learner actions the text asks for --------------------------------------------------
 
@@ -211,9 +211,9 @@ describe.each(LANGUAGES)('M7 scenes in %s', language => {
     // out of order: reversed, then every third step, then the in-order pass, so that no scene depends on the one before it
     const order = [...PLANS].reverse().concat(PLANS.filter((_, i) => i % 3 === 0), PLANS);
 
-    test('every scene opens in the stated state and readouts, out of order and twice in one act', () => {
+    test('every scene opens in the stated state and readouts, out of order and twice in one act', async () => {
         setLanguage(language);
-        const m = mountEuler();
+        const m = await mountEuler();
         expect(plain(m.graph)).toEqual(DEFAULT_STATE);
         for (const plan of order) {
             m.scene(plan.id);
@@ -227,9 +227,9 @@ describe.each(LANGUAGES)('M7 scenes in %s', language => {
         }
     });
 
-    test('restoring the checkpoint on exit returns the free state', () => {
+    test('restoring the checkpoint on exit returns the free state', async () => {
         setLanguage(language);
-        const m = mountEuler();
+        const m = await mountEuler();
         for (const plan of PLANS) {
             m.scene(plan.id);
             m.restore();
@@ -238,9 +238,9 @@ describe.each(LANGUAGES)('M7 scenes in %s', language => {
         expect(plain(m.graph)).toEqual(DEFAULT_STATE);
     });
 
-    test('no opening is already the state the prompt asks for or shows a value a later prediction asks for', () => {
+    test('no opening is already the state the prompt asks for or shows a value a later prediction asks for', async () => {
         setLanguage(language);
-        const m = mountEuler();
+        const m = await mountEuler();
         const sixAnswers = ['−3,9348 − 2,0261i', '0,1239 + 0,524i', '−0,976 + 0,0069i', '−0,9999', '−1'].map(value => loc(value, language));
         const timeAnswers = ['π/6 ≈ 0,524', 'π/12 ≈ 0,262'].map(value => loc(value, language));
         const periodAnswers = ['π ≈ 3,142', 'π/2 ≈ 1,571'].map(value => loc(value, language));
@@ -283,9 +283,10 @@ describe.each(LANGUAGES)('M7 scenes in %s', language => {
         expect(plain(m.graph).velocity).toBe(false);
     });
 
-    test('the learner actions the text asks for give the state and readouts it quotes', () => {
+    test('the learner actions the text asks for give the state and readouts it quotes', async () => {
         setLanguage(language);
-        const m = mountEuler();
+        const m = await mountEuler();
+        await openTools(); // the playback buttons sit in the Orodja card
         for (const plan of PLANS) {
             m.scene(plan.id);
             let before = JSON.stringify(plain(m.graph));
@@ -305,19 +306,19 @@ describe.each(LANGUAGES)('M7 scenes in %s', language => {
 // ---- the controls and readouts the prompts name ----------------------------------------------------------------------------------------
 
 interface Named { readonly label: () => string; readonly short?: Record<Language, string> }
-type PlainKey = 'euler_circle_graph_angle_label' | 'euler_circle_graph_omega_label' | 'euler_circle_graph_degree_label' | 'euler_circle_graph_velocity_label' | 'euler_circle_graph_acceleration_label' | 'euler_circle_graph_mode_label' | 'euler_circle_graph_b_label'
+type PlainKey = 'euler_angle_name' | 'euler_omega_name' | 'euler_degree_name' | 'euler_velocity_puck' | 'euler_acceleration_puck' | 'euler_product_puck' | 'euler_b_name'
     | 'euler_circle_graph_r_time' | 'euler_circle_graph_r_period' | 'euler_circle_graph_r_velocity' | 'euler_circle_graph_r_speed' | 'euler_circle_graph_r_between' | 'euler_circle_graph_r_acceleration' | 'euler_circle_graph_r_sum_angle';
 const N = (key: PlainKey): Named => ({label: () => t(key)});
 const NS = (key: PlainKey, sl: string, en: string): Named => ({label: () => t(key), short: {sl, en}});
 const sumLabel = () => t('euler_circle_graph_r_sum', {value0: 'N'});
 const errorLabel = () => t('euler_circle_graph_r_error', {value0: 'N'});
 const NAMED: Record<string, readonly Named[]> = {
-    'm7-circle': [N('euler_circle_graph_angle_label')],
-    'm7-uniform-motion': [N('euler_circle_graph_omega_label'), N('euler_circle_graph_r_time'), N('euler_circle_graph_r_period')],
-    'm7-velocity': [N('euler_circle_graph_velocity_label'), NS('euler_circle_graph_r_velocity', 'Vektor hitrosti', 'Velocity'), N('euler_circle_graph_r_speed'), N('euler_circle_graph_r_between')],
-    'm7-acceleration': [N('euler_circle_graph_acceleration_label'), NS('euler_circle_graph_r_acceleration', 'Vektor pospeška', 'Acceleration')],
-    'm7-product': [N('euler_circle_graph_mode_label'), N('euler_circle_graph_b_label'), N('euler_circle_graph_angle_label'), NS('euler_circle_graph_r_sum_angle', 'Kota se seštejeta', 'Angles add'), {label: () => t('euler_circle_graph_r_product', {value0: 'x'}), short: {sl: 'Zmnožek', en: 'Product'}}],
-    'm7-series': [N('euler_circle_graph_degree_label'), {label: sumLabel}, {label: errorLabel, short: {sl: 'Razdalja delne vsote', en: 'Distance of the partial sum'}}],
+    'm7-circle': [N('euler_angle_name')],
+    'm7-uniform-motion': [N('euler_omega_name'), N('euler_circle_graph_r_time'), N('euler_circle_graph_r_period')],
+    'm7-velocity': [N('euler_velocity_puck'), NS('euler_circle_graph_r_velocity', 'Vektor hitrosti', 'Velocity'), N('euler_circle_graph_r_speed'), N('euler_circle_graph_r_between')],
+    'm7-acceleration': [N('euler_acceleration_puck'), NS('euler_circle_graph_r_acceleration', 'Vektor pospeška', 'Acceleration')],
+    'm7-product': [N('euler_product_puck'), N('euler_b_name'), N('euler_angle_name'), NS('euler_circle_graph_r_sum_angle', 'Kota se seštejeta', 'Angles add'), {label: () => t('euler_circle_graph_r_product', {value0: 'x'}), short: {sl: 'Zmnožek', en: 'Product'}}],
+    'm7-series': [N('euler_degree_name'), {label: sumLabel}, {label: errorLabel, short: {sl: 'Razdalja delne vsote', en: 'Distance of the partial sum'}}],
     'm7-explore': [],
 };
 const TEX_SYMBOLS: readonly (readonly [RegExp, string])[] = [[/\\theta/g, 'θ'], [/\\omega/g, 'ω'], [/\\varphi/g, 'φ'], [/\\pi/g, 'π']];
@@ -338,9 +339,9 @@ describe.each(LANGUAGES)('M7 prompt labels in %s', language => {
         }
     });
 
-    test('the labels exist in the mounted graph: control labels and readout labels', () => {
+    test('the labels exist in the mounted graph: control labels and readout labels', async () => {
         setLanguage(language);
-        const m = mountEuler();
+        const m = await mountEuler();
         m.scene('m7-product');
         toggleMode();
         toggleAcceleration();
@@ -352,10 +353,11 @@ describe.each(LANGUAGES)('M7 prompt labels in %s', language => {
         }
         expect({sum: dts.includes(sumLabel().replace('N', '1')), error: dts.includes(errorLabel().replace('N', '1')), out: dts.includes(t('euler_circle_graph_r_out', {value0: '1'}))}).toEqual({sum: true, error: true, out: true});
         for (const key of ['euler_circle_graph_r_velocity', 'euler_circle_graph_r_speed', 'euler_circle_graph_r_between'] as const) expect(dts.includes(t(key))).toBe(false);
-        for (const label of [t('euler_circle_graph_angle_label'), t('euler_circle_graph_omega_label'), t('euler_circle_graph_degree_label'), t('euler_circle_graph_b_label')]) {
-            expect({label, control: screen.queryAllByRole('spinbutton', {name: name => name === label || name.startsWith(`${label}, `)}).length > 0}).toEqual({label, control: true});
+        for (const [key, label] of [['euler-angle', t('euler_angle_name')], ['euler-omega', t('euler_omega_name')], ['euler-degree', t('euler_degree_name')], ['euler-b', t('euler_b_name')],
+            ['product-mode', t('euler_product_puck')], ['show-velocity', t('euler_velocity_puck')], ['show-acceleration', t('euler_acceleration_puck')]] as const) {
+            const control = puckControl(key);
+            expect({key, label, named: control !== null && (control.getAttribute('aria-label') ?? '').includes(label)}).toEqual({key, label, named: true});
         }
-        for (const label of [t('euler_circle_graph_mode_label'), t('euler_circle_graph_velocity_label'), t('euler_circle_graph_acceleration_label')]) expect({label, control: screen.queryAllByLabelText(label).length > 0}).toEqual({label, control: true});
         toggleVelocity();
         const withVelocity = [...document.querySelectorAll('[data-readout] dt')].map(node => node.textContent ?? '');
         for (const key of ['euler_circle_graph_r_velocity', 'euler_circle_graph_r_speed', 'euler_circle_graph_r_between'] as const) expect({key, shown: withVelocity.includes(t(key))}).toEqual({key, shown: true});
@@ -533,4 +535,17 @@ test('the partial sums at theta = 180 degrees by the term recurrence: S1 = 1 + i
     const factorial = (n: number): number => (n <= 1 ? 1 : n * factorial(n - 1));
     const cosine = Array.from({length: 11}, (_, k) => ((-1) ** k * Math.PI ** (2 * k)) / factorial(2 * k)).reduce((a, b) => a + b, 0);
     expect(partialSum(Math.PI, 21)[0]).toBeCloseTo(cosine, 12);
+});
+
+describe.each(LANGUAGES)('M7 names the board controls as controls in %s', language => {
+    const prompts = (id: string) => {
+        const step = complexEulerLesson.steps.find(candidate => candidate.id === id)!;
+        return `${step.explanation[language]} ${step.observationPrompt[language]}`;
+    };
+    const control = language === 'sl' ? 'krmilnik' : 'control';
+    test.each([['m7-circle', 'Kot', 'Angle'], ['m7-uniform-motion', 'Kotna hitrost', 'Angular speed'], ['m7-velocity', 'Prikaži hitrost', 'Velocity'], ['m7-acceleration', 'Prikaži pospešek', 'Acceleration'],
+        ['m7-product', 'Zmnoži dve točki', 'Multiply points'], ['m7-product', 'Drugi kot', 'Second angle'], ['m7-series', 'Stopnja vrste', 'Series degree']] as const)('%s names the %s control', (id, sl, en) => {
+        expect(prompts(id)).toMatch(new RegExp(`${control}[a-z]*\\s+${language === 'sl' ? sl : en}`));
+        expect(prompts(id)).not.toMatch(/drsnik|slider|vrednostno polje|value box|polju Stopnja|field Series/);
+    });
 });

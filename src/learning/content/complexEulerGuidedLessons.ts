@@ -9,10 +9,13 @@
  * action the text asks for, or stated arithmetic; the numbers are listed per step in docs/reviews/feature-streams/families-prep/notes/f3-cm-d.md.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {EulerCircleIds} from '../../graphs/complex/EulerCircleGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<EulerCircleIds>();
 
 interface StepContent {
     readonly id: string;
@@ -24,11 +27,13 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights and the controls it asks the learner to use (the board pucks of the graph). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
-    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation')],
+    frames: [frame(`${content.id}-explanation`, 'explanation'), frame(`${content.id}-observation`, 'observation', declare)],
 });
 
 /**
@@ -128,11 +133,12 @@ const steps: readonly GuidedLessonStep[] = [
             'For a real angle \\(\\theta\\) the notation \\(e^{i\\theta}\\) means the number \\(\\cos\\theta+i\\sin\\theta\\), the point \\((\\cos\\theta;\\sin\\theta)\\). The angle \\(\\theta=0^\\circ\\) is shown: the point is \\(1\\). Prediction: along what curve and in which direction does the point move as the angle \\(\\theta\\) grows, and which points are \\(e^{i\\theta}\\) at \\(90^\\circ\\), \\(180^\\circ\\) and \\(270^\\circ\\)? The diamond \\(S\\) does not matter yet, it comes in step 6.',
         ),
         formulaIds: ['euler-definition'],
-        observationPrompt: text('Zapiši napoved, nato v vrednostno polje drsnika Kot \\(\\theta\\) (stopinje) vpiši \\(90\\), \\(180\\) in \\(270\\) in primerjaj točko ter stavek pod grafom z napovedjo.', 'Write down the prediction, then type \\(90\\), \\(180\\) and \\(270\\) into the value box of the slider Angle \\(\\theta\\) (degrees) and compare the point and the sentence under the graph with it.'),
+        observationPrompt: text('Zapiši napoved, nato v krmilnik Kot \\(\\theta\\) vpiši \\(90\\), \\(180\\) in \\(270\\) in primerjaj točko ter stavek pod grafom z napovedjo.', 'Write down the prediction, then type \\(90\\), \\(180\\) and \\(270\\) into the control Angle \\(\\theta\\) and compare the point and the sentence under the graph with it.'),
         expectedObservations: [text(
             'Točka teče po enotski krožnici v nasprotni smeri urnega kazalca. Pri \\(90^\\circ\\) je \\(e^{i\\theta}=i\\), točka \\((0;1)\\), pri \\(180^\\circ\\) je \\(-1\\), točka \\((-1;0)\\), pri \\(270^\\circ\\) je \\(-i\\), točka \\((0;-1)\\); graf te točke označi kot natančne. Pri \\(360^\\circ\\) se točka vrne v \\(1\\).',
             'The point runs along the unit circle counterclockwise. At \\(90^\\circ\\) we have \\(e^{i\\theta}=i\\), the point \\((0;1)\\); at \\(180^\\circ\\) it is \\(-1\\), the point \\((-1;0)\\); at \\(270^\\circ\\) it is \\(-i\\), the point \\((0;-1)\\); the graph marks these points as exact. At \\(360^\\circ\\) the point returns to \\(1\\).',
         )],
+        declare: f({uses: ['euler-angle'], highlight: ['point', 'status']}),
         scene: eulerScene('m7-circle-scene', M7_PATH,
             'Kot \\(\\theta=0^\\circ\\), \\(\\omega=1\\), točka \\(1\\), hitrost skrita, \\(N=1\\); učenec nastavi \\(90^\\circ\\), \\(180^\\circ\\) in \\(270^\\circ\\).',
             'The angle \\(\\theta=0^\\circ\\), \\(\\omega=1\\), the point \\(1\\), velocity hidden, \\(N=1\\); the learner sets \\(90^\\circ\\), \\(180^\\circ\\) and \\(270^\\circ\\).'),
@@ -146,11 +152,12 @@ const steps: readonly GuidedLessonStep[] = [
             'Let the angle grow uniformly with time: \\(\\theta=\\omega t\\), where \\(\\omega\\) is the angular speed in radians per time unit and \\(t\\) is time; the point then moves uniformly. \\(\\omega=1\\) at the angle \\(60^\\circ\\) is shown; the rows Time \\(t=\\theta/\\omega\\) and Period of revolution \\(2\\pi/\\omega\\) show the time up to this angle and the time of one revolution. Prediction: what are these two times at \\(\\omega=2\\) and at \\(\\omega=4\\)? Write them as exact values.',
         ),
         formulaIds: [],
-        observationPrompt: text('Zapiši napoved, nato nastavi Kotna hitrost \\(\\omega\\) na \\(2\\) in nato na \\(4\\) ter pri vsakem preberi vrstici Čas \\(t=\\theta/\\omega\\) in Obhodni čas \\(2\\pi/\\omega\\).', 'Write down the prediction, then set Angular speed \\(\\omega\\) to \\(2\\) and then to \\(4\\) and at each read the rows Time \\(t=\\theta/\\omega\\) and Period of revolution \\(2\\pi/\\omega\\).'),
+        observationPrompt: text('Zapiši napoved, nato nastavi krmilnik Kotna hitrost \\(\\omega\\) na \\(2\\) in nato na \\(4\\) ter pri vsakem preberi vrstici Čas \\(t=\\theta/\\omega\\) in Obhodni čas \\(2\\pi/\\omega\\).', 'Write down the prediction, then set the control Angular speed \\(\\omega\\) to \\(2\\) and then to \\(4\\) and at each read the rows Time \\(t=\\theta/\\omega\\) and Period of revolution \\(2\\pi/\\omega\\).'),
         expectedObservations: [text(
             'Pri \\(\\omega=1\\) je čas do \\(60^\\circ\\) enak \\(\\tfrac{\\pi}{3}\\approx1{,}047\\) in obhodni čas \\(2\\pi\\approx6{,}283\\). Pri \\(\\omega=2\\) je čas \\(\\tfrac{\\pi}{6}\\approx0{,}524\\) in obhodni čas \\(\\pi\\approx3{,}142\\); pri \\(\\omega=4\\) je čas \\(\\tfrac{\\pi}{12}\\approx0{,}262\\) in obhodni čas \\(\\tfrac{\\pi}{2}\\approx1{,}571\\). Cel obhod je kot \\(2\\pi\\), zato je obhodni čas \\(2\\pi/\\omega\\); kot \\(\\theta\\) pa traja \\(\\theta/\\omega\\).',
             'At \\(\\omega=1\\) the time to \\(60^\\circ\\) is \\(\\tfrac{\\pi}{3}\\approx1.047\\) and the period is \\(2\\pi\\approx6.283\\). At \\(\\omega=2\\) the time is \\(\\tfrac{\\pi}{6}\\approx0.524\\) and the period is \\(\\pi\\approx3.142\\); at \\(\\omega=4\\) the time is \\(\\tfrac{\\pi}{12}\\approx0.262\\) and the period is \\(\\tfrac{\\pi}{2}\\approx1.571\\). A full revolution is the angle \\(2\\pi\\), so the period is \\(2\\pi/\\omega\\); the angle \\(\\theta\\) takes \\(\\theta/\\omega\\).',
         )],
+        declare: f({uses: ['euler-omega'], highlight: ['time', 'period']}),
         scene: eulerScene('m7-uniform-motion-scene', M7_PERIOD,
             'Kot \\(\\theta=60^\\circ\\), \\(\\omega=1\\): čas \\(\\tfrac{\\pi}{3}\\approx1{,}047\\), obhodni čas \\(2\\pi\\approx6{,}283\\); učenec nastavi \\(\\omega=2\\) in nato \\(\\omega=4\\).',
             'The angle \\(\\theta=60^\\circ\\), \\(\\omega=1\\): time \\(\\tfrac{\\pi}{3}\\approx1.047\\), period \\(2\\pi\\approx6.283\\); the learner sets \\(\\omega=2\\) and then \\(\\omega=4\\).'),
@@ -164,11 +171,12 @@ const steps: readonly GuidedLessonStep[] = [
             'The angle \\(\\theta=30^\\circ\\) at \\(\\omega=2\\) is shown, the point \\(e^{i\\theta}=(\\tfrac{\\sqrt3}{2};\\tfrac12)\\); the velocity vector is hidden. The velocity vector is the direction and the length with which the point moves; its length is the speed of the point. Prediction: what angle does the velocity vector make with the position vector, what is its length, and which complex number is this vector?',
         ),
         formulaIds: [],
-        observationPrompt: text('Zapiši napoved, nato vklopi Prikaži hitrost in preberi vrstice Vektor hitrosti, Velikost hitrosti ter Kot med krajevnim vektorjem in vektorjem hitrosti.', 'Write down the prediction, then switch on Show the velocity and read the rows Velocity, Speed (length of the velocity) and Angle between position and velocity.'),
+        observationPrompt: text('Zapiši napoved, nato vklopi krmilnik Prikaži hitrost in preberi vrstice Vektor hitrosti, Velikost hitrosti ter Kot med krajevnim vektorjem in vektorjem hitrosti.', 'Write down the prediction, then switch on the control Velocity and read the rows Velocity, Speed (length of the velocity) and Angle between position and velocity.'),
         expectedObservations: [text(
             'Vektor hitrosti je \\(i\\omega\\,e^{i\\theta}=2i\\bigl(\\tfrac{\\sqrt3}{2}+\\tfrac{i}{2}\\bigr)=-1+\\sqrt3\\,i\\approx-1+1{,}7320508\\,i\\), dolžina \\(2\\), kot z lego \\(90^\\circ\\). Množenje z \\(i\\) zavrti vektor za \\(90^\\circ\\), množenje z \\(\\omega\\) ga raztegne za faktor \\(\\omega\\). Argument za vsak čas: iz \\(\\cos^{\\prime}=-\\sin\\) in \\(\\sin^{\\prime}=\\cos\\) sledi \\(z^{\\prime}=i\\omega z\\) za \\(z(t)=e^{i\\omega t}\\) (formula v naslednjem koraku); hitrost je torej vedno \\(\\omega\\) in vedno pravokotna na lego. Tudi geometrijsko: točka na enotski krožnici v času \\(t\\) opiše lok dolžine \\(\\omega t\\), zato je hitrost točke \\(\\omega\\). Graf pokaže en primer.',
             'The velocity vector is \\(i\\omega\\,e^{i\\theta}=2i\\bigl(\\tfrac{\\sqrt3}{2}+\\tfrac{i}{2}\\bigr)=-1+\\sqrt3\\,i\\approx-1+1.7320508\\,i\\), length \\(2\\), angle \\(90^\\circ\\) with the position. Multiplying by \\(i\\) turns a vector by \\(90^\\circ\\), multiplying by \\(\\omega\\) stretches it by the factor \\(\\omega\\). An argument for every time: from \\(\\cos^{\\prime}=-\\sin\\) and \\(\\sin^{\\prime}=\\cos\\) we get \\(z^{\\prime}=i\\omega z\\) for \\(z(t)=e^{i\\omega t}\\) (the formula of the next step); so the speed is always \\(\\omega\\) and always perpendicular to the position. Geometrically too: in time \\(t\\) the point on the unit circle covers an arc of length \\(\\omega t\\), so the speed of the point is \\(\\omega\\). The graph shows one instance.',
         )],
+        declare: f({uses: ['show-velocity']}),
         scene: eulerScene('m7-velocity-scene', M7_VELOCITY,
             'Kot \\(\\theta=30^\\circ\\), \\(\\omega=2\\), hitrost skrita; učenec vklopi hitrost: vektor \\(-1+\\sqrt3\\,i\\), dolžina \\(2\\).',
             'The angle \\(\\theta=30^\\circ\\), \\(\\omega=2\\), velocity hidden; the learner switches the velocity on: the vector \\(-1+\\sqrt3\\,i\\), length \\(2\\).'),
@@ -182,11 +190,12 @@ const steps: readonly GuidedLessonStep[] = [
             'The acceleration is the derivative of the velocity, \\(z^{\\prime\\prime}=(z^{\\prime})^{\\prime}\\). \\(\\theta=90^\\circ\\) at \\(\\omega=2\\) is shown: the point is \\(i\\) and the velocity vector is visible. Use the relation \\(z^{\\prime}=i\\omega z\\) of the previous step and predict: in which direction does the acceleration point relative to the circle, what is its length, and which number is this vector?',
         ),
         formulaIds: ['euler-velocity'],
-        observationPrompt: text('Zapiši napoved, nato vklopi Prikaži pospešek in preberi vrstico Vektor pospeška; preberi tudi napis ob puščici na grafu.', 'Write down the prediction, then switch on Show the acceleration and read the row Acceleration; also read the label next to the arrow on the graph.'),
+        observationPrompt: text('Zapiši napoved, nato vklopi krmilnik Prikaži pospešek in preberi vrstico Vektor pospeška; preberi tudi napis ob puščici na grafu.', 'Write down the prediction, then switch on the control Acceleration and read the row Acceleration; also read the label next to the arrow on the graph.'),
         expectedObservations: [text(
             'Iz \\(z^{\\prime}=i\\omega z\\) sledi \\(z^{\\prime\\prime}=i\\omega z^{\\prime}=(i\\omega)^2z=-\\omega^2z\\). Pri \\(\\omega=2\\) je to \\(-4z\\); pri \\(z=i\\) dobimo \\(-4i\\), kar graf pokaže v vrstici. Pospešek kaže iz točke proti središču, njegova dolžina je \\(\\omega^2=4\\). Puščica je na grafu narisana v manjšem merilu, kar pove napis ob njej. Točka ima stalno hitrost, a nenehno pospešuje, ker se smer hitrosti spreminja.',
             'From \\(z^{\\prime}=i\\omega z\\) it follows that \\(z^{\\prime\\prime}=i\\omega z^{\\prime}=(i\\omega)^2z=-\\omega^2z\\). At \\(\\omega=2\\) this is \\(-4z\\); at \\(z=i\\) we get \\(-4i\\), which the graph shows in the row. The acceleration points from the point towards the centre, its length is \\(\\omega^2=4\\). The arrow is drawn on a smaller scale on the graph, which the label next to it says. The point has a constant speed yet it keeps accelerating, because the direction of the velocity changes.',
         )],
+        declare: f({uses: ['show-acceleration']}),
         scene: eulerScene('m7-acceleration-scene', M7_ACCELERATION,
             'Kot \\(\\theta=90^\\circ\\), \\(\\omega=2\\), točka \\(i\\), hitrost \\(-2\\), pospešek skrit; učenec vklopi pospešek: vektor \\(-4i\\).',
             'The angle \\(\\theta=90^\\circ\\), \\(\\omega=2\\), the point \\(i\\), velocity \\(-2\\), acceleration hidden; the learner switches the acceleration on: the vector \\(-4i\\).'),
@@ -196,15 +205,16 @@ const steps: readonly GuidedLessonStep[] = [
         title: text('Zmnožek dveh točk', 'Two points multiplied'),
         purpose: text('Napovedati zmnožek točk \\(e^{i\\theta}\\) in \\(e^{i\\varphi}\\) in uporabiti pravilo pri kotih \\(90^\\circ\\).', 'Predicting the product of the points \\(e^{i\\theta}\\) and \\(e^{i\\varphi}\\) and applying the rule at the angles \\(90^\\circ\\).'),
         explanation: text(
-            'Prikazan je \\(\\theta=30^\\circ\\), točka \\((\\tfrac{\\sqrt3}{2};\\tfrac12)\\); zmnožek je skrit. Ko vklopiš Zmnoži dve točki, se pojavi druga točka \\(e^{i\\varphi}\\) s \\(\\varphi=45^\\circ\\), kot \\(\\varphi\\) pa spreminja drsnik Drugi kot \\(\\varphi\\) (stopinje). Napoved (a): pri katerem kotu leži zmnožek \\(e^{i\\theta}\\cdot e^{i\\varphi}\\) za \\(\\theta=30^\\circ\\) in \\(\\varphi=45^\\circ\\) in kolikšni sta njegovi koordinati (približno)? Napoved (b): kolikšen je zmnožek pri \\(\\theta=90^\\circ\\) in \\(\\varphi=90^\\circ\\)?',
-            'The angle \\(\\theta=30^\\circ\\) and the point \\((\\tfrac{\\sqrt3}{2};\\tfrac12)\\) are shown; the product is hidden. When you switch on Multiply two points, a second point \\(e^{i\\varphi}\\) with \\(\\varphi=45^\\circ\\) appears, and the slider Second angle \\(\\varphi\\) (degrees) changes the angle \\(\\varphi\\). Prediction (a): at which angle does the product \\(e^{i\\theta}\\cdot e^{i\\varphi}\\) lie for \\(\\theta=30^\\circ\\) and \\(\\varphi=45^\\circ\\), and what are its coordinates (approximately)? Prediction (b): what is the product at \\(\\theta=90^\\circ\\) and \\(\\varphi=90^\\circ\\)?',
+            'Prikazan je \\(\\theta=30^\\circ\\), točka \\((\\tfrac{\\sqrt3}{2};\\tfrac12)\\); zmnožek je skrit. Ko vklopiš krmilnik Zmnoži dve točki, se pojavi druga točka \\(e^{i\\varphi}\\) s \\(\\varphi=45^\\circ\\), kot \\(\\varphi\\) pa spreminja krmilnik Drugi kot \\(\\varphi\\). Napoved (a): pri katerem kotu leži zmnožek \\(e^{i\\theta}\\cdot e^{i\\varphi}\\) za \\(\\theta=30^\\circ\\) in \\(\\varphi=45^\\circ\\) in kolikšni sta njegovi koordinati (približno)? Napoved (b): kolikšen je zmnožek pri \\(\\theta=90^\\circ\\) in \\(\\varphi=90^\\circ\\)?',
+            'The angle \\(\\theta=30^\\circ\\) and the point \\((\\tfrac{\\sqrt3}{2};\\tfrac12)\\) are shown; the product is hidden. When you switch on the control Multiply points, a second point \\(e^{i\\varphi}\\) with \\(\\varphi=45^\\circ\\) appears, and the control Second angle \\(\\varphi\\) changes the angle \\(\\varphi\\). Prediction (a): at which angle does the product \\(e^{i\\theta}\\cdot e^{i\\varphi}\\) lie for \\(\\theta=30^\\circ\\) and \\(\\varphi=45^\\circ\\), and what are its coordinates (approximately)? Prediction (b): what is the product at \\(\\theta=90^\\circ\\) and \\(\\varphi=90^\\circ\\)?',
         ),
         formulaIds: [],
-        observationPrompt: text('Zapiši napoved (a), nato vklopi Zmnoži dve točki in preberi vrstici Kota se seštejeta ter Zmnožek. Nato zapiši napoved (b), v vrednostno polje drsnika Kot \\(\\theta\\) (stopinje) vpiši \\(90\\), z drsnikom Drugi kot \\(\\varphi\\) nastavi \\(90\\) in preberi iste vrstice.', 'Write down prediction (a), then switch on Multiply two points and read the rows Angles add and Product. Then write down prediction (b), type \\(90\\) into the value box of the slider Angle \\(\\theta\\) (degrees), set \\(90\\) with the slider Second angle \\(\\varphi\\) and read the same rows.'),
+        observationPrompt: text('Zapiši napoved (a), nato vklopi krmilnik Zmnoži dve točki in preberi vrstici Kota se seštejeta ter Zmnožek. Nato zapiši napoved (b), v krmilnik Kot \\(\\theta\\) vpiši \\(90\\), v krmilniku Drugi kot \\(\\varphi\\) nastavi \\(90\\) in preberi iste vrstice.', 'Write down prediction (a), then switch on the control Multiply points and read the rows Angles add and Product. Then write down prediction (b), type \\(90\\) into the control Angle \\(\\theta\\), set \\(90\\) with the control Second angle \\(\\varphi\\) and read the same rows.'),
         expectedObservations: [text(
             '(a) Kota se seštejeta: \\(30^\\circ+45^\\circ=75^\\circ\\), zmnožek je \\((\\cos75^\\circ;\\sin75^\\circ)\\approx(0{,}258819;\\,0{,}9659258)\\); graf pokaže te vrednosti kot izračunane. (b) Kota \\(90^\\circ+90^\\circ=180^\\circ\\), zmnožek je \\((-1;0)\\), natančno. To je \\(i\\cdot i=-1=e^{i\\pi}\\). Pravilo je dokazano: \\((\\cos a+i\\sin a)(\\cos b+i\\sin b)=(\\cos a\\cos b-\\sin a\\sin b)+i(\\sin a\\cos b+\\cos a\\sin b)=\\cos(a+b)+i\\sin(a+b)\\) po adicijskih izrekih, torej \\(e^{ia}e^{ib}=e^{i(a+b)}\\) za vsaka realna \\(a\\) in \\(b\\); dva primera pravila ne dokažeta, dokaz je ta račun.',
             '(a) The angles add: \\(30^\\circ+45^\\circ=75^\\circ\\), the product is \\((\\cos75^\\circ;\\sin75^\\circ)\\approx(0.258819;\\,0.9659258)\\); the graph shows these values as computed. (b) The angles \\(90^\\circ+90^\\circ=180^\\circ\\), the product is \\((-1;0)\\), exact. This is \\(i\\cdot i=-1=e^{i\\pi}\\). The rule is proved: \\((\\cos a+i\\sin a)(\\cos b+i\\sin b)=(\\cos a\\cos b-\\sin a\\sin b)+i(\\sin a\\cos b+\\cos a\\sin b)=\\cos(a+b)+i\\sin(a+b)\\) by the addition formulas, so \\(e^{ia}e^{ib}=e^{i(a+b)}\\) for all real \\(a\\) and \\(b\\); two examples do not prove the rule, the proof is this computation.',
         )],
+        declare: f({uses: ['product-mode', 'euler-angle']}),
         scene: eulerScene('m7-product-scene', M7_PRODUCT,
             'Kot \\(\\theta=30^\\circ\\), način gibanja, zmnožek skrit; učenec vklopi zmnožek (\\(\\varphi=45^\\circ\\)), nato nastavi \\(\\theta=90^\\circ\\) in \\(\\varphi=90^\\circ\\).',
             'The angle \\(\\theta=30^\\circ\\), motion mode, the product hidden; the learner switches the product on (\\(\\varphi=45^\\circ\\)), then sets \\(\\theta=90^\\circ\\) and \\(\\varphi=90^\\circ\\).'),
@@ -218,11 +228,12 @@ const steps: readonly GuidedLessonStep[] = [
             'The partial sum of degree \\(N\\) is \\(S_N=\\sum_{k=0}^{N}(i\\theta)^k/k!\\). \\(\\theta=180^\\circ\\), that is \\(\\theta=\\pi\\), and \\(N=1\\) are shown, where \\(S_1=1+i\\theta\\); the point \\(e^{i\\theta}\\) is \\(-1\\). Prediction: are the first partial sums already close to the point \\(-1\\), and what is the order of magnitude of the distance of \\(S_5\\) from it (\\(0.01\\), \\(1\\) or \\(100\\)) before you raise \\(N\\)?',
         ),
         formulaIds: ['euler-series'],
-        observationPrompt: text('Zapiši napoved, nato v polju Stopnja vrste \\(N\\) nastavi \\(3\\), \\(5\\), \\(9\\), \\(13\\) in \\(21\\) ter pri vsakem preberi vrstici Delna vsota stopnje \\(N\\) in Razdalja delne vsote od točke.', 'Write down the prediction, then set the field Series degree \\(N\\) to \\(3\\), \\(5\\), \\(9\\), \\(13\\) and \\(21\\) and at each read the rows Partial sum of degree \\(N\\) and Distance of the partial sum from the point.'),
+        observationPrompt: text('Zapiši napoved, nato v krmilniku Stopnja vrste \\(N\\) nastavi \\(3\\), \\(5\\), \\(9\\), \\(13\\) in \\(21\\) ter pri vsakem preberi vrstici Delna vsota stopnje \\(N\\) in Razdalja delne vsote od točke.', 'Write down the prediction, then set the control Series degree \\(N\\) to \\(3\\), \\(5\\), \\(9\\), \\(13\\) and \\(21\\) and at each read the rows Partial sum of degree \\(N\\) and Distance of the partial sum from the point.'),
         expectedObservations: [text(
             'Eulerjeva formula je izrek, ki ga navajamo: vrsta \\(\\sum_{k\\ge0}(i\\theta)^k/k!\\) za realen \\(\\theta\\) konvergira k številu \\(\\cos\\theta+i\\sin\\theta\\); pri \\(\\theta=\\pi\\) je to \\(\\cos\\pi+i\\sin\\pi=-1\\). Delne vsote so približno: \\(S_1=1+\\pi i\\approx1+3{,}1416\\,i\\) (razdalja od točke približno \\(3{,}72\\)), \\(S_3\\approx-3{,}9348-2{,}0261\\,i\\) (\\(3{,}57\\)); \\(S_1\\) in \\(S_3\\) sta zunaj pogleda in ju graf ne nariše, kar pove stavek pod grafom. Nato \\(S_5\\approx0{,}1239+0{,}524\\,i\\) (\\(1{,}24\\)), \\(S_9\\approx-0{,}976+0{,}0069\\,i\\) (\\(0{,}025\\)), \\(S_{13}\\approx-0{,}9999\\) (\\(0{,}000103\\)) in \\(S_{21}\\approx-1\\) (\\(7{,}64\\cdot10^{-11}\\)). Prve delne vsote so daleč, kasnejše se približujejo točki \\(-1\\). Graf vsako vrstico imenuje delna vsota stopnje \\(N\\), ne enakost: končna vsota ni limita, izrek govori o limiti, slika ga ponazarja.',
             'Euler’s formula is a theorem that we cite: for real \\(\\theta\\) the series \\(\\sum_{k\\ge0}(i\\theta)^k/k!\\) converges to the number \\(\\cos\\theta+i\\sin\\theta\\); at \\(\\theta=\\pi\\) this is \\(\\cos\\pi+i\\sin\\pi=-1\\). The partial sums are approximately: \\(S_1=1+\\pi i\\approx1+3.1416\\,i\\) (distance from the point about \\(3.72\\)), \\(S_3\\approx-3.9348-2.0261\\,i\\) (\\(3.57\\)); \\(S_1\\) and \\(S_3\\) are outside the view and the graph does not draw them, which the sentence under the graph says. Then \\(S_5\\approx0.1239+0.524\\,i\\) (\\(1.24\\)), \\(S_9\\approx-0.976+0.0069\\,i\\) (\\(0.025\\)), \\(S_{13}\\approx-0.9999\\) (\\(0.000103\\)) and \\(S_{21}\\approx-1\\) (\\(7.64\\cdot10^{-11}\\)). The first partial sums are far away, the later ones approach the point \\(-1\\). The graph calls each row a partial sum of degree \\(N\\), not an equality: a finite sum is not the limit, the theorem is about the limit and the picture illustrates it.',
         )],
+        declare: f({uses: ['euler-degree'], highlight: ['sum', 'error']}),
         scene: eulerScene('m7-series-scene', M7_SERIES,
             'Kot \\(\\theta=180^\\circ\\), točka \\(-1\\), \\(N=1\\): \\(S_1=1+\\pi i\\approx1+3{,}1416\\,i\\) zunaj pogleda; učenec dvigne \\(N\\) na \\(3\\), \\(5\\), \\(9\\), \\(13\\) in \\(21\\).',
             'The angle \\(\\theta=180^\\circ\\), the point \\(-1\\), \\(N=1\\): \\(S_1=1+\\pi i\\approx1+3.1416\\,i\\) outside the view; the learner raises \\(N\\) to \\(3\\), \\(5\\), \\(9\\), \\(13\\) and \\(21\\).'),

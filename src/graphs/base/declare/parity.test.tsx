@@ -821,6 +821,22 @@ const SAMPLES: readonly Sample[] = [
             {name: 'r = 4, last step', apply: run({R: 400, X: 99, step: 60})},
         ] satisfies ParityState[];
     })()},
+    {file: 'complex/__parity__/complex-euler.json', demonstration: 'complex-euler', states: (() => {
+        type Euler = {setState(state: Record<string, unknown>): void};
+        const fresh = {degrees: 30, omega: 2, degree: 5, velocity: true, acceleration: false, mode: 'motion', b: 45};
+        // every state starts from the default state, so a state does not inherit the previous one
+        const run = (state: Record<string, unknown>): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as Euler).setState({...fresh, ...state})); };
+        return [
+            {name: 'default, 30 degrees', apply: run({})},
+            {name: '45 degrees, omega 1, velocity off', apply: run({degrees: 45, omega: 1, velocity: false})},
+            {name: '100 degrees, computed, omega 3, N 9', apply: run({degrees: 100, omega: 3, degree: 9})},
+            {name: 'velocity and acceleration, 90 degrees', apply: run({degrees: 90, acceleration: true})},
+            {name: 'partial sum out of view, 180 degrees, N 1', apply: run({degrees: 180, degree: 1, velocity: false})},
+            {name: 'product, 30 and 45 degrees', apply: run({mode: 'product'})},
+            {name: 'product reduced, 250 and 200 degrees, acceleration', apply: run({mode: 'product', degrees: 250, b: 200, acceleration: true, omega: 4})},
+            {name: 'full turn, N 30', apply: run({degrees: 360, degree: 30, omega: 1})},
+        ] satisfies ParityState[];
+    })()},
 ];
 
 const root = path.resolve(__dirname, '../..');

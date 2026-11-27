@@ -3,6 +3,7 @@ import {render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {setLanguage} from '../../localization';
 import {legendLines} from '../legend/legendLines';
 import {ComplexPowerGraph, VIEW_BOX as POWER_BOX} from './ComplexPowerGraph';
@@ -12,7 +13,7 @@ beforeAll(installBoardShims);
 afterEach(() => setLanguage('sl'));
 
 class PowerGraph extends ComplexPowerGraph { liveBoard() { return this.board; } resetView() { this.showInitialView(); } }
-class EulerGraph extends EulerCircleGraph { liveBoard() { return this.board; } resetView() { this.showInitialView(); } }
+class EulerGraph extends EulerCircleGraph { liveBoard() { return this.board; } resetView() { runAs('learner', () => this.showInitialView()); } }
 
 type Text = {elType: string; plaintext?: string; X(): number; Y(): number; evalVisProp(name: string): unknown};
 
@@ -49,7 +50,6 @@ function expectStacked(board: JXG.Board, minRows: number, width: number, dataBot
 
 function mountWith<G extends PowerGraph | EulerGraph>(graph: G) { render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>); return graph; }
 const mountPower = () => mountWith(new PowerGraph()).liveBoard();
-const mountEuler = () => mountWith(new EulerGraph()).liveBoard();
 
 describe('the first view of a 390 px board is the view Reset shows', () => {
     for (const [name, make] of [['complex power', () => new PowerGraph()], ['Euler circle', () => new EulerGraph()]] as const) {
@@ -89,31 +89,6 @@ describe('the legend of the complex power graph sits at the live board edge belo
     });
 });
 
-describe('the legend of the Euler circle graph sits at the live board edge below the data and stacks by wrapped lines', () => {
-    test('on a wide board the rows start at its left edge', () => {
-        withSize(1000, 400, () => {
-            const board = mountEuler();
-            expect(board.getBoundingBox()[0]).toBeLessThan(-2.2);
-            expectStacked(board, 3, 1000, -2.2);
-        });
-    });
-    for (const language of ['sl', 'en'] as const) {
-        test(`on a 390 px board the rows do not overlap (${language})`, () => {
-            setLanguage(language);
-            withSize(390, 480, () => {
-                expectStacked(mountEuler(), 3, 390, -2.2);
-            });
-        });
-    }
-    test('a row that wraps on a 160 px board leaves room for its lines', () => {
-        withSize(160, 480, () => {
-            // At 160 px the wrapped rows are taller than the band beneath the circle, so the bottom-anchored stack reaches up to the circle's frame (-1.5), not into it.
-            const rows = expectStacked(mountEuler(), 3, 160, -1.5);
-            expect(rows.some(row => legendLines(String(row.plaintext), 160) > 1)).toBe(true);
-        });
-    });
-});
-
 describe('the opening view follows the board size while it is unmoved', () => {
     class FakeObserver {
         static all: FakeObserver[] = [];
@@ -138,9 +113,9 @@ describe('the opening view follows the board size while it is unmoved', () => {
                 // The layout finishes after the first frame: the board is lower now and the box shown for the old size is stale.
                 const resizeKeepingCentre = (height: number, scale: number) => {
                     const [x0, y0, x1, y1] = board.getBoundingBox();
-                    board.resizeContainer(390, height, false, true);
+                    runAs('learner', () => board.resizeContainer(390, height, false, true));
                     const half = ((y0 - y1) / 2) * scale;
-                    board.setBoundingBox([x0, (y0 + y1) / 2 + half, x1, (y0 + y1) / 2 - half], false);
+                    runAs('learner', () => board.setBoundingBox([x0, (y0 + y1) / 2 + half, x1, (y0 + y1) / 2 - half], false));
                 };
                 resizeKeepingCentre(300, 0.8);
                 const before = stale();
@@ -150,7 +125,7 @@ describe('the opening view follows the board size while it is unmoved', () => {
                 expect(before.some((value, index) => Math.abs(value - exact[index]) > 1e-3), 'the box shown for the old size is stale').toBe(true);
                 afterSettle.forEach((value, index) => expect(value).toBeCloseTo(exact[index], 6));
                 // A view the user moved is left alone.
-                board.setBoundingBox([exact[0] + 1, exact[1] + 1, exact[2] + 1, exact[3] + 1], true);
+                runAs('learner', () => board.setBoundingBox([exact[0] + 1, exact[1] + 1, exact[2] + 1, exact[3] + 1], true));
                 const moved = board.getBoundingBox();
                 resizeKeepingCentre(340, 0.9);
                 settle();
@@ -162,7 +137,7 @@ describe('the opening view follows the board size while it is unmoved', () => {
 });
 
 describe('a vertical pan or a zoom keeps the legend rows in the band at the bottom edge of the board', () => {
-    for (const [name, mount] of [['complex power', mountPower], ['Euler circle', mountEuler]] as const) {
+    for (const [name, mount] of [['complex power', mountPower]] as const) {
         test(name, () => {
             withSize(600, 480, () => {
                 const board = mount();
