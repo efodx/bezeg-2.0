@@ -48,6 +48,9 @@ class Graph extends BaseSplineCurveGraph<BaseGraphStates> {
         }
     }
 
+    /** Task 08: the third converted spline graph (legend, control polygon and hull pucks, view marks, followView). */
+    protected override declaresSplineWorkspace(): boolean { return true; }
+
     protected override workspaceConstructionFirst() { return true; }
 
     override getGraphCommands(): JSX.Element[] {

@@ -110,7 +110,7 @@ const splineCn: GuidedLesson = {
             ),
             formulaIds: ['cn-continuity'],
             frames: [frame('cn-pieces-explanation', 'explanation'), frame('cn-pieces-observation', 'observation')],
-            observationPrompt: text('Poišči stično točko obeh odsekov in izpeljano točko; s stikalom Skrij fiksne točke izpeljano točko skrij in spet pokaži.', 'Find the joint of the two pieces and the derived point; hide and show the derived point with the Hide fixed points switch.'),
+            observationPrompt: text('Poišči stično točko obeh odsekov in izpeljano točko, nato jo skrij in spet pokaži: v kartici Orodja vklopi in izklopi Skrij fiksne točke.', 'Find the joint of the two pieces and the derived point, then hide and show the derived point: in the Tools card switch Hide fixed points on and off.'),
             expectedObservations: [text('Zlepek ima \\(2\\) odseka, eno stično točko \\((0;\\ -3)\\), eno izpeljano točko \\((2;\\ -4)\\) in \\(4\\) proste točke.', 'The spline has \\(2\\) pieces, one joint \\((0,\\ -3)\\), one derived point \\((2,\\ -4)\\) and \\(4\\) free points.')],
             scene: {
                 id: 'cn-two-pieces-labelled', basedOn: 'lesson-fixture',
@@ -129,9 +129,9 @@ const splineCn: GuidedLesson = {
                 'Algorithm 3 (section 4.2.1) extrapolates a piece to the parameter \\(t_0=\\tfrac{\\Delta u_j+\\Delta u_{j+1}}{\\Delta u_j}\\) and takes the first \\(r+1\\) points of the next piece from the de Casteljau scheme. With uniform spacing and \\(r=1\\) the second point of the next piece is \\(q_1=2p_2-p_1\\): it lies on the extension of the last edge of the previous piece, beyond the joint, at the same distance. Here \\(q_1=2(0,\\ -3)-(-2,\\ -2)=(2,\\ -4)\\).',
             ),
             formulaIds: ['cn-extrapolation'],
-            frames: [frame('cn-extrapolate-explanation', 'explanation'), frame('cn-extrapolate-calculation', 'calculation'), frame('cn-extrapolate-observation', 'observation')],
+            frames: [frame('cn-extrapolate-explanation', 'explanation'), frame('cn-extrapolate-calculation', 'calculation'), frame('cn-extrapolate-observation', 'observation', splineFrame({uses: ['control-polygon-0']}))],
             workedExampleId: 'cn-first-junction',
-            observationPrompt: text('Preveri s kontrolnim poligonom, da so \\(p_1\\), stična točka \\(p_2\\) in izpeljana točka na isti premici.', 'Use the control polygon to check that \\(p_1\\), the joint \\(p_2\\) and the derived point lie on one line.'),
+            observationPrompt: text('S krmilnikom Kontrolni poligon prikaži poligon in preveri, da so \\(p_1\\), stična točka \\(p_2\\) in izpeljana točka na isti premici.', 'With the Control polygon control show the polygon and check that \\(p_1\\), the joint \\(p_2\\) and the derived point lie on one line.'),
             expectedObservations: [text('Stična točka \\(p_2=(0;\\ -3)\\) je na sredini med \\(p_1=(-2;\\ -2)\\) in izpeljano točko \\(q_1=(2;\\ -4)\\); kontrolni poligon gre skozi stik naravnost.', 'The joint \\(p_2=(0,\\ -3)\\) is the midpoint between \\(p_1=(-2,\\ -2)\\) and the derived point \\(q_1=(2,\\ -4)\\); the control polygon passes straight through the joint.')],
             scene: {
                 id: 'cn-extrapolation-polygon', basedOn: 'lesson-fixture',

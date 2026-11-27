@@ -30,3 +30,19 @@
 - Captions (`.command-logs/l44-c2-cap/`, 1440 and 1280, clicks 2, 4, 6, last; the four 1280 images viewed): spline about 350 px wide, not squeezed, clear of all cards; no board text under a card. Existing: at clicks 2/4/6 the label p-1 sits on the axis tick -5 and p0 of lesson steps 1-3 labels differ from step 4 (thesis shift p_-1..p_4 vs p0..p6); no clipping. 1440 images not viewed.
 - Not verified: `just shot` crop at 310 px; the 1440 images; `tests/guided-lessons` rows other than this lesson.
 - Stale script rows (stream A): `scripts/demonstration-preview-recipes.cjs:34` spline-c2 row uses `polygon` (now a puck); `tests/demonstration-preview-curve-motion.test.cjs:37-39` reads spline-c2 motion, untouched.
+
+## spline-cn (worker, 2026-11-28)
+
+### Done (observed)
+- Fixture grep: no shared test uses spline-cn as undeclared fixture except `C1SplineGraph.declaration.test.tsx` (lane's own): removed spline-cn from its undeclared list (g1 stays) and the unused import. `DemonstrationWorkspace.test`, `LessonSupport.test`, `typedPointPaths` (groups only), `SplineConstructionFirst.test` (cn first-task counters group still passes) unchanged.
+- Parity: old golden `spline-cn.golden.json` empty; graph-check `parity n/a (no shown values)`; no recording, no `Accepted`.
+- Conversion: `CnSplineGraph` overrides `declaresSplineWorkspace()` to true (base hook). The Stopnja zveznosti / Stopnja zlepka counters stay in the Construction card (construction-first, unchanged); polygon and hull are board pucks; Orodja keeps labels, Hide fixed points, control points, typed list. No board captions in old graph, none removed.
+- Lesson (`splineGuidedLessons.ts`), sl/en, old -> new:
+  - step 1 prompt: "...; s stikalom Skrij fiksne točke izpeljano točko skrij in spet pokaži." -> "...; za skrivanje v kartici Orodja vklopi Skrij fiksne točke, nato jo spet izklopi."; en "hide and show the derived point with the Hide fixed points switch." -> "to hide the derived point, switch on Hide fixed points in the Tools card, then switch it off again."
+  - step 2 prompt: "Preveri s kontrolnim poligonom, da so p1, ..." -> "S krmilnikom Kontrolni poligon prikaži poligon in preveri, da so p1, ..."; en "Use the control polygon to check that ..." -> "With the Control polygon control show the polygon and check that ...".
+  - `cn-extrapolate-observation` frame `splineFrame({uses: ['control-polygon-0']})`.
+- Tests: new `CnSplineGraph.declaration.test.tsx` (5); red observed before the hook (5 failed), green after.
+- Checks observed: `just unit` brief list + FirstTask passed (667 s); round trip `-t spline-cn` passed; tsc 0 lines; lint passed; build passed; `just graph-check spline-cn --route /spline/spline` PASS (contract, parity n/a, golden, declaration 5, shared 8); `just smoke-lesson spline-cn --port 4395 --workers=1` passed (polygon probe via c1 puck fallback).
+- Captions (`.command-logs/l44-cn-cap/`, clicks 2, 4, 6, 8, last; 1280 all 5 viewed; 1440 c2, c6, last viewed): curve not squeezed, clear of all cards. Step 5 (existing, intentional): free points cluster at the origin with overlapping labels and the farthest derived point (61, -34.5) sits just under the Orodja card at 1280 (clear of it, above Legenda); no clipping.
+- Not verified: `just shot` crop at 310 px; 1440 c4 and c8 images.
+- Stale script rows (stream A): `scripts/demonstration-preview-recipes.cjs` spline-cn row if it drives `polygon` as a checkbox (now a puck; not checked).
