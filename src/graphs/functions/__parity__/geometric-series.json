@@ -1,0 +1,627 @@
+{
+  "graph": "geometric-series",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Prikazani členi n (največ 50)#0",
+          "label": "Prikazani členi n (največ 50)",
+          "value": "1"
+        },
+        {
+          "key": "Zadnji člen a·qⁿ⁻¹#0",
+          "label": "Zadnji člen a·qⁿ⁻¹",
+          "value": "1"
+        },
+        {
+          "key": "Delna vsota Sₙ#0",
+          "label": "Delna vsota Sₙ",
+          "value": "1"
+        },
+        {
+          "key": "Limita a/(1 - q)#0",
+          "label": "Limita a/(1 - q)",
+          "value": "2"
+        },
+        {
+          "key": "Napaka |L - Sₙ|#0",
+          "label": "Napaka |L - Sₙ|",
+          "value": "1"
+        },
+        {
+          "key": "Prvi n z napako pod odstopanjem#0",
+          "label": "Prvi n z napako pod odstopanjem",
+          "value": "—"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "konvergentna (|q| < 1)"
+        }
+      ],
+      "notes": [
+        "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "Sₙ = a(1 - qⁿ)/(1 - q)",
+        "a = 1, q = 0,5, n = 1",
+        "delna vsota Sₙ = 1",
+        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
+        "limita a/(1 - q) = 2",
+        "napaka |L - Sₙ| = 1"
+      ]
+    },
+    {
+      "name": "default, 5 terms",
+      "rows": [
+        {
+          "key": "Prikazani členi n (največ 50)#0",
+          "label": "Prikazani členi n (največ 50)",
+          "value": "5"
+        },
+        {
+          "key": "Zadnji člen a·qⁿ⁻¹#0",
+          "label": "Zadnji člen a·qⁿ⁻¹",
+          "value": "0,0625"
+        },
+        {
+          "key": "Delna vsota Sₙ#0",
+          "label": "Delna vsota Sₙ",
+          "value": "1,9375"
+        },
+        {
+          "key": "Limita a/(1 - q)#0",
+          "label": "Limita a/(1 - q)",
+          "value": "2"
+        },
+        {
+          "key": "Napaka |L - Sₙ|#0",
+          "label": "Napaka |L - Sₙ|",
+          "value": "0,0625"
+        },
+        {
+          "key": "Prvi n z napako pod odstopanjem#0",
+          "label": "Prvi n z napako pod odstopanjem",
+          "value": "—"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "konvergentna (|q| < 1)"
+        }
+      ],
+      "notes": [
+        "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "Sₙ = a(1 - qⁿ)/(1 - q)",
+        "a = 1, q = 0,5, n = 5",
+        "delna vsota Sₙ = 1,9375",
+        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
+        "limita a/(1 - q) = 2",
+        "napaka |L - Sₙ| = 0,0625"
+      ]
+    },
+    {
+      "name": "default, 8 terms, band 0.01",
+      "rows": [
+        {
+          "key": "Prikazani členi n (največ 50)#0",
+          "label": "Prikazani členi n (največ 50)",
+          "value": "8"
+        },
+        {
+          "key": "Zadnji člen a·qⁿ⁻¹#0",
+          "label": "Zadnji člen a·qⁿ⁻¹",
+          "value": "0,0078"
+        },
+        {
+          "key": "Delna vsota Sₙ#0",
+          "label": "Delna vsota Sₙ",
+          "value": "1,9922"
+        },
+        {
+          "key": "Limita a/(1 - q)#0",
+          "label": "Limita a/(1 - q)",
+          "value": "2"
+        },
+        {
+          "key": "Napaka |L - Sₙ|#0",
+          "label": "Napaka |L - Sₙ|",
+          "value": "0,0078"
+        },
+        {
+          "key": "Prvi n z napako pod odstopanjem#0",
+          "label": "Prvi n z napako pod odstopanjem",
+          "value": "8"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "konvergentna (|q| < 1)"
+        }
+      ],
+      "notes": [
+        "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "Sₙ = a(1 - qⁿ)/(1 - q)",
+        "a = 1, q = 0,5, n = 8",
+        "delna vsota Sₙ = 1,9922",
+        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
+        "limita a/(1 - q) = 2",
+        "napaka |L - Sₙ| = 0,0078"
+      ]
+    },
+    {
+      "name": "default, 3 terms, band 0.5 (none within terms)",
+      "rows": [
+        {
+          "key": "Prikazani členi n (največ 50)#0",
+          "label": "Prikazani členi n (največ 50)",
+          "value": "3"
+        },
+        {
+          "key": "Zadnji člen a·qⁿ⁻¹#0",
+          "label": "Zadnji člen a·qⁿ⁻¹",
+          "value": "0,25"
+        },
+        {
+          "key": "Delna vsota Sₙ#0",
+          "label": "Delna vsota Sₙ",
+          "value": "1,75"
+        },
+        {
+          "key": "Limita a/(1 - q)#0",
+          "label": "Limita a/(1 - q)",
+          "value": "2"
+        },
+        {
+          "key": "Napaka |L - Sₙ|#0",
+          "label": "Napaka |L - Sₙ|",
+          "value": "0,25"
+        },
+        {
+          "key": "Prvi n z napako pod odstopanjem#0",
+          "label": "Prvi n z napako pod odstopanjem",
+          "value": "3"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "konvergentna (|q| < 1)"
+        }
+      ],
+      "notes": [
+        "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "Sₙ = a(1 - qⁿ)/(1 - q)",
+        "a = 1, q = 0,5, n = 3",
+        "delna vsota Sₙ = 1,75",
+        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
+        "limita a/(1 - q) = 2",
+        "napaka |L - Sₙ| = 0,25"
+      ]
+    },
+    {
+      "name": "alternating, 4 terms",
+      "rows": [
+        {
+          "key": "Prikazani členi n (največ 50)#0",
+          "label": "Prikazani členi n (največ 50)",
+          "value": "4"
+        },
+        {
+          "key": "Zadnji člen a·qⁿ⁻¹#0",
+          "label": "Zadnji člen a·qⁿ⁻¹",
+          "value": "-0,125"
+        },
+        {
+          "key": "Delna vsota Sₙ#0",
+          "label": "Delna vsota Sₙ",
+          "value": "0,625"
+        },
+        {
+          "key": "Limita a/(1 - q)#0",
+          "label": "Limita a/(1 - q)",
+          "value": "0,6667"
+        },
+        {
+          "key": "Napaka |L - Sₙ|#0",
+          "label": "Napaka |L - Sₙ|",
+          "value": "0,0417"
+        },
+        {
+          "key": "Prvi n z napako pod odstopanjem#0",
+          "label": "Prvi n z napako pod odstopanjem",
+          "value": "—"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "konvergentna (|q| < 1)"
+        }
+      ],
+      "notes": [
+        "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "Sₙ = a(1 - qⁿ)/(1 - q)",
+        "a = 1, q = -0,5, n = 4",
+        "delna vsota Sₙ = 0,625",
+        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
+        "limita a/(1 - q) = 0,6667",
+        "napaka |L - Sₙ| = 0,0417"
+      ]
+    },
+    {
+      "name": "divergent q = -1, 6 terms",
+      "rows": [
+        {
+          "key": "Prikazani členi n (največ 50)#0",
+          "label": "Prikazani členi n (največ 50)",
+          "value": "6"
+        },
+        {
+          "key": "Zadnji člen a·qⁿ⁻¹#0",
+          "label": "Zadnji člen a·qⁿ⁻¹",
+          "value": "-1"
+        },
+        {
+          "key": "Delna vsota Sₙ#0",
+          "label": "Delna vsota Sₙ",
+          "value": "0"
+        },
+        {
+          "key": "Limita a/(1 - q)#0",
+          "label": "Limita a/(1 - q)",
+          "value": "limite ni"
+        },
+        {
+          "key": "Napaka |L - Sₙ|#0",
+          "label": "Napaka |L - Sₙ|",
+          "value": "—"
+        },
+        {
+          "key": "Prvi n z napako pod odstopanjem#0",
+          "label": "Prvi n z napako pod odstopanjem",
+          "value": "—"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "niha (q = -1)"
+        }
+      ],
+      "notes": [
+        "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "Sₙ = a(1 - qⁿ)/(1 - q)",
+        "a = 1, q = -1, n = 6",
+        "delna vsota Sₙ = 0",
+        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
+        "limite ni: |q| ≥ 1"
+      ]
+    },
+    {
+      "name": "repeating three, 4 terms",
+      "rows": [
+        {
+          "key": "Prikazani členi n (največ 50)#0",
+          "label": "Prikazani členi n (največ 50)",
+          "value": "4"
+        },
+        {
+          "key": "Zadnji člen a·qⁿ⁻¹#0",
+          "label": "Zadnji člen a·qⁿ⁻¹",
+          "value": "0,0003"
+        },
+        {
+          "key": "Delna vsota Sₙ#0",
+          "label": "Delna vsota Sₙ",
+          "value": "0,3333"
+        },
+        {
+          "key": "Limita a/(1 - q)#0",
+          "label": "Limita a/(1 - q)",
+          "value": "0,3333"
+        },
+        {
+          "key": "Napaka |L - Sₙ|#0",
+          "label": "Napaka |L - Sₙ|",
+          "value": "0"
+        },
+        {
+          "key": "Prvi n z napako pod odstopanjem#0",
+          "label": "Prvi n z napako pod odstopanjem",
+          "value": "—"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "konvergentna (|q| < 1)"
+        }
+      ],
+      "notes": [
+        "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "Sₙ = a(1 - qⁿ)/(1 - q)",
+        "a = 0,3, q = 0,1, n = 4",
+        "delna vsota Sₙ = 0,3333",
+        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
+        "limita a/(1 - q) = 0,3333",
+        "napaka |L - Sₙ| = 0"
+      ]
+    },
+    {
+      "name": "q 1.5 (divergent), 6 terms",
+      "rows": [
+        {
+          "key": "Prikazani členi n (največ 50)#0",
+          "label": "Prikazani členi n (največ 50)",
+          "value": "6"
+        },
+        {
+          "key": "Zadnji člen a·qⁿ⁻¹#0",
+          "label": "Zadnji člen a·qⁿ⁻¹",
+          "value": "7,5938"
+        },
+        {
+          "key": "Delna vsota Sₙ#0",
+          "label": "Delna vsota Sₙ",
+          "value": "20,7813"
+        },
+        {
+          "key": "Limita a/(1 - q)#0",
+          "label": "Limita a/(1 - q)",
+          "value": "limite ni"
+        },
+        {
+          "key": "Napaka |L - Sₙ|#0",
+          "label": "Napaka |L - Sₙ|",
+          "value": "—"
+        },
+        {
+          "key": "Prvi n z napako pod odstopanjem#0",
+          "label": "Prvi n z napako pod odstopanjem",
+          "value": "—"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "divergentna (|q| ≥ 1)"
+        }
+      ],
+      "notes": [
+        "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "Sₙ = a(1 - qⁿ)/(1 - q)",
+        "a = 1, q = 1,5, n = 6",
+        "delna vsota Sₙ = 20,7813",
+        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
+        "limite ni: |q| ≥ 1"
+      ]
+    },
+    {
+      "name": "q 1, constant, 5 terms",
+      "rows": [
+        {
+          "key": "Prikazani členi n (največ 50)#0",
+          "label": "Prikazani členi n (največ 50)",
+          "value": "5"
+        },
+        {
+          "key": "Zadnji člen a·qⁿ⁻¹#0",
+          "label": "Zadnji člen a·qⁿ⁻¹",
+          "value": "1"
+        },
+        {
+          "key": "Delna vsota Sₙ#0",
+          "label": "Delna vsota Sₙ",
+          "value": "5"
+        },
+        {
+          "key": "Limita a/(1 - q)#0",
+          "label": "Limita a/(1 - q)",
+          "value": "limite ni"
+        },
+        {
+          "key": "Napaka |L - Sₙ|#0",
+          "label": "Napaka |L - Sₙ|",
+          "value": "—"
+        },
+        {
+          "key": "Prvi n z napako pod odstopanjem#0",
+          "label": "Prvi n z napako pod odstopanjem",
+          "value": "—"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "divergentna (|q| ≥ 1)"
+        }
+      ],
+      "notes": [
+        "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "Sₙ = a(1 - qⁿ)/(1 - q)",
+        "a = 1, q = 1, n = 5",
+        "delna vsota Sₙ = 5",
+        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
+        "limite ni: |q| ≥ 1"
+      ]
+    },
+    {
+      "name": "a 2.5, q 0.8, 12 terms, band 0.2",
+      "rows": [
+        {
+          "key": "Prikazani členi n (največ 50)#0",
+          "label": "Prikazani členi n (največ 50)",
+          "value": "12"
+        },
+        {
+          "key": "Zadnji člen a·qⁿ⁻¹#0",
+          "label": "Zadnji člen a·qⁿ⁻¹",
+          "value": "0,2147"
+        },
+        {
+          "key": "Delna vsota Sₙ#0",
+          "label": "Delna vsota Sₙ",
+          "value": "11,641"
+        },
+        {
+          "key": "Limita a/(1 - q)#0",
+          "label": "Limita a/(1 - q)",
+          "value": "12,5"
+        },
+        {
+          "key": "Napaka |L - Sₙ|#0",
+          "label": "Napaka |L - Sₙ|",
+          "value": "0,859"
+        },
+        {
+          "key": "Prvi n z napako pod odstopanjem#0",
+          "label": "Prvi n z napako pod odstopanjem",
+          "value": "19"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "konvergentna (|q| < 1)"
+        }
+      ],
+      "notes": [
+        "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "Sₙ = a(1 - qⁿ)/(1 - q)",
+        "a = 2,5, q = 0,8, n = 12",
+        "delna vsota Sₙ = 11,641",
+        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
+        "limita a/(1 - q) = 12,5",
+        "napaka |L - Sₙ| = 0,859"
+      ]
+    },
+    {
+      "name": "all 50 terms, complete",
+      "rows": [
+        {
+          "key": "Prikazani členi n (največ 50)#0",
+          "label": "Prikazani členi n (največ 50)",
+          "value": "50"
+        },
+        {
+          "key": "Zadnji člen a·qⁿ⁻¹#0",
+          "label": "Zadnji člen a·qⁿ⁻¹",
+          "value": "0"
+        },
+        {
+          "key": "Delna vsota Sₙ#0",
+          "label": "Delna vsota Sₙ",
+          "value": "2"
+        },
+        {
+          "key": "Limita a/(1 - q)#0",
+          "label": "Limita a/(1 - q)",
+          "value": "2"
+        },
+        {
+          "key": "Napaka |L - Sₙ|#0",
+          "label": "Napaka |L - Sₙ|",
+          "value": "0"
+        },
+        {
+          "key": "Prvi n z napako pod odstopanjem#0",
+          "label": "Prvi n z napako pod odstopanjem",
+          "value": "—"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "konvergentna (|q| < 1)"
+        }
+      ],
+      "notes": [
+        "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "Sₙ = a(1 - qⁿ)/(1 - q)",
+        "a = 1, q = 0,5, n = 50",
+        "delna vsota Sₙ = 2",
+        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
+        "limita a/(1 - q) = 2",
+        "napaka |L - Sₙ| = 0"
+      ]
+    },
+    {
+      "name": "default, 3 steps next",
+      "rows": [
+        {
+          "key": "Prikazani členi n (največ 50)#0",
+          "label": "Prikazani členi n (največ 50)",
+          "value": "4"
+        },
+        {
+          "key": "Zadnji člen a·qⁿ⁻¹#0",
+          "label": "Zadnji člen a·qⁿ⁻¹",
+          "value": "0,125"
+        },
+        {
+          "key": "Delna vsota Sₙ#0",
+          "label": "Delna vsota Sₙ",
+          "value": "1,875"
+        },
+        {
+          "key": "Limita a/(1 - q)#0",
+          "label": "Limita a/(1 - q)",
+          "value": "2"
+        },
+        {
+          "key": "Napaka |L - Sₙ|#0",
+          "label": "Napaka |L - Sₙ|",
+          "value": "0,125"
+        },
+        {
+          "key": "Prvi n z napako pod odstopanjem#0",
+          "label": "Prvi n z napako pod odstopanjem",
+          "value": "—"
+        },
+        {
+          "key": "Obnašanje#0",
+          "label": "Obnašanje",
+          "value": "konvergentna (|q| < 1)"
+        }
+      ],
+      "notes": [
+        "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
+      ],
+      "outputs": [],
+      "captions": [
+        "Sₙ = a(1 - qⁿ)/(1 - q)",
+        "a = 1, q = 0,5, n = 4",
+        "delna vsota Sₙ = 1,875",
+        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
+        "limita a/(1 - q) = 2",
+        "napaka |L - Sₙ| = 0,125"
+      ]
+    }
+  ]
+}

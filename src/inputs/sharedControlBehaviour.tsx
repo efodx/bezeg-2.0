@@ -27,6 +27,7 @@ import {act, fireEvent} from '@testing-library/react';
 import {formatNumber} from '../analysis/format';
 import {Language, setLanguage, t} from '../localization';
 import {enterNumber} from './testEntry';
+import {runAs} from '../graphs/base/writes/writeSource';
 
 /** Handle on the control. */
 interface Handle {
@@ -162,7 +163,7 @@ function typedFieldCases(spec: NumericSpec | SliderSpec) {
         typeDraft(handle.field, text(start));
         await flush();
         near(handle.read(), spec.valid);
-        fireEvent.blur(handle.field);
+        runAs('learner', () => fireEvent.blur(handle.field)); // a real blur follows a pointer or key, which the app tags as the learner
         await flush();
         near(handle.read(), start);
     });

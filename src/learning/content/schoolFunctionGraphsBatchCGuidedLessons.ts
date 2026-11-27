@@ -10,9 +10,11 @@ import type {LessonAction} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {ConicIds} from '../../graphs/functions/ConicFocalGraph';
+import type {SeriesIds} from '../../graphs/functions/GeometricSeriesGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const conicFrame = frameDeclarer<ConicIds>();
+const seriesFrame = frameDeclarer<SeriesIds>();
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 
 interface StepContent {
@@ -129,6 +131,7 @@ const seriesLesson: GuidedLesson = {
             formulaIds: ['series-partial-sum'],
             observationPrompt: text('Primerjaj višino ozkega in debelega stolpca pri \\(k=3\\): kolikšen del delne vsote \\(S_3\\) prispeva tretji člen?', 'Compare the heights of the thin and the thick bar at \\(k=3\\): how much of the partial sum \\(S_3\\) does the third term contribute?'),
             expectedObservations: [text('Tretji člen je \\(0{,}25\\), delna vsota \\(S_3=1{,}75\\) je višja od vsakega člena, stolpci delnih vsot pa rastejo.', 'The third term is \\(0.25\\), the partial sum \\(S_3=1.75\\) is higher than every term, and the bars of the partial sums grow.')],
+            declare: {explanation: seriesFrame({open: ['readouts'], highlight: ['terms', 'last-term', 'sum']}), observation: seriesFrame({open: ['readouts'], highlight: ['last-term', 'sum']})},
             scene: seriesScene('series-bars-default', 'default', 3, 0,
                 'Vrsta \\(a=1\\), \\(q=\\tfrac12\\) s tremi prikazanimi členi: \\(S_3=1{,}75\\); limita \\(2\\) je označena.',
                 'The series \\(a=1\\), \\(q=\\tfrac12\\) with three shown terms: \\(S_3=1.75\\); the limit \\(2\\) is marked.'),
@@ -144,6 +147,7 @@ const seriesLesson: GuidedLesson = {
             formulaIds: ['series-partial-sum'],
             observationPrompt: text('Napiši svojo napoved za \\(S_5\\), pritisni Naslednji korak in jo primerjaj.', 'Write down your prediction for \\(S_5\\), press Next step and compare.'),
             expectedObservations: [text('Peti člen je \\(\\tfrac1{16}=0{,}0625\\) in \\(S_5=1{,}9375\\); vsota se je približala črti pri \\(2\\).', 'The fifth term is \\(\\tfrac1{16}=0.0625\\) and \\(S_5=1.9375\\); the sum moved closer to the line at \\(2\\).')],
+            declare: {explanation: seriesFrame({open: ['readouts'], highlight: ['sum', 'last-term']}), observation: seriesFrame({open: ['readouts'], highlight: ['sum'], uses: ['next-step']})},
             scene: seriesScene('series-predict-next', 'default', 4, 0,
                 'Vrsta \\(a=1\\), \\(q=\\tfrac12\\) s štirimi prikazanimi členi: \\(S_4=1{,}875\\); peti člen še ni prikazan.',
                 'The series \\(a=1\\), \\(q=\\tfrac12\\) with four shown terms: \\(S_4=1.875\\); the fifth term is not shown yet.'),
@@ -159,6 +163,7 @@ const seriesLesson: GuidedLesson = {
             formulaIds: ['series-partial-sum'],
             observationPrompt: text('Pritiskaj Naslednji korak in opazuj, kako se višina novega debelega stolpca razlikuje od prejšnjega.', 'Keep pressing Next step and watch how the height of each new thick bar differs from the previous one.'),
             expectedObservations: [text('Vsak novi debeli stolpec je višji za vrednost novega člena, ta pa se z vsakim korakom razpolovi: \\(S_5=1{,}9375\\).', 'Each new thick bar is higher by the value of the new term, which halves at every step: \\(S_5=1.9375\\).')],
+            declare: {explanation: seriesFrame({open: ['readouts'], highlight: ['sum', 'last-term']}), observation: seriesFrame({open: ['readouts'], highlight: ['sum', 'last-term'], uses: ['next-step']})},
             scene: seriesScene('series-reveal-five', 'default', 5, 0,
                 'Vrsta \\(a=1\\), \\(q=\\tfrac12\\) s petimi prikazanimi členi: peti člen \\(0{,}0625\\) in \\(S_5=1{,}9375\\).',
                 'The series \\(a=1\\), \\(q=\\tfrac12\\) with five shown terms: the fifth term \\(0.0625\\) and \\(S_5=1.9375\\).'),
@@ -174,6 +179,7 @@ const seriesLesson: GuidedLesson = {
             formulaIds: ['series-limit'],
             observationPrompt: text('Preberi napako \\(2-S_5\\) in jo primerjaj z napako pri \\(S_4=1{,}875\\).', 'Read the error \\(2-S_5\\) and compare it with the error at \\(S_4=1.875\\).'),
             expectedObservations: [text('Napaka pri \\(S_4\\) je \\(0{,}125\\), pri \\(S_5\\) pa \\(0{,}0625\\), torej natanko polovica.', 'The error at \\(S_4\\) is \\(0.125\\) and at \\(S_5\\) it is \\(0.0625\\), exactly half.')],
+            declare: {explanation: seriesFrame({open: ['readouts'], highlight: ['limit', 'error']}), observation: seriesFrame({open: ['readouts'], highlight: ['sum', 'error']})},
             scene: seriesScene('series-limit-two', 'default', 5, 0,
                 'Vrsta \\(a=1\\), \\(q=\\tfrac12\\): limita \\(\\dfrac a{1-q}=2\\) je označena, \\(S_5=1{,}9375\\) in napaka \\(0{,}0625\\).',
                 'The series \\(a=1\\), \\(q=\\tfrac12\\): the limit \\(\\dfrac a{1-q}=2\\) is marked, \\(S_5=1.9375\\) and the error \\(0.0625\\).'),
@@ -189,6 +195,7 @@ const seriesLesson: GuidedLesson = {
             formulaIds: ['series-limit'],
             observationPrompt: text('Poišči, katere delne vsote so nad limito in katere pod njo.', 'Find which partial sums are above the limit and which below it.'),
             expectedObservations: [text('Lihe delne vsote (\\(1\\), \\(0{,}75\\)) so nad limito \\(\\tfrac23\\), sode (\\(0{,}5\\), \\(0{,}625\\)) pod njo; razdalja do limite se zmanjšuje.', 'The odd partial sums (\\(1\\), \\(0.75\\)) are above the limit \\(\\tfrac23\\), the even ones (\\(0.5\\), \\(0.625\\)) below it; the distance to the limit shrinks.')],
+            declare: {explanation: seriesFrame({open: ['readouts'], highlight: ['sum', 'limit']}), observation: seriesFrame({open: ['readouts'], highlight: ['sum', 'limit']})},
             scene: seriesScene('series-alternating-q', 'alternating', 4, 0,
                 'Vrsta \\(a=1\\), \\(q=-\\tfrac12\\) s štirimi prikazanimi členi: \\(S_4=0{,}625\\); limita \\(\\tfrac23\\) je označena.',
                 'The series \\(a=1\\), \\(q=-\\tfrac12\\) with four shown terms: \\(S_4=0.625\\); the limit \\(\\tfrac23\\) is marked.'),
@@ -204,6 +211,7 @@ const seriesLesson: GuidedLesson = {
             formulaIds: ['series-partial-sum', 'series-limit'],
             observationPrompt: text('Poišči limitno črto in preveri, ali delne vsote kam težijo.', 'Look for the limit line and check whether the partial sums tend anywhere.'),
             expectedObservations: [text('Limitne črte ni, delne vsote pa izmenično zavzemajo vrednosti \\(1\\) in \\(0\\).', 'There is no limit line, and the partial sums alternately take the values \\(1\\) and \\(0\\).')],
+            declare: {explanation: seriesFrame({open: ['readouts'], highlight: ['limit', 'behaviour']}), observation: seriesFrame({open: ['readouts'], highlight: ['limit', 'behaviour']})},
             scene: seriesScene('series-divergence-minus-one', 'divergent', 6, 0,
                 'Vrsta \\(a=1\\), \\(q=-1\\) s šestimi prikazanimi členi: \\(S_6=0\\); limite ni in črta ni narisana.',
                 'The series \\(a=1\\), \\(q=-1\\) with six shown terms: \\(S_6=0\\); there is no limit and no line is drawn.'),
@@ -220,6 +228,7 @@ const seriesLesson: GuidedLesson = {
             workedExampleId: 'series-three-recurring',
             observationPrompt: text('Primerjaj \\(S_4\\) z limito \\(\\tfrac13\\); nato izberi primer \\(a=0{,}9\\), \\(q=0{,}1\\) in preveri limito.', 'Compare \\(S_4\\) with the limit \\(\\tfrac13\\); then choose the example \\(a=0.9\\), \\(q=0.1\\) and check the limit.'),
             expectedObservations: [text('\\(S_4=0{,}3333\\) je tik pod limito \\(\\tfrac13\\); pri \\(a=0{,}9\\) je limita \\(1\\).', '\\(S_4=0.3333\\) is just below the limit \\(\\tfrac13\\); for \\(a=0.9\\) the limit is \\(1\\).')],
+            declare: {explanation: seriesFrame({open: ['readouts'], highlight: ['sum', 'limit']}), calculation: seriesFrame({open: ['readouts'], highlight: ['limit']}), observation: seriesFrame({open: ['readouts', 'tools'], highlight: ['sum', 'limit']})},
             scene: seriesScene('series-decimals-third', 'repeating-three', 4, 0,
                 'Vrsta \\(a=0{,}3\\), \\(q=0{,}1\\) s štirimi prikazanimi členi: \\(S_4=0{,}3333\\); limita \\(\\tfrac13\\) je označena.',
                 'The series \\(a=0.3\\), \\(q=0.1\\) with four shown terms: \\(S_4=0.3333\\); the limit \\(\\tfrac13\\) is marked.'),
@@ -229,12 +238,13 @@ const seriesLesson: GuidedLesson = {
             title: text('Prosto raziskovanje s pasom odstopanja', 'Free exploration with a tolerance band'),
             purpose: text('Z odstopanjem poiskati prvi \\(n\\), od katerega so vse delne vsote dovolj blizu limite.', 'Using a tolerance to find the first \\(n\\) from which all partial sums are close enough to the limit.'),
             explanation: text(
-                'Odstopanje \\(0{,}01\\) je pas okoli limite \\(2\\). Napaka \\(2\\cdot2^{-n}\\) je manjša od \\(0{,}01\\) natanko tedaj, ko je \\(2^n>200\\), torej od \\(n=8\\) naprej: \\(2-S_8=\\tfrac1{128}\\approx0{,}0078\\), pri \\(n=7\\) pa je napaka \\(\\tfrac1{64}\\approx0{,}0156\\) še prevelika. Spreminjaj \\(a\\), \\(q\\), \\(n\\) in odstopanje; stolpcev je največ \\(50\\). Končna slika ponazarja, zaprta oblika dokazuje.',
-                'The tolerance \\(0.01\\) is a band around the limit \\(2\\). The error \\(2\\cdot2^{-n}\\) is below \\(0.01\\) exactly when \\(2^n>200\\), that is from \\(n=8\\) on: \\(2-S_8=\\tfrac1{128}\\approx0.0078\\), while at \\(n=7\\) the error \\(\\tfrac1{64}\\approx0.0156\\) is still too large. Change \\(a\\), \\(q\\), \\(n\\) and the tolerance; there are at most \\(50\\) bars. A finite picture illustrates, the closed form proves.',
+                'Odstopanje \\(0{,}01\\) je pas okoli limite \\(2\\). Napaka \\(2\\cdot2^{-n}\\) je manjša od \\(0{,}01\\) natanko tedaj, ko je \\(2^n>200\\), torej od \\(n=8\\) naprej: \\(2-S_8=\\tfrac1{128}\\approx0{,}0078\\), pri \\(n=7\\) pa je napaka \\(\\tfrac1{64}\\approx0{,}0156\\) še prevelika. Količnik in odstopanje spreminjaš s krmilnikoma Količnik in Odstopanje na grafu, \\(a\\) in \\(n\\) pa s poljema Prvi člen a in Prikazani členi n; stolpcev je največ \\(50\\). Končna slika ponazarja, zaprta oblika dokazuje.',
+                'The tolerance \\(0.01\\) is a band around the limit \\(2\\). The error \\(2\\cdot2^{-n}\\) is below \\(0.01\\) exactly when \\(2^n>200\\), that is from \\(n=8\\) on: \\(2-S_8=\\tfrac1{128}\\approx0.0078\\), while at \\(n=7\\) the error \\(\\tfrac1{64}\\approx0.0156\\) is still too large. Change the ratio and the tolerance with the Ratio and Tolerance controls on the graph, and \\(a\\) and \\(n\\) with the First term a and Shown terms n fields; there are at most \\(50\\) bars. A finite picture illustrates, the closed form proves.',
             ),
             formulaIds: ['series-partial-sum', 'series-limit'],
             observationPrompt: text('Poišči prvi \\(n\\), pri katerem vrh debelega stolpca pride v pas, in ga preveri z neenačbo \\(2^n>200\\).', 'Find the first \\(n\\) at which the top of the thick bar enters the band and check it with the inequality \\(2^n>200\\).'),
             expectedObservations: [text('Prvi tak \\(n\\) je \\(8\\); stolpec \\(S_7\\) je še zunaj pasu, \\(S_8\\) in vsi naslednji so znotraj.', 'The first such \\(n\\) is \\(8\\); the bar \\(S_7\\) is still outside the band, \\(S_8\\) and all later ones are inside.')],
+            declare: {explanation: seriesFrame({open: ['readouts'], highlight: ['first-within', 'error']}), observation: seriesFrame({open: ['readouts', 'tools'], highlight: ['first-within', 'error'], uses: ['series-q', 'series-tolerance']})},
             scene: seriesScene('series-explore-band', 'default', 8, 0.01,
                 'Vrsta \\(a=1\\), \\(q=\\tfrac12\\) z osmimi prikazanimi členi in odstopanjem \\(0{,}01\\): napaka \\(2-S_8\\approx0{,}0078\\), prvi \\(n\\) v pasu je \\(8\\).',
                 'The series \\(a=1\\), \\(q=\\tfrac12\\) with eight shown terms and the tolerance \\(0.01\\): the error \\(2-S_8\\approx0.0078\\), the first \\(n\\) in the band is \\(8\\).'),

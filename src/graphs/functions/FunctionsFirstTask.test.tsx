@@ -43,7 +43,7 @@ const routes: Record<string, () => BaseGraph<BaseGraphState>> = {
 const plan: Record<string, {first: Label; later: Label[]}> = {
     transformations: {first: () => t('function_transformation_c_label'), later: [() => t('function_transformation_a_label'), () => t('function_transformation_b_label'), () => t('function_transformation_base_label')]},
     'rational-functions': {first: () => t('rational_function_numerator'), later: [() => t('rational_function_k_label'), () => t('rational_function_probe_label'), () => t('rational_function_example_label')]},
-    'geometric-series': {first: () => t('series_q_label'), later: [() => t('series_a_label'), () => t('series_tolerance_label'), () => t('series_example_label')]},
+    'geometric-series': {first: () => t('series_terms_label'), later: [() => t('series_a_label'), () => t('series_example_label')]},
     conics: {first: () => t('conic_phi_label'), later: [() => t('conic_ell_label'), () => t('conic_example_label')]},
     waves: {first: () => 'action:play-pause', later: [() => t('waves_graph_mode_label')]},
     'function-inverse': {first: () => t('function_inverse_x0_label'), later: [() => 'action:toggle-inverse', () => 'action:toggle-tangent', () => t('function_inverse_restriction_label')]},
@@ -109,6 +109,15 @@ describe.each(Object.keys(routes))('%s', key => {
                 : [t('integral_n_label'), t('integral_method_label'), t('integral_a_label'), t('integral_b_label')];
             for (const label of labels) expect(names.some(name => name.startsWith(label)), names.join(' | ')).toBe(false);
             expect(names.some(name => name.startsWith(t(key === 'derivative' ? 'derivative_function_label' : 'integral_function_label'))), names.join(' | ')).toBe(true);
+            return;
+        }
+        if (key === 'geometric-series') {
+            // the ratio and the tolerance are board pucks leading the strip; the shown terms lead Edit, then a, playback and the example
+            await waitForPucks('series-q');
+            expect(puckOrder().slice(0, 2), puckOrder().join(' | ')).toEqual(['series-q', 'series-tolerance']);
+            const names = editControls();
+            for (const label of [t('series_q_label'), t('series_tolerance_label')]) expect(names.some(name => name.startsWith(label)), names.join(' | ')).toBe(false);
+            for (const label of [t('series_terms_label'), t('series_a_label'), t('series_example_label')]) expect(names.some(name => name.startsWith(label)), label).toBe(true);
             return;
         }
         if (key === 'conics') {

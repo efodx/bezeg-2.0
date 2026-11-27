@@ -1359,6 +1359,32 @@ const SAMPLES: readonly Sample[] = [
             {name: 'natural, divergent', apply: set('natural', 0.5, 0, 5, 12, true)},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/geometric-series.json', demonstration: 'geometric-series', states: (() => {
+        // Every state sets the example first (it loads its own model), then n, then the tolerance; a refused value keeps what was reached.
+        const act = (...actions: unknown[]): ParityState['apply'] => graph => {
+            for (const action of actions) {
+                try { (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction(action); } catch (error) { if (!(error instanceof DomainError)) throw error; }
+            }
+        };
+        const next = (count: number) => Array.from({length: count}, () => ({kind: 'animation', animationId: 'series', command: 'next-step'}));
+        const choice = (value: string) => ({kind: 'function-choice', name: 'series-example', value});
+        const parameter = (name: string, value: number) => ({kind: 'function-parameter', name, value});
+        const set = (example: string, terms: number, tolerance: number) => act(choice(example), parameter('series-n', terms), parameter('series-tolerance', tolerance));
+        return [
+            {name: 'default', apply: act()},
+            {name: 'default, 5 terms', apply: set('default', 5, 0)},
+            {name: 'default, 8 terms, band 0.01', apply: set('default', 8, 0.01)},
+            {name: 'default, 3 terms, band 0.5 (none within terms)', apply: set('default', 3, 0.5)},
+            {name: 'alternating, 4 terms', apply: set('alternating', 4, 0)},
+            {name: 'divergent q = -1, 6 terms', apply: set('divergent', 6, 0)},
+            {name: 'repeating three, 4 terms', apply: set('repeating-three', 4, 0)},
+            {name: 'q 1.5 (divergent), 6 terms', apply: act(choice('default'), parameter('series-q', 1.5), parameter('series-n', 6), parameter('series-tolerance', 0))},
+            {name: 'q 1, constant, 5 terms', apply: act(choice('default'), parameter('series-q', 1), parameter('series-n', 5), parameter('series-tolerance', 0))},
+            {name: 'a 2.5, q 0.8, 12 terms, band 0.2', apply: act(choice('default'), parameter('series-a', 2.5), parameter('series-q', 0.8), parameter('series-n', 12), parameter('series-tolerance', 0.2))},
+            {name: 'all 50 terms, complete', apply: act(choice('default'), parameter('series-n', 50), parameter('series-tolerance', 0))},
+            {name: 'default, 3 steps next', apply: act(choice('default'), ...next(3))},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/euler-method.json', demonstration: 'euler-method', accepted: eulerAccepted, states: (() => {
         const act = (...actions: unknown[]): ParityState['apply'] => graph => {
             for (const action of actions) (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction(action);

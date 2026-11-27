@@ -2166,7 +2166,6 @@ const voronoiDegenerate = {
 };
 
 // Curve geometry L1/L2: a text of the board (the readout) that must show per lesson step 1..7; the patterns accept the Slovenian comma and the English point.
-const boardText = (page, pattern) => page.locator('.JXGtext').filter({hasText: pattern});
 const PARAMETRIC_READOUTS = [null, /\(1; 1\).*1[.,]4142/s, /9[.,]4248/, /3[.,]1416/, /\([-\u2212]1; [-\u2212]1\)/, /\(ost\)|\(cusp\)/, /(?<![\d.,])8(?![.,]?\d).*9[.,]4248/s];
 const parametricGeometry = {
     id: 'curve-parametric',

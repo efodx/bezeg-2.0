@@ -9,6 +9,7 @@ import {functionPresetCollections} from './functionPresetCollections';
 import {GraphPalette} from '../styles/GraphPalette';
 import {SERIES_TERMS_MAX, seriesView} from '../../analysis/geometricSeriesModel';
 import {enterNumber} from '../../inputs/testEntry';
+import {runAs} from '../base/writes/writeSource';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -46,9 +47,10 @@ class ObservedSeriesGraph extends GeometricSeriesGraph {
     playing() { return this.playback.isPlaying; }
     ownedObjects() { return this.generatedObjectCount; }
     objects(): BoardObject[] { return this.board.objectsList as BoardObject[]; }
-    editQ(value: number) { this.setQ(value); }
-    editA(value: number) { this.setA(value); }
-    editTolerance(value: number) { this.setTolerance(value); }
+    importLearner(data: Parameters<GeometricSeriesGraph['importPresetData']>[0]) { runAs('learner', () => this.importPresetData(data)); }
+    editQ(value: number) { runAs('learner', () => this.setQ(value)); }
+    editA(value: number) { runAs('learner', () => this.setA(value)); }
+    editTolerance(value: number) { runAs('learner', () => this.setTolerance(value)); }
 }
 
 /** The few JSXGraph object fields the tests read. */
@@ -122,7 +124,7 @@ test('Reset pauses and never starts playback; an edit while playing pauses', () 
     expect(frames.callbacks.size).toBe(0);
     expect(graph.modelNow().terms).toBe(1);
     play();
-    act(() => { enterNumber(screen.getByLabelText('Pas odstopanja (0 = izklopljen)'), '0.05'); });
+    act(() => { graph.editTolerance(0.05); });
     expect(graph.playing()).toBe(false);
     expect(frames.callbacks.size).toBe(0);
     play();
@@ -139,7 +141,7 @@ test('Preset import and a replaced scene pause playback and never start it', () 
     const {graph} = mountGraph(frames.scheduler);
     play();
     expect(graph.playing()).toBe(true);
-    act(() => { graph.importPresetData({a: 0.3, q: 0.1, terms: 9, tolerance: 0}); });
+    act(() => { graph.importLearner({a: 0.3, q: 0.1, terms: 9, tolerance: 0}); });
     expect(graph.playing()).toBe(false);
     expect(frames.callbacks.size).toBe(0);
     expect(graph.modelNow()).toEqual({a: 0.3, q: 0.1, terms: 9, tolerance: 0});
@@ -179,15 +181,13 @@ test('the limit marker is drawn only for |q| < 1; q = -1 oscillates; q = 1 gives
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
 });
 
-test('the q slider itself: -1 oscillates and 1 is constant, both without a limit marker', () => {
+test('the q puck (an arbiter write): -1 oscillates and 1 is constant, both without a limit marker', () => {
     const {graph} = mountGraph();
-    const slider = () => screen.getByLabelText('Količnik q') as HTMLInputElement;
-    expect(slider().type).toBe('range');
-    act(() => { enterNumber(slider(), '-1'); });
+    act(() => { graph.parameters!.write('series-q', -1, 'learner'); });
     expect(graph.modelNow().q).toBe(-1);
     expect(statusIds()).toEqual(['oscillating']);
     expect(visibleLimitLines(graph)).toBe(0);
-    act(() => { enterNumber(slider(), '1'); });
+    act(() => { graph.parameters!.write('series-q', 1, 'learner'); });
     expect(graph.modelNow().q).toBe(1);
     expect(statusIds()).toEqual(['constant']);
     expect(visibleLimitLines(graph)).toBe(0);
@@ -207,8 +207,7 @@ test('the tolerance band names the first n within it; invalid values are refused
     act(() => { graph.editTolerance(0.01); });
     expect(readout('first-within')).toBe('8');
     expect(statusIds()).toEqual(['convergent', 'tolerance']);
-    const q = screen.getByLabelText('Količnik q, vrednost') as HTMLInputElement;
-    act(() => { enterNumber(q, '3'); });
+    act(() => { graph.parameters!.write('series-q', 3, 'learner'); });
     expect(graph.modelNow().q).toBe(0.5);
     expect(() => graph.editQ(3)).toThrow();
     expect(() => graph.editA(Number.NaN)).toThrow();
@@ -246,14 +245,14 @@ test('disposal: unmount clears the owned objects and the timer; StrictMode remou
     expect(frames.frame(SERIES_STEP_INTERVAL_MS)).toBe(false);
 });
 
-test('a live language switch re-evaluates the board texts and readouts', () => {
+test('a live language switch re-evaluates the readouts and statuses; the board draws no text', () => {
     const {graph} = mountGraph();
-    const boardText = () => graph.objects().filter(object => object.elType === 'text').map(text => String(text.plaintext)).join('|');
-    expect(boardText()).toContain('limita a/(1 − q) = 2');
+    expect(graph.objects().filter(object => object.elType === 'text' && /limit|Sₙ|a = /.test(String(object.plaintext)))).toHaveLength(0);
+    const status = () => document.querySelector('[data-series-status="convergent"]')!.textContent;
+    expect(status()).toContain('približujejo limiti');
     act(() => { setLanguage('en'); });
-    expect(boardText()).toContain('limit a/(1 − q) = 2');
-    expect(boardText()).not.toContain('limita');
-    expect(screen.getByLabelText('Ratio q')).toBeInTheDocument();
+    expect(status()).toContain('approach the limit');
+    expect(document.querySelector('[data-readout="sum"] dt')!.textContent).toBe('Partial sum Sₙ');
     act(() => { setLanguage('sl'); });
 });
 
@@ -299,7 +298,7 @@ const readoutNumber = (id: string) => Number(String(readout(id)).replace(/[\s.]/
 
 test('the last plotted partial-sum bar is the reported sum, also where the closed form used to round to 50', () => {
     const {graph} = mountGraph();
-    act(() => { graph.importPresetData({a: 1, q: 0.999999999999, terms: 50, tolerance: 0}); });
+    act(() => { graph.importLearner({a: 1, q: 0.999999999999, terms: 50, tolerance: 0}); });
     const bars = sumBars(graph);
     expect(bars).toHaveLength(50);
     const top = bars[bars.length - 1].point2!.Y();
@@ -313,7 +312,7 @@ test('the last plotted partial-sum bar is the reported sum, also where the close
 test('the bars and the readout agree for a convergent, an alternating and a divergent series', () => {
     const {graph} = mountGraph();
     for (const [a, q, terms] of [[1, 0.5, 12], [5, -0.9, 30], [0.1, -2, 8], [5, 2, 20], [1, -1, 7]]) {
-        act(() => { graph.importPresetData({a, q, terms, tolerance: 0}); });
+        act(() => { graph.importLearner({a, q, terms, tolerance: 0}); });
         const bars = sumBars(graph);
         expect(bars).toHaveLength(terms);
         const top = bars[bars.length - 1].point2!.Y();
@@ -324,7 +323,7 @@ test('the bars and the readout agree for a convergent, an alternating and a dive
 
 test('a genuinely accepted tolerance of 1e-18 reports first term 19 and the same tail in the error readout', () => {
     const {graph} = mountGraph();
-    act(() => { graph.importPresetData({a: 1, q: 0.1, terms: 1, tolerance: 0}); });
+    act(() => { graph.importLearner({a: 1, q: 0.1, terms: 1, tolerance: 0}); });
     act(() => { graph.editTolerance(1e-18); });
     expect(graph.modelNow().tolerance).toBe(1e-18);
     expect(statusIds()).toEqual(['convergent', 'tolerance']);
