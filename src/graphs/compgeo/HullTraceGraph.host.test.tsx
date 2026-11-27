@@ -8,7 +8,8 @@ import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {PointSetModel} from '../../compgeo/pointSetModel';
-import {setLanguage} from '../../localization';
+import {renderMessage, setLanguage} from '../../localization';
+import type {GraphDeclaration} from '../base/declare/graphDeclaration';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -150,7 +151,8 @@ test('an edit while playing recomputes the trace, returns to step 0 and pauses; 
     click('play-pause');
     tick(frames, 3);
     expect(graph.step).toBe(3);
-    fireEvent.change(screen.getByRole('combobox', {name: 'Algoritem'}), {target: {value: 'gift-wrapping'}});
+    // the algorithm is a board puck now (task 08): its segment runs the same action
+    act(() => graph.performAction('gift-wrapping'));
     expect(graph.algorithm).toBe('gift-wrapping');
     expect([graph.step, graph.isPlaying, frames.callbacks.size]).toEqual([0, false, 0]);
     // after the pause Play works again
@@ -266,13 +268,20 @@ test('sample 1: the first pop of the monotone chain shows value -2 at (2, 0); th
     ]);
 });
 
+/** The help of the algorithm choice puck (a board puck since task 08, so not text in Orodja). */
+const algorithmHelp = (graph: HullTraceGraph): string => {
+    const puck = (graph.getDeclaration() as GraphDeclaration).actions!.find(candidate => candidate.id === 'slow-edge-test')!.puck;
+    const help = puck && puck !== true ? puck.group.help : undefined;
+    return help ? renderMessage(help) : '';
+};
+
 test('the slow test is labelled a teaching algorithm with its cost; the English catalog is used after a language switch', () => {
     const graph = new Observed();
     mount(graph);
     act(() => { graph.setAlgorithm('slow-edge-test'); });
-    expect(screen.getByText(/Učni algoritem: vsak urejen par točk/)).toBeInTheDocument();
+    expect(algorithmHelp(graph)).toMatch(/^Učni algoritem: vsak urejen par točk/);
     act(() => { setLanguage('en'); });
-    expect(screen.getByText(/A teaching algorithm: it tests every ordered pair/)).toBeInTheDocument();
+    expect(algorithmHelp(graph)).toMatch(/^A teaching algorithm: it tests every ordered pair/);
     expect(button('next-step').textContent).toBe('Next step');
     expect(part('step')).toBe(`Step 1 of ${graph.run().length}`);
 });
@@ -359,7 +368,7 @@ test('only the slow edge test plays on the shorter interval and the cost note sh
     mount(graph);
     act(() => { graph.setAlgorithm('slow-edge-test'); });
     expect(HULL_TRACE_SLOW_STEP_INTERVAL_MS).toBeLessThan(HULL_TRACE_STEP_INTERVAL_MS);
-    expect(screen.getByText(new RegExp(`Ta sled ima ${graph.run().length} korakov`))).toBeInTheDocument();
+    expect(algorithmHelp(graph)).toMatch(new RegExp(`Ta sled ima ${graph.run().length} korakov`));
     click('play-pause');
     act(() => { frames.frame(0); });
     act(() => { frames.frame(HULL_TRACE_SLOW_STEP_INTERVAL_MS); });

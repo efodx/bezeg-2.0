@@ -180,6 +180,81 @@ const SAMPLES: readonly Sample[] = [
             step('bow tie', load(polygon([[0, 0], [4, 4], [4, 0], [0, 4]]))),
         ];
     })()},
+    {file: 'compgeo/__parity__/bezier-hulls.json', demonstration: 'bezier-hulls', states: (() => {
+        type Pair = [number, number][];
+        type Hulls = {applyPointSetAction(action: unknown): void; setOverlay(id: string, shown: boolean): void};
+        const crossing: Pair = [[0, 0], [2, 4], [4, 0], [0, 3], [2, -1], [4, 3]];
+        const nearMiss: Pair = [[4, 0], [8, 2], [2, 6], [5, 0], [7, 4], [3, 6]];
+        const apart: Pair = [[0, 0], [2, 1], [4, 0], [0, 6], [2, 8], [4, 6]];
+        const point = (operation: string, rest: Record<string, unknown>) => ({kind: 'point-set', operation, ...rest});
+        const run = (pair: Pair, step: number | 'end', pieces = true): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Hulls;
+                g.applyPointSetAction(point('set-points', {mode: 'points', points: pair}));
+                g.setOverlay('pieces', pieces);
+                g.applyPointSetAction(point('set-trace-step', {step}));
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('crossing, split step 1', run(crossing, 1)),
+            step('crossing, discard step 2', run(crossing, 2)),
+            step('crossing, end', run(crossing, 'end')),
+            step('crossing, pieces hidden', run(crossing, 2, false)),
+            step('near miss, end', run(nearMiss, 'end')),
+            step('hulls apart, end', run(apart, 'end')),
+        ];
+    })()},
+    {file: 'compgeo/__parity__/convex-hull.json', demonstration: 'convex-hull', states: (() => {
+        type Hull = {setAlgorithm(id: string): void; nextStep(): void; loadModel(model: unknown): void; run(): {length: number}};
+        const model = (points: [number, number][]) => ({mode: 'points', closed: false, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
+        const run = (algorithm: string, steps: number | 'end', points?: [number, number][]): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Hull;
+                if (points) g.loadModel(model(points));
+                g.setAlgorithm(algorithm);
+                const count = steps === 'end' ? g.run().length - 1 : steps;
+                for (let i = 0; i < count; i++) g.nextStep();
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('chain, pop test (5)', run('monotone-chain', 5)),
+            step('chain, collinear test (11)', run('monotone-chain', 11)),
+            step('chain, end', run('monotone-chain', 'end')),
+            step('slow edge test, 3', run('slow-edge-test', 3)),
+            step('slow edge test, end', run('slow-edge-test', 'end')),
+            step('gift wrapping, 7', run('gift-wrapping', 7)),
+            step('gift wrapping, end', run('gift-wrapping', 'end')),
+            step('two points, end', run('monotone-chain', 'end', [[0, 0], [3, 1]])),
+            step('collinear points, end', run('monotone-chain', 'end', [[0, 0], [1, 1], [2, 2], [3, 3]])),
+        ];
+    })()},
+    {file: 'compgeo/__parity__/delaunay.json', demonstration: 'delaunay', states: (() => {
+        type Delaunay = {
+            applyPointSetAction(action: unknown): void; loadExample(index: number): void; selectTriangle(index: number | undefined): void;
+            selectEdge(a: number, b?: number): void; flipSelected(): boolean; addPointAt(point: {x: number; y: number}): boolean;
+        };
+        const point = (operation: string, rest: Record<string, unknown>) => ({kind: 'point-set', operation, ...rest});
+        const on = (act: (g: Delaunay) => void): ParityState['apply'] => graph => { runAs('learner', () => act(graph as unknown as Delaunay)); };
+        const traceTo = (step: number | 'end') => (g: Delaunay) => g.applyPointSetAction(point('set-trace-step', {step}));
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('quad, step 1 (test)', on(g => { g.loadExample(0); traceTo(1)(g); })),
+            step('quad, step 3', on(g => { g.loadExample(0); traceTo(3)(g); })),
+            step('quad, end', on(g => { g.loadExample(0); traceTo('end')(g); })),
+            step('seven, step 1', on(g => { g.loadExample(1); traceTo(1)(g); })),
+            step('seven, end', on(g => { g.loadExample(1); traceTo('end')(g); })),
+            step('seven, triangle selected', on(g => { g.loadExample(1); g.selectTriangle(2); })),
+            step('square, end (cocircular)', on(g => { g.loadExample(2); traceTo('end')(g); })),
+            step('quad, point added', on(g => { g.loadExample(0); g.addPointAt({x: 2, y: 1}); })),
+            step('quad, edge flipped', on(g => { g.loadExample(0); g.selectEdge(0, 2); g.flipSelected(); })),
+            step('quad, hull edge flip refused', on(g => { g.loadExample(0); g.selectEdge(0, 1); g.flipSelected(); })),
+        ];
+    })()},
     {file: 'compgeo/__parity__/bezier-clipping.json', demonstration: 'bezier-clipping', states: (() => {
         type Pair = [number, number][];
         type Clipping = {applyPointSetAction(action: unknown): void; setClipTolerance(exponent: number): boolean};

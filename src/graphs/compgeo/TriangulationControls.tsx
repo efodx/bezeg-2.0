@@ -111,7 +111,7 @@ export function TriangulationControls(props: TriangulationControlsProps) {
         </div>}
         <div className="inspector-group" data-triangulation="status">
             <div data-triangulation="refusal-slot"><RefusalNotice channel={channel}/></div>
-            {eventSentence && refusalSentence !== eventSentence && <p className="inspector-help" data-triangulation="event">{eventSentence}</p>}
+            {eventSentence && refusalSentence !== eventSentence && <p data-readout-note className="inspector-help" data-triangulation="event">{eventSentence}</p>}
             {readout && <ReadoutList label={t("tri_readout_label")} hooks={{"data-triangulation": "readout"}} rows={[
                 {id: "n", value: t("tri_readout_points", {value0: readout.n})},
                 {id: "k", value: t("tri_readout_boundary", {value0: readout.boundary.k})},

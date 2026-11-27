@@ -1,12 +1,16 @@
 import React from "react";
-import {t} from "../../localization";
+import {message, Message, t} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutNote} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {GraphPalette} from "../styles/GraphPalette";
+import {bezierHullsNotes, type BezierHullsNoteId} from "./bezierHullsNotes";
 import {
     CURVE_PAIR_INITIAL_STATE, CurvePairState, CurvePairTrace, curvePairRun, curvePairStateAt, curvePieces, pieceHull,
 } from "../../compgeo/curvePairSubdivision";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import type {HullPoint} from "../../compgeo/hullSeparation";
 import {PresetCollection} from "../base/presets/PresetCollection";
-import {CurveName, CurvePairOverlayId} from "./CurvePairGraph";
+import {CurveName, CurvePairOverlayId, isCurvePairModel} from "./CurvePairGraph";
 import {BezierHullsControls} from "./BezierHullsControls";
 import {BEZIER_HULLS_OVERLAY_IDS, bezierHullsCollection} from "./compgeoPresetCollections";
 import {TRACE_STEP_INTERVAL_MS, TraceCurvePairGraph, TraceCurvePairGraphState} from "./TraceCurvePairGraph";
@@ -16,6 +20,14 @@ export const BEZIER_HULLS_STEP_INTERVAL_MS = TRACE_STEP_INTERVAL_MS;
 
 export type BezierHullsOverlayId = "pieces";
 export {BEZIER_HULLS_OVERLAY_IDS};
+
+/** The ids of this graph's declaration (frames name them): the readout sentences, the legend, the switches and the playback. */
+export type BezierHullsIds = {
+    param: never; row: never; note: BezierHullsNoteId;
+    legend: "points" | "curveA" | "curveB" | CurvePairOverlayId | BezierHullsOverlayId;
+    section: "playback";
+    action: CurvePairOverlayId | BezierHullsOverlayId | "next-step" | "play" | "reset";
+};
 
 /** The saved configuration beyond the points: the step index. Playback status is never state. */
 export type BezierHullsGraphState = TraceCurvePairGraphState;
@@ -104,6 +116,73 @@ export class BezierHullsGraph extends TraceCurvePairGraph<BezierHullsOverlayId, 
     protected override overlayLabel(id: CurvePairOverlayId | BezierHullsOverlayId | "grid"): string {
         if (id === "pieces") return t("bezierhulls_overlay_pieces");
         return super.overlayLabel(id);
+    }
+
+    // ---- Declaration (task 08): marks, legend and switches from the point-set base, the readout sentences as notes -----------
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: CurvePairOverlayId | BezierHullsOverlayId | "grid"): Message {
+        if (id === "control") return message("control_polygons");
+        if (id === "hull") return message("hulltrace_overlay_hull");
+        if (id === "pieces") return message("bezierhulls_overlay_pieces");
+        return super.overlayMessage(id);
+    }
+
+    /** What the lessons flip while watching the halving (the hulls of the pieces) is a puck; control polygons and hulls of the whole curves are display settings. */
+    protected override overlayIsPuck(id: CurvePairOverlayId | BezierHullsOverlayId | "grid"): boolean {
+        return id === "pieces";
+    }
+
+    protected override overlaySwatch(id: CurvePairOverlayId | BezierHullsOverlayId | "grid") {
+        if (id === "control") return {kind: "line" as const, color: GraphPalette.primaryCurve};
+        if (id === "hull" || id === "pieces") return {kind: "area" as const, color: GraphPalette.primaryCurve};
+        return undefined;
+    }
+
+    /** The sentences of the readout (step, depth, pairs and verdicts), in the order the panel shows them. */
+    protected override pointSetNotes(): readonly ReadoutNote<BezierHullsIds>[] {
+        // Before the first Preset is applied the model is not yet a curve pair, so there is no run to read.
+        if (!isCurvePairModel(this.model)) return [];
+        return bezierHullsNotes(this.pairState, this.step, this.run().length);
+    }
+
+    protected override declaration(): GraphDeclaration<BezierHullsIds> | undefined {
+        const common = super.declaration() as GraphDeclaration<BezierHullsIds>;
+        const [points, ...overlays] = common.legend ?? [];
+        const legend: LegendEntry<BezierHullsIds>[] = [
+            ...(points ? [points] : []),
+            {id: "curveA", label: message("bezierhulls_curve_a"), kind: "line", object: "curveA"},
+            {id: "curveB", label: message("bezierhulls_curve_b"), kind: "dashed", object: "curveB"},
+            ...overlays,
+        ];
+        const ready = isCurvePairModel(this.model);
+        const atEnd = !ready || this.step >= this.run().length - 1;
+        const step = ready ? this.step : 0;
+        const playback = {placement: "tools" as const, section: "playback"};
+        const actions: ActionDeclaration<BezierHullsIds>[] = [
+            ...(common.actions ?? []),
+            {id: "next-step", label: message("next_step"), enabled: !atEnd && !this.isPlaying, ...playback},
+            {id: "play", label: message("play"), enabled: true, pressed: this.isPlaying, ...playback},
+            {id: "reset", label: message("reset"), enabled: step > 0 || this.isPlaying, ...playback},
+        ];
+        return {...common, legend, actions};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id === "curveA" || id === "curveB") {
+            type Drawn = JXG.GeometryElement & {evalVisProp(name: string): unknown};
+            const curve = this.hasBoard ? (this.board.objectsList as JXG.GeometryElement[]).find(object => object.name === `curve${id.slice(-1)}`) as Drawn | undefined : undefined;
+            return curve ? {color: String(curve.evalVisProp("strokecolor")), visible: Boolean(curve.evalVisProp("visible"))} : {color: GraphPalette.primaryCurve, visible: false};
+        }
+        return super.drawnObject(id);
+    }
+
+    override performAction(id: string): void {
+        if (id === "next-step") { runAs("learner", () => { this.nextStep(); }); return; }
+        if (id === "play") { runAs("learner", () => { if (this.isPlaying) this.pause(); else this.play(); }); return; }
+        if (id === "reset") { runAs("learner", () => { this.resetTrace(); }); return; }
+        super.performAction(id);
     }
 
     /**

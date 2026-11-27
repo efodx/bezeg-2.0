@@ -1,0 +1,134 @@
+{
+  "graph": "convex-hull",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 56",
+        "Spodnja veriga: točke po vrsti dodajamo od leve proti desni.",
+        "Orientacijskih preizkusov doslej: 0"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "chain, pop test (5)",
+      "rows": [],
+      "notes": [
+        "Korak 6 od 56",
+        "Zavoj v desno: srednja točka ni na ovojnici in jo odstranimo.",
+        "Orientacija trojice = -2; preizkušana točka P8 (2, 0)",
+        "Orientacijskih preizkusov doslej: 2"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "chain, collinear test (11)",
+      "rows": [],
+      "notes": [
+        "Korak 12 od 56",
+        "Točke so na isti premici: srednjo točko odstranimo, ker ni oglišče ovojnice.",
+        "Orientacija trojice = 0; preizkušana točka P5 (2, 5)",
+        "Orientacijskih preizkusov doslej: 5"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "chain, end",
+      "rows": [],
+      "notes": [
+        "Korak 56 od 56",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 23",
+        "Monotona veriga (Andrew): 23",
+        "Počasen preizkus robov (učni algoritem): 504",
+        "Ovijanje (Jarvisov algoritem): 35"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "slow edge test, 3",
+      "rows": [],
+      "notes": [
+        "Korak 4 od 74",
+        "Rob ni na ovojnici: najdena je točka desno od njega ali na premici zunaj daljice.",
+        "Usmerjeni rob od P1 (2, 2) do P5 (2, 5)",
+        "Orientacijskih preizkusov doslej: 28"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "slow edge test, end",
+      "rows": [],
+      "notes": [
+        "Korak 74 od 74",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 504",
+        "Monotona veriga (Andrew): 23",
+        "Počasen preizkus robov (učni algoritem): 504",
+        "Ovijanje (Jarvisov algoritem): 35"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "gift wrapping, 7",
+      "rows": [],
+      "notes": [
+        "Korak 8 od 42",
+        "Kandidat je naslednje oglišče ovojnice.",
+        "Orientacijskih preizkusov doslej: 7"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "gift wrapping, end",
+      "rows": [],
+      "notes": [
+        "Korak 42 od 42",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 35",
+        "Monotona veriga (Andrew): 23",
+        "Počasen preizkus robov (učni algoritem): 504",
+        "Ovijanje (Jarvisov algoritem): 35"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "two points, end",
+      "rows": [],
+      "notes": [
+        "Korak 2 od 2",
+        "Konec: manj kot tri različne točke, ovojnica je točka ali daljica.",
+        "Orientacijskih preizkusov doslej: 0",
+        "Monotona veriga (Andrew): 0",
+        "Počasen preizkus robov (učni algoritem): 0",
+        "Ovijanje (Jarvisov algoritem): 0"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "collinear points, end",
+      "rows": [],
+      "notes": [
+        "Korak 20 od 20",
+        "Konec: vse točke so na isti premici, ovojnica je daljica.",
+        "Orientacijskih preizkusov doslej: 4",
+        "Monotona veriga (Andrew): 4",
+        "Počasen preizkus robov (učni algoritem): 24",
+        "Ovijanje (Jarvisov algoritem): 4"
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

@@ -506,6 +506,9 @@ export class HullRobustnessGraph extends HullTraceGraph {
         setCell: (i, j) => this.selectKettnerCell(i, j),
     };
 
+    /** Unconverted until the next session: the robustness graph keeps its own panels and declares nothing. */
+    protected override declaresHullWorkspace(): boolean { return false; }
+
     /** Chain view: the playback controls without the algorithm choice, the rule choices, then the readout (the view choice leads `workspaceEdit`). */
     protected override hullControls(): React.ReactNode {
         const run = this.run();

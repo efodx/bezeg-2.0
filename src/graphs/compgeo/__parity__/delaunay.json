@@ -1,0 +1,819 @@
+{
+  "graph": "delaunay",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 0"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 1"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 19,65°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 19,65°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Koti zdaj, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Koti na začetku, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 4"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 4"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 2 = 2n - 2 - k = 2 · 4 - 2 - 4"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 5 = 3n - 3 - k = 3 · 4 - 3 - 4; notranjih 1, na ovojnici 4"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 19,65°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [
+        "Korak 1 od 5",
+        "Začetna triangulacija: trikotniki še niso preizkušeni."
+      ],
+      "outputs": [],
+      "captions": [
+        "neustrezen rob"
+      ]
+    },
+    {
+      "name": "quad, step 1 (test)",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 0"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 1"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 19,65°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 19,65°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Koti zdaj, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Koti na začetku, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 4"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 4"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 2 = 2n - 2 - k = 2 · 4 - 2 - 4"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 5 = 3n - 3 - k = 3 · 4 - 3 - 4; notranjih 1, na ovojnici 4"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 19,65°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [
+        "Korak 2 od 5",
+        "Rob je neustrezen: preizkušana točka je znotraj očrtane krožnice drugega trikotnika.",
+        "Preizkušeni rob P1-P3; nasprotni točki P2 in P4",
+        "Vrednost preizkusa krožnice = +64: preizkušana točka je znotraj krožnice"
+      ],
+      "outputs": [],
+      "captions": [
+        "neustrezen rob"
+      ]
+    },
+    {
+      "name": "quad, step 3",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 1"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 0"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 26,57°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 19,65°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Koti zdaj, naraščajoče: 26,57; 37,87; 60,26; 63,43; 81,87; 90"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Koti na začetku, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 4"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 4"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 2 = 2n - 2 - k = 2 · 4 - 2 - 4"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 5 = 3n - 3 - k = 3 · 4 - 3 - 4; notranjih 1, na ovojnici 4"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 26,57°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [
+        "Korak 4 od 5",
+        "Rob je ustrezen: preizkušana točka ni znotraj očrtane krožnice drugega trikotnika.",
+        "Preizkušeni rob P2-P4; nasprotni točki P1 in P3",
+        "Vrednost preizkusa krožnice = -64: preizkušana točka je zunaj krožnice"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "quad, end",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 1"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 0"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 26,57°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 19,65°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Koti zdaj, naraščajoče: 26,57; 37,87; 60,26; 63,43; 81,87; 90"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Koti na začetku, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 4"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 4"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 2 = 2n - 2 - k = 2 · 4 - 2 - 4"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 5 = 3n - 3 - k = 3 · 4 - 3 - 4; notranjih 1, na ovojnici 4"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 26,57°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [
+        "Korak 5 od 5",
+        "Vsi robovi so ustrezni: Delaunayeva triangulacija.",
+        "Vsi robovi so ustrezni: Delaunayeva triangulacija."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "seven, step 1",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 0"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 3"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 1,91°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 1,91°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Najmanjših 6 od 21 kotov, naraščajoče: 1,91; 2,49; 10,62; 15,95; 21,66; 25,25"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjših 6 od 21 kotov, naraščajoče: 1,91; 2,49; 10,62; 15,95; 21,66; 25,25"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 7"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 5"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 7 = 2n - 2 - k = 2 · 7 - 2 - 5"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 13 = 3n - 3 - k = 3 · 7 - 3 - 5; notranjih 8, na ovojnici 5"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 1,91°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [
+        "Korak 2 od 25",
+        "Rob je neustrezen: preizkušana točka je znotraj očrtane krožnice drugega trikotnika.",
+        "Preizkušeni rob P2-P5; nasprotni točki P1 in P6",
+        "Vrednost preizkusa krožnice = +1056: preizkušana točka je znotraj krožnice"
+      ],
+      "outputs": [],
+      "captions": [
+        "neustrezen rob",
+        "neustrezen rob",
+        "neustrezen rob"
+      ]
+    },
+    {
+      "name": "seven, end",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 3"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 0"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 25,35°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 1,91°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Najmanjših 6 od 21 kotov, naraščajoče: 25,35; 30,96; 30,96; 33,11; 35,54; 43,15"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjših 6 od 21 kotov, naraščajoče: 1,91; 2,49; 10,62; 15,95; 21,66; 25,25"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 7"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 5"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 7 = 2n - 2 - k = 2 · 7 - 2 - 5"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 13 = 3n - 3 - k = 3 · 7 - 3 - 5; notranjih 8, na ovojnici 5"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 25,35°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [
+        "Korak 25 od 25",
+        "Vsi robovi so ustrezni: Delaunayeva triangulacija.",
+        "Vsi robovi so ustrezni: Delaunayeva triangulacija."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "seven, triangle selected",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 0"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 3"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 1,91°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 1,91°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Najmanjših 6 od 21 kotov, naraščajoče: 1,91; 2,49; 10,62; 15,95; 21,66; 25,25"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjših 6 od 21 kotov, naraščajoče: 1,91; 2,49; 10,62; 15,95; 21,66; 25,25"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 7"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 5"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 7 = 2n - 2 - k = 2 · 7 - 2 - 5"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 13 = 3n - 3 - k = 3 · 7 - 3 - 5; notranjih 8, na ovojnici 5"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 1,91°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [
+        "Korak 1 od 25",
+        "Začetna triangulacija: trikotniki še niso preizkušeni.",
+        "Izbrani trikotnik P2P6P7: njegova očrtana krožnica je črtkana.",
+        "Čez rob P6-P7: nasprotna točka P5, determinanta preizkusa krožnice = -402: točka je zunaj očrtane krožnice",
+        "Čez rob P2-P6: nasprotna točka P5, determinanta preizkusa krožnice = -402: točka je zunaj očrtane krožnice",
+        "Čez rob P2-P7: nasprotna točka P3, determinanta preizkusa krožnice = -414: točka je zunaj očrtane krožnice"
+      ],
+      "outputs": [],
+      "captions": [
+        "neustrezen rob",
+        "neustrezen rob",
+        "neustrezen rob"
+      ]
+    },
+    {
+      "name": "square, end (cocircular)",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 0"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 0"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 45°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 45°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Koti zdaj, naraščajoče: 45; 45; 45; 45; 90; 90"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Koti na začetku, naraščajoče: 45; 45; 45; 45; 90; 90"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 4"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 4"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 2 = 2n - 2 - k = 2 · 4 - 2 - 4"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 5 = 3n - 3 - k = 3 · 4 - 3 - 4; notranjih 1, na ovojnici 4"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 45°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [
+        "Korak 3 od 3",
+        "Vsi robovi so ustrezni: Delaunayeva triangulacija.",
+        "Vsi robovi so ustrezni: Delaunayeva triangulacija.",
+        "Kocirkularne točke: triangulacija ni enolična."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "quad, point added",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 0"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 1"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 2,73°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 2,73°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Najmanjših 6 od 12 kotov, naraščajoče: 2,73; 4,4; 19,65; 26,57; 26,57; 37,87"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Najmanjših 6 od 12 kotov, naraščajoče: 2,73; 4,4; 19,65; 26,57; 26,57; 37,87"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 5"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 4"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 4 = 2n - 2 - k = 2 · 5 - 2 - 4"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 8 = 3n - 3 - k = 3 · 5 - 3 - 4; notranjih 4, na ovojnici 4"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 2,73°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [
+        "Korak 1 od 8",
+        "Začetna triangulacija: trikotniki še niso preizkušeni.",
+        "Točka P5 leži znotraj trikotnika, ki se razdeli na tri; dodana sta 2 trikotnika."
+      ],
+      "outputs": [],
+      "captions": [
+        "neustrezen rob"
+      ]
+    },
+    {
+      "name": "quad, edge flipped",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 0"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 0"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 26,57°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 26,57°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Koti zdaj, naraščajoče: 26,57; 37,87; 60,26; 63,43; 81,87; 90"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Koti na začetku, naraščajoče: 26,57; 37,87; 60,26; 63,43; 81,87; 90"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 4"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 4"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 2 = 2n - 2 - k = 2 · 4 - 2 - 4"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 5 = 3n - 3 - k = 3 · 4 - 3 - 4; notranjih 1, na ovojnici 4"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 26,57°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: 19,65°"
+        }
+      ],
+      "notes": [
+        "Korak 1 od 3",
+        "Začetna triangulacija: trikotniki še niso preizkušeni.",
+        "Rob P1-P3 je zamenjan z robom P2-P4. Števila trikotnikov in robov so ostala enaka."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "quad, hull edge flip refused",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Zamenjav doslej: 0"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Neustreznih robov: 1"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 19,65°"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Najmanjši kot na začetku (korak 1): 19,65°"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Koti zdaj, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Koti na začetku, naraščajoče: 19,65; 30,96; 40,6; 59,04; 101,31; 108,43"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Točk: n = 4"
+        },
+        {
+          "key": "#7",
+          "label": "",
+          "value": "Točk na robu ovojnice: k = 4"
+        },
+        {
+          "key": "#8",
+          "label": "",
+          "value": "Trikotnikov: 2 = 2n - 2 - k = 2 · 4 - 2 - 4"
+        },
+        {
+          "key": "#9",
+          "label": "",
+          "value": "Robov: 5 = 3n - 3 - k = 3 · 4 - 3 - 4; notranjih 1, na ovojnici 4"
+        },
+        {
+          "key": "#10",
+          "label": "",
+          "value": "Najmanjši kot zdaj: 19,65°"
+        },
+        {
+          "key": "#11",
+          "label": "",
+          "value": "Najmanjši kot pred zadnjo zamenjavo: zamenjave še ni bilo"
+        }
+      ],
+      "notes": [
+        "Korak 1 od 5",
+        "Začetna triangulacija: trikotniki še niso preizkušeni."
+      ],
+      "outputs": [],
+      "captions": [
+        "neustrezen rob"
+      ]
+    }
+  ]
+}

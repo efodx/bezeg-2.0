@@ -142,10 +142,10 @@ export function DelaunayControls(props: DelaunayControlsProps) {
             <p className="inspector-help">{t("del_playback_note")}</p>
         </div>
         {status && <div className="inspector-group" data-delaunay-status="">
-            <StepCounter step={status.step} length={status.length} hooks={{"data-delaunay": "step"}}/>
-            <p className="inspector-help" data-delaunay="note">{noteSentence}</p>
-            {detail && <p className="inspector-help" data-delaunay="detail">{detail}</p>}
-            {incircle && <p className="inspector-help" data-delaunay="incircle">{incircle}</p>}
+            <StepCounter step={status.step} length={status.length} hooks={{"data-delaunay": "step", "data-readout-note": ""}}/>
+            <p data-readout-note className="inspector-help" data-delaunay="note">{noteSentence}</p>
+            {detail && <p data-readout-note className="inspector-help" data-delaunay="detail">{detail}</p>}
+            {incircle && <p data-readout-note className="inspector-help" data-delaunay="incircle">{incircle}</p>}
             <ReadoutList label={t("del_readout_label")} hooks={{"data-delaunay": "readout"}} rows={[
                 {id: "flips", value: t("del_flips", {value0: status.flips})},
                 {id: "illegal", value: t("del_illegal_count", {value0: status.illegalCount})},
@@ -163,12 +163,12 @@ export function DelaunayControls(props: DelaunayControlsProps) {
                 <button type="button" data-action="clear-triangle" aria-disabled={selection === undefined}
                         onClick={() => { if (selection) actions.selectTriangle(undefined); }}>{t("del_tri_clear")}</button>
             </div>
-            {selectedText && <p className="inspector-help" data-delaunay="selected-triangle">{selectedText}</p>}
+            {selectedText && <p data-readout-note className="inspector-help" data-delaunay="selected-triangle">{selectedText}</p>}
             {neighbourTexts.length > 0 && <ul aria-label={t("del_tri_neighbours_label")} data-delaunay="neighbours">
-                {neighbourTexts.map((text, index) => <li key={index} data-neighbour={index}>{text}</li>)}
-            </ul>}            {hullText && <p className="inspector-help" data-delaunay="hull-edges">{hullText}</p>}
-            {doneText && <p className="inspector-help" data-delaunay="done">{doneText}</p>}
-            {cocircularText && <p className="inspector-help" data-delaunay="cocircular">{cocircularText}</p>}
+                {neighbourTexts.map((text, index) => <li data-readout-note key={index} data-neighbour={index}>{text}</li>)}
+            </ul>}            {hullText && <p data-readout-note className="inspector-help" data-delaunay="hull-edges">{hullText}</p>}
+            {doneText && <p data-readout-note className="inspector-help" data-delaunay="done">{doneText}</p>}
+            {cocircularText && <p data-readout-note className="inspector-help" data-delaunay="cocircular">{cocircularText}</p>}
             <LiveReadout readout={liveReadout} muted={playing} dataAttribute="delaunay-live"/>
         </div>}
         <div className="inspector-group">

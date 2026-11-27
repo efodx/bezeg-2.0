@@ -9,10 +9,14 @@ import type {PointSetOverlayName} from '../../compgeo/pointSetModel';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {PolygonAreaIds} from '../../graphs/compgeo/PolygonAreaGraph';
+import type {BezierHullsIds} from '../../graphs/compgeo/BezierHullsGraph';
+import type {HullTraceIds} from '../../graphs/compgeo/HullTraceGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 const areaFrame = frameDeclarer<PolygonAreaIds>();
+const bhFrame = frameDeclarer<BezierHullsIds>();
+const chFrame = frameDeclarer<HullTraceIds>();
 
 const points = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'points', points: list});
 const polygon = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'polygon', closed: true, points: list});
@@ -485,7 +489,7 @@ const convexHull: GuidedLesson = {
                 'We have nine points. A directed pair \\((a,b)\\) is a hull edge if all the other points are to its left or on the segment \\(ab\\). The slow test checks this for every ordered pair: \\(9\\cdot8=72\\) pairs, each against \\(7\\) other points. It is a teaching algorithm, not a recommended method.',
             ),
             formulaIds: ['hull-edge-rule'],
-            frames: [frame('hull-slow-intro-explanation', 'explanation'), frame('hull-slow-intro-observation', 'observation')],
+            frames: [frame('hull-slow-intro-explanation', 'explanation'), frame('hull-slow-intro-observation', 'observation', chFrame({highlight: ['step', 'count']}))],
             observationPrompt: text('Poglej, katere točke so po tvoji presoji na robu množice.', 'Look at which points seem to you to be on the outside of the set.'),
             expectedObservations: [text('Sled je na začetku (korak \\(1\\)) in nobenega roba še ni sprejetega.', 'The trace is at its start (step \\(1\\)) and no edge has been accepted yet.')],
             scene: scene('hull-slow-intro', [algorithm('slow-edge-test'), overlay('trace', true), overlay('hull', true)],
@@ -517,7 +521,7 @@ const convexHull: GuidedLesson = {
                 'The trace has run to the end: \\(5\\) directed edges are accepted and \\(9\\cdot8\\cdot7=504\\) orientation tests were used. The pair \\((0,0)\\), \\((4,0)\\) is an edge because \\((2,0)\\) lies on the segment; that point is not a hull vertex.',
             ),
             formulaIds: ['hull-test-counts'], workedExampleId: 'hull-count-example',
-            frames: [frame('hull-slow-reveal-explanation', 'explanation'), frame('hull-slow-reveal-calculation', 'calculation'), frame('hull-slow-reveal-observation', 'observation')],
+            frames: [frame('hull-slow-reveal-explanation', 'explanation'), frame('hull-slow-reveal-calculation', 'calculation'), frame('hull-slow-reveal-observation', 'observation', chFrame({highlight: ['note', 'count']}))],
             observationPrompt: text('Primerjaj število robov z napovedjo in preberi števec preizkusov.', 'Compare the number of edges with your prediction and read the test counter.'),
             expectedObservations: [text('Števec pokaže \\(504\\), narisanih je pet robov in ovojnica ima pet oglišč.', 'The counter shows \\(504\\), five edges are drawn and the hull has five vertices.')],
             scene: scene('hull-slow-reveal', [algorithm('slow-edge-test'), overlay('trace', true), overlay('hull', true), ...nextSteps(HULL_TRACE_STEPS.slowEnd)],
@@ -533,7 +537,7 @@ const convexHull: GuidedLesson = {
                 'We sort the points by \\(x\\), then by \\(y\\), and add them to the lower chain. After five steps (already done) the readout shows the test of the point \\((2,0)\\) with value \\(-2\\): a right turn. Press Next step once more and the point \\((1,1)\\) is removed. Continue to step eleven: at the point \\((2,5)\\) the value is \\(0\\), the points are collinear, and one more step removes \\((2,2)\\), because it is not a vertex.',
             ),
             formulaIds: ['hull-edge-rule'], workedExampleId: 'hull-pop-example',
-            frames: [frame('hull-monotone-chain-explanation', 'explanation'), frame('hull-monotone-chain-calculation', 'calculation'), frame('hull-monotone-chain-observation', 'observation')],
+            frames: [frame('hull-monotone-chain-explanation', 'explanation', chFrame({uses: ['next-step'], open: ['tools']})), frame('hull-monotone-chain-calculation', 'calculation'), frame('hull-monotone-chain-observation', 'observation', chFrame({highlight: ['note', 'detail', 'count']}))],
             observationPrompt: text('Pritiskaj Naslednji korak in pri vsakem preizkusu povej, ali točka ostane ali izpade.', 'Press Next step and, at each test, say whether the point stays or is removed.'),
             expectedObservations: [text('Vrednost \\(-2\\) pri točki \\((2,0)\\) odstrani \\((1,1)\\); vrednost \\(0\\) pri točki \\((2,5)\\) odstrani \\((2,2)\\). Odstranitev pri vrednosti natanko \\(0\\) pokaže, da kolinearne točke potrebujejo pravilo.', 'The value \\(-2\\) at the point \\((2,0)\\) removes \\((1,1)\\); the value \\(0\\) at the point \\((2,5)\\) removes \\((2,2)\\). The removal on a value of exactly \\(0\\) shows why collinear points need a rule.')],
             scene: scene('hull-monotone-chain', [algorithm('monotone-chain'), overlay('trace', true), overlay('hull', true), ...nextSteps(HULL_TRACE_STEPS.popTest)],
@@ -549,7 +553,7 @@ const convexHull: GuidedLesson = {
                 'Gift wrapping starts at the leftmost point \\((-1,3)\\). For the first wrap it takes the first of the other eight points as the candidate and compares the remaining points with it in \\(7\\) tests; the candidate after that is the next vertex, \\((0,0)\\). It repeats this for every vertex, so five times.',
             ),
             formulaIds: ['hull-test-counts'],
-            frames: [frame('hull-gift-wrapping-explanation', 'explanation'), frame('hull-gift-wrapping-observation', 'observation')],
+            frames: [frame('hull-gift-wrapping-explanation', 'explanation'), frame('hull-gift-wrapping-observation', 'observation', chFrame({highlight: ['note', 'count']}))],
             observationPrompt: text('Pritiskaj Naslednji korak in opazuj, kako kandidat potuje med točkami.', 'Press Next step and watch the candidate travel among the points.'),
             expectedObservations: [text('Po sedmih preizkusih je prvi rob \\((-1,3)\\to(0,0)\\) sprejet.', 'After seven tests the first edge \\((-1,3)\\to(0,0)\\) is accepted.')],
             scene: scene('hull-gift-wrapping', [algorithm('gift-wrapping'), overlay('trace', true), overlay('hull', true), ...nextSteps(HULL_TRACE_STEPS.wrapFirst)],
@@ -565,7 +569,7 @@ const convexHull: GuidedLesson = {
                 'Gift wrapping is now finished: five wraps of \\(7\\) tests make \\(35\\). The row of counts under the graph lists all three: slow test \\(504\\), monotone chain \\(23\\), gift wrapping \\(35\\). All three get the same hull with five vertices. Gift wrapping depends on the number of hull vertices \\(h\\), while the slow test grows like \\(n^3\\).',
             ),
             formulaIds: ['hull-test-counts'], workedExampleId: 'hull-count-example',
-            frames: [frame('hull-counts-explanation', 'explanation'), frame('hull-counts-calculation', 'calculation'), frame('hull-counts-observation', 'observation')],
+            frames: [frame('hull-counts-explanation', 'explanation'), frame('hull-counts-calculation', 'calculation'), frame('hull-counts-observation', 'observation', chFrame({highlight: ['total-slow-edge-test', 'total-monotone-chain', 'total-gift-wrapping']}))],
             observationPrompt: text('Preberi vrstico s števili in določi, kateri algoritem potrebuje najmanj preizkusov.', 'Read the row of counts and say which algorithm needs the fewest tests.'),
             expectedObservations: [text('Najmanj preizkusov (\\(23\\)) potrebuje monotona veriga; vsi trije končajo z ovojnico s petimi oglišči.', 'The monotone chain needs the fewest tests (\\(23\\)); all three end with a five-vertex hull.')],
             scene: scene('hull-counts', [algorithm('gift-wrapping'), overlay('trace', true), overlay('hull', true), ...nextSteps(HULL_TRACE_STEPS.wrapEnd)],
@@ -3218,7 +3222,7 @@ const bezierHulls: GuidedLesson = {
                 'The curve \\(A\\) with control points \\((0,0)\\), \\((2,4)\\), \\((4,0)\\) (solid line) and the curve \\(B\\) with \\((0,3)\\), \\((2,-1)\\), \\((4,3)\\) (dashed line) are quadratic Bézier curves. Each lies in the convex hull of its control points, because the Bernstein coefficients are nonnegative with sum \\(1\\). The hulls overlap: the readout shows depth \\(0\\) of \\(4\\) and \\(1\\) pair of \\(1\\) remains. Overlap only says that the curves may meet; it is a necessary, not a sufficient, condition.',
             ),
             formulaIds: ['bh-hull-property'], workedExampleId: 'bh-crossings-example',
-            frames: [frame('bh-hull-explanation', 'explanation'), frame('bh-hull-calculation', 'calculation'), frame('bh-hull-observation', 'observation')],
+            frames: [frame('bh-hull-explanation', 'explanation'), frame('bh-hull-calculation', 'calculation'), frame('bh-hull-observation', 'observation', bhFrame({highlight: ['depth', 'kept']}))],
             observationPrompt: text('Preveri, da vsaka krivulja leži v svoji ovojnici, in preberi izpis.', 'Check that each curve lies in its hull and read the readout.'),
             expectedObservations: [text('Obe krivulji ležita v svojih ovojnicah, ovojnici se prekrivata; izpis: globina \\(0\\) od \\(4\\), ostane \\(1\\) par od \\(1\\).', 'Both curves lie in their hulls and the hulls overlap; the readout: depth \\(0\\) of \\(4\\), \\(1\\) pair of \\(1\\) remains.')],
             scene: bezierHullsScene('bh-hull', BEZIER_HULLS_CROSSING, false, 0,
@@ -3234,7 +3238,7 @@ const bezierHulls: GuidedLesson = {
                 'The halving at \\(t=\\tfrac12\\) by de Casteljau splits each curve into two pieces with their own control polygons. The hull of each piece (thick line) lies inside the hull of the whole curve (thin line), so the hulls are smaller and enclose the curve more tightly. The readout shows depth \\(1\\) of \\(4\\) and \\(4\\) pairs of pieces to test (\\(2\\cdot2\\)); there is no verdict yet, the hulls are only about to be tested.',
             ),
             formulaIds: ['bh-hull-property'],
-            frames: [frame('bh-split-explanation', 'explanation'), frame('bh-split-observation', 'observation')],
+            frames: [frame('bh-split-explanation', 'explanation'), frame('bh-split-observation', 'observation', bhFrame({highlight: ['depth', 'candidates']}))],
             observationPrompt: text('Poišči ovojnico odseka in preveri, da leži znotraj ovojnice cele krivulje.', 'Find the hull of a piece and check that it lies inside the hull of the whole curve.'),
             expectedObservations: [text('Vsaka krivulja ima dve ovojnici odsekov znotraj prvotne; izpis: globina \\(1\\) od \\(4\\), \\(4\\) pari za preizkus, brez odločitve.', 'Each curve has two hulls of pieces inside the original one; the readout: depth \\(1\\) of \\(4\\), \\(4\\) pairs to test, no verdict.')],
             scene: bezierHullsScene('bh-split', BEZIER_HULLS_CROSSING, true, BEZIER_HULLS_STEPS.split,
@@ -3266,7 +3270,7 @@ const bezierHulls: GuidedLesson = {
                 'The test discards \\(2\\) of the \\(4\\) pairs: the left piece of the curve \\(A\\) and the right piece of the curve \\(B\\) have separated hulls, and so do the right piece of \\(A\\) and the left piece of \\(B\\). The separation is certified with a safety margin, not by exact arithmetic; a pair whose hulls touch stays. \\(2\\) of the \\(4\\) pairs remain (readout: \\(4\\) tested, \\(2\\) discarded): left with left and right with right, where the crossings at \\(t=\\tfrac14\\) and \\(t=\\tfrac34\\) are. A discarded pair holds no crossing, while the remaining pairs are only allowed by the overlap.',
             ),
             formulaIds: ['bh-hull-test'], workedExampleId: 'bh-crossings-example',
-            frames: [frame('bh-discard-explanation', 'explanation'), frame('bh-discard-calculation', 'calculation'), frame('bh-discard-observation', 'observation')],
+            frames: [frame('bh-discard-explanation', 'explanation'), frame('bh-discard-calculation', 'calculation'), frame('bh-discard-observation', 'observation', bhFrame({highlight: ['kept', 'tests']}))],
             observationPrompt: text('Primerjaj izpis z napovedjo: kateri pari so zavrženi in kateri ostanejo?', 'Compare the readout with your prediction: which pairs are discarded and which remain?'),
             expectedObservations: [text('Ostaneta \\(2\\) od \\(4\\) parov, preizkušenih \\(4\\), zavrženih \\(2\\); zavržena sta para levo-desno in desno-levo. Vse štiri ovojnice ostanejo debele in zapolnjene, ker je vsak odsek še v enem preostalem paru: zavržen je par, ne odsek.', 'Of \\(4\\) pairs \\(2\\) remain, \\(4\\) tested, \\(2\\) discarded; the discarded ones are the pairs left-right and right-left. All four hulls stay thick and filled, because each piece is still in one remaining pair: a pair is discarded, not a piece.')],
             scene: bezierHullsScene('bh-discard', BEZIER_HULLS_CROSSING, true, BEZIER_HULLS_STEPS.discard,
@@ -3282,7 +3286,7 @@ const bezierHulls: GuidedLesson = {
                 'At depth \\(4\\) of \\(4\\), \\(8\\) of \\(256\\) pairs of pieces remain (readout: \\(32\\) tested, \\(24\\) discarded). Eight rather than two, because the crossings at \\(t=\\tfrac14\\) and \\(t=\\tfrac34\\) are shared endpoints of pieces from depth \\(2\\) on: at a crossing two pieces of each curve meet, so four pairs touch each crossing, \\(8\\) in all. Hulls that touch count as overlapping, because the test prefers to keep a pair. If the curve \\(B\\) moved half a unit to the right, the crossings would no longer fall on shared endpoints. This grid has no half units, but the curves at twice the size, \\((0,0)\\), \\((4,8)\\), \\((8,0)\\) and \\((1,6)\\), \\((5,-2)\\), \\((9,6)\\), give the same position: the readout shows \\(2\\) pairs, one at each crossing. The remaining pairs gather at the crossings, but overlap alone does not prove an intersection.',
             ),
             formulaIds: ['bh-hull-test'], workedExampleId: 'bh-crossings-example',
-            frames: [frame('bh-depth4-explanation', 'explanation'), frame('bh-depth4-calculation', 'calculation'), frame('bh-depth4-observation', 'observation')],
+            frames: [frame('bh-depth4-explanation', 'explanation'), frame('bh-depth4-calculation', 'calculation'), frame('bh-depth4-observation', 'observation', bhFrame({highlight: ['depth', 'kept', 'tests']}))],
             observationPrompt: text('Poišči, kje na krivuljah ostanejo pari, in preštej jih ob vsakem presečišču.', 'Find where on the curves the pairs remain and count them at each crossing.'),
             expectedObservations: [text('Ostane \\(8\\) od \\(256\\) parov, po \\(4\\) ob presečišču; izpis: preizkušenih \\(32\\), zavrženih \\(24\\), preostali pari se lahko sekajo ali ne.', 'There remain \\(8\\) of \\(256\\) pairs, \\(4\\) at each crossing; the readout: \\(32\\) tested, \\(24\\) discarded, the remaining pairs may or may not meet.')],
             scene: bezierHullsScene('bh-depth4', BEZIER_HULLS_CROSSING, true, 'end',
@@ -3298,7 +3302,7 @@ const bezierHulls: GuidedLesson = {
                 'The nested curves with control points \\((4,0)\\), \\((8,2)\\), \\((2,6)\\) and \\((5,0)\\), \\((7,4)\\), \\((3,6)\\) do not meet: the distance between them is about \\(0.01\\). At depth \\(4\\) of \\(4\\) \\(1\\) pair of \\(256\\) still remains (readout: \\(4\\) tested, \\(3\\) discarded), because the hulls of the pieces are not yet separated. One more halving would discard the pair, but the halving stops at the fixed depth \\(4\\). So the remaining pair does not mean "here is an intersection" but "look closer": overlap of hulls is a necessary, not a sufficient, condition.',
             ),
             formulaIds: ['bh-hull-test'],
-            frames: [frame('bh-near-miss-explanation', 'explanation'), frame('bh-near-miss-observation', 'observation')],
+            frames: [frame('bh-near-miss-explanation', 'explanation'), frame('bh-near-miss-observation', 'observation', bhFrame({highlight: ['depth', 'kept']}))],
             observationPrompt: text('Preberi, koliko parov ostane. Na tej povečavi se krivulji na videz dotikata: skrij lekcijo, sliko ob preostalem paru večkrat povečaj in poišči razmik.', 'Read how many pairs remain. At this zoom the curves seem to touch: hide the lesson, zoom in several times at the remaining pair and find the gap.'),
             expectedObservations: [text('Ostane \\(1\\) par od \\(256\\), preizkušenih \\(4\\), zavrženih \\(3\\), krivulji pa se ne sekata (razdalja približno \\(0{,}01\\)).', 'There remains \\(1\\) pair of \\(256\\), \\(4\\) tested, \\(3\\) discarded, yet the curves do not meet (distance about \\(0.01\\)).')],
             scene: bezierHullsScene('bh-near-miss', BEZIER_HULLS_NEAR_MISS, true, 'end',
@@ -3314,7 +3318,7 @@ const bezierHulls: GuidedLesson = {
                 'The view is at its start again with the original curves. Press Next step and watch the hulls of the pieces; move a control point so that the curves no longer meet and find the depth at which the last pair disappears. Every change of a point returns the view to its start. The coordinate fields are available once you hide the lesson with the Hide button; there you can also enter the curves at twice the size from step \\(5\\). Try to find a position where a pair remains to the end although the curves do not meet.',
             ),
             formulaIds: ['bh-hull-test'],
-            frames: [frame('bh-explore-explanation', 'explanation'), frame('bh-explore-observation', 'observation')],
+            frames: [frame('bh-explore-explanation', 'explanation', bhFrame({uses: ['next-step'], open: ['tools']})), frame('bh-explore-observation', 'observation')],
             observationPrompt: text('Poišči položaj, kjer par ostane do globine \\(4\\), krivulji pa se ne sekata.', 'Find a position where a pair remains to depth \\(4\\) although the curves do not meet.'),
             expectedObservations: [text('Ko se krivulji ne sekata, pari izginejo pri neki globini; pri tesnem približevanju lahko en par ostane do globine \\(4\\) in ne pomeni presečišča.', 'When the curves do not meet, the pairs disappear at some depth; for a close approach a pair can remain to depth \\(4\\) and does not mean an intersection.')],
             scene: bezierHullsScene('bh-explore', BEZIER_HULLS_CROSSING, true, 0,

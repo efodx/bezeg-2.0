@@ -1,0 +1,92 @@
+{
+  "graph": "bezier-hulls",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 9",
+        "Globina subdivizije: 0 od 4",
+        "Ostane parov odsekov: 1 od 1",
+        "Preizkušenih parov: 1, zavrženih: 0"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "crossing, split step 1",
+      "rows": [],
+      "notes": [
+        "Korak 2 od 9",
+        "Globina subdivizije: 1 od 4",
+        "Pari odsekov za preizkus: 4. Odločitve še ni: ovojnice so šele na vrsti."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "crossing, discard step 2",
+      "rows": [],
+      "notes": [
+        "Korak 3 od 9",
+        "Globina subdivizije: 1 od 4",
+        "Ostane parov odsekov: 2 od 4",
+        "Preizkušenih parov: 4, zavrženih: 2"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "crossing, end",
+      "rows": [],
+      "notes": [
+        "Korak 9 od 9",
+        "Globina subdivizije: 4 od 4",
+        "Ostane parov odsekov: 8 od 256",
+        "Preizkušenih parov: 32, zavrženih: 24",
+        "Pari, ki ostanejo, se lahko sekajo ali pa tudi ne: prekrivanje ovojnic tega ne dokazuje, subdivizija pa se ustavi pri najvišji globini."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "crossing, pieces hidden",
+      "rows": [],
+      "notes": [
+        "Korak 3 od 9",
+        "Globina subdivizije: 1 od 4",
+        "Ostane parov odsekov: 2 od 4",
+        "Preizkušenih parov: 4, zavrženih: 2"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "near miss, end",
+      "rows": [],
+      "notes": [
+        "Korak 9 od 9",
+        "Globina subdivizije: 4 od 4",
+        "Ostane parov odsekov: 1 od 256",
+        "Preizkušenih parov: 4, zavrženih: 3",
+        "Pari, ki ostanejo, se lahko sekajo ali pa tudi ne: prekrivanje ovojnic tega ne dokazuje, subdivizija pa se ustavi pri najvišji globini."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "hulls apart, end",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 1",
+        "Globina subdivizije: 0 od 4",
+        "Ostane parov odsekov: 0 od 1",
+        "Preizkušenih parov: 1, zavrženih: 1",
+        "Noben par ne ostane: krivulji se ne sekata. Ločenost ovojnic je potrjena z varnostno rezervo."
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

@@ -1,5 +1,8 @@
 import React from "react";
-import {t} from "../../localization";
+import {message, Message, t} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, ReadoutNote} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {hullAlgorithmMessage, hullTraceNotes, type HullTraceNoteId} from "./hullTraceNotes";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import {gridToBoard, PointSetModel, PointSetOptions, serializePointSetModel, setMode} from "../../compgeo/pointSetModel";
 import type {LessonAction} from "../../learning/model";
@@ -29,6 +32,14 @@ export const HULL_TRACE_SAMPLE_1: PointSetModel = {
 };
 
 export type HullTraceOverlayId = "trace" | "hull";
+
+/** The ids of this graph's declaration (frames name them): the readout sentences, the legend, the switches, the algorithm choice and the playback. */
+export type HullTraceIds = {
+    param: never; row: never; note: HullTraceNoteId;
+    legend: "points" | HullTraceOverlayId;
+    section: "playback";
+    action: HullTraceOverlayId | HullAlgorithm | "next-step" | "play" | "reset";
+};
 
 /** The persisted `algorithm`: one of the three ids, the default when omitted. */
 export const HULL_ALGORITHM_FIELD: PointSetExtraField = {name: "algorithm", fallback: DEFAULT_HULL_ALGORITHM, parse: parseHullAlgorithm};
@@ -270,6 +281,78 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
         if (id === "trace") return t("hulltrace_overlay_trace");
         if (id === "hull") return t("hulltrace_overlay_hull");
         return super.overlayLabel(id);
+    }
+
+    // ---- Declaration (task 08): marks, legend and switches from the point-set base, the readout sentences as notes -----------
+
+    /** Whether this graph declares its workspace; a derived graph with its own panels (the robustness graph) says no. */
+    protected declaresHullWorkspace(): boolean { return true; }
+
+    protected override declaresPointSetWorkspace() { return this.declaresHullWorkspace(); }
+
+    protected override overlayMessage(id: HullTraceOverlayId | "grid"): Message {
+        if (id === "trace") return message("hulltrace_overlay_trace");
+        if (id === "hull") return message("hulltrace_puck_hull");
+        return super.overlayMessage(id);
+    }
+
+    /** What a student flips while stepping (the trace, the hull) is a puck. */
+    protected override overlayIsPuck(id: HullTraceOverlayId | "grid"): boolean {
+        return id === "trace" || id === "hull";
+    }
+
+    protected override overlaySwatch(id: HullTraceOverlayId | "grid") {
+        if (id === "trace") return {kind: "line" as const, color: GraphPalette.primaryCurve};
+        if (id === "hull") return {kind: "area" as const, color: GraphPalette.controlPolygon};
+        return undefined;
+    }
+
+    /** The sentences of the readout (step, event, detail, test count, totals once done), in the order the panel shows them. */
+    protected override pointSetNotes(): readonly ReadoutNote<HullTraceIds>[] {
+        const run = this.run();
+        const step = this.step;
+        return hullTraceNotes({
+            step, length: run.length, event: run.event(step), points: this.model.points, gridStepExponent: this.model.gridStepExponent,
+            totals: run.view(step).done ? this.totals() : undefined,
+        });
+    }
+
+    protected override declaration(): GraphDeclaration<HullTraceIds> | undefined {
+        const common = super.declaration() as GraphDeclaration<HullTraceIds> | undefined;
+        if (!common) return undefined;
+        const length = this.run().length;
+        const step = this.step;
+        const algorithm = this.algorithm;
+        const choice = (id: HullAlgorithm, short: Message): ActionDeclaration<HullTraceIds> => ({
+            id, label: hullAlgorithmMessage(id), placement: "board", enabled: true, pressed: algorithm === id,
+            puck: {
+                group: {
+                    key: "algorithm", label: message("hulltrace_algorithm_label"),
+                    ...(algorithm === "slow-edge-test" ? {help: message("hulltrace_slow_note", {value0: length})} : {}),
+                },
+                short,
+            },
+        });
+        const playback = {placement: "tools" as const, section: "playback"};
+        const actions: ActionDeclaration<HullTraceIds>[] = [
+            ...(common.actions ?? []),
+            choice("monotone-chain", message("hulltrace_puck_monotone_chain")),
+            choice("slow-edge-test", message("hulltrace_puck_slow_edge_test")),
+            choice("gift-wrapping", message("hulltrace_puck_gift_wrapping")),
+            {id: "next-step", label: message("next_step"), enabled: step < length - 1 && !this.isPlaying, ...playback},
+            {id: "play", label: message("play"), enabled: true, pressed: this.isPlaying, ...playback},
+            {id: "reset", label: message("reset"), enabled: step > 0 || this.isPlaying, ...playback},
+        ];
+        return {...common, actions};
+    }
+
+    override performAction(id: string): void {
+        if (id === "next-step") { runAs("learner", () => { this.nextStep(); }); return; }
+        if (id === "play") { runAs("learner", () => { if (this.isPlaying) this.pause(); else this.play(); }); return; }
+        if (id === "reset") { runAs("learner", () => { this.resetTrace(); }); return; }
+        const algorithm = parseHullAlgorithm(id);
+        if (algorithm !== undefined) { runAs("learner", () => { this.setAlgorithm(algorithm); }); return; }
+        super.performAction(id);
     }
 
     /** The trace overlay follows the algorithm and the step, which are not part of the model. */

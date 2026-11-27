@@ -39,4 +39,6 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
 
 ## Status
 
-- Not started (2026-11-27).
+- Handler 1 (2026-11-27): worktree `.claude/worktrees/lane-b` (branch `lane-b` from `board-workspace-2` at `4b5fcd5fa`,
+  `node_modules` junction). Dispatch `briefs/08-lane-L54.md` (lesson smoke port 4395). L54 session 1 (bezier-hulls,
+  convex-hull, delaunay) dispatched; notes `briefs/notes/08-lane-L54.md`. No lanes accepted yet.

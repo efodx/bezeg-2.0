@@ -450,7 +450,8 @@ test('a Preset without a step resets to step 0; a Preset with a step keeps it, c
 test('the pieces overlay has its own switch and Preset key; the inspector rows read A_0.. and B_2', () => {
     const graph = new Observed();
     mount(graph);
-    expect(document.querySelectorAll('input[type="checkbox"]')).toHaveLength(4);
+    // the pieces switch is a board puck now (task 08): grid, control polygons and hulls stay checkboxes in Orodja
+    expect(document.querySelectorAll('input[type="checkbox"]')).toHaveLength(3);
     const rows = [...document.querySelectorAll('.point-list-row')];
     expect(rows.map(r => r.querySelector('button')?.textContent)).toEqual(['A_0', 'A_1', 'A_2', 'B_0', 'B_1', 'B_2']);
     expect(rows[5].getAttribute('aria-label')).toBe('B_2');
