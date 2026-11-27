@@ -2,6 +2,7 @@ import React from "react";
 import {useLanguage, useT} from "../../localization";
 import {formatNumber, formatSignificant} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
+import {PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import Slider from "../../inputs/Slider";
 import type {GridPoint} from "../../compgeo/grid";
 import {
@@ -45,7 +46,7 @@ export interface ChainChoicesProps {
 /** The two rule choices of the chain mode. The active rule is named in the readout below the playback controls. */
 export function ChainChoices(props: ChainChoicesProps) {
     const t = useT();
-    return <div className="inspector-group" data-hull-robustness="rules">
+    return <PuckOwnedGroup className="inspector-group" params={[...POP_RULES, ...DUPLICATE_RULES]} data-hull-robustness="rules">
         <ChoiceSelect label={t("hullrobust_pop_label")} value={props.pop}
                       options={POP_RULES.map(id => ({value: id, text: popText(t, id)}))}
                       onChange={value => { const next = parsePopRule(value); if (next) props.actions.setPopRule(next); }}/>
@@ -53,7 +54,7 @@ export function ChainChoices(props: ChainChoicesProps) {
                       options={DUPLICATE_RULES.map(id => ({value: id, text: duplicatesText(t, id)}))}
                       onChange={value => { const next = parseDuplicateRule(value); if (next) props.actions.setDuplicateRule(next); }}/>
         <p className="inspector-help">{t("hullrobust_change_note")}</p>
-    </div>;
+    </PuckOwnedGroup>;
 }
 
 export interface ChainReadoutProps {
@@ -74,7 +75,7 @@ export function ChainReadout(props: ChainReadoutProps) {
     const entryText = (entry: ChainOutputEntry) => t("hullrobust_hull_entry", {value0: entry.number, value1: num(entry.x), value2: num(entry.y)});
     const rule = t("hullrobust_rule_active", {value0: popText(t, props.pop), value1: duplicatesText(t, props.duplicates)});
     const output = props.hull ? chainOutputReadout(props.hull, props.points) : undefined;
-    return <div className="inspector-group" data-hull-robustness="chain-readout">
+    return <div className="inspector-group" data-hull-robustness="chain-readout" data-declared-panel="">
         <p data-readout-note className="inspector-help" data-hull-robustness="rule">{rule}</p>
         {output
             ? <>
@@ -125,12 +126,12 @@ export function KettnerControls(props: KettnerControlsProps) {
     const lines = kettnerCellLines(t, language, cell);
     const last = KETTNER_SIZE - 1;
     return <>
-        <div className="inspector-group" data-hull-robustness="panel">
+        <PuckOwnedGroup className="inspector-group" params={KETTNER_PANELS} data-hull-robustness="panel">
             <ChoiceSelect label={t("hullrobust_panel_label")} value={panel}
                           options={KETTNER_PANELS.map(id => ({value: id, text: panelText(t, id)}))}
                           onChange={value => { const next = parseKettnerPanel(value); if (next) actions.setPanel(next); }}/>
             <p className="inspector-help">{t("hullrobust_legend")}</p>
-        </div>
+        </PuckOwnedGroup>
         <div className="inspector-group" data-hull-robustness="cell-fields">
             <Slider customText={t("hullrobust_cell_i")} value={cell.i} min={0} max={last} step={1}
                     onChange={value => { actions.setCell(value, cell.j); }}/>
@@ -138,7 +139,7 @@ export function KettnerControls(props: KettnerControlsProps) {
                     onChange={value => { actions.setCell(cell.i, value); }}/>
             <p className="inspector-help">{t("hullrobust_keyboard_note")}</p>
         </div>
-        <div className="inspector-group" data-hull-robustness="cell">
+        <div className="inspector-group" data-hull-robustness="cell" data-declared-panel="">
             <p data-readout-note className="inspector-help" role="status" data-hull-robustness="cell-title">{lines.title}</p>
             <p data-readout-note className="inspector-help" data-hull-robustness="cell-exact">{lines.exact}</p>
             <p data-readout-note className="inspector-help" data-hull-robustness="cell-naive-sign">{lines.naiveSign}</p>
@@ -146,8 +147,8 @@ export function KettnerControls(props: KettnerControlsProps) {
             <p data-readout-note className="inspector-help" data-hull-robustness="cell-verdict">{lines.verdict}</p>
         </div>
         <div className="inspector-group" data-hull-robustness="counts">
-            <p data-readout-note className="inspector-help" data-hull-robustness="counts-text">
-                {t("hullrobust_counts", {value0: counts.total, value1: counts.wrongSign, value2: counts.falseZero})}</p>
+            <div data-declared-panel=""><p data-readout-note className="inspector-help" data-hull-robustness="counts-text">
+                {t("hullrobust_counts", {value0: counts.total, value1: counts.wrongSign, value2: counts.falseZero})}</p></div>
             <p className="inspector-help">{t("hullrobust_counts_scope")}</p>
             <p className="inspector-help" data-hull-robustness="setup">{t("hullrobust_setup")}</p>
         </div>

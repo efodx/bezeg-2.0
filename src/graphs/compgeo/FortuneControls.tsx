@@ -1,9 +1,9 @@
 import React, {useEffect, useRef} from "react";
-import {useLanguage, useT} from "../../localization";
-import {formatNumber, type NumberLanguage} from "../../analysis/format";
+import {renderMessage, useLanguage, useT} from "../../localization";
+import {type NumberLanguage} from "../../analysis/format";
 import {typesetMath} from "../../mathjax/loadMathJax";
-import {SWEEP_COORD_LIMIT, SWEEP_MAX_SITES} from "../../compgeo/sweep/limits";
-import {heightText, siteName, siteNames, type FortuneNote, type FortuneRun} from "./fortuneRun";
+import {siteName, siteNames, type FortuneNote, type FortuneRun} from "./fortuneRun";
+import {fortuneHeightMessage, fortuneNoteMessages, fortuneRefusalMessage} from "./fortuneNotes";
 import type {FortuneView} from "./fortuneGeometry";
 import "./SweepSideLists.css";
 import {FORTUNE_EXAMPLE_IDS, type FortuneExampleId} from "./fortunePresetCollection";
@@ -36,44 +36,19 @@ const EXAMPLE_LABEL = {
     cocircular: "fortune_example_cocircular", random: "fortune_example_random",
 } as const;
 
-function refusalText(t: Translate, run: FortuneRun): string | undefined {
-    const refusal = run.refusal;
-    if (!refusal) return undefined;
-    switch (refusal.reason) {
-        case "fewer-than-two": return t("fortune_refused_few");
-        case "too-many": return t("fortune_refused_too_many", {value0: SWEEP_MAX_SITES});
-        case "duplicate-sites": {
-            const [a, b] = refusal.indices ?? [0, 0];
-            return t("fortune_refused_duplicate", {value0: siteName(a), value1: siteName(b)});
-        }
-        default: return t("fortune_refused_coordinate", {value0: siteName(refusal.index ?? 0), value1: SWEEP_COORD_LIMIT});
-    }
+function refusalText(run: FortuneRun): string | undefined {
+    const refusal = fortuneRefusalMessage(run);
+    return refusal ? renderMessage(refusal) : undefined;
 }
 
 /** The note lines of one step: what the event did, then a line per false alarm it caused. */
-export function noteLines(t: Translate, note: FortuneNote | undefined): string[] {
-    if (!note) return [];
-    switch (note.kind) {
-        case "queued": return [t("fortune_note_queued")];
-        case "done": return [t("fortune_note_done")];
-        case "site": return [
-            note.hit ? t("fortune_note_site_hit", {value0: siteName(note.site)}) : t("fortune_note_site", {value0: siteName(note.site)}),
-            ...note.cancelled.map(sites => t("fortune_note_false_alarm", {value0: siteNames(sites)})),
-        ];
-        case "circle": return [
-            t("fortune_note_circle", {value0: siteNames(note.sites)}),
-            ...note.cancelled.map(sites => t("fortune_note_false_alarm", {value0: siteNames(sites)})),
-        ];
-    }
+export function noteLines(note: FortuneNote | undefined): string[] {
+    return fortuneNoteMessages(note).map(renderMessage);
 }
 
 /** The sweep height as one message with LaTeX in it: a rational, or `q-\sqrt{r}` with its rounded value. */
-export function heightMessage(t: Translate, view: FortuneView, language: NumberLanguage): string {
-    if (view.state.height === null) return t("fortune_height_none");
-    const height = heightText(view.state.height);
-    if (height.kind === "rational") return t("fortune_height_exact", {value0: height.latex});
-    const rounded = formatNumber(height.value, language, 3).replace("−", "-").replace(",", "{,}");
-    return t("fortune_height_surd", {value0: height.latex, value1: rounded});
+export function heightMessage(view: FortuneView, language: NumberLanguage): string {
+    return renderMessage(fortuneHeightMessage(view, language));
 }
 
 interface QueueItem {
@@ -121,7 +96,7 @@ function CurrentEvent({label}: {label: string}) {
 function QueueList({items}: {items: readonly QueueItem[]}) {
     const t = useT();
     const labelId = React.useId();
-    if (items.length === 0) return <div data-fortune="queue"><p className="inspector-help" data-fortune-queue-empty="">{t("fortune_queue_empty")}</p></div>;
+    if (items.length === 0) return <div data-fortune="queue"><p data-readout-note className="inspector-help" data-fortune-queue-empty="">{t("fortune_queue_empty")}</p></div>;
     return <div data-fortune="queue">
         <p className="inspector-help" id={labelId}>{t("fortune_queue_label")}</p>
         <ol aria-labelledby={labelId} className="sweep-side-list">
@@ -163,10 +138,10 @@ export function FortuneControls(props: FortuneControlsProps) {
     const t = useT();
     const {language} = useLanguage();
     const {run, step, playing, exampleId, actions} = props;
-    const refusal = refusalText(t, run);
+    const refusal = refusalText(run);
     const atEnd = step >= run.length - 1;
     const view = run.view(step);
-    const lines = noteLines(t, run.note(step));
+    const lines = noteLines(run.note(step));
     const beach = view ? view.state.beach : [];
     const result = run.result;
     const found = view ? view.state.vertices.length : 0;
@@ -192,16 +167,18 @@ export function FortuneControls(props: FortuneControlsProps) {
                            options={FORTUNE_EXAMPLE_IDS.map(id => ({id, text: t(EXAMPLE_LABEL[id])}))}/>
         </div>
         <div className="inspector-group" data-fortune-status="">
+            <div data-declared-panel="">
             {refusal && <p data-readout-note className="inspector-help" role="alert" data-fortune="refusal">{refusal}</p>}
             {!refusal && view && <>
                 <StepCounter step={step} length={run.length} hooks={{"data-fortune": "step", "data-readout-note": ""}}/>
                 {lines.map((line, k) => <p data-readout-note className="inspector-help" key={k} data-fortune="note">{line}</p>)}
-                <MathParagraph text={heightMessage(t, view, language)} name="height"/>
+                <MathParagraph text={heightMessage(view, language)} name="height"/>
                 {!view.done && <p data-readout-note className="inspector-help" data-fortune="beach">{beachText}</p>}
                 <p data-readout-note className="inspector-help" data-fortune="vertices">{verticesText}</p>
                 {currentLabel !== undefined && <CurrentEvent label={currentLabel}/>}
                 {!view.done && <QueueList items={queueItems(t, run, view)}/>}
             </>}
+            </div>
             <LiveReadout readout={liveReadout} muted={playing} dataAttribute="fortune-live"/>
         </div>
     </>;

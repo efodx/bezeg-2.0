@@ -1,0 +1,175 @@
+{
+  "graph": "hull-robustness",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 56",
+        "Spodnja veriga: točke po vrsti dodajamo od leve proti desni.",
+        "Orientacijskih preizkusov doslej: 0",
+        "Veljavno pravilo: orient ≤ 0: kolinearne točke izpustimo. Podvojene točke: združi v eno.",
+        "Izpis ovojnice se pokaže ob koncu sledi."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "chain, step 5",
+      "rows": [],
+      "notes": [
+        "Korak 6 od 56",
+        "Zavoj v desno: srednja točka ni na ovojnici in jo odstranimo.",
+        "Orientacija trojice = -2; preizkušana točka P8 (2, 0)",
+        "Orientacijskih preizkusov doslej: 2",
+        "Veljavno pravilo: orient ≤ 0: kolinearne točke izpustimo. Podvojene točke: združi v eno.",
+        "Izpis ovojnice se pokaže ob koncu sledi."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "chain, end",
+      "rows": [],
+      "notes": [
+        "Korak 56 od 56",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 23",
+        "Veljavno pravilo: orient ≤ 0: kolinearne točke izpustimo. Podvojene točke: združi v eno.",
+        "Izpis ovojnice (vnosov: 5): P6 (-1, 3), P3 (0, 0), P2 (4, 0), P4 (5, 3), P5 (2, 5)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "collinear, drop rule, end",
+      "rows": [],
+      "notes": [
+        "Korak 26 od 26",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 8",
+        "Veljavno pravilo: orient ≤ 0: kolinearne točke izpustimo. Podvojene točke: združi v eno.",
+        "Izpis ovojnice (vnosov: 4): P1 (0, 0), P4 (3, 0), P3 (2, 2), P5 (1, 3)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "collinear, keep rule, test step",
+      "rows": [],
+      "notes": [
+        "Korak 5 od 27",
+        "Kandidata dodamo na verigo.",
+        "Orientacijskih preizkusov doslej: 1",
+        "Veljavno pravilo: orient < 0: kolinearne točke obdržimo. Podvojene točke: združi v eno.",
+        "Izpis ovojnice se pokaže ob koncu sledi."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "collinear, keep rule, end",
+      "rows": [],
+      "notes": [
+        "Korak 27 od 27",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 9",
+        "Veljavno pravilo: orient < 0: kolinearne točke obdržimo. Podvojene točke: združi v eno.",
+        "Izpis ovojnice (vnosov: 4): P1 (0, 0), P4 (3, 0), P3 (2, 2), P5 (1, 3)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "duplicates merged, end",
+      "rows": [],
+      "notes": [
+        "Korak 13 od 13",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 2",
+        "Veljavno pravilo: orient ≤ 0: kolinearne točke izpustimo. Podvojene točke: združi v eno.",
+        "Izpis ovojnice (vnosov: 3): P1 (0, 0), P2 (4, 0), P4 (2, 3)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "duplicates kept, end",
+      "rows": [],
+      "notes": [
+        "Korak 26 od 26",
+        "Konec: konveksna ovojnica je izrisana.",
+        "Orientacijskih preizkusov doslej: 7",
+        "Veljavno pravilo: orient ≤ 0: kolinearne točke izpustimo. Podvojene točke: obdrži vse kopije.",
+        "Izpis ovojnice (vnosov: 3): P1 (0, 0), P3 (4, 0), P4 (2, 3)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "Kettner inexact, default cell",
+      "rows": [],
+      "notes": [
+        "Izbrana celica: i = 41, j = 48. Natančen predznak +, nenatančen (double) -.",
+        "Natančen predznak: +",
+        "Nenatančen predznak (double): -",
+        "Nenatančna vrednost (double): -5,68·10⁻¹⁴",
+        "V tej celici ima nenatančni račun (double) napačen predznak.",
+        "Na teh vhodnih podatkih ima nenatančni račun (double) v 112 od 4096 celic napačen predznak, v 2052 celicah pa napačno ničlo."
+      ],
+      "outputs": [],
+      "captions": [
+        "Nenatančno (double)"
+      ]
+    },
+    {
+      "name": "Kettner exact, default cell",
+      "rows": [],
+      "notes": [
+        "Izbrana celica: i = 41, j = 48. Natančen predznak +, nenatančen (double) -.",
+        "Natančen predznak: +",
+        "Nenatančen predznak (double): -",
+        "Nenatančna vrednost (double): -5,68·10⁻¹⁴",
+        "V tej celici ima nenatančni račun (double) napačen predznak.",
+        "Na teh vhodnih podatkih ima nenatančni račun (double) v 112 od 4096 celic napačen predznak, v 2052 celicah pa napačno ničlo."
+      ],
+      "outputs": [],
+      "captions": [
+        "Natančno"
+      ]
+    },
+    {
+      "name": "Kettner exact, cell 10,20",
+      "rows": [],
+      "notes": [
+        "Izbrana celica: i = 10, j = 20. Natančen predznak +, nenatančen (double) 0.",
+        "Natančen predznak: +",
+        "Nenatančen predznak (double): 0",
+        "Nenatančna vrednost (double): 0",
+        "V tej celici nenatančni račun (double) da 0, čeprav natančni predznak ni 0.",
+        "Na teh vhodnih podatkih ima nenatančni račun (double) v 112 od 4096 celic napačen predznak, v 2052 celicah pa napačno ničlo."
+      ],
+      "outputs": [],
+      "captions": [
+        "Natančno"
+      ]
+    },
+    {
+      "name": "Kettner inexact, cell 10,20",
+      "rows": [],
+      "notes": [
+        "Izbrana celica: i = 10, j = 20. Natančen predznak +, nenatančen (double) 0.",
+        "Natančen predznak: +",
+        "Nenatančen predznak (double): 0",
+        "Nenatančna vrednost (double): 0",
+        "V tej celici nenatančni račun (double) da 0, čeprav natančni predznak ni 0.",
+        "Na teh vhodnih podatkih ima nenatančni račun (double) v 112 od 4096 celic napačen predznak, v 2052 celicah pa napačno ničlo."
+      ],
+      "outputs": [],
+      "captions": [
+        "Nenatančno (double)"
+      ]
+    }
+  ]
+}

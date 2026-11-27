@@ -1,0 +1,209 @@
+{
+  "graph": "fortune",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [],
+      "notes": [
+        "Korak 1 od 8",
+        "Mesta so v vrsti dogodkov; pometalna premica je nad vsemi.",
+        "Pometalna premica je nad vsemi mesti.",
+        "Obalna črta je še prazna.",
+        "Oglišča: 0 od 2",
+        "▸ mesto Anaslednji dogodek",
+        "mesto B",
+        "mesto C",
+        "mesto D"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "example 1, step 2",
+      "rows": [],
+      "notes": [
+        "Korak 3 od 8",
+        "Dogodek mesta B: nov lok obalne črte.",
+        "Višina pometalne premice: \\(y=3\\)",
+        "Obalna črta (od leve proti desni): A, B, A",
+        "Oglišča: 0 od 2",
+        "● mesto Btrenutni dogodek",
+        "▸ mesto Cnaslednji dogodek",
+        "mesto D"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "example 1, step 3",
+      "rows": [],
+      "notes": [
+        "Korak 4 od 8",
+        "Dogodek mesta C: nov lok obalne črte.",
+        "Višina pometalne premice: \\(y=3\\)",
+        "Obalna črta (od leve proti desni): A, B, A, C, A",
+        "Oglišča: 0 od 2",
+        "● mesto Ctrenutni dogodek",
+        "▸ mesto Dnaslednji dogodek",
+        "krožni dogodek (B, A, C)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "example 1, step 4",
+      "rows": [],
+      "notes": [
+        "Korak 5 od 8",
+        "Dogodek mesta D: nov lok obalne črte.",
+        "Lažni alarm: krožni dogodek (B, A, C) je preklican, ker krog ni več prazen.",
+        "Višina pometalne premice: \\(y=-3\\)",
+        "Obalna črta (od leve proti desni): A, B, A, D, A, C, A",
+        "Oglišča: 0 od 2",
+        "● mesto Dtrenutni dogodek",
+        "▸ krožni dogodek (B, A, D)naslednji dogodek",
+        "krožni dogodek (D, A, C)",
+        "krožni dogodek (B, A, C) (preklican, lažni alarm)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "example 1, step 5 (false alarm)",
+      "rows": [],
+      "notes": [
+        "Korak 6 od 8",
+        "Krožni dogodek (B, A, D): srednji lok izgine in nastane oglišče.",
+        "Višina pometalne premice: \\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx -3{,}031\\)",
+        "Obalna črta (od leve proti desni): A, B, D, A, C, A",
+        "Oglišča: 1 od 2",
+        "● krožni dogodek (B, A, D)trenutni dogodek",
+        "▸ krožni dogodek (D, A, C)naslednji dogodek",
+        "krožni dogodek (B, A, C) (preklican, lažni alarm)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "example 1, step 6",
+      "rows": [],
+      "notes": [
+        "Korak 7 od 8",
+        "Krožni dogodek (D, A, C): srednji lok izgine in nastane oglišče.",
+        "Višina pometalne premice: \\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx -3{,}031\\)",
+        "Obalna črta (od leve proti desni): A, B, D, C, A",
+        "Oglišča: 2 od 2",
+        "● krožni dogodek (D, A, C)trenutni dogodek",
+        "krožni dogodek (B, A, C) (preklican, lažni alarm)"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "example 1, end",
+      "rows": [],
+      "notes": [
+        "Korak 8 od 8",
+        "Vsi dogodki so obdelani; prikazan je končni Voronojev diagram.",
+        "Višina pometalne premice: \\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx -3{,}031\\)",
+        "Oglišča: 2 od 2"
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓"
+      ]
+    },
+    {
+      "name": "example 2, step 3",
+      "rows": [],
+      "notes": [
+        "Korak 4 od 6",
+        "Dogodek mesta C: nov lok obalne črte.",
+        "Višina pometalne premice: \\(y=3\\)",
+        "Obalna črta (od leve proti desni): A, B, A, C, A",
+        "Oglišča: 0 od 1",
+        "● mesto Ctrenutni dogodek",
+        "▸ krožni dogodek (B, A, C)naslednji dogodek"
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "example 2, end",
+      "rows": [],
+      "notes": [
+        "Korak 6 od 6",
+        "Vsi dogodki so obdelani; prikazan je končni Voronojev diagram.",
+        "Višina pometalne premice: \\(y=-5\\)",
+        "Oglišča: 1 od 1"
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "collinear, end",
+      "rows": [],
+      "notes": [
+        "Korak 6 od 6",
+        "Vsi dogodki so obdelani; prikazan je končni Voronojev diagram.",
+        "Višina pometalne premice: \\(y=-3\\)",
+        "Oglišča: 0 od 0"
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "↓",
+        "↓",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "cocircular, end",
+      "rows": [],
+      "notes": [
+        "Korak 7 od 7",
+        "Vsi dogodki so obdelani; prikazan je končni Voronojev diagram.",
+        "Višina pometalne premice: \\(y=-5\\)",
+        "Oglišča: 1 od 1"
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "↑",
+        "→",
+        "↓"
+      ]
+    },
+    {
+      "name": "one site",
+      "rows": [],
+      "notes": [
+        "Za Fortunov algoritem sta potrebni vsaj dve mesti."
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

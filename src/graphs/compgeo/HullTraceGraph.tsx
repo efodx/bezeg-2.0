@@ -290,6 +290,17 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
 
     protected override declaresPointSetWorkspace() { return this.declaresHullWorkspace(); }
 
+    /** Whether the algorithm is a choice of this graph (a puck); a derived graph that fixes the algorithm (the robustness graph) says no. */
+    protected offersAlgorithmChoice(): boolean { return true; }
+
+    /** The monotone chain keeps a collinear middle point (the robustness graph's pop rule `<`); the collinear test note says so. */
+    protected collinearKept(): boolean { return false; }
+
+    /** The totals of every algorithm once the trace is done; a derived graph with a fixed algorithm shows none. */
+    protected hullTotals(): Readonly<Record<HullAlgorithm, number>> | undefined {
+        return this.run().view(this.step).done ? this.totals() : undefined;
+    }
+
     protected override overlayMessage(id: HullTraceOverlayId | "grid"): Message {
         if (id === "trace") return message("hulltrace_overlay_trace");
         if (id === "hull") return message("hulltrace_puck_hull");
@@ -308,16 +319,16 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
     }
 
     /** The sentences of the readout (step, event, detail, test count, totals once done), in the order the panel shows them. */
-    protected override pointSetNotes(): readonly ReadoutNote<HullTraceIds>[] {
+    protected override pointSetNotes(): readonly ReadoutNote[] {
         const run = this.run();
         const step = this.step;
         return hullTraceNotes({
             step, length: run.length, event: run.event(step), points: this.model.points, gridStepExponent: this.model.gridStepExponent,
-            totals: run.view(step).done ? this.totals() : undefined,
+            totals: this.hullTotals(), collinearKept: this.collinearKept(),
         });
     }
 
-    protected override declaration(): GraphDeclaration<HullTraceIds> | undefined {
+    protected override declaration(): GraphDeclaration | undefined {
         const common = super.declaration() as GraphDeclaration<HullTraceIds> | undefined;
         if (!common) return undefined;
         const length = this.run().length;
@@ -336,9 +347,11 @@ export class HullTraceGraph extends PointSetGraph<HullTraceOverlayId> {
         const playback = {placement: "tools" as const, section: "playback"};
         const actions: ActionDeclaration<HullTraceIds>[] = [
             ...(common.actions ?? []),
-            choice("monotone-chain", message("hulltrace_puck_monotone_chain")),
-            choice("slow-edge-test", message("hulltrace_puck_slow_edge_test")),
-            choice("gift-wrapping", message("hulltrace_puck_gift_wrapping")),
+            ...(this.offersAlgorithmChoice() ? [
+                choice("monotone-chain", message("hulltrace_puck_monotone_chain")),
+                choice("slow-edge-test", message("hulltrace_puck_slow_edge_test")),
+                choice("gift-wrapping", message("hulltrace_puck_gift_wrapping")),
+            ] : []),
             {id: "next-step", label: message("next_step"), enabled: step < length - 1 && !this.isPlaying, ...playback},
             {id: "play", label: message("play"), enabled: true, pressed: this.isPlaying, ...playback},
             {id: "reset", label: message("reset"), enabled: step > 0 || this.isPlaying, ...playback},

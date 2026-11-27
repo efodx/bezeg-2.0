@@ -1,6 +1,9 @@
 import React from "react";
 import JXG from "jsxgraph";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, onLanguageChange, t, type Message} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, ReadoutNote} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {chainReadoutNotes, duplicatesMessage, kettnerNotes, popMessage, type RobustnessNoteId} from "./hullRobustnessNotes";
 import {PointSetModel, setMode} from "../../compgeo/pointSetModel";
 import {GraphSession} from "../base/GraphSession";
 import {fitBoundingBox} from "../base/fitBoundingBox";
@@ -10,7 +13,8 @@ import type {LessonAction} from "../../learning/model";
 import {PointSetGraphState} from "./PointSetGraph";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {hullRobustnessCollection} from "./compgeoPresetCollections";
-import {HULL_STEP_FIELD, HullTraceGraph, HullTraceGraphState} from "./HullTraceGraph";
+import {HULL_STEP_FIELD, HullTraceGraph, HullTraceGraphState, type HullTraceIds} from "./HullTraceGraph";
+import type {HullTraceNoteId} from "./hullTraceNotes";
 import {PointSetExtension, PointSetExtraField, PointSetExtras} from "./pointSetPersistence";
 import {HullTraceControls} from "./HullTraceControls";
 import {HullAlgorithm, HullRun, parseHullAlgorithm, runHullTrace} from "./hullTraceRun";
@@ -55,6 +59,14 @@ const HULL_ROBUSTNESS_EXTENSION: PointSetExtension = Object.freeze({
         return {...values, algorithm: "monotone-chain", step: runHullTrace("monotone-chain", model.points, {pop, duplicates}).clamp(step)};
     },
 });
+
+/** The ids of this graph's declaration (frames name them): the hull trace's, the rule and panel choices, the Kettner sentences. */
+export type HullRobustnessIds = {
+    param: never; row: never; note: HullTraceNoteId | RobustnessNoteId;
+    legend: HullTraceIds["legend"];
+    section: "playback";
+    action: "trace" | "hull" | PopRule | DuplicateRule | KettnerPanel | "next-step" | "play" | "reset";
+};
 
 /** The saved configuration beyond the hull trace's: the view, the two rule choices and the Kettner panel and cell. */
 export interface HullRobustnessGraphState extends HullTraceGraphState {
@@ -506,8 +518,75 @@ export class HullRobustnessGraph extends HullTraceGraph {
         setCell: (i, j) => this.selectKettnerCell(i, j),
     };
 
-    /** Unconverted until the next session: the robustness graph keeps its own panels and declares nothing. */
-    protected override declaresHullWorkspace(): boolean { return false; }
+    // ---- Declaration (task 08): the hull trace's, without the algorithm choice, plus the rule choices; the Kettner view has its own --------
+
+    /** The algorithm is fixed to the monotone chain: no algorithm choice. */
+    protected override offersAlgorithmChoice(): boolean { return false; }
+
+    protected override collinearKept(): boolean { return this.popRule === "right"; }
+
+    protected override hullTotals(): undefined { return undefined; }
+
+    /** The hull trace's sentences and the chain readout in the chain view; the selected cell and the counts in the Kettner view. */
+    protected override pointSetNotes(): readonly ReadoutNote[] {
+        if (this.robustnessMode === "kettner") {
+            const cell = kettnerCellReadout(this.kettnerCell.i, this.kettnerCell.j);
+            return cell ? kettnerNotes(cell, currentLanguage()) : [];
+        }
+        return [
+            ...super.pointSetNotes(),
+            ...chainReadoutNotes({
+                pop: this.popRule, duplicates: this.duplicateRule, hull: this.run().view(this.step).hull, points: this.model.points,
+                gridStepExponent: this.model.gridStepExponent, language: currentLanguage(),
+            }),
+        ];
+    }
+
+    /** One segment of a choice puck: the option named in full for the accessible name, short on the board. */
+    private choicePuck(id: HullRobustnessIds["action"], label: Message, pressed: boolean, group: {key: string; label: Message; help?: Message}, short: Message): ActionDeclaration<HullRobustnessIds> {
+        return {id, label, placement: "board", enabled: true, pressed, puck: {group, short}};
+    }
+
+    protected override declaration(): GraphDeclaration | undefined {
+        if (this.robustnessMode === "kettner") {
+            // The map is the only drawn object and the points are not shown: it must stay in view; the panel choice is a puck.
+            const panel = this.kettnerPanel;
+            const group = {key: "panel", label: message("hullrobust_puck_panel_label"), help: message("hullrobust_legend")};
+            const actions: ActionDeclaration<HullRobustnessIds>[] = [
+                this.choicePuck("inexact", message("hullrobust_panel_inexact"), panel === "inexact", group, message("hullrobust_puck_panel_inexact")),
+                this.choicePuck("exact", message("hullrobust_panel_exact"), panel === "exact", group, message("hullrobust_puck_panel_exact")),
+            ];
+            const notes = this.pointSetNotes();
+            return {
+                marks: {must: [{kind: "box", left: 0, top: KETTNER_SIZE, right: KETTNER_SIZE, bottom: 0}]},
+                actions, ...(notes.length ? {notes} : {}),
+            };
+        }
+        const common = super.declaration() as GraphDeclaration<HullRobustnessIds> | undefined;
+        if (!common) return undefined;
+        const pop = this.popRule;
+        const duplicates = this.duplicateRule;
+        const popGroup = {key: "pop", label: message("hullrobust_puck_pop_label"), help: popMessage(pop)};
+        const duplicatesGroup = {key: "duplicates", label: message("hullrobust_duplicates_label"), help: message("hullrobust_change_note")};
+        const actions: ActionDeclaration<HullRobustnessIds>[] = [
+            ...(common.actions ?? []),
+            this.choicePuck("non-left", popMessage("non-left"), pop === "non-left", popGroup, message("hullrobust_puck_pop_drop")),
+            this.choicePuck("right", popMessage("right"), pop === "right", popGroup, message("hullrobust_puck_pop_keep")),
+            this.choicePuck("merge", duplicatesMessage("merge"), duplicates === "merge", duplicatesGroup, message("hullrobust_puck_duplicates_merge")),
+            this.choicePuck("keep", duplicatesMessage("keep"), duplicates === "keep", duplicatesGroup, message("hullrobust_puck_duplicates_keep")),
+        ];
+        return {...common, actions};
+    }
+
+    override performAction(id: string): void {
+        const pop = parsePopRule(id);
+        if (pop !== undefined) { runAs("learner", () => { this.setPopRule(pop); }); return; }
+        const duplicates = parseDuplicateRule(id);
+        if (duplicates !== undefined) { runAs("learner", () => { this.setDuplicateRule(duplicates); }); return; }
+        const panel = parseKettnerPanel(id);
+        if (panel !== undefined) { runAs("learner", () => { this.setKettnerPanel(panel); }); return; }
+        super.performAction(id);
+    }
 
     /** Chain view: the playback controls without the algorithm choice, the rule choices, then the readout (the view choice leads `workspaceEdit`). */
     protected override hullControls(): React.ReactNode {

@@ -1,4 +1,9 @@
 import React from "react";
+import {currentLanguage, message} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutNote, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {GraphPalette} from "../styles/GraphPalette";
+import {fortuneHeightRow, fortuneNotes, type FortuneNoteId} from "./fortuneNotes";
 import {AnimationScheduler} from "../../learning/runtime/animation";
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
@@ -30,6 +35,14 @@ const FORTUNE_NAMED_EXAMPLES = [
     {id: "example-1", ...FORTUNE_EXAMPLE_1}, {id: "example-2", ...FORTUNE_EXAMPLE_2},
     {id: "collinear", ...FORTUNE_COLLINEAR}, {id: "cocircular", ...FORTUNE_COCIRCULAR},
 ] as const;
+
+/** The ids of this graph's declaration (frames name them): the sweep height, the readout sentences, the legend and the playback. */
+export type FortuneIds = {
+    param: never; row: "height"; note: FortuneNoteId;
+    legend: "points" | "sweep" | "beach" | "vertices" | "false-alarm";
+    section: "display" | "playback";
+    action: "grid" | "next-step" | "play" | "reset";
+};
 
 /** Time between two playback steps (one step per pop group, never more). */
 export const FORTUNE_STEP_INTERVAL_MS = 400;
@@ -379,6 +392,78 @@ export class FortuneGraph extends PointSetGraph<never> {
         this.ownedBy = undefined;
         this.statsValue = undefined;
         this.drawnFor = undefined;
+    }
+
+    // ---- Declaration (task 08): marks, legend and switches from the point-set base, the sweep height as a row, the sentences as notes --
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override pointSetNotes(): readonly ReadoutNote<FortuneIds>[] {
+        return fortuneNotes(this.run(), this.step);
+    }
+
+    private fortuneMarksMemo?: {base: ViewMarks; box: unknown; scale: number; marks: ViewMarks};
+
+    /** The points must stay in view; the box of the sweep area (the sites with the circles of their events) is kept in view when there is room. */
+    protected override pointSetViewMarks(): ViewMarks {
+        const base = super.pointSetViewMarks();
+        const box = this.run().box;
+        if (!box) return base;
+        const scale = 2 ** this.model.gridStepExponent;
+        const memo = this.fortuneMarksMemo;
+        if (memo?.base === base && memo.box === box && memo.scale === scale) return memo.marks;
+        const area: ViewMark = {kind: "box", left: box.minX.toNumber() * scale, top: box.maxY.toNumber() * scale, right: box.maxX.toNumber() * scale, bottom: box.minY.toNumber() * scale};
+        const marks: ViewMarks = {must: base.must, nice: [...(base.nice ?? []), area]};
+        this.fortuneMarksMemo = {base, box, scale, marks};
+        return marks;
+    }
+
+    /** What the sweep draws while it runs; at the end the finished diagram replaces all of it. */
+    private sweepDrawn(): {sweeping: boolean; vertices: boolean; falseAlarms: boolean} {
+        const view = this.hasBoard && this.sweep ? this.run().view(this.step) : undefined;
+        if (!view || view.done) return {sweeping: false, vertices: false, falseAlarms: false};
+        return {sweeping: true, vertices: view.vertices.length > 0, falseAlarms: view.cancelled.length > 0};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.sweepDrawn();
+        switch (id) {
+            case "sweep": return {color: GraphPalette.constructionAccent, visible: drawn.sweeping};
+            case "beach": return {color: GraphPalette.primaryCurve, visible: drawn.sweeping};
+            case "vertices": return {color: GraphPalette.warningText, visible: drawn.vertices};
+            case "false-alarm": return {color: GraphPalette.warningText, visible: drawn.falseAlarms};
+            default: return super.drawnObject(id);
+        }
+    }
+
+    protected override declaration(): GraphDeclaration<FortuneIds> | undefined {
+        const common = super.declaration() as GraphDeclaration<FortuneIds> | undefined;
+        if (!common) return undefined;
+        const run = this.run();
+        const traced = run.refusal === undefined && run.length > 0;
+        const row = fortuneHeightRow(run.view(this.step), currentLanguage());
+        const legend: LegendEntry<FortuneIds>[] = [
+            ...(common.legend ?? []),
+            {id: "sweep", label: message("intervalsweep_overlay_sweep"), kind: "line", object: "sweep"},
+            {id: "beach", label: message("fortune_legend_beach"), kind: "line", object: "beach"},
+            {id: "vertices", label: message("fortune_legend_vertices"), kind: "point", object: "vertices"},
+            {id: "false-alarm", label: message("fortune_legend_false_alarm"), kind: "dashed", object: "false-alarm"},
+        ];
+        const playback = {placement: "tools" as const, section: "playback"};
+        const actions: ActionDeclaration<FortuneIds>[] = [
+            ...(common.actions ?? []),
+            {id: "next-step", label: message("next_step"), enabled: traced && this.step < run.length - 1 && !this.isPlaying, ...playback},
+            {id: "play", label: message("play"), enabled: traced, pressed: this.isPlaying, ...playback},
+            {id: "reset", label: message("reset"), enabled: this.step > 0 || this.isPlaying, ...playback},
+        ];
+        return {...common, legend, actions, ...(row ? {readouts: [{id: "sweep", rows: [{id: "height", ...row}]}]} : {})};
+    }
+
+    override performAction(id: string): void {
+        if (id === "next-step") { runAs("learner", () => { this.nextStep(); }); return; }
+        if (id === "play") { runAs("learner", () => { if (this.isPlaying) this.pause(); else this.play(); }); return; }
+        if (id === "reset") { runAs("learner", () => { this.resetTrace(); }); return; }
+        super.performAction(id);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

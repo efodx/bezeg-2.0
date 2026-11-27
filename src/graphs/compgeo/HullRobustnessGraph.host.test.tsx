@@ -6,7 +6,7 @@ import {GraphHost} from '../base/GraphHost';
 import {boardSignature, installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {kettnerSignMap} from '../../compgeo/inexactOrientation';
-import {setLanguage, t} from '../../localization';
+import {renderMessage, setLanguage, t} from '../../localization';
 import {UnsupportedLessonActionError} from '../../learning/model';
 import {GraphPalette} from '../styles/GraphPalette';
 import {kettnerSvg} from './kettnerBoard';
@@ -35,6 +35,8 @@ const chainCurves = (graph: Observed) => objects(graph).filter(o => o.elType ===
 const kettnerObjects = (graph: Observed) => objects(graph).filter(o => /^kettner-/.test(o.name ?? ''));
 
 const mount = (graph: Observed) => render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+/** The label of the inexact map's puck (the panel choice is a board puck, the Orodja group is hidden while it exists). */
+const inexactLabel = (graph: Observed) => renderMessage(graph.getDeclaration()!.actions!.find(action => action.id === 'inexact')!.label);
 const part = (name: string) => document.querySelector(`[data-hull-robustness="${name}"]`)?.textContent;
 const trace = (name: string) => document.querySelector(`[data-hull-trace="${name}"]`)?.textContent;
 const button = (action: string) => document.querySelector(`button[data-action="${action}"]`) as HTMLButtonElement;
@@ -84,7 +86,7 @@ describe('chain mode', () => {
         expect(dropped).not.toContain(7);
         expect(dropped).toContain(4);
         expect(part('output')).not.toMatch(/P8/);
-        choose('rules', 0, 'right');
+        act(() => graph.performAction('right'));
         expect(graph.popRule).toBe('right');
         expect(graph.step).toBe(0);
         expect(part('rule')).toMatch(/< 0/);
@@ -101,10 +103,10 @@ describe('chain mode', () => {
         const graph = new Observed();
         mount(graph);
         load(graph, model([[0, 0], [1, 1], [2, 2]]));
-        choose('rules', 0, 'right');
+        act(() => graph.performAction('right'));
         expect(finish(graph)).toEqual([0, 1, 2, 1]);
         expect(part('repeated')).toBeTruthy();
-        choose('rules', 0, 'non-left');
+        act(() => graph.performAction('non-left'));
         expect(finish(graph)).toEqual([0, 2]);
         expect(part('repeated')).toBeUndefined();
     });
@@ -113,9 +115,9 @@ describe('chain mode', () => {
         const graph = new Observed();
         mount(graph);
         load(graph, model([[0, 0], [2, 0], [2, 0], [1, 2]]));
-        choose('rules', 0, 'right');
+        act(() => graph.performAction('right'));
         const merged = finish(graph);
-        choose('rules', 1, 'keep');
+        act(() => graph.performAction('keep'));
         expect(graph.duplicateRule).toBe('keep');
         expect(graph.step).toBe(0);
         const kept = finish(graph);
@@ -134,7 +136,7 @@ describe('chain mode', () => {
         expect(graph.step).toBe(3);
         act(() => { graph.play(); });
         expect(graph.isPlaying).toBe(true);
-        choose('rules', 0, 'right');
+        act(() => graph.performAction('right'));
         expect(graph.popRule).toBe('right');
         expect(graph.isPlaying).toBe(false);
         expect(graph.step).toBe(0);
@@ -150,7 +152,7 @@ describe('chain mode', () => {
         act(() => { graph.play(); });
         expect(graph.isPlaying).toBe(true);
         expect(graph.step).toBe(2);
-        choose('rules', 1, 'keep');
+        act(() => graph.performAction('keep'));
         expect(graph.duplicateRule).toBe('keep');
         expect(graph.isPlaying).toBe(false);
         expect(graph.step).toBe(0);
@@ -159,7 +161,7 @@ describe('chain mode', () => {
     test('Reset returns to step 0 and keeps the chosen rules', () => {
         const graph = new Observed();
         mount(graph);
-        choose('rules', 0, 'right');
+        act(() => graph.performAction('right'));
         click('next-step');
         click('next-step');
         click('reset');
@@ -248,7 +250,7 @@ describe('Kettner mode', () => {
         setMode('kettner');
         const naive = () => ['cell-naive-sign', 'cell-naive-value'].map(part);
         for (const text of naive()) expect(text).toMatch(/nenatanč/i);
-        expect(part('panel')).toMatch(/nenatanč/i);
+        expect(inexactLabel(graph)).toMatch(/nenatanč/i);
         const kinds = new Set<string>();
         for (const cell of cellMap.cells) {
             const kind = cell.naive === cell.exact ? 'agree' : cell.naive === 0 ? 'zero' : 'wrong';
@@ -260,7 +262,7 @@ describe('Kettner mode', () => {
         expect(kinds.size).toBe(3);
         act(() => { setLanguage('en'); });
         for (const text of naive()) expect(text).toMatch(/inexact/i);
-        expect(part('panel')).toMatch(/inexact/i);
+        expect(inexactLabel(graph)).toMatch(/inexact/i);
         expect(part('cell-naive-value')).not.toMatch(/nenatanč/i);
     });
 
@@ -368,7 +370,7 @@ describe('Kettner mode', () => {
         mount(graph);
         setMode('kettner');
         const first = named(graph, 'kettner-image')[0];
-        choose('panel', 0, 'exact');
+        act(() => graph.performAction('exact'));
         expect(graph.kettnerPanel).toBe('exact');
         expect(named(graph, 'kettner-image')).toHaveLength(1);
         expect(named(graph, 'kettner-image')[0]).not.toBe(first);
@@ -382,7 +384,7 @@ describe('scene change, language and lifecycle', () => {
         const graph = new Observed();
         mount(graph);
         const capabilities = graph.getLessonCapabilities();
-        choose('rules', 0, 'right');
+        act(() => graph.performAction('right'));
         const chain = capabilities.captureState();
         setMode('kettner');
         act(() => { graph.selectKettnerCell(3, 4); });
@@ -445,7 +447,7 @@ describe('scene change, language and lifecycle', () => {
         act(() => { graph.selectKettnerCell(7, 9); });
         expect(ariaLabel(graph)).toContain('Nenatančno (double)');
         expect(ariaLabel(graph)).toContain('i = 7, j = 9');
-        choose('panel', 0, 'exact');
+        act(() => graph.performAction('exact'));
         expect(ariaLabel(graph)).toContain('Natančno:');
         expect(ariaLabel(graph)).not.toContain('Nenatančno');
         expect(ariaLabel(graph)).toContain('i = 7, j = 9');

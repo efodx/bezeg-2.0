@@ -150,10 +150,10 @@ test('set-duplicates changes the rule and the control shows it', () => {
     const {graph} = setup();
     apply(graph, setDuplicates('keep'));
     expect(graph.duplicateRule).toBe('keep');
-    expect((document.querySelectorAll('[data-hull-robustness="rules"] select')[1] as HTMLSelectElement).value).toBe('keep');
+    expect(graph.getDeclaration()!.actions!.find(action => action.id === 'keep')!.pressed).toBe(true);
     apply(graph, setDuplicates('merge'));
     expect(graph.duplicateRule).toBe('merge');
-    expect((document.querySelectorAll('[data-hull-robustness="rules"] select')[1] as HTMLSelectElement).value).toBe('merge');
+    expect(graph.getDeclaration()!.actions!.find(action => action.id === 'merge')!.pressed).toBe(true);
 });
 
 test('Play and Next are refused in Kettner mode, and the view follows the mode exactly as the mode control does', () => {

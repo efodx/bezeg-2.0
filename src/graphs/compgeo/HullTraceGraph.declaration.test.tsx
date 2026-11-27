@@ -97,9 +97,11 @@ describe('convex hull declaration', () => {
         expect(() => graph.performAction('nothing')).toThrow();
     });
 
-    test('the robustness graph, which shares the class, stays undeclared', () => {
+    test('the robustness graph, which shares the class, declares its own choice pucks and no algorithm choice', () => {
         const graph = new HullRobustnessGraph();
         mountGraph(graph);
-        expect(graph.getDeclaration()).toBeUndefined();
+        const ids = graph.getDeclaration()!.actions!.map(candidate => candidate.id);
+        expect(ids).toEqual(expect.arrayContaining(['non-left', 'right', 'merge', 'keep']));
+        expect(ids).not.toContain('monotone-chain');
     });
 });

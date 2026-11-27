@@ -32,6 +32,8 @@ interface Sample {
     readonly states: readonly ParityState[];
     /** Deliberate differences check mode tolerates; anything not listed still fails. */
     readonly accepted?: readonly AcceptedDifference[];
+    /** Recorded notes that a declaration may have moved elsewhere (a row, a merged sentence); only a recorded note matching this is tolerated as missing. */
+    readonly movedNotes?: {readonly pattern: RegExp; readonly reason: string};
 }
 
 const continuityAccepted: readonly AcceptedDifference[] = [
@@ -88,6 +90,17 @@ const reductionAccepted: readonly AcceptedDifference[] = [
 const circleConstructionAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the approximation sentence the old panel showed under its readouts (it carries no readout marker, so the recording holds none)'},
 ];
+
+const fortuneAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'note', reason: 'the processed event, the queue and the cancelled circle events are one sentence each'},
+    {kind: 'extra', where: 'row height', reason: 'the sweep height is a row with its formula'},
+];
+
+/** The queue items ("▸ mesto Anaslednji dogodek", "● krožni dogodek (B, A, C)trenutni dogodek", a bare "mesto B") and the TeX height sentence. */
+const fortuneMovedNotes = {
+    pattern: /^(?:[▸●] )?(?:mesto [A-Z]|krožni dogodek \()|^Višina pometalne premice: |^Pometalna premica je nad vsemi mesti\.$/,
+    reason: 'the old panel listed the queue one item per line with glyphs and screen-reader words, and the sweep height as a TeX sentence (or "above all the sites" before the first event); the declaration says the queue and the processed event as one sentence each and the height as a row',
+};
 
 const SAMPLES: readonly Sample[] = [
     {file: 'functions/__parity__/taylor.json', demonstration: 'taylor', states: [
@@ -232,6 +245,47 @@ const SAMPLES: readonly Sample[] = [
             step('collinear points, end', run('monotone-chain', 'end', [[0, 0], [1, 1], [2, 2], [3, 3]])),
         ];
     })()},
+    {file: 'compgeo/__parity__/hull-robustness.json', demonstration: 'hull-robustness', states: (() => {
+        type Robust = {
+            setRobustnessMode(mode: string): void; setPopRule(rule: string): void; setDuplicateRule(rule: string): void;
+            setKettnerPanel(panel: string): void; selectKettnerCell(i: number, j: number): void;
+            loadModel(model: unknown): void; resetTrace(): void; nextStep(): void; run(): {length: number};
+        };
+        const model = (points: [number, number][]) => ({mode: 'points', closed: false, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
+        const collinear: [number, number][] = [[0, 0], [1, 1], [2, 2], [3, 0], [1, 3]];
+        const doubled: [number, number][] = [[0, 0], [4, 0], [4, 0], [2, 3], [0, 0]];
+        const chain = (pop: string, duplicates: string, points: [number, number][] | undefined, steps: number | 'end'): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Robust;
+                g.setRobustnessMode('chain'); g.setPopRule(pop); g.setDuplicateRule(duplicates);
+                if (points) g.loadModel(model(points));
+                g.resetTrace();
+                const count = steps === 'end' ? g.run().length - 1 : steps;
+                for (let i = 0; i < count; i++) g.nextStep();
+            });
+        };
+        const kettner = (panel: string, i: number, j: number): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Robust;
+                g.setRobustnessMode('kettner'); g.setKettnerPanel(panel); g.selectKettnerCell(i, j);
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('chain, step 5', chain('non-left', 'merge', undefined, 5)),
+            step('chain, end', chain('non-left', 'merge', undefined, 'end')),
+            step('collinear, drop rule, end', chain('non-left', 'merge', collinear, 'end')),
+            step('collinear, keep rule, test step', chain('right', 'merge', collinear, 4)),
+            step('collinear, keep rule, end', chain('right', 'merge', collinear, 'end')),
+            step('duplicates merged, end', chain('non-left', 'merge', doubled, 'end')),
+            step('duplicates kept, end', chain('non-left', 'keep', doubled, 'end')),
+            step('Kettner inexact, default cell', kettner('inexact', 41, 48)),
+            step('Kettner exact, default cell', kettner('exact', 41, 48)),
+            step('Kettner exact, cell 10,20', kettner('exact', 10, 20)),
+            step('Kettner inexact, cell 10,20', kettner('inexact', 10, 20)),
+        ];
+    })()},
     {file: 'compgeo/__parity__/delaunay.json', demonstration: 'delaunay', states: (() => {
         type Delaunay = {
             applyPointSetAction(action: unknown): void; loadExample(index: number): void; selectTriangle(index: number | undefined): void;
@@ -279,6 +333,33 @@ const SAMPLES: readonly Sample[] = [
             step('clockwise polygon, step 2', run(2, clockwise)),
             step('self-crossing polygon', run(0, bowtie)),
             step('two points', run(0, [[0, 0], [3, 1]])),
+        ];
+    })()},
+    {file: 'compgeo/__parity__/fortune.json', demonstration: 'fortune', accepted: fortuneAccepted, movedNotes: fortuneMovedNotes, states: (() => {
+        type Fortune = {applyPointSetAction(action: unknown): void; loadExample(id: string): void; loadModel(model: unknown): void};
+        const model = (points: [number, number][]) => ({mode: 'points', closed: false, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});
+        const run = (steps: number | 'end', example?: string, points?: [number, number][]): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as Fortune;
+                if (example) g.loadExample(example);
+                if (points) g.loadModel(model(points));
+                g.applyPointSetAction({kind: 'point-set', operation: 'set-trace-step', step: steps});
+            });
+        };
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('example 1, step 2', run(2)),
+            step('example 1, step 3', run(3)),
+            step('example 1, step 4', run(4)),
+            step('example 1, step 5 (false alarm)', run(5)),
+            step('example 1, step 6', run(6)),
+            step('example 1, end', run('end')),
+            step('example 2, step 3', run(3, 'example-2')),
+            step('example 2, end', run('end', 'example-2')),
+            step('collinear, end', run('end', 'collinear')),
+            step('cocircular, end', run('end', 'cocircular')),
+            step('one site', run(0, undefined, [[0, 0]])),
         ];
     })()},
     {file: 'compgeo/__parity__/bezier-clipping.json', demonstration: 'bezier-clipping', states: (() => {
@@ -1021,7 +1102,9 @@ describe.each(SAMPLES.map(sample => [path.basename(sample.file, '.json'), sample
         if (declarations.every(declaration => declaration === undefined)) return;
         const target = path.join(root, sample.file);
         if (!fs.existsSync(target)) return;
-        const report = checkParity(JSON.parse(fs.readFileSync(target, 'utf8')), declarations, sample.accepted);
+        const raw = checkParity(JSON.parse(fs.readFileSync(target, 'utf8')), declarations, sample.accepted);
+        const moved = sample.movedNotes;
+        const report = moved ? {...raw, differences: raw.differences.filter(d => !(d.kind === 'missing' && d.where === 'note' && moved.pattern.test(d.recorded ?? '')))} : raw;
         if (process.env.BEZEG_PARITY_REPORT) fs.writeFileSync(path.join(root, `${sample.file}.report.txt`), `${describeDifferences(report)}\ncaptions not covered: ${report.uncoveredCaptions.length}\n`);
         expect(describeDifferences(report)).toBe('');
     });

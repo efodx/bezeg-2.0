@@ -13,6 +13,8 @@ import type {BezierHullsIds} from '../../graphs/compgeo/BezierHullsGraph';
 import type {HullTraceIds} from '../../graphs/compgeo/HullTraceGraph';
 import type {DelaunayIds} from '../../graphs/compgeo/DelaunayGraph';
 import type {EarClippingIds} from '../../graphs/compgeo/EarClippingGraph';
+import type {FortuneIds} from '../../graphs/compgeo/FortuneGraph';
+import type {HullRobustnessIds} from '../../graphs/compgeo/HullRobustnessGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
@@ -21,6 +23,8 @@ const bhFrame = frameDeclarer<BezierHullsIds>();
 const chFrame = frameDeclarer<HullTraceIds>();
 const delFrame = frameDeclarer<DelaunayIds>();
 const earFrame = frameDeclarer<EarClippingIds>();
+const fortFrame = frameDeclarer<FortuneIds>();
+const robFrame = frameDeclarer<HullRobustnessIds>();
 
 const points = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'points', points: list});
 const polygon = (list: readonly LessonPoint[]): LessonAction => ({kind: 'point-set', operation: 'set-points', mode: 'polygon', closed: true, points: list});
@@ -2594,7 +2598,7 @@ const fortune: GuidedLesson = {
                 'The sites are \\(A=(0,5)\\), \\(B=(-4,3)\\), \\(C=(4,3)\\) and \\(D=(0,-3)\\). The horizontal sweep line is above all the sites (readout: "Step 1 of 8") and will move down. Behind it a beach line remains: the lower envelope of parabolas whose foci are the sites already handled and whose directrix is the sweep line. The dots on it are the breakpoints of neighbouring arcs, and they trace the edges of the Voronoi diagram. For now the event queue holds only site events in order of height: \\(A\\), \\(B\\), \\(C\\), \\(D\\); sites at the same height are handled from left to right, so \\(B\\) comes before \\(C\\). Circle events appear in the queue only during the run.',
             ),
             formulaIds: ['fortune-circle-event'],
-            frames: [frame('fortune-sites-explanation', 'explanation'), frame('fortune-sites-observation', 'observation')],
+            frames: [frame('fortune-sites-explanation', 'explanation'), frame('fortune-sites-observation', 'observation', fortFrame({highlight: ['queue', 'beach', 'vertices']}))],
             observationPrompt: text('V vrsti dogodkov preberi vrstni red mest in preveri, da je obalna črta še prazna.', 'In the event queue read the order of the sites and check that the beach line is still empty.'),
             expectedObservations: [text('Vrsta je \\(A\\), \\(B\\), \\(C\\), \\(D\\); obalna črta je prazna, oglišč je \\(0\\) od \\(2\\).', 'The queue is \\(A\\), \\(B\\), \\(C\\), \\(D\\); the beach line is empty, vertices \\(0\\) of \\(2\\).')],
             scene: fortuneScene('fortune-sites', FORTUNE_TRACE_STEPS.queued,
@@ -2626,7 +2630,7 @@ const fortune: GuidedLesson = {
                 'After the first step the beach line is only the arc of \\(A\\) at \\(y=5\\). The readout "Step 3 of 8" shows the state after the site event of \\(B\\): at \\(y=3\\) the site \\(B\\) lies below the arc of \\(A\\) and splits it, so the beach line (from left to right) is \\(A\\), \\(B\\), \\(A\\). The arc of \\(B\\) starts as a point; two breakpoints, both on the bisector of \\(AB\\), move apart from it and trace the start of this edge. The beach line is drawn approximately on the graph (sampled parabola arcs), while all the numbers in the readout and the finished diagram are exact.',
             ),
             formulaIds: ['fortune-circle-event'],
-            frames: [frame('fortune-site-events-explanation', 'explanation'), frame('fortune-site-events-observation', 'observation')],
+            frames: [frame('fortune-site-events-explanation', 'explanation'), frame('fortune-site-events-observation', 'observation', fortFrame({highlight: ['height', 'beach']}))],
             observationPrompt: text('Preberi obalno črto in višino pometalne premice ter preštej loke.', 'Read the beach line and the height of the sweep line, and count the arcs.'),
             expectedObservations: [text('Obalna črta je \\(A\\), \\(B\\), \\(A\\), višina \\(y=3\\), oglišč še ni (\\(0\\) od \\(2\\)).', 'The beach line is \\(A\\), \\(B\\), \\(A\\), the height is \\(y=3\\), there are no vertices yet (\\(0\\) of \\(2\\)).')],
             scene: fortuneScene('fortune-site-events', FORTUNE_TRACE_STEPS.twoSites,
@@ -2642,7 +2646,7 @@ const fortune: GuidedLesson = {
                 'The site event of \\(C\\) (step 4 of 8) adds an arc and the beach line is \\(A\\), \\(B\\), \\(A\\), \\(C\\), \\(A\\). Now the arcs \\(B\\), \\(A\\), \\(C\\) are consecutive: their sites lie on the circle with centre \\((0,0)\\) and radius \\(R=5\\), since \\(|OA|=|OB|=|OC|=5\\). If the middle arc \\(A\\) shrinks to a point, that point will be the centre \\((0,0)\\), and the sweep line will then be at the lowest point of the circle, at height \\(y=-5\\). So the circle event \\((B,A,C)\\) is scheduled in the queue. The queue has the site event of \\(D\\) before it, because the line reaches \\(y=-3\\) before \\(y=-5\\). On the graph the scheduled circle is drawn solid, with a diamond at its lowest point.',
             ),
             formulaIds: ['fortune-circle-event'],
-            frames: [frame('fortune-circle-scheduled-explanation', 'explanation'), frame('fortune-circle-scheduled-observation', 'observation')],
+            frames: [frame('fortune-circle-scheduled-explanation', 'explanation'), frame('fortune-circle-scheduled-observation', 'observation', fortFrame({highlight: ['beach', 'queue']}))],
             observationPrompt: text('Preberi obalno črto in vrsto dogodkov in poišči krog skozi \\(B\\), \\(A\\), \\(C\\).', 'Read the beach line and the event queue and find the circle through \\(B\\), \\(A\\), \\(C\\).'),
             expectedObservations: [text('Obalna črta je \\(A\\), \\(B\\), \\(A\\), \\(C\\), \\(A\\); vrsta je mesto \\(D\\), nato krožni dogodek \\((B,A,C)\\); krog ima središče \\((0,0)\\), \\(R=5\\), najnižja točka je pri \\(y=-5\\).', 'The beach line is \\(A\\), \\(B\\), \\(A\\), \\(C\\), \\(A\\); the queue is the site \\(D\\), then the circle event \\((B,A,C)\\); the circle has centre \\((0,0)\\), \\(R=5\\), its lowest point is at \\(y=-5\\).')],
             scene: fortuneScene('fortune-circle-scheduled', FORTUNE_TRACE_STEPS.scheduled,
@@ -2658,7 +2662,7 @@ const fortune: GuidedLesson = {
                 'The line reaches \\(y=-3\\) and handles the site \\(D=(0,-3)\\) (step 5 of 8). The site \\(D\\) lies in the circle with centre \\((0,0)\\) and radius \\(5\\), because its distance from the centre is \\(3<5\\). The arc of \\(D\\) splits the arc of \\(A\\) that was supposed to vanish, so \\(B\\), \\(A\\), \\(C\\) are no longer consecutive arcs (the beach line is \\(A\\), \\(B\\), \\(A\\), \\(D\\), \\(A\\), \\(C\\), \\(A\\)). The circle event \\((B,A,C)\\) is a false alarm: it is cancelled because the circle is no longer empty, and no vertex appears at \\((0,0)\\), since the site \\(D\\) is nearer to that point than \\(5\\). On the graph the cancelled circle is dashed, and in the queue it is struck through. Two new circles \\((B,A,D)\\) and \\((D,A,C)\\) are scheduled instead.',
             ),
             formulaIds: ['fortune-circle-event'], workedExampleId: 'fortune-false-alarm-example',
-            frames: [frame('fortune-false-alarm-explanation', 'explanation'), frame('fortune-false-alarm-calculation', 'calculation'), frame('fortune-false-alarm-observation', 'observation')],
+            frames: [frame('fortune-false-alarm-explanation', 'explanation'), frame('fortune-false-alarm-calculation', 'calculation'), frame('fortune-false-alarm-observation', 'observation', fortFrame({highlight: ['alarm-0', 'cancelled']}))],
             observationPrompt: text('Poišči preklicani krog in preberi opombo o lažnem alarmu; preveri, katero mesto je v krogu.', 'Find the cancelled circle and read the note about the false alarm; check which site is in the circle.'),
             expectedObservations: [text('Opomba pravi, da je krožni dogodek \\((B,A,C)\\) preklican; obalna črta je \\(A\\), \\(B\\), \\(A\\), \\(D\\), \\(A\\), \\(C\\), \\(A\\), \\(y=-3\\); v vrsti sta \\((B,A,D)\\) in \\((D,A,C)\\) ter preklicani \\((B,A,C)\\).', 'The note says the circle event \\((B,A,C)\\) is cancelled; the beach line is \\(A\\), \\(B\\), \\(A\\), \\(D\\), \\(A\\), \\(C\\), \\(A\\), \\(y=-3\\); the queue has \\((B,A,D)\\) and \\((D,A,C)\\), and the cancelled \\((B,A,C)\\).')],
             scene: fortuneScene('fortune-false-alarm', FORTUNE_TRACE_STEPS.falseAlarm,
@@ -2674,7 +2678,7 @@ const fortune: GuidedLesson = {
                 'The remaining two circle events are genuine. The circle through \\(B\\), \\(A\\), \\(D\\) has centre \\((-\\tfrac12,1)\\) and \\(R^2=\\tfrac{65}{4}\\), the circle through \\(D\\), \\(A\\), \\(C\\) has centre \\((\\tfrac12,1)\\) and the same \\(R^2\\); neither contains another site. Both lowest points are at height \\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx-3.031\\), the sweep-line readout. The heights are equal, so the abscissa of the centre decides: \\((B,A,D)\\), with centre at \\(x=-\\tfrac12\\), is first. At each event the middle arc of \\(A\\) vanishes, the beach line is then (step 7 of 8) \\(A\\), \\(B\\), \\(D\\), \\(C\\), \\(A\\), and the Voronoi vertices \\((-\\tfrac12,1)\\) and \\((\\tfrac12,1)\\) appear (readout: vertices \\(2\\) of \\(2\\)). Each press of Next step handles one event: step 6 of 8 shows only the first vertex.',
             ),
             formulaIds: ['fortune-circle-event'], workedExampleId: 'fortune-height-example',
-            frames: [frame('fortune-true-events-explanation', 'explanation'), frame('fortune-true-events-calculation', 'calculation'), frame('fortune-true-events-observation', 'observation')],
+            frames: [frame('fortune-true-events-explanation', 'explanation'), frame('fortune-true-events-calculation', 'calculation'), frame('fortune-true-events-observation', 'observation', fortFrame({highlight: ['height', 'beach', 'vertices']}))],
             observationPrompt: text('Preberi višino pometalne premice, obalno črto in število oglišč; primerjaj z vrednostmi, ki jih pove besedilo.', 'Read the height of the sweep line, the beach line and the number of vertices; compare them with the values given in the text.'),
             expectedObservations: [text('Višina \\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx-3{,}031\\), obalna črta \\(A\\), \\(B\\), \\(D\\), \\(C\\), \\(A\\), oglišč \\(2\\) od \\(2\\); v vrsti je samo še preklicani \\((B,A,C)\\).', 'The height \\(y=1-\\sqrt{\\tfrac{65}{4}}\\approx-3.031\\), the beach line \\(A\\), \\(B\\), \\(D\\), \\(C\\), \\(A\\), vertices \\(2\\) of \\(2\\); in the queue only the cancelled \\((B,A,C)\\) remains.')],
             scene: fortuneScene('fortune-true-events', FORTUNE_TRACE_STEPS.vertices,
@@ -2690,7 +2694,7 @@ const fortune: GuidedLesson = {
                 'At the end (step 8 of 8) the beach line is withdrawn and the finished Voronoi diagram appears: \\(2\\) vertices \\((-\\tfrac12,1)\\) and \\((\\tfrac12,1)\\), one finite edge (the part of the line \\(y=1\\) between them, the bisector of the segment \\(AD\\)) and \\(4\\) rays, \\(5\\) edges in all: \\(2n-2-h=2\\) and \\(3n-3-h=5\\) for \\(n=h=4\\). The diagram is exactly the dual of the Delaunay triangulation of the same sites: the vertices correspond to the triangles \\(ABD\\) and \\(ACD\\), whose circumcircles are empty, while the other triples \\(ABC\\) and \\(BCD\\) have a site in their circle. The computation is exact (integer sites, rational centres, exact comparison of heights); only the beach line between the steps is drawn approximately. Move the sites (up to \\(12\\)) and press Next step: the trace is computed again, and the step is kept if the new trace still has it. Coinciding sites are refused with a message.',
             ),
             formulaIds: ['fortune-counts'], workedExampleId: 'fortune-count-example',
-            frames: [frame('fortune-diagram-explanation', 'explanation'), frame('fortune-diagram-calculation', 'calculation'), frame('fortune-diagram-observation', 'observation')],
+            frames: [frame('fortune-diagram-explanation', 'explanation'), frame('fortune-diagram-calculation', 'calculation'), frame('fortune-diagram-observation', 'observation', fortFrame({highlight: ['vertices']}))],
             observationPrompt: text('Preštej oglišča, končne robove in poltrake in jih primerjaj z \\(2n-2-h\\) in \\(3n-3-h\\); nato premakni eno mesto in napovej, ali se bo število oglišč spremenilo.', 'Count the vertices, finite edges and rays and compare them with \\(2n-2-h\\) and \\(3n-3-h\\); then move one site and predict whether the number of vertices will change.'),
             expectedObservations: [text('Končni diagram: \\(2\\) oglišči, \\(1\\) končni rob, \\(4\\) poltraki, torej \\(5\\) robov; korak \\(8\\) od \\(8\\).', 'The finished diagram: \\(2\\) vertices, \\(1\\) finite edge, \\(4\\) rays, so \\(5\\) edges; step \\(8\\) of \\(8\\).')],
             scene: fortuneScene('fortune-diagram', 'end',
@@ -3018,7 +3022,7 @@ const hullRobustness: GuidedLesson = {
                 'The points \\((0,0)\\), \\((2,0)\\) and \\((4,0)\\) are on one line, so \\(D=0\\). The hull of these points is the segment from \\((0,0)\\) to \\((4,0)\\) and the middle point is not a vertex. The monotone chain is now run with the rule \\(<\\), which keeps the middle point when \\(D=0\\): the output has \\(4\\) entries and lists the point \\(P2=(2,0)\\) twice, on the lower and on the upper chain. So the output is not a polygon boundary.',
             ),
             formulaIds: ['robust-pop-rule'], workedExampleId: 'robust-collinear-example',
-            frames: [frame('robust-collinear-explanation', 'explanation'), frame('robust-collinear-calculation', 'calculation'), frame('robust-collinear-observation', 'observation')],
+            frames: [frame('robust-collinear-explanation', 'explanation'), frame('robust-collinear-calculation', 'calculation'), frame('robust-collinear-observation', 'observation', robFrame({highlight: ['output', 'repeated']}))],
             observationPrompt: text('Preberi izpis ovojnice in poišči mesto, ki se ponovi.', 'Read the hull output and find the location that is repeated.'),
             expectedObservations: [text('Izpis ima \\(4\\) vnose, \\(P2\\) pa je naveden dvakrat; izpis opozori, da ni rob večkotnika.', 'The output has \\(4\\) entries and \\(P2\\) is listed twice; the readout warns that the output is not a polygon boundary.')],
             scene: robustChain('robust-collinear', {pop: 'right', points: ROBUST_COLLINEAR, shown: true, presses: ROBUST_STEPS.collinearEnd},
@@ -3030,11 +3034,11 @@ const hullRobustness: GuidedLesson = {
             title: text('Napovej pravilo', 'Predict the rule'),
             purpose: text('Pred razkritjem napovedati, kaj naredi pravilo.', 'Predicting what the rule does before the reveal.'),
             explanation: text(
-                'Preden poženeš verigo, napovej: na vzorcu devetih točk leži \\((2,0)\\) na robu med \\((0,0)\\) in \\((4,0)\\). Ali bo ta točka v izpisu ovojnice, če veriga točko odstrani pri \\(D\\le0\\)? Kaj pa, če jo odstrani samo pri \\(D<0\\)? Sled in ovojnica sta skrita, izpis ovojnice čaka na konec sledi; v inspektorju je pravilo že izbrano, a ga zaenkrat ne uporabi za odgovor.',
-                'Before you run the chain, predict: in the sample of nine points, \\((2,0)\\) lies on the edge between \\((0,0)\\) and \\((4,0)\\). Will that point be in the hull output if the chain removes a point when \\(D\\le0\\)? And if it removes only when \\(D<0\\)? The trace and the hull are hidden and the hull output waits for the end of the trace; the rule is already chosen in the inspector, but do not use it as the answer yet.',
+                'Preden poženeš verigo, napovej: na vzorcu devetih točk leži \\((2,0)\\) na robu med \\((0,0)\\) in \\((4,0)\\). Ali bo ta točka v izpisu ovojnice, če veriga točko odstrani pri \\(D\\le0\\)? Kaj pa, če jo odstrani samo pri \\(D<0\\)? Sled in ovojnica sta skrita, izpis ovojnice čaka na konec sledi; na krmilniku Kolinearne točke je pravilo že izbrano, a ga zaenkrat ne uporabi za odgovor.',
+                'Before you run the chain, predict: in the sample of nine points, \\((2,0)\\) lies on the edge between \\((0,0)\\) and \\((4,0)\\). Will that point be in the hull output if the chain removes a point when \\(D\\le0\\)? And if it removes only when \\(D<0\\)? The trace and the hull are hidden and the hull output waits for the end of the trace; the rule is already chosen on the Collinear points control, but do not use it as the answer yet.',
             ),
             formulaIds: ['robust-pop-rule'],
-            frames: [frame('robust-predict-explanation', 'explanation'), frame('robust-predict-observation', 'observation')],
+            frames: [frame('robust-predict-explanation', 'explanation'), frame('robust-predict-observation', 'observation', robFrame({highlight: ['rule', 'output-pending']}))],
             observationPrompt: text('Zapiši, pri katerem pravilu pričakuješ točko \\((2,0)\\) v izpisu.', 'Write down under which rule you expect the point \\((2,0)\\) in the output.'),
             expectedObservations: [text('Sled je na začetku in izpis ovojnice še ni narejen, zato napoved še ni preverjena; naslednji korak jo primerja.', 'The trace is at its start and the hull output is not made yet, so the prediction is not checked; the next step compares it.')],
             scene: robustChain('robust-predict', {pop: 'non-left', shown: false, presses: 0},
@@ -3046,12 +3050,12 @@ const hullRobustness: GuidedLesson = {
             title: text('Pravili \\(\\le\\) in \\(<\\)', 'The rules \\(\\le\\) and \\(<\\)'),
             purpose: text('Primerjati obe pravili na istih točkah.', 'Comparing both rules on the same points.'),
             explanation: text(
-                'Veriga je zdaj končana s pravilom \\(\\le\\): izpis ima \\(5\\) vnosov in \\((2,0)\\) ni med njimi, saj je pri \\(D=0\\) odstranjena. Porabi \\(23\\) preizkusov. Zdaj v inspektorju izberi pravilo \\(<\\) in pritisni Predvajaj: izpis ima \\(6\\) vnosov in \\((2,0)\\) ostane, ker se pri \\(D=0\\) ne odstrani; veriga porabi \\(22\\) preizkusov. Obe pravili sta v redu, če veš, katero uporabljaš: prvo daje oglišča, drugo vse točke na robu.',
-                'The chain is now finished with the rule \\(\\le\\): the output has \\(5\\) entries and \\((2,0)\\) is not among them, because it is removed at \\(D=0\\). It uses \\(23\\) tests. Now choose the rule \\(<\\) in the inspector and press Play: the output has \\(6\\) entries and \\((2,0)\\) stays, because it is not removed at \\(D=0\\); the chain uses \\(22\\) tests. Both rules are fine if you know which one you use: the first gives the vertices, the second all the points on the boundary.',
+                'Veriga je zdaj končana s pravilom \\(\\le\\): izpis ima \\(5\\) vnosov in \\((2,0)\\) ni med njimi, saj je pri \\(D=0\\) odstranjena. Porabi \\(23\\) preizkusov. Zdaj na krmilniku Kolinearne točke izberi Obdrži (pravilo \\(<\\)) in pritisni Predvajaj: izpis ima \\(6\\) vnosov in \\((2,0)\\) ostane, ker se pri \\(D=0\\) ne odstrani; veriga porabi \\(22\\) preizkusov. Obe pravili sta v redu, če veš, katero uporabljaš: prvo daje oglišča, drugo vse točke na robu.',
+                'The chain is now finished with the rule \\(\\le\\): the output has \\(5\\) entries and \\((2,0)\\) is not among them, because it is removed at \\(D=0\\). It uses \\(23\\) tests. Now choose Keep (the rule \\(<\\)) on the Collinear points control and press Play: the output has \\(6\\) entries and \\((2,0)\\) stays, because it is not removed at \\(D=0\\); the chain uses \\(22\\) tests. Both rules are fine if you know which one you use: the first gives the vertices, the second all the points on the boundary.',
             ),
             formulaIds: ['robust-pop-rule'],
-            frames: [frame('robust-pop-rules-explanation', 'explanation'), frame('robust-pop-rules-observation', 'observation')],
-            observationPrompt: text('Primerjaj izpis z napovedjo, nato izberi pravilo \\(<\\) in pritisni Predvajaj.', 'Compare the output with your prediction, then choose the rule \\(<\\) and press Play.'),
+            frames: [frame('robust-pop-rules-explanation', 'explanation', robFrame({uses: ['right']})), frame('robust-pop-rules-observation', 'observation', robFrame({highlight: ['output', 'count']}))],
+            observationPrompt: text('Primerjaj izpis z napovedjo, nato na krmilniku Kolinearne točke izberi Obdrži (pravilo \\(<\\)) in pritisni Predvajaj.', 'Compare the output with your prediction, then choose Keep (the rule \\(<\\)) on the Collinear points control and press Play.'),
             expectedObservations: [text('Pri \\(\\le\\) je izpis brez \\((2,0)\\) (\\(5\\) vnosov, \\(23\\) preizkusov); pri \\(<\\) je \\((2,0)\\) v izpisu (\\(6\\) vnosov, \\(22\\) preizkusov).', 'Under \\(\\le\\) the output is without \\((2,0)\\) (\\(5\\) entries, \\(23\\) tests); under \\(<\\) the output contains \\((2,0)\\) (\\(6\\) entries, \\(22\\) tests).')],
             scene: robustChain('robust-pop-rules', {pop: 'non-left', shown: true, presses: ROBUST_STEPS.sampleEnd},
                 'Vzorec devetih točk, pravilo \\(\\le\\), veriga je končana: izpis ima \\(5\\) vnosov, brez \\((2,0)\\).',
@@ -3062,12 +3066,12 @@ const hullRobustness: GuidedLesson = {
             title: text('Podvojena točka', 'A duplicate point'),
             purpose: text('Videti, kaj naredi kopija točke.', 'Seeing what a copy of a point does.'),
             explanation: text(
-                'Vzorcu smo dodali še eno kopijo točke \\((4,0)\\), \\(P10\\). Pravilo je \\(<\\), podvojene točke pa so nastavljene na \„obdrži vse kopije\“. Veriga je končana in izpis ima \\(9\\) vnosov: mesto \\((4,0)\\) se ponovi in izpis ni rob večkotnika. Če podvojene točke združiš v eno, izpis spet pokaže \\(6\\) vnosov brez ponavljanja. Težavo povzroči kombinacija obeh nastavitev, ne ena sama.',
-                'The sample has one more copy of the point \\((4,0)\\), \\(P10\\). The rule is \\(<\\) and the duplicates are set to "keep all copies". The chain is finished and the output has \\(9\\) entries: the location \\((4,0)\\) is repeated and the output is not a polygon boundary. If you merge the duplicates into one, the output shows \\(6\\) entries again without a repeat. The problem comes from the combination of both settings, not from either alone.',
+                'Vzorcu smo dodali še eno kopijo točke \\((4,0)\\), \\(P10\\). Pravilo je \\(<\\), na krmilniku Podvojene točke pa je izbrano \„Vse kopije\“. Veriga je končana in izpis ima \\(9\\) vnosov: mesto \\((4,0)\\) se ponovi in izpis ni rob večkotnika. Če izbereš \„Združi\“, se kopije združijo v eno in izpis spet pokaže \\(6\\) vnosov brez ponavljanja. Težavo povzroči kombinacija obeh nastavitev, ne ena sama.',
+                'The sample has one more copy of the point \\((4,0)\\), \\(P10\\). The rule is \\(<\\) and the duplicates are set to "Keep all" on the Duplicate points control. The chain is finished and the output has \\(9\\) entries: the location \\((4,0)\\) is repeated and the output is not a polygon boundary. If you choose "Merge", the copies become one and the output shows \\(6\\) entries again without a repeat. The problem comes from the combination of both settings, not from either alone.',
             ),
             formulaIds: ['robust-pop-rule'],
-            frames: [frame('robust-duplicates-explanation', 'explanation'), frame('robust-duplicates-observation', 'observation')],
-            observationPrompt: text('Preberi izpis ovojnice, nato izberi \„druži v eno\“ in primerjaj.', 'Read the hull output, then choose "merge into one" and compare.'),
+            frames: [frame('robust-duplicates-explanation', 'explanation', robFrame({uses: ['merge']})), frame('robust-duplicates-observation', 'observation', robFrame({highlight: ['output', 'repeated']}))],
+            observationPrompt: text('Preberi izpis ovojnice, nato na krmilniku Podvojene točke izberi \„Združi\“ in primerjaj.', 'Read the hull output, then choose "Merge" on the Duplicate points control and compare.'),
             expectedObservations: [text('Pri \„obdrži vse kopije\“ izpis ima \\(9\\) vnosov in ponovi mesto \\((4,0)\\); pri združenih kopijah ima \\(6\\) vnosov.', 'Under "keep all copies" the output has \\(9\\) entries and repeats the location \\((4,0)\\); with merged copies it has \\(6\\) entries.')],
             scene: robustChain('robust-duplicates', {pop: 'right', duplicates: 'keep', points: ROBUST_DUPLICATE_POINTS, shown: true, presses: ROBUST_STEPS.duplicateEnd},
                 'Vzorec s kopijo točke \\((4,0)\\), pravilo \\(<\\), obdrži vse kopije: izpis ima \\(9\\) vnosov in ponovi mesto \\((4,0)\\).',
@@ -3082,7 +3086,7 @@ const hullRobustness: GuidedLesson = {
                 'The map has \\(64\\cdot64=4096\\) cells; each holds the sign of the orientation of the triple \\(p\\), \\(q\\), \\(r\\), calculated in plain doubles, so INEXACTLY. On these inputs the double calculation has the wrong sign in \\(112\\) cells and a false zero in \\(2052\\) cells. The selected cell \\(i=41\\), \\(j=48\\) is one of the wrong ones: the inexact value (double) is \\(-5.68\\times10^{-14}\\), so the sign is \\(-\\). This does not mean a double calculation always fails; it shows what happens for points this close to a line.',
             ),
             formulaIds: ['robust-kettner-setup'],
-            frames: [frame('robust-kettner-inexact-explanation', 'explanation'), frame('robust-kettner-inexact-observation', 'observation')],
+            frames: [frame('robust-kettner-inexact-explanation', 'explanation'), frame('robust-kettner-inexact-observation', 'observation', robFrame({highlight: ['cell-naive-value', 'cell-exact', 'counts-text']}))],
             observationPrompt: text('Preberi nenatančno vrednost (double) in natančen predznak izbrane celice.', 'Read the inexact value (double) and the exact sign of the selected cell.'),
             expectedObservations: [text('Izbrana celica \\(i=41\\), \\(j=48\\) ima nenatančen predznak \\(-\\) (vrednost \\(-5{,}68\\times10^{-14}\\)) in natančen predznak \\(+\\); izpis šteje \\(112\\) napačnih predznakov in \\(2052\\) napačnih ničel.', 'The selected cell \\(i=41\\), \\(j=48\\) has the inexact sign \\(-\\) (value \\(-5.68\\times10^{-14}\\)) and the exact sign \\(+\\); the readout counts \\(112\\) wrong signs and \\(2052\\) false zeros.')],
             scene: robustKettner('robust-kettner-inexact', 'inexact', ROBUST_CELL.i, ROBUST_CELL.j,
@@ -3098,7 +3102,7 @@ const hullRobustness: GuidedLesson = {
                 'The same cell \\(i=41\\), \\(j=48\\), now with the exact calculation. The exact sign is \\(+\\) (the value is about \\(+9.33\\times10^{-15}\\)), while the inexact double calculation gave \\(-\\). Bezeg avoids this: points are on a grid with integer coordinates \\(|x|,|y|\\le2^{25}\\) (ADR 0021), so the products in the test \\(D\\) are below \\(2^{53}\\) and the calculation is exact, and every turn is decided with exact integer arithmetic. The example shows these inputs, not a rule for all double calculations.',
             ),
             formulaIds: ['robust-kettner-setup'],
-            frames: [frame('robust-kettner-exact-explanation', 'explanation'), frame('robust-kettner-exact-observation', 'observation')],
+            frames: [frame('robust-kettner-exact-explanation', 'explanation'), frame('robust-kettner-exact-observation', 'observation', robFrame({highlight: ['cell-exact', 'cell-naive-sign', 'cell-verdict']}))],
             observationPrompt: text('Primerjaj natančen predznak z nenatančnim v izbrani celici.', 'Compare the exact sign with the inexact one in the selected cell.'),
             expectedObservations: [text('V celici \\(i=41\\), \\(j=48\\) je natančen predznak \\(+\\), nenatančen (double) pa \\(-\\).', 'In the cell \\(i=41\\), \\(j=48\\) the exact sign is \\(+\\) and the inexact (double) one is \\(-\\).')],
             scene: robustKettner('robust-kettner-exact', 'exact', ROBUST_CELL.i, ROBUST_CELL.j,
@@ -3114,7 +3118,7 @@ const hullRobustness: GuidedLesson = {
                 'The chain is at its start with the sample of nine points, the rule \\(\\le\\) and merged copies. Add a point on a hull edge or a copy of an existing point, change the rules and read the output. In the view Sign map choose other cells with a click or the arrow keys and find a cell where the inexact and exact signs agree.',
             ),
             formulaIds: ['robust-pop-rule', 'robust-kettner-setup'],
-            frames: [frame('robust-explore-explanation', 'explanation'), frame('robust-explore-observation', 'observation')],
+            frames: [frame('robust-explore-explanation', 'explanation'), frame('robust-explore-observation', 'observation', robFrame({highlight: ['rule', 'output-pending']}))],
             observationPrompt: text('Poišči celico, v kateri nenatančni in natančni predznak sovpadata.', 'Find a cell in which the inexact and exact signs agree.'),
             expectedObservations: [text('Vsaka sprememba pravila ali točk vrne verigo na začetek; v zemljevidu je veliko celic, kjer se predznaka ujemata.', 'Every change of rule or points returns the chain to its start; the map has many cells where the signs agree.')],
             scene: robustChain('robust-explore', {pop: 'non-left', shown: true, presses: 0},
