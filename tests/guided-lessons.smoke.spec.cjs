@@ -995,7 +995,7 @@ const meanValue = {
 const accumulationReadout = async (page, id) => (await page.locator(`[data-readout="${id}"] dd`).evaluate(domText)).replace(/−/g, '-').replace(/,/g, '.');
 const accumulationStatuses = page => page.locator('[data-accumulation-status]').evaluateAll(elements => elements.map(element => element.getAttribute('data-accumulation-status')));
 // Per step: the displayed a, x and f(x), the statuses on screen and, where the accumulation is shown, the signed integral and the tangent slope.
-// While the accumulation is hidden (every step except 2 and 6; the learner presses Show accumulation A after predicting) the readouts for A are
+// While the accumulation is hidden (every step except 2 and 6; the learner turns on the Accumulation A puck after predicting) the readouts for A are
 // words ("skrito" / "hidden"), so only the language-independent status id is checked there.
 const ACCUMULATION_STEPS = [
     {a: '0', x: '2', fx: '0.9093', statuses: ['hidden']},

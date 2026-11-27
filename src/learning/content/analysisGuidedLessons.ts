@@ -11,7 +11,7 @@
  * Show matching point to reveal a result after predicting it, except in the step that reveals the prediction of the previous one.
  *
  * The accumulation lesson uses the same generic actions (`set-function-parameter` accum-a/accum-x, `set-function-choice`
- * accumulation-function and `show-function-element` accumulation-curve); the learner presses the graph's own Show accumulation A
+ * accumulation-function and `show-function-element` accumulation-curve); the learner turns on the board Accumulation A control
  * after predicting, except in the steps whose point is the revealed curve or its tangent.
  *
  * The Darboux lesson uses the same generic actions (`set-function-parameter` darboux-a/darboux-b/darboux-n, `set-function-choice`
@@ -60,11 +60,13 @@ import type {UniformExampleId} from '../../analysis/uniformConvergence';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {TaylorIds} from '../../graphs/functions/TaylorGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
+import type {AccumulationIds} from '../../graphs/functions/AccumulationGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 /** Typed by Taylor's declaration ids: an unknown row or control fails the type check. */
 const taylorFrame = frameDeclarer<TaylorIds>();
+const accumulationFrame = frameDeclarer<AccumulationIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
 const bisectionExample = (value: BisectionExampleId): LessonAction => ({kind: 'function-choice', name: 'bisection-example', value: value});
 /** The scene shows the state after `count` revealed steps. */
@@ -775,10 +777,10 @@ const accumulation: GuidedLesson = {
                 'The function \\(f(x)=\\sin x\\) is continuous, the lower bound is \\(a=0\\) and the point is \\(x=2\\). The accumulation \\(A(x)=\\int_a^x f(t)\\,dt\\) is the signed integral from \\(a\\) to \\(x\\): the shaded region between the graph and the \\(x\\)-axis counts as positive above the axis (marked +) and as negative below it (marked −). The curve \\(A\\) is hidden for now. At \\(x=2\\) the whole region lies above the axis, because \\(\\sin t>0\\) for \\(t\\in(0,2)\\), so \\(A(2)\\) must be positive and smaller than \\(2\\), the measure of the whole arc of the sine over \\([0,\\pi]\\).',
             ),
             formulaIds: ['accumulation-definition', 'accumulation-signed'],
-            frames: [frame('accumulation-prerequisites-explanation', 'explanation'), frame('accumulation-prerequisites-observation', 'observation')],
+            frames: [frame('accumulation-prerequisites-explanation', 'explanation', accumulationFrame({highlight: ['f-x']})), frame('accumulation-prerequisites-observation', 'observation', accumulationFrame({highlight: ['f-x'], uses: ['show-accumulation']}))],
             observationPrompt: text(
-                'Napovej predznak in približno velikost \\(A(2)\\) iz osenčenega območja in šele nato pritisni Pokaži akumulacijo A.',
-                'Predict the sign and approximate size of \\(A(2)\\) from the shaded region, and only then press Show accumulation A.',
+                'Napovej predznak in približno velikost \\(A(2)\\) iz osenčenega območja in šele nato vklopi krmilnik Akumulacija A.',
+                'Predict the sign and approximate size of \\(A(2)\\) from the shaded region, and only then turn on the Accumulation A control.',
             ),
             expectedObservations: [text(
                 'Akumulacija je skrita: odčitki za \\(A(x)\\) in \\(A^{\\prime}(x)\\) kažejo, da sta skrita; prikazana je le vrednost \\(f(2)=\\sin 2\\approx0{,}9093\\).',
@@ -805,7 +807,7 @@ const accumulation: GuidedLesson = {
                 'An antiderivative of \\(\\sin t\\) is \\(-\\cos t\\), so \\(A(x)=-\\cos x+\\cos 0=1-\\cos x\\) and \\(A(2)=1-\\cos 2\\approx1.4161\\). When you show the accumulation, the dashed curve \\(A\\) is drawn together with its point at \\(x=2\\); the tangent to \\(A\\) there has slope \\(f(2)\\approx0.9093\\). At \\(x=a\\) the region is empty and \\(A(a)=0\\), so the curve \\(A\\) starts at the point \\((0,0)\\). The displayed value is the signed definite integral, not the geometric area.',
             ),
             formulaIds: ['accumulation-definition', 'accumulation-sine'], workedExampleId: 'accumulation-sin-example',
-            frames: [frame('accumulation-reveal-explanation', 'explanation'), frame('accumulation-reveal-calculation', 'calculation'), frame('accumulation-reveal-observation', 'observation')],
+            frames: [frame('accumulation-reveal-explanation', 'explanation', accumulationFrame({highlight: ['signed-integral', 'slope']})), frame('accumulation-reveal-calculation', 'calculation', accumulationFrame({highlight: ['signed-integral']})), frame('accumulation-reveal-observation', 'observation', accumulationFrame({highlight: ['signed-integral', 'slope'], uses: ['accum-x']}))],
             observationPrompt: text(
                 'Primerjaj prikazano vrednost \\(A(2)\\) z napovedjo. Nato povleci točko \\(x\\) po osi \\(x\\) in opazuj, kako se točka na krivulji \\(A\\) premika.',
                 'Compare the shown value \\(A(2)\\) with your prediction. Then drag the point \\(x\\) along the \\(x\\)-axis and watch the point on the curve \\(A\\) move.',
@@ -835,10 +837,10 @@ const accumulation: GuidedLesson = {
                 'At \\(x=\\pi\\) the shaded region covers the whole arc of the sine above the axis, from \\(0\\) to \\(\\pi\\). Its value is \\(A(\\pi)=1-\\cos\\pi=2\\), the well-known result \\(\\int_0^{\\pi}\\sin t\\,dt=2\\). The accumulation \\(A\\) increased up to \\(x=\\pi\\), because \\(\\sin t>0\\) on \\((0,\\pi)\\); at the point \\(x=\\pi\\) it reaches a local maximum \\(2\\), which is also the largest value of \\(A\\) on \\([0,2\\pi]\\); there \\(f(\\pi)=0\\) and its tangent is horizontal.',
             ),
             formulaIds: ['accumulation-sine'],
-            frames: [frame('accumulation-pi-explanation', 'explanation'), frame('accumulation-pi-observation', 'observation')],
+            frames: [frame('accumulation-pi-explanation', 'explanation', accumulationFrame({highlight: ['signed-integral']})), frame('accumulation-pi-observation', 'observation', accumulationFrame({highlight: ['f-x'], uses: ['show-accumulation']}))],
             observationPrompt: text(
-                'Napovej \\(A(\\pi)\\) in šele nato pritisni Pokaži akumulacijo A. Nato preveri, da je tangenta na \\(A\\) v točki \\(x=\\pi\\) vodoravna.',
-                'Predict \\(A(\\pi)\\), and only then press Show accumulation A. Then check that the tangent to \\(A\\) at the point \\(x=\\pi\\) is horizontal.',
+                'Napovej \\(A(\\pi)\\) in šele nato vklopi krmilnik Akumulacija A. Nato preveri, da je tangenta na \\(A\\) v točki \\(x=\\pi\\) vodoravna.',
+                'Predict \\(A(\\pi)\\), and only then turn on the Accumulation A control. Then check that the tangent to \\(A\\) at the point \\(x=\\pi\\) is horizontal.',
             ),
             expectedObservations: [text(
                 'Po pritisku je \\(A(\\pi)=2\\), \\(f(\\pi)=0\\) in naklon tangente na \\(A\\) je \\(0\\).',
@@ -865,10 +867,10 @@ const accumulation: GuidedLesson = {
                 'At \\(x=2\\pi\\) the shaded region consists of two arcs: the first above the axis contributes \\(+2\\) and the second below the axis contributes \\(-2\\). On \\((\\pi,2\\pi)\\) we have \\(\\sin t<0\\), so the accumulation \\(A\\) falls from \\(2\\) back to \\(A(2\\pi)=1-\\cos 2\\pi=0\\). A zero does not mean that there is no region: the value is a signed integral and not the geometric area, which would be \\(4\\). The readouts for the parts above and below the axis show \\(2\\) and \\(-2\\).',
             ),
             formulaIds: ['accumulation-signed', 'accumulation-sine'],
-            frames: [frame('accumulation-negative-explanation', 'explanation'), frame('accumulation-negative-observation', 'observation')],
+            frames: [frame('accumulation-negative-explanation', 'explanation', accumulationFrame({highlight: ['above-axis', 'below-axis', 'signed-integral']})), frame('accumulation-negative-observation', 'observation', accumulationFrame({highlight: ['above-axis', 'below-axis'], uses: ['show-accumulation']}))],
             observationPrompt: text(
-                'Napovej \\(A(2\\pi)\\): koliko prispeva lok nad osjo in koliko lok pod njo? Šele nato pritisni Pokaži akumulacijo A.',
-                'Predict \\(A(2\\pi)\\): how much does the arc above the axis contribute and how much the arc below it? Only then press Show accumulation A.',
+                'Napovej \\(A(2\\pi)\\): koliko prispeva lok nad osjo in koliko lok pod njo? Šele nato vklopi krmilnik Akumulacija A.',
+                'Predict \\(A(2\\pi)\\): how much does the arc above the axis contribute and how much the arc below it? Only then turn on the Accumulation A control.',
             ),
             expectedObservations: [text(
                 'Po pritisku je \\(A(2\\pi)=0\\); prispevek dela nad osjo je \\(2\\), dela pod osjo \\(-2\\); krivulja \\(A\\) je med \\(\\pi\\) in \\(2\\pi\\) padala.',
@@ -895,10 +897,10 @@ const accumulation: GuidedLesson = {
                 'Now \\(a=2\\) and \\(x=0\\). The integral is oriented from \\(a\\) towards \\(x\\), so \\(A(x)=-\\int_x^a f(t)\\,dt\\) and \\(A(0)=-\\int_0^2\\sin t\\,dt\\), which is \\(-(1-\\cos 2)\\approx-1.4161\\). The shaded region is the same as for \\(x=2\\) and lies above the axis, yet the value is negative because the direction is reversed. This does not contradict the previous steps: the formula \\(F(x)-F(a)\\) holds for every \\(x\\), also for \\(x<a\\).',
             ),
             formulaIds: ['accumulation-signed'], workedExampleId: 'accumulation-reversed-example',
-            frames: [frame('accumulation-reversed-explanation', 'explanation'), frame('accumulation-reversed-calculation', 'calculation'), frame('accumulation-reversed-observation', 'observation')],
+            frames: [frame('accumulation-reversed-explanation', 'explanation', accumulationFrame({highlight: ['signed-integral']})), frame('accumulation-reversed-calculation', 'calculation', accumulationFrame({highlight: ['signed-integral']})), frame('accumulation-reversed-observation', 'observation', accumulationFrame({highlight: ['a', 'x'], uses: ['show-accumulation', 'accum-x']}))],
             observationPrompt: text(
-                'Napovej predznak \\(A(0)\\), ko je \\(x<a\\), in šele nato pritisni Pokaži akumulacijo A. Nato povleci \\(x\\) čez \\(a\\) in opazuj, kje se predznak obrne.',
-                'Predict the sign of \\(A(0)\\) when \\(x<a\\), and only then press Show accumulation A. Then drag \\(x\\) across \\(a\\) and watch where the sign reverses.',
+                'Napovej predznak \\(A(0)\\), ko je \\(x<a\\), in šele nato vklopi krmilnik Akumulacija A. Nato povleci \\(x\\) čez \\(a\\) in opazuj, kje se predznak obrne.',
+                'Predict the sign of \\(A(0)\\) when \\(x<a\\), and only then turn on the Accumulation A control. Then drag \\(x\\) across \\(a\\) and watch where the sign reverses.',
             ),
             expectedObservations: [text(
                 'Po pritisku je \\(A(0)\\approx-1{,}4161\\); osenčeno območje je nad osjo, stanje pa pove, da \\(x\\) leži levo od \\(a\\).',
@@ -925,7 +927,7 @@ const accumulation: GuidedLesson = {
                 'At \\(x=\\frac{\\pi}{2}\\) we have \\(f(x)=\\sin\\frac{\\pi}{2}=1\\) and the tangent to \\(A\\) has slope \\(1\\); indeed \\(A(x)=1-\\cos x\\) and \\(A^{\\prime}(x)=\\sin x\\). The relation holds because the integrand \\(f\\) is continuous at the point \\(x\\): continuity is a sufficient condition for \\(A\\) to be differentiable at \\(x\\) with derivative \\(f(x)\\). The derivative of the accumulation is not an area but the height of the graph of \\(f\\): where \\(f>0\\) the accumulation increases, where \\(f<0\\) it decreases, and where \\(f=0\\) it has a horizontal tangent. The app computes the slope readout by the formula \\(f(x)\\).',
             ),
             formulaIds: ['accumulation-derivative', 'accumulation-sine'], workedExampleId: 'accumulation-derivative-example',
-            frames: [frame('accumulation-derivative-explanation', 'explanation'), frame('accumulation-derivative-calculation', 'calculation'), frame('accumulation-derivative-observation', 'observation')],
+            frames: [frame('accumulation-derivative-explanation', 'explanation', accumulationFrame({highlight: ['slope', 'f-x']})), frame('accumulation-derivative-calculation', 'calculation', accumulationFrame({highlight: ['slope', 'f-x']})), frame('accumulation-derivative-observation', 'observation', accumulationFrame({highlight: ['slope', 'f-x'], uses: ['accum-x']}))],
             observationPrompt: text(
                 'Povleci \\(x\\) po osi \\(x\\) in primerjaj naklon tangente na \\(A\\) z višino grafa \\(f\\) v isti točki. Kje je naklon pozitiven, kje negativen in kje \\(0\\)?',
                 'Drag \\(x\\) along the \\(x\\)-axis and compare the slope of the tangent to \\(A\\) with the height of the graph of \\(f\\) at the same point. Where is the slope positive, where negative and where \\(0\\)?',
@@ -952,10 +954,10 @@ const accumulation: GuidedLesson = {
                 'Now explore on your own: change the function, move \\(a\\) and \\(x\\), and each time predict \\(A(x)\\) first. For \\(f(x)=x^2\\) and \\(a=0\\) we have \\(A(x)=\\frac{x^3}{3}\\), so \\(A(2)=\\frac{8}{3}\\approx2.6667\\) and the tangent to \\(A\\) has slope \\(f(2)=4\\). Also try \\(e^x\\), where \\(A(x)=e^x-e^a\\). The functions \\(x^2\\) and \\(e^x\\) are never negative, so \\(A\\) never decreases for \\(x>a\\); for \\(\\sin x\\) it decreases where \\(f<0\\).',
             ),
             formulaIds: ['accumulation-definition', 'accumulation-derivative'],
-            frames: [frame('accumulation-free-explanation', 'explanation'), frame('accumulation-free-observation', 'observation')],
+            frames: [frame('accumulation-free-explanation', 'explanation'), frame('accumulation-free-observation', 'observation', accumulationFrame({uses: ['accum-a', 'accum-x', 'show-accumulation']}))],
             observationPrompt: text(
-                'Napovej \\(A(2)\\) za \\(x^2\\) in šele nato pritisni Pokaži akumulacijo A. Nato zamenjaj funkcijo ter premakni \\(a\\) in \\(x\\), tudi tako, da je \\(x<a\\).',
-                'Predict \\(A(2)\\) for \\(x^2\\), and only then press Show accumulation A. Then change the function and move \\(a\\) and \\(x\\), also so that \\(x<a\\).',
+                'Napovej \\(A(2)\\) za \\(x^2\\) in šele nato vklopi krmilnik Akumulacija A. Nato zamenjaj funkcijo ter premakni \\(a\\) in \\(x\\), tudi tako, da je \\(x<a\\).',
+                'Predict \\(A(2)\\) for \\(x^2\\), and only then turn on the Accumulation A control. Then change the function and move \\(a\\) and \\(x\\), also so that \\(x<a\\).',
             ),
             expectedObservations: [text(
                 'Po pritisku je pri \\(x^2\\) vrednost \\(A(2)\\approx2{,}6667\\) in naklon tangente na \\(A\\) je \\(4\\); stanje pove, da \\(A\\) narašča.',

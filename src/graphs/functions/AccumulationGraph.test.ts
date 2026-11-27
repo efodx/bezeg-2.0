@@ -3,10 +3,11 @@ import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, accumulation} from '../../analysis/accumulation';
 import {catalogFunction, FUNCTION_IDS} from '../../analysis/functions';
-import {currentLanguage, onLanguageChange, setLanguage, messageNumber} from '../../localization';
+import {currentLanguage, onLanguageChange, renderMessage, setLanguage, messageNumber} from '../../localization';
 import {GraphPalette} from '../styles/GraphPalette';
 import {DomainError} from './BaseFunctionGraph';
 import {revealButton} from "./revealElementTree";
+import type {LegendEntry} from "../base/declare/graphDeclaration";
 
 const SIN_VIEW = [-1.2, 3.1, 6.7, -3.1];
 
@@ -106,7 +107,7 @@ const statusTexts = (graph: any, language: 'sl' | 'en' = 'sl') => {
     const previous = currentLanguage();
     setLanguage(language);
     try {
-        return graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: string }) => status.text);
+        return graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: never }) => renderMessage(status.text));
     } finally {
         setLanguage(previous);
     }
@@ -301,10 +302,10 @@ test('the readout calls the value the signed integral and never presents the geo
     expect(labels).toMatch(/s predznakom/);
     setLanguage('en');
     expect((graph.renderReadout().props.children[0].props.rows as { id: string; label: string }[]).find(row => row.id === 'signed-integral')!.label).toMatch(/signed/);
-    expect(graph.renderReadout().props.children[0].props.note).toMatch(/signed definite integral, not the geometric area/);
+    expect(graph.renderReadout().props.children[0].props.note[0]).toMatch(/signed definite integral, not the geometric area/);
     expect(caption(graph)).toContain('A(x) = 0 (signed)');
     setLanguage('sl');
-    expect(graph.renderReadout().props.children[0].props.note).toMatch(/s predznakom, ne geometrijska ploščina/);
+    expect(graph.renderReadout().props.children[0].props.note[0]).toMatch(/s predznakom, ne geometrijska ploščina/);
 });
 
 test('the shaded region follows the view clamp, so e^x at x = 7 never plots a path far above the view', () => {
@@ -713,16 +714,18 @@ test('the caption follows the language and a language change notifies subscriber
 
 test('the legend names the curves and both kinds of shaded region in words, not by colour alone', () => {
     const graph = makeGraph();
-    const items = graph.renderLegend().props.items as { id: string; label: string; color: string; kind?: string }[];
+    apply(graph, reveal(true)); // the curve A and its tangent are in the legend only while they are drawn
+    expect(graph.renderLegend()).toBeNull(); // the declared legend replaces the panel
+    const entries = (): {id: string; label: string; kind: string}[] => graph.getDeclaration()!.legend!.map((entry: LegendEntry) => ({id: entry.id, label: renderMessage(entry.label), kind: entry.kind}));
+    const items = entries();
     expect(items.map(item => item.id)).toEqual(['function', 'accumulation', 'tangent', 'positive', 'negative']);
     expect(items.map(item => item.label)).toEqual([
         'Graf funkcije f (polna črta)', 'Akumulacija A (črtkana črta)', 'Tangenta na A v točki x z naklonom f(x)',
         'Območje med f in osjo x nad osjo: šteje pozitivno, oznaka +', 'Območje med f in osjo x pod osjo: šteje negativno, oznaka −',
     ]);
-    expect(new Set(items.map(item => item.color)).size).toBe(5);
-    expect(items.filter(item => item.kind === 'line')).toHaveLength(3);
+    expect(items.filter(item => item.kind === 'line')).toHaveLength(2);
     setLanguage('en');
-    expect(graph.renderLegend().props.items.map((item: any) => item.label)[1]).toBe('Accumulation A (dashed line)');
+    expect(entries().map(item => item.label)[1]).toBe('Accumulation A (dashed line)');
     // the shaded kinds also differ by outline pattern, and the colours are those of the legend
     expect(fills(graph)[POSITIVE_FILL].attributes.dash).toBe(0);
     expect(fills(graph)[NEGATIVE_FILL].attributes.dash).toBe(2);

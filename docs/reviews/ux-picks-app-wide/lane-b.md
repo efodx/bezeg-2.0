@@ -62,8 +62,11 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
   `2420f7a87` (Fortune `_ticks_` filter, Bezier decision 6 asserts marks) sent to A.
 - Accepted: `dfb8498ad` segment-intersections, voronoi (voronoi golden re-recorded, notes only); sent to A.
 - **L54 done** with the session 6 commit (voronoi-degenerate; golden re-recorded: notes plus one deg-off ray arrow that
-  follows the director's framing; 16 "pod grafom" sentences now name the Odčitki card). Next: L50 (8 demos; dispatch
-  `briefs/08-lane-L50.md`, two demos per worker).
+  follows the director's framing; 16 "pod grafom" sentences now name the Odčitki card). Sent to A (with dfb8498ad pending pick).
+- Merged board-workspace-2 (incl. ee7a33aa7) into lane-b at `156d36f7c`; A picks only lane commits after it.
+- L50 (8 demos; dispatch `briefs/08-lane-L50.md`, ONE per worker for function graphs (accumulation alone took 175k):
+  accumulation continuation running (puck strip hidden in jsdom; smoke spec case; caption). Then convexity, darboux, extrema, fixed-point + sequence (IterativeFunctionGraph shared with L42/L47: opt-in hook only), mean-value +
+  uniform-convergence. Then L49, L44, L47.
 - (old) Uncommitted in the tree: segment-intersections (converted, graph-check green) and voronoi (converted; golden is a
   notes-only diff to re-record after the fix; VoronoiGraph.host.test Fit case ~536 and hull-robustness "untagged view" writes
   fail, probably from the view fix in progress, which the fix worker now owns). After the fix commit: one worker reruns

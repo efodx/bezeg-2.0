@@ -1,0 +1,421 @@
+{
+  "graph": "accumulation",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (A hidden)",
+      "rows": [
+        {
+          "key": "Spodnja meja a#0",
+          "label": "Spodnja meja a",
+          "value": "0"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "2"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "0,9093"
+        },
+        {
+          "key": "A(x), integral s predznakom od a do x#0",
+          "label": "A(x), integral s predznakom od a do x",
+          "value": "skrito"
+        },
+        {
+          "key": "Naklon tangente na A v točki x, A′(x)#0",
+          "label": "Naklon tangente na A v točki x, A′(x)",
+          "value": "skrito"
+        },
+        {
+          "key": "Prispevek delov nad osjo (f > 0) k A(x)#0",
+          "label": "Prispevek delov nad osjo (f > 0) k A(x)",
+          "value": "skrito"
+        },
+        {
+          "key": "Prispevek delov pod osjo (f < 0) k A(x)#0",
+          "label": "Prispevek delov pod osjo (f < 0) k A(x)",
+          "value": "skrito"
+        }
+      ],
+      "notes": [
+        "A(x) je določeni integral s predznakom, ne geometrijska ploščina: deli pod osjo x štejejo negativno in zmanjšujejo A. Pri x < a je A(x) = -(integral od x do a)."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "A je skrita: napovej A(x)",
+        "f(x) = sin x",
+        "f: polna črta"
+      ]
+    },
+    {
+      "name": "A shown",
+      "rows": [
+        {
+          "key": "Spodnja meja a#0",
+          "label": "Spodnja meja a",
+          "value": "0"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "2"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "0,9093"
+        },
+        {
+          "key": "A(x), integral s predznakom od a do x#0",
+          "label": "A(x), integral s predznakom od a do x",
+          "value": "1,4161"
+        },
+        {
+          "key": "Naklon tangente na A v točki x, A′(x)#0",
+          "label": "Naklon tangente na A v točki x, A′(x)",
+          "value": "0,9093"
+        },
+        {
+          "key": "Prispevek delov nad osjo (f > 0) k A(x)#0",
+          "label": "Prispevek delov nad osjo (f > 0) k A(x)",
+          "value": "1,4161"
+        },
+        {
+          "key": "Prispevek delov pod osjo (f < 0) k A(x)#0",
+          "label": "Prispevek delov pod osjo (f < 0) k A(x)",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "A(x) je določeni integral s predznakom, ne geometrijska ploščina: deli pod osjo x štejejo negativno in zmanjšujejo A. Pri x < a je A(x) = -(integral od x do a)."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "A(x) = 1,4161 (s predznakom)",
+        "A: črtkana črta",
+        "f(x) = sin x",
+        "f: polna črta",
+        "naklon tangente na A v točki x: 0,9093"
+      ]
+    },
+    {
+      "name": "x = pi (flat)",
+      "rows": [
+        {
+          "key": "Spodnja meja a#0",
+          "label": "Spodnja meja a",
+          "value": "0"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "3,1416"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "0"
+        },
+        {
+          "key": "A(x), integral s predznakom od a do x#0",
+          "label": "A(x), integral s predznakom od a do x",
+          "value": "2"
+        },
+        {
+          "key": "Naklon tangente na A v točki x, A′(x)#0",
+          "label": "Naklon tangente na A v točki x, A′(x)",
+          "value": "0"
+        },
+        {
+          "key": "Prispevek delov nad osjo (f > 0) k A(x)#0",
+          "label": "Prispevek delov nad osjo (f > 0) k A(x)",
+          "value": "2"
+        },
+        {
+          "key": "Prispevek delov pod osjo (f < 0) k A(x)#0",
+          "label": "Prispevek delov pod osjo (f < 0) k A(x)",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "A(x) je določeni integral s predznakom, ne geometrijska ploščina: deli pod osjo x štejejo negativno in zmanjšujejo A. Pri x < a je A(x) = -(integral od x do a)."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "A(x) = 2 (s predznakom)",
+        "A: črtkana črta",
+        "f(x) = sin x",
+        "f: polna črta",
+        "naklon tangente na A v točki x: 0"
+      ]
+    },
+    {
+      "name": "x = 5 (negative part)",
+      "rows": [
+        {
+          "key": "Spodnja meja a#0",
+          "label": "Spodnja meja a",
+          "value": "0"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "5"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "-0,9589"
+        },
+        {
+          "key": "A(x), integral s predznakom od a do x#0",
+          "label": "A(x), integral s predznakom od a do x",
+          "value": "0,7163"
+        },
+        {
+          "key": "Naklon tangente na A v točki x, A′(x)#0",
+          "label": "Naklon tangente na A v točki x, A′(x)",
+          "value": "-0,9589"
+        },
+        {
+          "key": "Prispevek delov nad osjo (f > 0) k A(x)#0",
+          "label": "Prispevek delov nad osjo (f > 0) k A(x)",
+          "value": "2"
+        },
+        {
+          "key": "Prispevek delov pod osjo (f < 0) k A(x)#0",
+          "label": "Prispevek delov pod osjo (f < 0) k A(x)",
+          "value": "-1,2837"
+        }
+      ],
+      "notes": [
+        "A(x) je določeni integral s predznakom, ne geometrijska ploščina: deli pod osjo x štejejo negativno in zmanjšujejo A. Pri x < a je A(x) = -(integral od x do a)."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "-",
+        "A(x) = 0,7163 (s predznakom)",
+        "A: črtkana črta",
+        "f(x) = sin x",
+        "f: polna črta",
+        "naklon tangente na A v točki x: -0,9589"
+      ]
+    },
+    {
+      "name": "x = a (empty)",
+      "rows": [
+        {
+          "key": "Spodnja meja a#0",
+          "label": "Spodnja meja a",
+          "value": "0"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "0"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "0"
+        },
+        {
+          "key": "A(x), integral s predznakom od a do x#0",
+          "label": "A(x), integral s predznakom od a do x",
+          "value": "0"
+        },
+        {
+          "key": "Naklon tangente na A v točki x, A′(x)#0",
+          "label": "Naklon tangente na A v točki x, A′(x)",
+          "value": "0"
+        },
+        {
+          "key": "Prispevek delov nad osjo (f > 0) k A(x)#0",
+          "label": "Prispevek delov nad osjo (f > 0) k A(x)",
+          "value": "0"
+        },
+        {
+          "key": "Prispevek delov pod osjo (f < 0) k A(x)#0",
+          "label": "Prispevek delov pod osjo (f < 0) k A(x)",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "A(x) je določeni integral s predznakom, ne geometrijska ploščina: deli pod osjo x štejejo negativno in zmanjšujejo A. Pri x < a je A(x) = -(integral od x do a)."
+      ],
+      "outputs": [],
+      "captions": [
+        "A(x) = 0 (s predznakom)",
+        "A: črtkana črta",
+        "f(x) = sin x",
+        "f: polna črta",
+        "naklon tangente na A v točki x: 0"
+      ]
+    },
+    {
+      "name": "x < a (reversed)",
+      "rows": [
+        {
+          "key": "Spodnja meja a#0",
+          "label": "Spodnja meja a",
+          "value": "2"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "-1"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "-0,8415"
+        },
+        {
+          "key": "A(x), integral s predznakom od a do x#0",
+          "label": "A(x), integral s predznakom od a do x",
+          "value": "-0,9564"
+        },
+        {
+          "key": "Naklon tangente na A v točki x, A′(x)#0",
+          "label": "Naklon tangente na A v točki x, A′(x)",
+          "value": "-0,8415"
+        },
+        {
+          "key": "Prispevek delov nad osjo (f > 0) k A(x)#0",
+          "label": "Prispevek delov nad osjo (f > 0) k A(x)",
+          "value": "-1,4161"
+        },
+        {
+          "key": "Prispevek delov pod osjo (f < 0) k A(x)#0",
+          "label": "Prispevek delov pod osjo (f < 0) k A(x)",
+          "value": "0,4597"
+        }
+      ],
+      "notes": [
+        "A(x) je določeni integral s predznakom, ne geometrijska ploščina: deli pod osjo x štejejo negativno in zmanjšujejo A. Pri x < a je A(x) = -(integral od x do a)."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "-",
+        "A(x) = -0,9564 (s predznakom)",
+        "A: črtkana črta",
+        "f(x) = sin x",
+        "f: polna črta",
+        "naklon tangente na A v točki x: -0,8415"
+      ]
+    },
+    {
+      "name": "square, a -1, x 2",
+      "rows": [
+        {
+          "key": "Spodnja meja a#0",
+          "label": "Spodnja meja a",
+          "value": "-1"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "2"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "4"
+        },
+        {
+          "key": "A(x), integral s predznakom od a do x#0",
+          "label": "A(x), integral s predznakom od a do x",
+          "value": "3"
+        },
+        {
+          "key": "Naklon tangente na A v točki x, A′(x)#0",
+          "label": "Naklon tangente na A v točki x, A′(x)",
+          "value": "4"
+        },
+        {
+          "key": "Prispevek delov nad osjo (f > 0) k A(x)#0",
+          "label": "Prispevek delov nad osjo (f > 0) k A(x)",
+          "value": "3"
+        },
+        {
+          "key": "Prispevek delov pod osjo (f < 0) k A(x)#0",
+          "label": "Prispevek delov pod osjo (f < 0) k A(x)",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "A(x) je določeni integral s predznakom, ne geometrijska ploščina: deli pod osjo x štejejo negativno in zmanjšujejo A. Pri x < a je A(x) = -(integral od x do a)."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "A(x) = 3 (s predznakom)",
+        "A: črtkana črta",
+        "f(x) = x²",
+        "f: polna črta",
+        "naklon tangente na A v točki x: 4"
+      ]
+    },
+    {
+      "name": "exp hidden",
+      "rows": [
+        {
+          "key": "Spodnja meja a#0",
+          "label": "Spodnja meja a",
+          "value": "-2"
+        },
+        {
+          "key": "Točka x#0",
+          "label": "Točka x",
+          "value": "1"
+        },
+        {
+          "key": "f(x)#0",
+          "label": "f(x)",
+          "value": "2,7183"
+        },
+        {
+          "key": "A(x), integral s predznakom od a do x#0",
+          "label": "A(x), integral s predznakom od a do x",
+          "value": "2,5829"
+        },
+        {
+          "key": "Naklon tangente na A v točki x, A′(x)#0",
+          "label": "Naklon tangente na A v točki x, A′(x)",
+          "value": "2,7183"
+        },
+        {
+          "key": "Prispevek delov nad osjo (f > 0) k A(x)#0",
+          "label": "Prispevek delov nad osjo (f > 0) k A(x)",
+          "value": "2,5829"
+        },
+        {
+          "key": "Prispevek delov pod osjo (f < 0) k A(x)#0",
+          "label": "Prispevek delov pod osjo (f < 0) k A(x)",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "A(x) je določeni integral s predznakom, ne geometrijska ploščina: deli pod osjo x štejejo negativno in zmanjšujejo A. Pri x < a je A(x) = -(integral od x do a)."
+      ],
+      "outputs": [],
+      "captions": [
+        "+",
+        "A(x) = 2,5829 (s predznakom)",
+        "A: črtkana črta",
+        "f(x) = eˣ",
+        "f: polna črta",
+        "naklon tangente na A v točki x: 2,7183"
+      ]
+    }
+  ]
+}

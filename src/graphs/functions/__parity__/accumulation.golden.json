@@ -6,13 +6,13 @@
       "name": "default",
       "rows": [
         {
-          "key": "Spodnja meja a#0",
-          "label": "Spodnja meja a",
+          "key": "Spodnja meja#0",
+          "label": "Spodnja meja",
           "value": "0"
         },
         {
-          "key": "Točka x#0",
-          "label": "Točka x",
+          "key": "Točka#0",
+          "label": "Točka",
           "value": "2"
         },
         {
@@ -56,13 +56,13 @@
       "name": "accumulation-guided/accumulation-reveal-step",
       "rows": [
         {
-          "key": "Spodnja meja a#0",
-          "label": "Spodnja meja a",
+          "key": "Spodnja meja#0",
+          "label": "Spodnja meja",
           "value": "0"
         },
         {
-          "key": "Točka x#0",
-          "label": "Točka x",
+          "key": "Točka#0",
+          "label": "Točka",
           "value": "2"
         },
         {
@@ -108,13 +108,13 @@
       "name": "accumulation-guided/accumulation-pi-step",
       "rows": [
         {
-          "key": "Spodnja meja a#0",
-          "label": "Spodnja meja a",
+          "key": "Spodnja meja#0",
+          "label": "Spodnja meja",
           "value": "0"
         },
         {
-          "key": "Točka x#0",
-          "label": "Točka x",
+          "key": "Točka#0",
+          "label": "Točka",
           "value": "3,1416"
         },
         {
@@ -158,13 +158,13 @@
       "name": "accumulation-guided/accumulation-negative-step",
       "rows": [
         {
-          "key": "Spodnja meja a#0",
-          "label": "Spodnja meja a",
+          "key": "Spodnja meja#0",
+          "label": "Spodnja meja",
           "value": "0"
         },
         {
-          "key": "Točka x#0",
-          "label": "Točka x",
+          "key": "Točka#0",
+          "label": "Točka",
           "value": "6,2832"
         },
         {
@@ -209,13 +209,13 @@
       "name": "accumulation-guided/accumulation-reversed-step",
       "rows": [
         {
-          "key": "Spodnja meja a#0",
-          "label": "Spodnja meja a",
+          "key": "Spodnja meja#0",
+          "label": "Spodnja meja",
           "value": "2"
         },
         {
-          "key": "Točka x#0",
-          "label": "Točka x",
+          "key": "Točka#0",
+          "label": "Točka",
           "value": "0"
         },
         {
@@ -259,13 +259,13 @@
       "name": "accumulation-guided/accumulation-derivative-step",
       "rows": [
         {
-          "key": "Spodnja meja a#0",
-          "label": "Spodnja meja a",
+          "key": "Spodnja meja#0",
+          "label": "Spodnja meja",
           "value": "0"
         },
         {
-          "key": "Točka x#0",
-          "label": "Točka x",
+          "key": "Točka#0",
+          "label": "Točka",
           "value": "1,5708"
         },
         {
@@ -311,13 +311,13 @@
       "name": "accumulation-guided/accumulation-free-exploration",
       "rows": [
         {
-          "key": "Spodnja meja a#0",
-          "label": "Spodnja meja a",
+          "key": "Spodnja meja#0",
+          "label": "Spodnja meja",
           "value": "0"
         },
         {
-          "key": "Točka x#0",
-          "label": "Točka x",
+          "key": "Točka#0",
+          "label": "Točka",
           "value": "2"
         },
         {

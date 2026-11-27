@@ -1,11 +1,14 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, BOARD_TEXT_STYLE, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
-import {FunctionStatus} from "./FunctionStatus";
+import BaseFunctionGraph, {BoundingBox, BOARD_TEXT_STYLE, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {runAs} from "../base/writes/writeSource";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
-import {formatNumber, NumberLanguage} from "../../analysis/format";
+import {currentLanguage, message, Message, messageNumber, renderMessage, t} from "../../localization";
+import {FunctionStatus} from "./FunctionStatus";
+import {formatNumber} from "../../analysis/format";
 import {CatalogFunction, catalogFunction, FUNCTION_IDS} from "../../analysis/functions";
 import {
     ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN, ACCUMULATION_BOUND_STEP, accumulation, AccumulationPiece, accumulationFill, accumulationPieces, accumulationTangent,
@@ -47,6 +50,13 @@ const FUNCTION_VIEWS: Readonly<Record<AccumulationModel["fn"], BoundingBox>> = {
     sin: [-1.2, 3.1, 6.7, -3.1],
     square: [-2.5, 6, 5.5, -2],
     exp: [-5, 10, 9.6, -1.5],
+};
+
+/** The ids of the accumulation declaration: the bounds a and x and the Show-accumulation switch are board pucks; the drawn objects are the legend. */
+export type AccumulationIds = {
+    param: "accum-a" | "accum-x";
+    row: "a" | "x" | "f-x" | "signed-integral" | "slope" | "above-axis" | "below-axis"; note: never;
+    legend: "function" | "accumulation" | "tangent" | "positive" | "negative"; section: never; action: "show-accumulation";
 };
 
 type StatusKind = "hidden" | "empty" | "reversed" | "rising" | "falling" | "flat";
@@ -91,6 +101,8 @@ interface View {
 export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
     private pointA?: JXG.Point;
     private pointX?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
     private readonly piecesOf = this.modelCache((model: AccumulationModel) => accumulationPieces(catalogFunction(model.fn), model.a, model.x));
 
     override presetCollection() {
@@ -197,24 +209,24 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
         // Layers, lowest first: the shaded stretches above and below the axis, f, A, the tangent to A, the drop lines, the sign marks, then the points.
         const fill = (color: string, part: "positive" | "negative") => {
             // The stretches below the axis are outlined with a dashed edge, so the two kinds also differ by pattern.
-            this.signedFill(color, () => accumulationFill(fn(), model().a, model().x, clamped)[part], {dash: part === "negative" ? 2 : 0});
+            this.drawn.set(part, this.signedFill(color, () => accumulationFill(fn(), model().a, model().x, clamped)[part], {dash: part === "negative" ? 2 : 0}) as unknown as JXG.GeometryElement);
         };
         fill(GraphPalette.additionalCurves[0], "positive");
         fill(GraphPalette.additionalCurves[1], "negative");
 
-        this.own(board.create("functiongraph", [(t: number) => clipped(fn().value(t))], {
+        this.drawn.set("function", this.own(board.create("functiongraph", [(t: number) => clipped(fn().value(t))], {
             strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth,
-        }));
+        })));
         // JSXGraph may evaluate a function graph at a non-finite t while it sets up; `accumulation` rejects those, a curve just draws nothing there.
-        this.own(board.create("functiongraph", [(t: number) => Number.isFinite(t) ? clipped(accumulation(fn(), model().a, t)) : NaN], {
+        this.drawn.set("accumulation", this.own(board.create("functiongraph", [(t: number) => Number.isFinite(t) ? clipped(accumulation(fn(), model().a, t)) : NaN], {
             strokeColor: GraphPalette.primaryCurve, dash: 2, highlight: false, fixed: true, strokeWidth: thick, visible: revealed,
-        }));
-        this.own(board.create("functiongraph", [(t: number) => {
+        })));
+        this.drawn.set("tangent", this.own(board.create("functiongraph", [(t: number) => {
             const line = accumulationTangent(fn(), model().a, model().x);
             return Number.isFinite(t) ? clipped(line.slope * t + line.intercept) : NaN;
         }], {
             strokeColor: GraphPalette.constructionAccent, highlight: false, fixed: true, strokeWidth: thin, visible: revealed,
-        }));
+        })));
 
         // Drop lines from the axis to the graph of f at a and at x.
         const dropLine = (position: () => number) => this.own(board.create("segment", [[position, 0], [position, () => fn().value(position())]], {
@@ -296,6 +308,7 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
     protected override onSceneRemoved(): void {
         this.pointA = undefined;
         this.pointX = undefined;
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -308,68 +321,120 @@ export class AccumulationGraph extends BaseFunctionGraph<AccumulationModel> {
                               options={FUNCTION_IDS.map(id => ({value: id, text: `f(x) = ${catalogFunction(id).plain}`}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setFunction(next))}/>
             </div>
-            <div className="inspector-group">
-                <Slider customText={t("accumulation_a_label")} value={a} min={ACCUMULATION_BOUND_MIN} max={ACCUMULATION_BOUND_MAX} step={0.1} decimals={PRECISE}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/>
-                <Slider customText={t("accumulation_x_label")} value={x} min={ACCUMULATION_BOUND_MIN} max={ACCUMULATION_BOUND_MAX} step={0.1} decimals={PRECISE}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setX(next))}/>
+            <PuckOwnedGroup params={["accum-a", "accum-x"]} className="inspector-group">
+                <PuckOwned param="accum-a"><Slider customText={t("accumulation_a_label")} value={a} min={ACCUMULATION_BOUND_MIN} max={ACCUMULATION_BOUND_MAX} step={0.1} decimals={PRECISE}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setA(next))}/></PuckOwned>
+                <PuckOwned param="accum-x"><Slider customText={t("accumulation_x_label")} value={x} min={ACCUMULATION_BOUND_MIN} max={ACCUMULATION_BOUND_MAX} step={0.1} decimals={PRECISE}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setX(next))}/></PuckOwned>
                 <p className="inspector-help">{t("accumulation_bounds_help")}</p>
-            </div>
+            </PuckOwnedGroup>
         </>;
     }
 
     protected override renderReveals(): React.ReactNode {
         const {accumulationVisible} = this.model;
-        return <>
+        return <PuckOwnedGroup params={["show-accumulation"]}>
             <div className="accumulation-actions" role="group" aria-label={t("accumulation_actions_label")}>
                 <RevealButton action="toggle-accumulation" revealed={accumulationVisible} showLabel={t("accumulation_show")} hideLabel={t("accumulation_hide")}
                               onToggle={() => this.setAccumulationVisible(!this.model.accumulationVisible)}/>
             </div>
             <p className="inspector-help">{t("accumulation_toggle_help")}</p>
-        </>;
+        </PuckOwnedGroup>;
     }
 
-    protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "function", color: GraphPalette.comparisonCurve, label: t("accumulation_legend_f"), kind: "line"},
-            {id: "accumulation", color: GraphPalette.primaryCurve, label: t("accumulation_legend_a"), kind: "line"},
-            {id: "tangent", color: GraphPalette.constructionAccent, label: t("accumulation_legend_tangent"), kind: "line"},
-            {id: "positive", color: GraphPalette.additionalCurves[0], label: t("accumulation_legend_positive")},
-            {id: "negative", color: GraphPalette.additionalCurves[1], label: t("accumulation_legend_negative")},
-        ]}/>;
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "accum-a": {read: () => this.model.a, apply: (value: number) => this.setA(value)},
+            "accum-x": {read: () => this.model.x, apply: (value: number) => this.setX(value)},
+        };
+    }
+
+    /**
+     * The common declaration (rows, note, view marks) plus the two bounds as board pucks, the Show-accumulation switch as a puck and the legend of
+     * the drawn objects. The accumulation curve and its tangent are listed only while they are shown (a legend entry is drawn or absent).
+     */
+    protected override declaration(): GraphDeclaration {
+        const revealed = this.model.accumulationVisible;
+        const bound = (key: "accum-a" | "accum-x", label: "accumulation_a_name" | "accumulation_x_name", symbol: string) => ({
+            key, kind: "range" as const, label: message(label), symbol, help: message("accumulation_bounds_help"), placement: "board" as const,
+            min: ACCUMULATION_BOUND_MIN, max: ACCUMULATION_BOUND_MAX, step: ACCUMULATION_BOUND_STEP, maxDecimals: 2,
+        });
+        return {
+            ...this.commonDeclaration(),
+            parameters: [bound("accum-a", "accumulation_a_name", "a"), bound("accum-x", "accumulation_x_name", "x")],
+            legend: [
+                {id: "function", label: message("accumulation_legend_f"), kind: "line", object: "function"},
+                ...(revealed ? [
+                    {id: "accumulation" as const, label: message("accumulation_legend_a"), kind: "dashed" as const, object: "accumulation"},
+                    {id: "tangent" as const, label: message("accumulation_legend_tangent"), kind: "line" as const, object: "tangent"},
+                ] : []),
+                {id: "positive", label: message("accumulation_legend_positive"), kind: "area", object: "positive"},
+                {id: "negative", label: message("accumulation_legend_negative"), kind: "area", object: "negative"},
+            ],
+            actions: [
+                {id: "show-accumulation", label: message("accumulation_actions_label"), help: message("accumulation_toggle_help"), placement: "board", enabled: true,
+                    pressed: revealed, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "show-accumulation") runAs("learner", () => this.setAccumulationVisible(!this.model.accumulationVisible));
+        else throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const colorProperty = id === "positive" || id === "negative" ? "fillcolor" : "strokecolor";
+        return {color: String(element.evalVisProp(colorProperty)), visible: Boolean(element.evalVisProp("visible"))};
     }
 
     /** The statuses to state in words, most important first; each has a stable id for tests and for assistive technology. */
-    private statuses(model: AccumulationModel, view: View): { id: StatusKind; text: string }[] {
-        if (!model.accumulationVisible) return [{id: "hidden", text: t("accumulation_status_hidden")}];
-        const result: { id: StatusKind; text: string }[] = [];
-        if (model.x === model.a) result.push({id: "empty", text: t("accumulation_status_empty")});
-        else if (model.x < model.a) result.push({id: "reversed", text: t("accumulation_status_reversed")});
-        if (view.slope >= FLAT_SLOPE) result.push({id: "rising", text: t("accumulation_status_rising")});
-        else if (view.slope <= -FLAT_SLOPE) result.push({id: "falling", text: t("accumulation_status_falling")});
-        else result.push({id: "flat", text: t("accumulation_status_flat")});
+    private statuses(model: AccumulationModel, view: View): { id: StatusKind; text: Message }[] {
+        if (!model.accumulationVisible) return [{id: "hidden", text: message("accumulation_status_hidden")}];
+        const result: { id: StatusKind; text: Message }[] = [];
+        if (model.x === model.a) result.push({id: "empty", text: message("accumulation_status_empty")});
+        else if (model.x < model.a) result.push({id: "reversed", text: message("accumulation_status_reversed")});
+        if (view.slope >= FLAT_SLOPE) result.push({id: "rising", text: message("accumulation_status_rising")});
+        else if (view.slope <= -FLAT_SLOPE) result.push({id: "falling", text: message("accumulation_status_falling")});
+        else result.push({id: "flat", text: message("accumulation_status_flat")});
         return result;
     }
 
-    protected renderReadout(): React.ReactNode {
+    /** Declared by the base (task 08): the readout rows, the note, the statuses and the plotted curves; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
-        const language: NumberLanguage = currentLanguage();
         const view = this.viewOf(model);
-        const number = (value: number) => formatNumber(value, language, PRECISE);
         // While A is hidden, every row that would give its value or slope away says so in words; f(x), a and x stay readable.
-        const shown = (value: number) => model.accumulationVisible ? number(value) : t("accumulation_hidden");
-        const rows = [
-            {id: "a", label: t("accumulation_a_label"), value: number(model.a)},
-            {id: "x", label: t("accumulation_x_label"), value: number(model.x)},
-            {id: "f-x", label: "f(x)", value: number(view.fn.value(model.x))},
-            {id: "signed-integral", label: t("accumulation_readout_integral"), value: shown(view.value)},
-            {id: "slope", label: t("accumulation_readout_slope"), value: shown(view.slope)},
-            {id: "above-axis", label: t("accumulation_readout_above"), value: shown(view.above)},
-            {id: "below-axis", label: t("accumulation_readout_below"), value: shown(view.below)},
-        ];
+        const shown = (value: number) => model.accumulationVisible ? messageNumber(value, PRECISE) : message("accumulation_hidden");
+        const plotted = [(x: number) => view.fn.value(x), ...(model.accumulationVisible ? [(x: number) => accumulation(view.fn, model.a, x)] : [])];
+        return {
+            rows: [
+                {id: "a", name: message("accumulation_a_name"), symbol: "a", value: messageNumber(model.a, PRECISE)},
+                {id: "x", name: message("accumulation_x_name"), symbol: "x", value: messageNumber(model.x, PRECISE)},
+                {id: "f-x", symbol: "f(x)", value: messageNumber(view.fn.value(model.x), PRECISE)},
+                {id: "signed-integral", name: message("accumulation_readout_integral"), value: shown(view.value)},
+                {id: "slope", name: message("accumulation_readout_slope"), value: shown(view.slope)},
+                {id: "above-axis", name: message("accumulation_readout_above"), value: shown(view.above)},
+                {id: "below-axis", name: message("accumulation_readout_below"), value: shown(view.below)},
+            ],
+            help: message("accumulation_note"),
+            status: this.statuses(model, view),
+            plotted,
+            must: [{x: model.a, y: 0}, {x: model.x, y: 0}, {x: model.x, y: view.fn.value(model.x)}],
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("accumulation_note")}/>
-            <FunctionStatus className="accumulation-status" dataAttribute="accumulation-status" lines={this.statuses(model, view)}/>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus className="accumulation-status" dataAttribute="accumulation-status" lines={(this.functionPanel().status ?? []).map(line => ({id: line.id, text: renderMessage(line.text)}))}/>
         </>;
     }
 }

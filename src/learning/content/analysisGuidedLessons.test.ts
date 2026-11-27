@@ -322,12 +322,12 @@ describe('the accumulation lesson', () => {
         expect(accStep('accumulation-free-exploration').explanation.sl).toMatch(/raziskuj sam/);
     });
 
-    test('asks for a prediction before the revealing Show accumulation A, and the scene of such a step never reveals it', () => {
+    test('asks for a prediction before the revealing the Accumulation A control, and the scene of such a step never reveals it', () => {
         for (const id of ['accumulation-prerequisites-step', 'accumulation-pi-step', 'accumulation-negative-step', 'accumulation-reversed-step', 'accumulation-free-exploration']) {
             expect(accStep(id).observationPrompt.en, id).toMatch(/Predict/);
-            expect(accStep(id).observationPrompt.en, id).toMatch(/Show accumulation A/);
+            expect(accStep(id).observationPrompt.en, id).toMatch(/the Accumulation A control/);
             expect(accStep(id).observationPrompt.sl, id).toMatch(/Napovej/);
-            expect(accStep(id).observationPrompt.sl, id).toMatch(/Pokaži akumulacijo A/);
+            expect(accStep(id).observationPrompt.sl, id).toMatch(/krmilnik Akumulacija A/);
             const revealed = adaptedActions(id).some(action => action.kind === 'function-visibility' && action.visible);
             expect(revealed, id).toBe(false);
         }
