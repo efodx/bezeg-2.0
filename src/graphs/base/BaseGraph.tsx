@@ -78,10 +78,18 @@ export interface BoardState {
     boundingBox: [number, number, number, number]
 }
 
+/** What the graph needs of its board's view director (the workspace's `ViewDirector` satisfies it). */
+interface GraphViewDirector {
+    fitNow(): void;
+    isPaused(): boolean;
+}
+
 /** A figure batch's entry scene: this graph's own export, restored without a stored-data check. */
 interface FigureBatchScene<D> {
     preset: Preset<D>;
     transientState: TransientState;
+    /** The view director's intent at entry: the batch's figures move the view, the restore returns it. */
+    view?: {box: readonly number[]; keepAspectRatio: boolean; held: boolean};
 }
 
 /** Bounding box a new board starts with, and a reset returns to, unless the graph overrides `initialView()`. */
@@ -100,7 +108,7 @@ export interface GraphWorkspacePanels {
     /** Pauses graph-owned playback at its current frame. */
     pausePlayback: () => void;
     /** Tells the graph whether its board has a view director, which then replaces the visible-points fit. */
-    viewDirectorChanged: (director: {fitNow(): void} | undefined) => void;
+    viewDirectorChanged: (director: GraphViewDirector | undefined) => void;
     lessonCapabilities: LessonGraphCapabilities | undefined;
     /** Lets the workspace hand over its current user-action decision (see {@link UserActionMode}). */
     bindUserActions: (current: () => UserActionMode) => () => void;
@@ -1014,14 +1022,14 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
     }
 
     /** The view director of this graph's main board while the card layer runs one (task 07); set by the workspace, undefined for a graph without declared marks. */
-    private viewDirector: {fitNow(): void} | undefined;
+    private viewDirector: GraphViewDirector | undefined;
 
-    setViewDirector(director: {fitNow(): void} | undefined): void {
+    setViewDirector(director: GraphViewDirector | undefined): void {
         this.viewDirector = director;
     }
 
     /** A stable callback for the workspace, which keeps it in an effect dependency. */
-    private readonly viewDirectorChanged = (director: {fitNow(): void} | undefined): void => this.setViewDirector(director);
+    private readonly viewDirectorChanged = (director: GraphViewDirector | undefined): void => this.setViewDirector(director);
 
     /**
      * The host Fit: fits the view to the visible points on the board plus `extra` (points not drawn yet), with the graph's `fitView`.
@@ -1428,6 +1436,7 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
                     captureEntryState: () => ({
                         preset: cloneLessonValue(this.exportPreset()),
                         transientState: cloneLessonValue(this.captureTransientState()),
+                        view: this.hasBoard ? (({box, keepAspectRatio}) => ({box: [...box], keepAspectRatio, held: this.viewDirector?.isPaused() ?? true}))(this.boardView.intent()) : undefined,
                     }),
                     // Each Preset figure shows the Preset as loading it would: with fresh transient state.
                     applyPreset: (preset, operationSignal) => this.applyFigurePreset(session, preset, operationSignal),
@@ -1512,7 +1521,15 @@ abstract class BaseGraph<S extends BaseGraphState, D = unknown, Scene = unknown>
                     initialize: true,
                     finish: () => {
                         const boardState = (checked ?? preset).boardState;
-                        if (boardState && this.hasBoard) this.boardView.setIntent(boardState.boundingBox, {keepAspectRatio: this.equalAxisUnits});
+                        if (entry?.view && this.hasBoard) {
+                            // The learner's own view comes back as it was. A director that had been paused by the learner's
+                            // navigation stays paused (the restore counts as navigation); one that was fitting refits, as the
+                            // entry view was a fit of the same scene.
+                            const {box, keepAspectRatio, held} = entry.view;
+                            const restore = () => this.boardView.setIntent(box, {keepAspectRatio});
+                            if (held && this.viewDirector) this.boardView.navigating(restore); else restore();
+                        }
+                        else if (boardState && this.hasBoard) this.boardView.setIntent(boardState.boundingBox, {keepAspectRatio: this.equalAxisUnits});
                         this.boardUpdate();
                         session.requestFullUpdate();
                     },
