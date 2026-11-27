@@ -2180,8 +2180,8 @@ const parametricGeometry = {
         await expect.poll(async () => (await boardStats(page)).visibleCurves, {message: `parametric trace at ${label}`}).toBe(step === 1 ? 0 : 1);
     },
 };
-const CURVATURE_READOUTS = [/0[.,]2357/, /63[.,]43/, /R = 1[.,]5(?![.,]?\d)/, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s, /κ = 0[.,]6667/, /κ = 0(?![.,]?\d).*(neskončen|infinite)/s, /κ = 2(?![.,]?\d).*R = 0[.,]5(?![.,]?\d)/s];
- // lines are separate <br> rows, so textContent has no separator: end a number with a lookahead, not a word boundary
+const CURVATURE_READOUTS = [/0[.,]2357/, /63[.,]43/, /(?<![\d.,])1[.,]5(?![.,]?\d)/, /(?<![\d.,])2(?![.,]?\d).*0[.,]5(?![.,]?\d)/s, /0[.,]6667/, /(neskončen|infinite)/, /(?<![\d.,])2(?![.,]?\d).*0[.,]5(?![.,]?\d)/s];
+ // the Odčitki card (declared rows and notes; the board text is gone): end a number with a lookahead, not a word boundary
 const curvatureGeometry = {
     id: 'curve-curvature',
     path: `${BASE}/curve-geometry/curvature`,
@@ -2189,7 +2189,7 @@ const curvatureGeometry = {
     steps: 7,
     minFrames: 16, // 2 frames per step, 3 on steps 4 and 5 (calculation)
     stepProbe: async (page, ctx, step, label) => {
-        await expect(boardText(page, CURVATURE_READOUTS[step - 1]).first(), `curvature readout at ${label}`).toBeVisible();
+        await expect(page.locator('#board-card-readouts').filter({hasText: CURVATURE_READOUTS[step - 1]}).first(), `curvature readout at ${label}`).toBeVisible();
     },
 };
 

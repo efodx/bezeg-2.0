@@ -1,10 +1,11 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@testing-library/react';
+import {act, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import CurvatureBezierCurveGraph, {CURVATURE_T_DEFAULT} from './CurvatureBezierCurveGraph';
-import {currentLanguage, setLanguage, t} from '../../../localization';
+import {setLanguage, t} from '../../../localization';
 import {formatNumber} from '../../../analysis/format';
 import {GraphHost} from '../../base/GraphHost';
+import {puckControl, waitUntil} from '../../base/realGraphTestHarness';
 
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
@@ -62,25 +63,25 @@ test('recreating the overlay leaves no arrowhead markers behind (JSXGraph keeps 
     view.unmount();
 });
 
-test('the Edit tab offers the parameter slider, and moving it changes the board readout', () => {
+test('the parameter t is a puck on the board and no board text repeats the readout; moving it changes the declared rows', async () => {
     const graph = new ObservedCurvatureGraph();
     const host = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
-    const readout = () => (graph.liveBoard().objectsList as Array<{elType: string; plaintext?: string}>)
-        .find(o => o.elType === 'text' && (o.plaintext ?? '').includes('κ'))?.plaintext;
-    const slider = screen.getByRole('slider', {name: t('curvature_parameter_t')});
-    expect(slider).toHaveValue(String(CURVATURE_T_DEFAULT));
-    const before = readout();
+    const boardTexts = () => (graph.liveBoard().objectsList as Array<{elType: string; plaintext?: string}>)
+        .filter(o => o.elType === 'text' && (o.plaintext ?? '').includes('κ'));
+    const kappa = () => ((graph.getDeclaration()!.readouts![0].rows.find(row => row.id === 'kappa')!.value) as {value: number}).value;
+    // The strip stays `hidden` without a board layout in this file's jsdom, so the test waits for the puck's element only.
+    await waitUntil(() => document.querySelector('.puck-strip [data-puck-key="curvature-t"]') !== null);
+    expect(Number(puckControl('curvature-t').getAttribute('aria-valuenow'))).toBe(CURVATURE_T_DEFAULT);
+    expect(screen.queryByRole('slider', {name: t('curvature_parameter_t')})).toBeNull();
+    expect(boardTexts()).toEqual([]);
     // Parabola y = x^2 at its vertex (t = 1/2): kappa = 2, R = 1/2.
-    expect(before).toContain(formatNumber(2, currentLanguage(), 4));
+    expect(kappa()).toBeCloseTo(2, 9);
 
-    fireEvent.change(slider, {target: {value: '0.9'}});
+    act(() => { graph.parameters!.write('curvature-t', 0.9, 'learner'); });
     expect(graph.state.curvatureT).toBe(0.9);
-    expect(screen.getByRole('slider', {name: t('curvature_parameter_t')})).toHaveValue('0.9');
-    const after = readout();
-    expect(after).toBeTruthy();
-    expect(after).not.toBe(before);
     // At t = 0.9, x = 0.8: kappa = 2 / (1 + 4x^2)^(3/2).
-    expect(after).toContain(formatNumber(2 / Math.pow(1 + 4 * 0.64, 1.5), currentLanguage(), 4));
+    expect(kappa()).toBeCloseTo(2 / Math.pow(1 + 4 * 0.64, 1.5), 9);
+    expect(Number(puckControl('curvature-t').getAttribute('aria-valuenow'))).toBe(0.9);
     host.unmount();
 });
 
@@ -126,11 +127,10 @@ test('dragging a control point keeps the drawn circle tangent to the moved curve
     }
 });
 
-test('a language switch with the overlay alive rewrites the visible readout in the other language, same numbers', () => {
+test('a language switch with the overlay alive rewrites the readout in the other language, same numbers', () => {
     const graph = new ObservedCurvatureGraph();
     const host = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
-    const readout = () => ((graph.liveBoard().objectsList as Array<{elType: string; plaintext?: string}>)
-        .find(o => o.elType === 'text' && (o.plaintext ?? '').includes('κ'))?.plaintext ?? '').split('<br>');
+    const readout = () => (graph as unknown as {overlay: {readoutText(): string}}).overlay.readoutText().split('\n');
     try {
         setLanguage('sl');
         graph.liveBoard().update();
@@ -152,7 +152,7 @@ describe('the polite live region follows the curvature readout once it has settl
     beforeEach(() => { vi.useFakeTimers(); });
     afterEach(() => { vi.useRealTimers(); setLanguage('sl'); });
 
-    test('a burst of slider moves changes the region once, to the board readout of the final value; both languages follow', () => {
+    test('a burst of t writes changes the region once, to the board readout of the final value; both languages follow', () => {
         const graph = new ObservedCurvatureGraph();
         const host = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
         const mutations = new MutationObserver(() => undefined);
@@ -161,8 +161,7 @@ describe('the polite live region follows the curvature readout once it has settl
             const num = (v: number, language: 'sl' | 'en') => formatNumber(v, language, 4);
             expect(region().textContent).toBe(`Ukrivljenost κ = 2. Krivinski polmer R = 0,5. Smerni kot tangente φ = 0°.`);
             mutations.observe(region(), {childList: true, characterData: true, subtree: true});
-            const slider = screen.getByRole('slider', {name: t('curvature_parameter_t')});
-            for (let i = 1; i <= 20; i++) { fireEvent.change(slider, {target: {value: String(0.5 + i * 0.02)}}); advance(50); }
+            for (let i = 1; i <= 20; i++) { act(() => { graph.parameters!.write('curvature-t', 0.5 + i * 0.02, 'learner'); }); advance(50); }
             expect(mutations.takeRecords()).toHaveLength(0);
             advance(600);
             const kappa = 2 / Math.pow(1 + 4 * 0.64, 1.5);
@@ -188,7 +187,7 @@ describe('the polite live region follows the curvature readout once it has settl
         const host = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
         const store = (graph as unknown as { liveReadout: { getSnapshot(): string } }).liveReadout;
         const before = store.getSnapshot();
-        fireEvent.change(screen.getByRole('slider', {name: t('curvature_parameter_t')}), {target: {value: '0.2'}});
+        act(() => { graph.parameters!.write('curvature-t', 0.2, 'learner'); });
         host.unmount();
         expect(() => vi.advanceTimersByTime(5000)).not.toThrow();
         expect(store.getSnapshot()).toBe(before);

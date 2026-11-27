@@ -3,10 +3,11 @@
  * control of the Edit panel on a fresh visit; the controls the plan places after it follow.
  */
 import {within} from '@testing-library/react';
-import {installBoardShims, mountGraph, openTools, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, openTools, REAL_GRAPH_TEST_TIMEOUT, waitForPucks, waitUntil} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import CurveCombGraph from './comb/CurveCombGraph';
+import CurvatureBezierCurveGraph from './bezier/CurvatureBezierCurveGraph';
 import CurveOffsetGraph from './offset/CurveOffsetGraph';
 import CurveEnvelopeGraph from './envelope/CurveEnvelopeGraph';
 import KinematicsGraph from './kinematics/KinematicsGraph';
@@ -70,5 +71,18 @@ describe('curve-comb pucks', () => {
         expect(within(root).queryAllByLabelText(new RegExp(`^${t('comb_shown')}`))).toEqual([]);
         expect(within(root).queryAllByLabelText(new RegExp(`^${t('comb_gain')}`))).toEqual([]);
         expect(within(root).getAllByLabelText(new RegExp(`^${t('comb_count')}`)).length).toBeGreaterThan(0);
+    });
+});
+
+describe('curve-curvature pucks', () => {
+    // The parameter t is a puck on the board (task 08): there once, and not in Orodja, which keeps the structured point editing.
+    test('the parameter t is a puck and Orodja holds no second copy', async () => {
+        mountGraph(new CurvatureBezierCurveGraph());
+        await waitUntil(() => document.querySelector('.puck-strip [data-puck-key="curvature-t"]') !== null); // the strip stays hidden without a board layout in this jsdom
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        expect(strip.querySelector('[data-puck-key="curvature-t"]')).not.toBeNull();
+        expect(within(root).queryAllByLabelText(new RegExp(`^${t('curvature_parameter_t')}`))).toEqual([]);
     });
 });

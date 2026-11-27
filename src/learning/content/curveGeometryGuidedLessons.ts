@@ -9,11 +9,14 @@ import type {EvoluteTraceMode, LessonAction, LessonCurveFixture, LessonViewBox} 
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {CombIds} from '../../graphs/curves/comb/CurveCombGraph';
+import type {CurvatureIds} from '../../graphs/curves/bezier/CurvatureBezierCurveGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 /** Typed by the comb graph's declaration ids: an unknown note or control fails the type check. */
 const combFrame = frameDeclarer<CombIds>();
+/** Typed by the curvature graph's declaration ids. */
+const curvatureFrame = frameDeclarer<CurvatureIds>();
 
 // ---- L1: parametric and polar curves --------------------------------------------------------------------------------------
 
@@ -312,8 +315,8 @@ const curvatureLesson: GuidedLesson = {
             calculationLatex: '\\kappa(0)=\\frac{2}{(1+0)^{3/2}}=2,\\quad R=\\frac12,\\quad c=\\left(0,\\tfrac12\\right)',
             resultLatex: '\\kappa=2,\\; R=0{,}5',
             check: text(
-                'Izpis pokaže \\(\\kappa=2\\) in \\(R=0{,}5\\); pri \\(x=1\\) pokaže \\(\\kappa\\approx0{,}1789\\) in \\(R\\approx5{,}5902\\).',
-                'The readout shows \\(\\kappa=2\\) and \\(R=0.5\\); at \\(x=1\\) it shows \\(\\kappa\\approx0.1789\\) and \\(R\\approx5.5902\\).',
+                'Kartica Odčitki pokaže \\(\\kappa=2\\) in \\(R=0{,}5\\); pri \\(x=1\\) pokaže \\(\\kappa\\approx0{,}1789\\) in \\(R\\approx5{,}5902\\).',
+                'The Readouts card shows \\(\\kappa=2\\) and \\(R=0.5\\); at \\(x=1\\) it shows \\(\\kappa\\approx0.1789\\) and \\(R\\approx5.5902\\).',
             ),
         },
         {
@@ -322,8 +325,8 @@ const curvatureLesson: GuidedLesson = {
             calculationLatex: '\\kappa(0)=\\frac{3-1}{3}\\cdot\\frac{1}{1^{2}}=\\frac23',
             resultLatex: '\\kappa(0)\\approx0{,}6667',
             check: text(
-                'Kontrolne točke \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\) dajo \\(a=1\\) in \\(h=1\\); izpis pri \\(t=0\\) pokaže \\(\\kappa=0{,}6667\\).',
-                'The control points \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\) give \\(a=1\\) and \\(h=1\\); the readout at \\(t=0\\) shows \\(\\kappa=0.6667\\).',
+                'Kontrolne točke \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\) dajo \\(a=1\\) in \\(h=1\\); kartica Odčitki pri \\(t=0\\) pokaže \\(\\kappa=0{,}6667\\).',
+                'The control points \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\) give \\(a=1\\) and \\(h=1\\); the Readouts card at \\(t=0\\) shows \\(\\kappa=0.6667\\).',
             ),
         },
     ],
@@ -331,14 +334,14 @@ const curvatureLesson: GuidedLesson = {
         {
             id: 'curvature-predict', order: 1,
             title: text('Kateri konec se bolj zavije?', 'Which end bends more?'),
-            purpose: text('Pred drsenjem napovedati, kje je kubična krivulja najbolj ukrivljena.', 'Predicting where the cubic is most curved before sliding.'),
+            purpose: text('Pred premikanjem parametra napovedati, kje je kubična krivulja najbolj ukrivljena.', 'Predicting where the cubic is most curved before moving the parameter.'),
             explanation: text(
-                'Kubična krivulja ima kontrolne točke \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\). Napovej: ali se bolj zavije pri \\(t=0\\) ali pri \\(t=1\\)? Okvir in krožnica sta skrita, izpis pa kaže ukrivljenost; zdaj je pri \\(t=0{,}5\\) enaka \\(0{,}2357\\).',
-                'The cubic has the control points \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\). Predict: does it bend more at \\(t=0\\) or at \\(t=1\\)? The frame and the circle are hidden and the readout shows the curvature; at \\(t=0.5\\) it is now \\(0.2357\\).',
+                'Kubična krivulja ima kontrolne točke \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\). Napovej: ali se bolj zavije pri \\(t=0\\) ali pri \\(t=1\\)? Okvir in krožnica sta skrita, kartica Odčitki pa kaže ukrivljenost; zdaj je pri \\(t=0{,}5\\) enaka \\(0{,}2357\\).',
+                'The cubic has the control points \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\). Predict: does it bend more at \\(t=0\\) or at \\(t=1\\)? The frame and the circle are hidden and the Readouts card shows the curvature; at \\(t=0.5\\) it is now \\(0.2357\\).',
             ),
             formulaIds: ['curvature-definition'],
-            frames: [frame('curvature-predict-explanation', 'explanation'), frame('curvature-predict-observation', 'observation')],
-            observationPrompt: text('Z drsnikom \\(t\\) preberi ukrivljenost pri \\(t=0\\) in pri \\(t=1\\).', 'With the \\(t\\) slider read the curvature at \\(t=0\\) and at \\(t=1\\).'),
+            frames: [frame('curvature-predict-explanation', 'explanation', curvatureFrame({open: ['readouts'], highlight: ['kappa']})), frame('curvature-predict-observation', 'observation', curvatureFrame({uses: ['curvature-t'], highlight: ['kappa']}))],
+            observationPrompt: text('S krmilnikom Parameter preberi ukrivljenost v kartici Odčitki pri \\(t=0\\) in pri \\(t=1\\).', 'With the Parameter control read the curvature in the Readouts card at \\(t=0\\) and at \\(t=1\\).'),
             expectedObservations: [text('Pri \\(t=0\\) je \\(\\kappa=0{,}6667\\), pri \\(t=1\\) pa \\(\\kappa=0{,}0596\\): začetek se zavije dosti bolj.', 'At \\(t=0\\) we have \\(\\kappa=0.6667\\) and at \\(t=1\\) we have \\(\\kappa=0.0596\\): the start bends much more.')],
             scene: curvatureScene('curvature-predict-middle', CURVATURE_CUBIC, 0.5, {frame: false, circle: false},
                 'Kubična krivulja pri \\(t=0{,}5\\): \\(\\kappa=0{,}2357\\); okvir in krožnica sta skrita.',
@@ -349,11 +352,11 @@ const curvatureLesson: GuidedLesson = {
             title: text('Tangenta, normala in kot', 'Tangent, normal and angle'),
             purpose: text('Pokazati okvir \\(T\\), \\(N\\) in prebrati smerni kot tangente.', 'Showing the frame \\(T\\), \\(N\\) and reading the direction angle of the tangent.'),
             explanation: text(
-                'Okvir sestavljata enotska tangenta \\(T\\) in enotska normala \\(N\\), ki kaže na stran, kamor se krivulja zavija. Napovej smerni kot tangente na koncu krivulje, kjer je \\(r\'(1)\\) vzporeden vektorju \\(b_3-b_2=(1,2)\\): izpis pri \\(t=1\\) pokaže \\(\\varphi\\approx63{,}43^\\circ\\).',
-                'The frame consists of the unit tangent \\(T\\) and the unit normal \\(N\\), which points to the side to which the curve turns. Predict the direction angle of the tangent at the end of the curve, where \\(r\'(1)\\) is parallel to \\(b_3-b_2=(1,2)\\): the readout at \\(t=1\\) shows \\(\\varphi\\approx63.43^\\circ\\).',
+                'Okvir sestavljata enotska tangenta \\(T\\) in enotska normala \\(N\\), ki kaže na stran, kamor se krivulja zavija. Napovej smerni kot tangente na koncu krivulje, kjer je \\(r\'(1)\\) vzporeden vektorju \\(b_3-b_2=(1,2)\\): kartica Odčitki pri \\(t=1\\) pokaže \\(\\varphi\\approx63{,}43^\\circ\\).',
+                'The frame consists of the unit tangent \\(T\\) and the unit normal \\(N\\), which points to the side to which the curve turns. Predict the direction angle of the tangent at the end of the curve, where \\(r\'(1)\\) is parallel to \\(b_3-b_2=(1,2)\\): the Readouts card at \\(t=1\\) shows \\(\\varphi\\approx63.43^\\circ\\).',
             ),
             formulaIds: ['curvature-definition'],
-            frames: [frame('curvature-frame-explanation', 'explanation'), frame('curvature-frame-observation', 'observation')],
+            frames: [frame('curvature-frame-explanation', 'explanation', curvatureFrame({open: ['readouts'], highlight: ['angle']})), frame('curvature-frame-observation', 'observation', curvatureFrame({uses: ['curvature-t'], highlight: ['angle']}))],
             observationPrompt: text('Premakni \\(t\\) od \\(0\\) do \\(1\\) in opazuj, kako se kot tangente povečuje.', 'Move \\(t\\) from \\(0\\) to \\(1\\) and watch the tangent angle increase.'),
             expectedObservations: [text('Kot tangente raste od \\(0^\\circ\\) pri \\(t=0\\) do \\(63{,}43^\\circ\\) pri \\(t=1\\); normala je vedno pravokotna na tangento.', 'The tangent angle grows from \\(0^\\circ\\) at \\(t=0\\) to \\(63.43^\\circ\\) at \\(t=1\\); the normal is always perpendicular to the tangent.')],
             scene: curvatureScene('curvature-frame-end', CURVATURE_CUBIC, 1, {frame: true, circle: false},
@@ -369,8 +372,8 @@ const curvatureLesson: GuidedLesson = {
                 'The osculating circle fits the curve best at the given point. At \\(t=0\\) we have \\(\\kappa=2/3\\), so the radius of curvature is \\(R=1/\\kappa=1.5\\) and the centre is at \\((0,\\,1.5)\\). Predict how the radius changes as the curve straightens towards \\(t=1\\).',
             ),
             formulaIds: ['curvature-definition', 'curvature-centre'],
-            frames: [frame('curvature-circle-explanation', 'explanation'), frame('curvature-circle-observation', 'observation')],
-            observationPrompt: text('Poveči \\(t\\) in opazuj, kako raste polmer krožnice.', 'Increase \\(t\\) and watch the radius of the circle grow.'),
+            frames: [frame('curvature-circle-explanation', 'explanation', curvatureFrame({open: ['readouts'], highlight: ['radius']})), frame('curvature-circle-observation', 'observation', curvatureFrame({uses: ['curvature-t'], highlight: ['radius']}))],
+            observationPrompt: text('S krmilnikom Parameter povečaj \\(t\\) in opazuj, kako raste polmer krožnice.', 'Increase \\(t\\) with the Parameter control and watch the radius of the circle grow.'),
             expectedObservations: [text('Ko se ukrivljenost zmanjšuje, krivinski polmer \\(R=1/|\\kappa|\\) raste; pri \\(t=1\\) je \\(R\\approx16{,}77\\).', 'As the curvature decreases, the radius of curvature \\(R=1/|\\kappa|\\) grows; at \\(t=1\\) it is \\(R\\approx16.77\\).')],
             scene: curvatureScene('curvature-circle-start', CURVATURE_CUBIC, 0, {frame: true, circle: true},
                 'Krožnica pri \\(t=0\\): \\(\\kappa=0{,}6667\\), \\(R=1{,}5\\).',
@@ -381,13 +384,13 @@ const curvatureLesson: GuidedLesson = {
             title: text('Parabola pri \\(x=0\\) in \\(x=1\\)', 'The parabola at \\(x=0\\) and \\(x=1\\)'),
             purpose: text('Preveriti znane vrednosti za parabolo \\(y=x^2\\).', 'Checking the known values for the parabola \\(y=x^2\\).'),
             explanation: text(
-                'Parabola \\(y=x^2\\) je narisana kot kvadratna Bézierjeva krivulja; \\(x=0\\) ustreza \\(t=0{,}5\\), \\(x=1\\) pa \\(t=1\\). Pri \\(x=0\\) je \\(\\kappa=2\\), \\(R=0{,}5\\) in središče \\((0,\\,0{,}5)\\). Napovej, kaj se zgodi z ukrivljenostjo pri \\(x=1\\), in nato nastavi \\(t=1\\): \\(\\kappa\\approx0{,}1789\\), \\(R\\approx5{,}5902\\), središče \\((-4,\\,3{,}5)\\).',
-                'The parabola \\(y=x^2\\) is drawn as a quadratic Bézier curve; \\(x=0\\) corresponds to \\(t=0.5\\) and \\(x=1\\) to \\(t=1\\). At \\(x=0\\) we have \\(\\kappa=2\\), \\(R=0.5\\) and the centre \\((0,\\,0.5)\\). Predict what happens to the curvature at \\(x=1\\), then set \\(t=1\\): \\(\\kappa\\approx0.1789\\), \\(R\\approx5.5902\\), the centre \\((-4,\\,3.5)\\).',
+                'Parabola \\(y=x^2\\) je narisana kot kvadratna Bézierjeva krivulja; \\(x=0\\) ustreza \\(t=0{,}5\\), \\(x=1\\) pa \\(t=1\\). Pri \\(x=0\\) je \\(\\kappa=2\\), \\(R=0{,}5\\) in središče \\((0,\\,0{,}5)\\). Napovej, kaj se zgodi z ukrivljenostjo pri \\(x=1\\), in nato s krmilnikom Parameter nastavi \\(t=1\\): \\(\\kappa\\approx0{,}1789\\), \\(R\\approx5{,}5902\\), središče \\((-4,\\,3{,}5)\\).',
+                'The parabola \\(y=x^2\\) is drawn as a quadratic Bézier curve; \\(x=0\\) corresponds to \\(t=0.5\\) and \\(x=1\\) to \\(t=1\\). At \\(x=0\\) we have \\(\\kappa=2\\), \\(R=0.5\\) and the centre \\((0,\\,0.5)\\). Predict what happens to the curvature at \\(x=1\\), then set \\(t=1\\) with the Parameter control: \\(\\kappa\\approx0.1789\\), \\(R\\approx5.5902\\), the centre \\((-4,\\,3.5)\\).',
             ),
             formulaIds: ['curvature-definition', 'curvature-centre'], workedExampleId: 'parabola-curvature-example',
-            frames: [frame('curvature-parabola-explanation', 'explanation'), frame('curvature-parabola-calculation', 'calculation'), frame('curvature-parabola-observation', 'observation')],
-            observationPrompt: text('Nastavi \\(t=1\\) in primerjaj izpis z vrednostmi v besedilu.', 'Set \\(t=1\\) and compare the readout with the values in the text.'),
-            expectedObservations: [text('Pri \\(t=1\\) izpis pokaže \\(\\kappa=0{,}1789\\) in \\(R=5{,}5902\\): parabola je tam dosti položnejša kot v temenu.', 'At \\(t=1\\) the readout shows \\(\\kappa=0.1789\\) and \\(R=5.5902\\): the parabola is much flatter there than at its vertex.')],
+            frames: [frame('curvature-parabola-explanation', 'explanation', curvatureFrame({open: ['readouts'], highlight: ['kappa', 'radius']})), frame('curvature-parabola-calculation', 'calculation'), frame('curvature-parabola-observation', 'observation', curvatureFrame({uses: ['curvature-t'], highlight: ['kappa', 'radius']}))],
+            observationPrompt: text('S krmilnikom Parameter nastavi \\(t=1\\) in primerjaj odčitke v kartici Odčitki z vrednostmi v besedilu.', 'With the Parameter control set \\(t=1\\) and compare the Readouts card with the values in the text.'),
+            expectedObservations: [text('Pri \\(t=1\\) kartica Odčitki pokaže \\(\\kappa=0{,}1789\\) in \\(R=5{,}5902\\): parabola je tam dosti položnejša kot v temenu.', 'At \\(t=1\\) the Readouts card shows \\(\\kappa=0.1789\\) and \\(R=5.5902\\): the parabola is much flatter there than at its vertex.')],
             scene: curvatureScene('curvature-parabola-vertex', undefined, 0.5, {frame: true, circle: true},
                 'Parabola v temenu (\\(t=0{,}5\\)): \\(\\kappa=2\\), \\(R=0{,}5\\).',
                 'The parabola at its vertex (\\(t=0.5\\)): \\(\\kappa=2\\), \\(R=0.5\\).'),
@@ -395,13 +398,13 @@ const curvatureLesson: GuidedLesson = {
         {
             id: 'curvature-endpoint', order: 5,
             title: text('Formula za krajišče', 'The endpoint formula'),
-            purpose: text('Primerjati formulo za ukrivljenost v krajišču z izpisom grafa.', 'Comparing the endpoint curvature formula with the readout of the graph.'),
+            purpose: text('Primerjati formulo za ukrivljenost v krajišču z odčitkom v kartici Odčitki.', 'Comparing the endpoint curvature formula with the Readouts card.'),
             explanation: text(
-                'Za kubično krivuljo je \\(n=3\\), \\(a=|b_1-b_0|=1\\) in \\(h=1\\), saj je \\(b_2=(2,1)\\) za \\(1\\) oddaljena od osi \\(x\\). Napovej \\(\\kappa(0)=\\tfrac23\\cdot\\tfrac{1}{1}\\) in primerjaj z izpisom \\(0{,}6667\\).',
-                'For the cubic we have \\(n=3\\), \\(a=|b_1-b_0|=1\\) and \\(h=1\\), because \\(b_2=(2,1)\\) is at the distance \\(1\\) from the \\(x\\) axis. Predict \\(\\kappa(0)=\\tfrac23\\cdot\\tfrac{1}{1}\\) and compare it with the readout \\(0.6667\\).',
+                'Za kubično krivuljo je \\(n=3\\), \\(a=|b_1-b_0|=1\\) in \\(h=1\\), saj je \\(b_2=(2,1)\\) za \\(1\\) oddaljena od osi \\(x\\). Napovej \\(\\kappa(0)=\\tfrac23\\cdot\\tfrac{1}{1}\\) in primerjaj z odčitkom \\(0{,}6667\\) v kartici Odčitki.',
+                'For the cubic we have \\(n=3\\), \\(a=|b_1-b_0|=1\\) and \\(h=1\\), because \\(b_2=(2,1)\\) is at the distance \\(1\\) from the \\(x\\) axis. Predict \\(\\kappa(0)=\\tfrac23\\cdot\\tfrac{1}{1}\\) and compare it with the value \\(0.6667\\) in the Readouts card.',
             ),
             formulaIds: ['curvature-endpoint'], workedExampleId: 'cubic-endpoint-example',
-            frames: [frame('curvature-endpoint-explanation', 'explanation'), frame('curvature-endpoint-calculation', 'calculation'), frame('curvature-endpoint-observation', 'observation')],
+            frames: [frame('curvature-endpoint-explanation', 'explanation', curvatureFrame({open: ['readouts'], highlight: ['kappa']})), frame('curvature-endpoint-calculation', 'calculation'), frame('curvature-endpoint-observation', 'observation', curvatureFrame({highlight: ['kappa']}))],
             observationPrompt: text('Premakni \\(b_2\\) navzgor in preveri, da se \\(\\kappa(0)\\) spreminja sorazmerno z \\(h\\).', 'Move \\(b_2\\) upwards and check that \\(\\kappa(0)\\) changes in proportion to \\(h\\).'),
             expectedObservations: [text('Če se \\(h\\) podvoji, se podvoji tudi \\(\\kappa(0)\\); \\(b_3\\) na ukrivljenost v \\(t=0\\) ne vpliva.', 'If \\(h\\) is doubled, \\(\\kappa(0)\\) is doubled too; \\(b_3\\) does not affect the curvature at \\(t=0\\).')],
             scene: curvatureScene('curvature-endpoint-start', CURVATURE_CUBIC, 0, {frame: true, circle: true},
@@ -413,12 +416,12 @@ const curvatureLesson: GuidedLesson = {
             title: text('Prevoj', 'An inflection'),
             purpose: text('Videti, da se pri prevoju krožnica spremeni v premico.', 'Seeing the circle turn into a line at an inflection.'),
             explanation: text(
-                'Kubična krivulja v obliki črke S ima kontrolne točke \\((0,0)\\), \\((1,2)\\), \\((2,-2)\\), \\((3,0)\\). Na prvi polovici se zavija v eno, na drugi v drugo smer, zato mora biti \\(\\kappa=0\\) nekje vmes. Napovej, pri katerem \\(t\\) je to; pri \\(t=0{,}5\\) graf pokaže premico namesto krožnice in izpiše, da je krivinski polmer neskončen. Poskusi tudi premikati kontrolne točke.',
-                'The S-shaped cubic has the control points \\((0,0)\\), \\((1,2)\\), \\((2,-2)\\), \\((3,0)\\). It turns in one direction on the first half and in the other direction on the second, so \\(\\kappa=0\\) somewhere in between. Predict at which \\(t\\) this happens; at \\(t=0.5\\) the graph shows a line instead of a circle and states that the radius of curvature is infinite. Try moving the control points too.',
+                'Kubična krivulja v obliki črke S ima kontrolne točke \\((0,0)\\), \\((1,2)\\), \\((2,-2)\\), \\((3,0)\\). Na prvi polovici se zavija v eno, na drugi v drugo smer, zato mora biti \\(\\kappa=0\\) nekje vmes. Napovej, pri katerem \\(t\\) je to; pri \\(t=0{,}5\\) graf pokaže premico namesto krožnice, kartica Odčitki pa navede, da je krivinski polmer neskončen. Poskusi tudi premikati kontrolne točke.',
+                'The S-shaped cubic has the control points \\((0,0)\\), \\((1,2)\\), \\((2,-2)\\), \\((3,0)\\). It turns in one direction on the first half and in the other direction on the second, so \\(\\kappa=0\\) somewhere in between. Predict at which \\(t\\) this happens; at \\(t=0.5\\) the graph shows a line instead of a circle and the Readouts card states that the radius of curvature is infinite. Try moving the control points too.',
             ),
             formulaIds: ['curvature-definition'],
-            frames: [frame('curvature-inflection-explanation', 'explanation'), frame('curvature-inflection-observation', 'observation')],
-            observationPrompt: text('Premakni \\(t\\) mimo prevoja in opazuj, kako se krožnica obrne na drugo stran.', 'Move \\(t\\) past the inflection and watch the circle switch to the other side.'),
+            frames: [frame('curvature-inflection-explanation', 'explanation', curvatureFrame({open: ['readouts'], highlight: ['line']})), frame('curvature-inflection-observation', 'observation', curvatureFrame({uses: ['curvature-t']}))],
+            observationPrompt: text('Premakni krmilnik Parameter mimo prevoja in opazuj, kako se krožnica obrne na drugo stran.', 'Move the Parameter control past the inflection and watch the circle switch to the other side.'),
             expectedObservations: [text('Pri prevoju je \\(\\kappa=0\\) in namesto krožnice je narisana tangenta; pred njim in za njim je krožnica na nasprotnih straneh krivulje.', 'At the inflection \\(\\kappa=0\\) and a tangent line is drawn instead of a circle; before and after it the circle lies on opposite sides of the curve.')],
             scene: curvatureScene('curvature-inflection-middle', CURVATURE_S_CUBIC, 0.5, {frame: true, circle: true},
                 'Pri \\(t=0{,}5\\) je \\(\\kappa=0\\): narisana je premica, krivinski polmer je neskončen.',
@@ -429,11 +432,11 @@ const curvatureLesson: GuidedLesson = {
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno premikati kontrolne točke in parameter.', 'Moving the control points and the parameter on your own.'),
             explanation: text(
-                'Parabola je spet na začetnem mestu. Premikaj kontrolne točke in parameter \\(t\\) ter opazuj, kako se krivinska krožnica prilega krivulji in kdaj se spremeni v premico.',
-                'The parabola is back at its starting place. Move the control points and the parameter \\(t\\) and watch how the osculating circle fits the curve and when it turns into a line.',
+                'Parabola je spet na začetnem mestu. Premikaj kontrolne točke in krmilnik Parameter ter opazuj, kako se krivinska krožnica prilega krivulji in kdaj se spremeni v premico.',
+                'The parabola is back at its starting place. Move the control points and the Parameter control and watch how the osculating circle fits the curve and when it turns into a line.',
             ),
             formulaIds: ['curvature-definition', 'curvature-centre'],
-            frames: [frame('curvature-explore-explanation', 'explanation'), frame('curvature-explore-observation', 'observation')],
+            frames: [frame('curvature-explore-explanation', 'explanation'), frame('curvature-explore-observation', 'observation', curvatureFrame({uses: ['curvature-t']}))],
             observationPrompt: text('Premakni srednjo kontrolno točko in poišči položaj, pri katerem je ukrivljenost v \\(t=0{,}5\\) največja.', 'Move the middle control point and find the position at which the curvature at \\(t=0.5\\) is largest.'),
             expectedObservations: [text('Bližje ko je srednja točka krivulji, večja je ukrivljenost v temenu; krožnica se tam skrči.', 'The closer the middle point is to the curve, the larger the curvature at the vertex; the circle shrinks there.')],
             scene: curvatureScene('curvature-explore-start', undefined, 0.5, {frame: true, circle: true},

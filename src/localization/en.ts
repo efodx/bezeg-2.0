@@ -2372,7 +2372,7 @@ export const en: Record<keyof typeof sl, string> = {
     "parametric_curves_title": "Parametric and polar curves",
     "curvature_circle_title": "Curvature and the osculating circle",
     "prompt_parametric_curve": "Choose a curve and move the parameter. How do the speed and the tangent direction change? Where is the speed zero?",
-    "prompt_curvature": "Move the parameter t along the curve. Where is the osculating circle small and where large? When does the radius of curvature become infinite?",
+    "prompt_curvature": "Move the Parameter control along the curve. Where is the osculating circle small and where large? When does the radius of curvature become infinite?",
     "curve_comb_title": "Curvature comb and spline joins",
     "curve_evolute_title": "Evolute",
     "curve_offset_title": "Offset curves",

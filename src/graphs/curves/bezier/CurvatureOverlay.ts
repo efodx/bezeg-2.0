@@ -57,6 +57,8 @@ interface OverlaySettings {
     extraReadout?: () => string;
     /** Called with the readout text on every board update that draws it (for a live region). */
     onReadout?: (text: string) => void;
+    /** Whether the readout is also board text (default: yes). A graph that declares the values as readout rows draws none, and the live region is fed on each board update instead. */
+    readoutOnBoard?: boolean;
 }
 
 /** The SVG renderer's arrowhead nodes on an arrowed element (untyped in JSXGraph's declarations). */
@@ -73,6 +75,7 @@ interface ArrowNodes {
 export class CurvatureOverlay {
     private readonly board: Board;
     private elements: GeometryElement[] = [];
+    private circle?: GeometryElement;
     private stopLanguageUpdates?: () => void;
     private disposed = false;
 
@@ -84,6 +87,11 @@ export class CurvatureOverlay {
     /** The created elements, for ownership checks. */
     ownedElements(): readonly GeometryElement[] {
         return this.elements;
+    }
+
+    /** The osculating circle element (it is invisible while the curve is straight or the circle is switched off). */
+    circleElement(): GeometryElement | undefined {
+        return this.circle;
     }
 
     private frame(): CurvatureFrame | undefined {
@@ -119,7 +127,8 @@ export class CurvatureOverlay {
         const auxiliary = {visible: false, fixed: true, withLabel: false, highlight: false, name: ''};
 
         // The point of the curve at the parameter is always drawn, so sliding t shows where the readout is taken.
-        const anchor = this.create<Point>('point', [() => this.frame()?.point[0] ?? NaN, () => this.frame()?.point[1] ?? NaN],
+        const onBoard = this.settings.readoutOnBoard ?? true;
+        const anchor = this.create<Point>('point', [() => { if (!onBoard) this.boardReadout(); return this.frame()?.point[0] ?? NaN; }, () => this.frame()?.point[1] ?? NaN],
             {...auxiliary, visible: hasFrame, size: 4, strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.primaryCurve});
         const tangentTip = this.create<Point>('point', [() => this.arrowTip('tangent', 0), () => this.arrowTip('tangent', 1)], auxiliary);
         const normalTip = this.create<Point>('point', [() => this.arrowTip('normal', 0), () => this.arrowTip('normal', 1)], auxiliary);
@@ -143,7 +152,7 @@ export class CurvatureOverlay {
 
         // The osculating circle as the subject: the one accent, solid, over a faint disc (the plane). As context it is a thin ring only.
         const quiet = this.settings.circleRole === 'context';
-        this.create('circle', [centre, () => { const f = this.frame(); return f?.status === 'circle' ? f.radius : 0; }], {
+        this.circle = this.create('circle', [centre, () => { const f = this.frame(); return f?.status === 'circle' ? f.radius : 0; }], {
             fixed: true, highlight: false, withLabel: false, strokeColor: GraphPalette.emphasis, strokeWidth: quiet ? 1.5 : 2.5,
             dash: 0, fillColor: GraphPalette.emphasis, fillOpacity: quiet ? 0 : 0.08, visible: isCircle,
         });
@@ -153,7 +162,7 @@ export class CurvatureOverlay {
         });
 
         const box = () => board.getBoundingBox();
-        this.create<Text>('text', [
+        if (onBoard) this.create<Text>('text', [
             () => box()[0] + 0.02 * (box()[2] - box()[0]),
             () => box()[1] - 0.02 * (box()[1] - box()[3]),
             () => this.boardReadout().split("\n").join("<br>"),

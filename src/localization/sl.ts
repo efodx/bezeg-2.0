@@ -2371,7 +2371,7 @@ export const sl = {
     "parametric_curves_title": "Parametrične in polarne krivulje",
     "curvature_circle_title": "Ukrivljenost in krivinska krožnica",
     "prompt_parametric_curve": "Izberi krivuljo in premikaj parameter. Kako se spreminjata hitrost in smer tangente? Kje je hitrost enaka 0?",
-    "prompt_curvature": "Premikaj parameter t po krivulji. Kje je krivinska krožnica majhna in kje velika? Kdaj postane krivinski polmer neskončen?",
+    "prompt_curvature": "Premikaj krmilnik Parameter po krivulji. Kje je krivinska krožnica majhna in kje velika? Kdaj postane krivinski polmer neskončen?",
     "curve_comb_title": "Glavnik ukrivljenosti in stiki zlepkov",
     "curve_evolute_title": "Evoluta",
     "curve_offset_title": "Vzporedne krivulje",

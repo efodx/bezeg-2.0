@@ -1,0 +1,78 @@
+{
+  "graph": "curve-curvature",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (the parabola, t = 0,5)",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Krivinski polmer R = 0,5",
+        "N",
+        "Smerni kot tangente φ = 0°",
+        "T",
+        "Ukrivljenost κ = 2"
+      ]
+    },
+    {
+      "name": "t = 0,8",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Krivinski polmer R = 1,9057",
+        "N",
+        "Smerni kot tangente φ = 50,1944°",
+        "T",
+        "Ukrivljenost κ = 0,5247"
+      ]
+    },
+    {
+      "name": "t = 1",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Krivinski polmer R = 5,5902",
+        "N",
+        "Smerni kot tangente φ = 63,4349°",
+        "T",
+        "Ukrivljenost κ = 0,1789"
+      ]
+    },
+    {
+      "name": "frame hidden",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Krivinski polmer R = 5,5902",
+        "Smerni kot tangente φ = 63,4349°",
+        "Ukrivljenost κ = 0,1789"
+      ]
+    },
+    {
+      "name": "the S cubic at t = 0,5 (an inflection)",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "N",
+        "Smerni kot tangente φ = -45°",
+        "T",
+        "Ukrivljenost je 0: krivinska krožnica je premica, krivinski polmer je neskončen",
+        "Ukrivljenost κ = 0"
+      ]
+    },
+    {
+      "name": "a curve with a singular start",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Ukrivljenost tu ni določena (hitrost je 0)"
+      ]
+    }
+  ]
+}

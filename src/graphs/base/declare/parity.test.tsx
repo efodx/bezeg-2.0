@@ -95,7 +95,14 @@ const combAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the join sentence "Stik N: ukrivljenost κ levo .., desno .., skok .." was the board caption of the comb (the recording holds it as a caption); the caption only repeated the readout, so it is removed and the sentence is a declared note of the Odčitki card (owner, 2026-11-27)'},
 ];
 
-const quadratureAccepted: readonly AcceptedDifference[] = [];
+const curvatureAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'row kappa', reason: 'the readout "Ukrivljenost κ = .. / Krivinski polmer R = .. / Smerni kot tangente φ = ..°" was board text (the recording holds it as captions, with the T and N tags that stay); the three lines only repeated the values, so they are removed and the values are the declared rows of the Odčitki card (owner, 2026-11-27)'},
+    {kind: 'extra', where: 'row radius', reason: 'the readout "Ukrivljenost κ = .. / Krivinski polmer R = .. / Smerni kot tangente φ = ..°" was board text (the recording holds it as captions, with the T and N tags that stay); the three lines only repeated the values, so they are removed and the values are the declared rows of the Odčitki card (owner, 2026-11-27)'},
+    {kind: 'extra', where: 'row angle', reason: 'the readout "Ukrivljenost κ = .. / Krivinski polmer R = .. / Smerni kot tangente φ = ..°" was board text (the recording holds it as captions, with the T and N tags that stay); the three lines only repeated the values, so they are removed and the values are the declared rows of the Odčitki card (owner, 2026-11-27)'},
+    {kind: 'extra', where: 'note', reason: 'the status lines "Ukrivljenost je 0: krivinska krožnica je premica .." and "Ukrivljenost tu ni določena .." were board text (captions in the recording); they are declared notes of the Odčitki card and the board text is removed (owner, 2026-11-27)'},
+];
+
+const quadratureAccepted:readonly AcceptedDifference[] = [];
 
 const eulerAccepted:readonly AcceptedDifference[] = [
     {kind: 'missing', where: 'output', reason: 'the step slider read the step h (e.g. "0,5"); the step puck now counts halvings k, so the same value is shown by the declared row h, which the recorded panel row "Korak h" already matches'},
@@ -840,6 +847,22 @@ const SAMPLES: readonly Sample[] = [
             {name: 'G1 spline, comb shown', apply: run(g => g.setCurveKind('g1'))},
             {name: 'G1, b2 = 0,5', apply: run(g => g.setBeta(1, 0.5))},
             {name: 'G1, comb hidden', apply: run(g => g.setCombShown(false))},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/bezier/__parity__/curve-curvature.json', demonstration: 'curve-curvature', accepted: curvatureAccepted, states: (() => {
+        type Curv = {setCurvatureT(value: number): void; setState(update: Record<string, unknown>): void; runLessonReplacement(spec: Record<string, unknown>): void;
+            importPresetData(data: unknown): void; getInitialState(): object; lessonDefaultState(): object};
+        const run = (edit: (graph: Curv) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Curv)); };
+        const curveState = {showingJxgPoints: true, showingControlPolygon: false, showingConvexHull: false, showingDecasteljauScheme: false,
+            subdivisionT: 0.5, decasteljauT: 0.5, extrapolationT: 1.2};
+        const replace = (g: Curv, points: number[][]) => g.runLessonReplacement({importData: () => g.importPresetData([['JSXBezierCurve', {points, state: curveState}]]), afterImport: () => undefined, state: () => ({...g.getInitialState(), ...g.lessonDefaultState()}), transientState: undefined});
+        return [
+            {name: 'default (the parabola, t = 0,5)', apply: () => undefined},
+            {name: 't = 0,8', apply: run(g => g.setCurvatureT(0.8))},
+            {name: 't = 1', apply: run(g => g.setCurvatureT(1))},
+            {name: 'frame hidden', apply: run(g => g.setState({curvatureFrameShown: false}))},
+            {name: 'the S cubic at t = 0,5 (an inflection)', apply: run(g => { g.setState({curvatureFrameShown: true}); replace(g, [[0, 0], [1, 2], [2, -2], [3, 0]]); g.setCurvatureT(0.5); })},
+            {name: 'a curve with a singular start', apply: run(g => { replace(g, [[0, 0], [0, 0], [1, 1], [2, 0]]); g.setCurvatureT(0); })},
         ] satisfies ParityState[];
     })()},
     {file: 'curves/reduction/__parity__/reduction.json', demonstration: 'reduction', accepted: reductionAccepted, states: (() => {
@@ -1691,8 +1714,8 @@ describe.each(SAMPLES.map(sample => [path.basename(sample.file, '.json'), sample
         const {recording: first, declarations} = await record(sample);
         const second = (await record(sample)).recording;
         expect(text(second)).toBe(text(first));
-        // A caption moved into the declared notes (curve-comb's join sentence) is no longer on the board, so the declared notes count as shown too.
-        const shown = (s: ParityRecording['states'][number], i: number) => JSON.stringify([s.rows, s.notes, s.outputs, s.captions, declarations[i]?.notes ?? []]);
+        // A caption moved into the declared notes or rows (curve-comb: the join sentence; curve-curvature: kappa, R, phi) is no longer on the board, so the declared notes and rows count as shown too.
+        const shown = (s: ParityRecording['states'][number], i: number) => JSON.stringify([s.rows, s.notes, s.outputs, s.captions, declarations[i]?.notes ?? [], declarations[i]?.readouts ?? []]);
         first.states.slice(1).forEach((s, i) => expect(shown(s, i + 1), `state ${i + 1} (${s.name}) shows what ${first.states[i].name} showed`).not.toBe(shown(first.states[i], i)));
         if (process.env.BEZEG_PARITY_RECORD) {
             const target = path.join(root, sample.file);
