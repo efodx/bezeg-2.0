@@ -8,42 +8,6 @@
       "notes": [],
       "outputs": [],
       "captions": []
-    },
-    {
-      "name": "curve-comb-guided/comb-c1",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Stik 1: ukrivljenost κ levo 1,3333, desno 0,6667, skok -0,6667"
-      ]
-    },
-    {
-      "name": "curve-comb-guided/comb-c2",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Stik 1: ukrivljenost κ levo 0,598, desno 0,598, skok 0"
-      ]
-    },
-    {
-      "name": "curve-comb-guided/comb-g1",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Stik 2: ukrivljenost κ levo 0,1217, desno -0,5635, skok -0,6852"
-      ]
-    },
-    {
-      "name": "curve-comb-guided/comb-explore",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Stik 2: ukrivljenost κ levo 0,1217, desno -0,1409, skok -0,2625"
-      ]
     }
   ]
 }

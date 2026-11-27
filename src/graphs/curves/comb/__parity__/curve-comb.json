@@ -1,0 +1,56 @@
+{
+  "graph": "curve-comb",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (the cubic, comb hidden)",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "C1 spline, comb shown",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Stik 1: ukrivljenost κ levo 1,3333, desno 0,6667, skok -0,6667"
+      ]
+    },
+    {
+      "name": "C2 spline, comb shown",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Stik 1: ukrivljenost κ levo 0,598, desno 0,598, skok 0"
+      ]
+    },
+    {
+      "name": "G1 spline, comb shown",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Stik 2: ukrivljenost κ levo 0,1217, desno -0,1409, skok -0,2625"
+      ]
+    },
+    {
+      "name": "G1, b2 = 0,5",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Stik 2: ukrivljenost κ levo 0,1217, desno -0,5635, skok -0,6852"
+      ]
+    },
+    {
+      "name": "G1, comb hidden",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

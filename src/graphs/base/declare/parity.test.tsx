@@ -87,6 +87,10 @@ const arcAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed above its details (it carries no readout marker, so the recording holds none), and the mover line "t = .., s(t) = .." is declared as a note while the old panel drew it only as a board caption, which the recording holds as a caption'},
 ];
 
+const combAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'note', reason: 'the join sentence "Stik N: ukrivljenost κ levo .., desno .., skok .." was the board caption of the comb (the recording holds it as a caption); the caption only repeated the readout, so it is removed and the sentence is a declared note of the Odčitki card (owner, 2026-11-27)'},
+];
+
 const quadratureAccepted: readonly AcceptedDifference[] = [];
 
 const eulerAccepted:readonly AcceptedDifference[] = [
@@ -820,6 +824,18 @@ const SAMPLES: readonly Sample[] = [
             {name: 'the PH curve', apply: run(g => g.setCurveKind('ph'))},
             {name: 'PH, N = 4, position 0,3', apply: run(g => { g.setArcPieces(4); g.setArcMoverPosition(0.3); })},
             {name: 'a cusp curve', apply: run(g => g.runLessonReplacement({importData: () => g.importPresetData([['JSXBezierCurve', {points: [[0, 0], [1, 2], [0, 1], [1, 1]], state: cuspState}]]), afterImport: () => undefined, state: () => ({...g.getInitialState(), ...g.lessonDefaultState()}), transientState: undefined}))},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/comb/__parity__/curve-comb.json', demonstration: 'curve-comb', accepted: combAccepted, states: (() => {
+        type Comb = {setCurveKind(kind: 'cubic' | 'c1' | 'c2' | 'g1'): void; setCombShown(shown: boolean): void; setBeta(index: number, value: number): void};
+        const run = (edit: (graph: Comb) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Comb)); };
+        return [
+            {name: 'default (the cubic, comb hidden)', apply: () => undefined},
+            {name: 'C1 spline, comb shown', apply: run(g => { g.setCurveKind('c1'); g.setCombShown(true); })},
+            {name: 'C2 spline, comb shown', apply: run(g => g.setCurveKind('c2'))},
+            {name: 'G1 spline, comb shown', apply: run(g => g.setCurveKind('g1'))},
+            {name: 'G1, b2 = 0,5', apply: run(g => g.setBeta(1, 0.5))},
+            {name: 'G1, comb hidden', apply: run(g => g.setCombShown(false))},
         ] satisfies ParityState[];
     })()},
     {file: 'curves/reduction/__parity__/reduction.json', demonstration: 'reduction', accepted: reductionAccepted, states: (() => {
@@ -1657,11 +1673,12 @@ const text = (recording: ParityRecording) => `${JSON.stringify(recording, null, 
 // BEZEG_PARITY_ID=<demonstration id> limits recording and checking to that sample, so a lane never rewrites others' files.
 describe.each(SAMPLES.map(sample => [path.basename(sample.file, '.json'), sample] as const).filter(([id]) => !process.env.BEZEG_PARITY_ID || id === process.env.BEZEG_PARITY_ID))('parity recording %s', (_id, sample) => {
     test('records deterministically and every state changes a shown value', async () => {
-        const first = (await record(sample)).recording;
+        const {recording: first, declarations} = await record(sample);
         const second = (await record(sample)).recording;
         expect(text(second)).toBe(text(first));
-        const shown = (s: ParityRecording['states'][number]) => JSON.stringify([s.rows, s.notes, s.outputs, s.captions]);
-        first.states.slice(1).forEach((s, i) => expect(shown(s), `state ${i + 1} (${s.name}) shows what ${first.states[i].name} showed`).not.toBe(shown(first.states[i])));
+        // A caption moved into the declared notes (curve-comb's join sentence) is no longer on the board, so the declared notes count as shown too.
+        const shown = (s: ParityRecording['states'][number], i: number) => JSON.stringify([s.rows, s.notes, s.outputs, s.captions, declarations[i]?.notes ?? []]);
+        first.states.slice(1).forEach((s, i) => expect(shown(s, i + 1), `state ${i + 1} (${s.name}) shows what ${first.states[i].name} showed`).not.toBe(shown(first.states[i], i)));
         if (process.env.BEZEG_PARITY_RECORD) {
             const target = path.join(root, sample.file);
             fs.mkdirSync(path.dirname(target), {recursive: true});

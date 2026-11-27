@@ -4,7 +4,9 @@ import {MemoryRouter} from 'react-router-dom';
 import CurveCombGraph, {
     COMB_COUNT_DEFAULT, COMB_CUBIC_POINTS, COMB_CURVE_KINDS, COMB_GAIN_DEFAULT, COMB_MAX_COUNT, COMB_MIN_COUNT, CombCurveKind, combPresetFor,
 } from './CurveCombGraph';
-import {setLanguage, t} from '../../../localization';
+import {renderMessage, setLanguage, t} from '../../../localization';
+import {runAs} from '../../base/writes/writeSource';
+import {puckControl, waitUntil} from '../../base/realGraphTestHarness';
 import {formatNumber} from '../../../analysis/format';
 import {GraphHost} from '../../base/GraphHost';
 import {BezierSpline} from '../../../bezeg/impl/curve/bezier-spline';
@@ -43,14 +45,16 @@ type BoardObject = { elType: string; plaintext?: string; dataX?: number[]; dataY
 class ObservedCombGraph extends CurveCombGraph {
     liveBoard() { return this.board; }
     act(action: LessonAction) { this.applyLessonAction(action); }
+    /** A learner's write (the gain is a bound parameter, so an untagged write is refused). */
+    override setCombGain(value: number) { runAs('learner', () => super.setCombGain(value)); }
     boardObjects() { return this.board.objectsList as unknown as BoardObject[]; }
     ownedOnBoard(board = this.board) {
         return (this.comb()?.ownedElements() ?? []).filter(element => board.objectsList.includes(element)).length;
     }
-    /** The comb's board text (the only text of the overlay). */
+    /** The readout as one text (the declared notes joined; the old board caption said the same), none while empty. */
     readout() {
-        return (this.comb()?.ownedElements() as unknown as BoardObject[] | undefined ?? [])
-            .filter(o => o.elType === 'text').map(o => o.plaintext ?? '').filter(Boolean);
+        const text = (this.getDeclaration()?.notes ?? []).map(note => renderMessage(note.text)).join(' ');
+        return text ? [text] : [];
     }
     /** Replaces the scene with `data` through the lesson replacement path, as a Preset load does (a bare import appends). */
     replaceScene(data: ReturnType<typeof combPresetFor>) {
@@ -81,6 +85,11 @@ async function settle(start: () => Promise<void>): Promise<void> {
 }
 
 const slider = (name: string) => screen.getByRole('slider', {name});
+/** The gain and the comb switch are pucks on the board (the Orodja controls are left out), so the tests read the puck. */
+/** The strip stays `hidden` without a board layout in this file's jsdom, so the tests wait for the puck's element only. */
+const waitForPuck = (key: string) => waitUntil(() => document.querySelector(`.puck-strip [data-puck-key="${key}"]`) !== null);
+const gainPuck = async () => { await waitForPuck('comb-gain'); return Number(puckControl('comb-gain').getAttribute('aria-valuenow')); };
+const shownPuck = async () => { await waitForPuck('comb-shown'); return puckControl('comb-shown').getAttribute('aria-checked') === 'true'; };
 
 describe('the default scene', () => {
     test('is the L2 cubic with the comb off, and the kind is derived from the live curve', () => {
@@ -130,16 +139,16 @@ describe('the default gain', () => {
 });
 
 describe('L3 (5): the comb objects are owned and disposed', () => {
-    test('exactly 3 curves and 1 readout are added; the count returns to baseline after kind changes, a Preset import and unmount', () => {
+    test('exactly 3 curves are added; the count returns to baseline after kind changes, a Preset import and unmount', () => {
         const {graph, view} = mount();
         const board = graph.liveBoard();
         try {
             graph.setCombShown(true);
             const kinds = new Map<CombCurveKind, number>();
             const owned = () => graph.comb()!.ownedElements();
-            // 3 curves (teeth, tip line, clipped-tooth marks) + 1 readout text.
-            expect(owned().map(e => (e as unknown as BoardObject).elType).sort()).toEqual(['curve', 'curve', 'curve', 'text']);
-            expect(graph.ownedOnBoard()).toBe(4);
+            // 3 curves (teeth, tip line, clipped-tooth marks); the readout is a declared note, not board text.
+            expect(owned().map(e => (e as unknown as BoardObject).elType).sort()).toEqual(['curve', 'curve', 'curve']);
+            expect(graph.ownedOnBoard()).toBe(3);
             kinds.set('cubic', board.objectsList.length);
 
             const seen: unknown[] = [...owned()];
@@ -147,8 +156,8 @@ describe('L3 (5): the comb objects are owned and disposed', () => {
                 const before = [...owned()];
                 graph.setCurveKind(kind);
                 expect(graph.curveKind()).toBe(kind);
-                expect(graph.ownedOnBoard()).toBe(4);
-                expect(owned()).toHaveLength(4);
+                expect(graph.ownedOnBoard()).toBe(3);
+                expect(owned()).toHaveLength(3);
                 before.forEach(element => expect(board.objectsList.includes(element)).toBe(false));
                 seen.push(...owned());
                 // A kind always has the same number of objects on the board: no leak accumulates over repeated changes.
@@ -161,7 +170,7 @@ describe('L3 (5): the comb objects are owned and disposed', () => {
 
             const baseline = board.objectsList.length;
             act(() => graph.replaceScene(combPresetFor('c2')));
-            expect(graph.ownedOnBoard()).toBe(4);
+            expect(graph.ownedOnBoard()).toBe(3);
             expect(graph.curveKind()).toBe('c2');
             act(() => graph.replaceScene(combPresetFor('cubic')));
             expect(board.objectsList.length).toBe(baseline);
@@ -278,7 +287,7 @@ describe('what the board draws', () => {
 });
 
 describe('controls and board agree', () => {
-    test('after lesson actions, the controls show the same values as the state and the board', () => {
+    test('after lesson actions, the controls show the same values as the state and the board', async () => {
         const {graph, view} = mount();
         try {
             act(() => {
@@ -286,9 +295,9 @@ describe('controls and board agree', () => {
                 graph.act({kind: 'comb-gain', value: 3});
                 graph.act({kind: 'comb-count', value: 32});
             });
-            expect(slider(t('comb_gain'))).toHaveValue('3');
+            expect(await gainPuck()).toBe(3);
             expect(slider(t('comb_count'))).toHaveValue('32');
-            expect(screen.getByRole('checkbox', {name: t('comb_shown')})).toBeChecked();
+            expect(await shownPuck()).toBe(true);
             const [teeth] = combCurves(graph);
             expect(teeth.dataX).toHaveLength(3 * 32);
             const length = Math.hypot(teeth.dataX![1] - teeth.dataX![0], teeth.dataY![1] - teeth.dataY![0]);
@@ -296,13 +305,18 @@ describe('controls and board agree', () => {
         } finally { view.unmount(); }
     });
 
-    test('the Edit controls change the state and the board', () => {
+    test('the puck, the arbiter and the Edit controls change the state and the board', async () => {
         const {graph, view} = mount();
         try {
-            fireEvent.click(screen.getByRole('checkbox', {name: t('comb_shown')}));
+            act(() => graph.performAction('comb-shown'));
             expect(graph.state.combShown).toBe(true);
-            fireEvent.change(slider(t('comb_gain')), {target: {value: '2'}});
+            expect(await shownPuck()).toBe(true);
+            act(() => { graph.parameters!.write('comb-gain', 2, 'learner'); });
             expect(graph.state.combGain).toBe(2);
+            expect(await gainPuck()).toBe(2);
+            // the switch and the gain are not repeated in Orodja
+            expect(screen.queryByRole('checkbox', {name: t('comb_shown')})).toBeNull();
+            expect(screen.queryByRole('slider', {name: t('comb_gain')})).toBeNull();
             fireEvent.change(slider(t('comb_count')), {target: {value: '40'}});
             expect(graph.state.combCount).toBe(40);
             expect(combCurves(graph)[0].dataX).toHaveLength(3 * 40);
@@ -321,33 +335,34 @@ describe('controls and board agree', () => {
         const {graph, view} = mount();
         try {
             const bSliders = () => screen.queryAllByRole('slider', {name: new RegExp(t('spline_parameter_b'))});
-            const expectControls = (kind: CombCurveKind) => {
+            const expectControls = async (kind: CombCurveKind) => {
                 expect(graph.curveKind()).toBe(kind);
                 // Structured editing is true for the cubic only (its tools are Bezier-only); a spline uses the selected-curve path.
                 expect(graph['workspaceUsesStructuredEditing']()).toBe(kind === 'cubic');
                 expect(screen.getByRole('combobox', {name: t('parametric_curve_label')})).toHaveValue(kind);
-                expect(screen.getByRole('checkbox', {name: t('comb_shown')})).toBeInTheDocument();
-                expect(slider(t('comb_gain'))).toBeInTheDocument();
+                await waitForPuck('comb-gain');
+                expect(puckControl('comb-shown')).toBeTruthy();
+                expect(puckControl('comb-gain')).toBeTruthy();
                 expect(slider(t('comb_count'))).toBeInTheDocument();
                 expect(bSliders()).toHaveLength(kind === 'g1' ? 2 : 0);
             };
-            expectControls('cubic');
+            await expectControls('cubic');
             for (const kind of ['c1', 'c2', 'g1', 'cubic', 'g1'] as CombCurveKind[]) {
                 act(() => graph.setCurveKind(kind));
-                expectControls(kind);
+                await expectControls(kind);
             }
             // Select a spline through the control, save it, return to the cubic, then restore: the mode follows the restored curve.
             act(() => graph.setCurveKind('c2'));
             act(() => graph.saveCurrentPreset('spline'));
             act(() => graph.setCurveKind('cubic'));
-            expectControls('cubic');
+            await expectControls('cubic');
             await settle(() => graph.selectPreset('spline'));
-            expectControls('c2');
+            await expectControls('c2');
             await settle(() => graph.reset());
-            expectControls('c2');
+            await expectControls('c2');
             act(() => graph.setCurveKind('cubic'));
             await settle(() => graph.selectPreset(''));
-            expectControls('cubic');
+            await expectControls('cubic');
         } finally { view.unmount(); }
     });
 
@@ -367,14 +382,14 @@ describe('controls and board agree', () => {
     test('Reset returns to the cubic with the comb off, and the controls follow', async () => {
         const {graph, view} = mount();
         try {
-            act(() => { graph.setCombShown(true); graph.setCombGain(4); graph.setCombCount(100); graph.setCurveKind('c2'); });
+            act(() => runAs('learner', () => { graph.setCombShown(true); graph.setCombGain(4); graph.setCombCount(100); graph.setCurveKind('c2'); }));
             await settle(() => graph.reset());
             expect(graph.curveKind()).toBe('cubic');
             expect(graph.state.combShown).toBe(false);
-            expect(slider(t('comb_gain'))).toHaveValue(String(COMB_GAIN_DEFAULT));
+            expect(await gainPuck()).toBe(COMB_GAIN_DEFAULT);
             expect(slider(t('comb_count'))).toHaveValue(String(COMB_COUNT_DEFAULT));
-            expect(screen.getByRole('checkbox', {name: t('comb_shown')})).not.toBeChecked();
-            expect(graph.ownedOnBoard()).toBe(4);
+            expect(await shownPuck()).toBe(false);
+            expect(graph.ownedOnBoard()).toBe(3);
             expect(combCurves(graph)[0].dataX).toEqual([]);
             expect(graph.readout()).toEqual([]);
         } finally { view.unmount(); }
@@ -400,9 +415,9 @@ describe('controls and board agree', () => {
             expect(graph.state.combShown).toBe(true);
             expect(graph.state.combGain).toBe(2.5);
             expect(graph.state.combCount).toBe(40);
-            expect(graph.ownedOnBoard()).toBe(4);
+            expect(graph.ownedOnBoard()).toBe(3);
             expect(graph.comb()!.largestJoin()!.jump).toBeCloseTo(jumpBefore, 12);
-            expect(slider(t('comb_gain'))).toHaveValue('2.5');
+            expect(await gainPuck()).toBe(2.5);
             expect(slider(t('comb_count'))).toHaveValue('40');
             const sliders = screen.getAllByRole('slider', {name: new RegExp(t('spline_parameter_b'))});
             expect(sliders[0]).toHaveValue('0.4');
@@ -411,7 +426,7 @@ describe('controls and board agree', () => {
 });
 
 describe('lesson actions run in one synchronous tick', () => {
-    test('a multi-action scene reads the state each earlier action wrote, and the board follows once the host commits', () => {
+    test('a multi-action scene reads the state each earlier action wrote, and the board follows once the host commits', async () => {
         const {graph, view} = mount();
         try {
             const kinds: CombCurveKind[] = [];
@@ -435,11 +450,11 @@ describe('lesson actions run in one synchronous tick', () => {
                 graph.act({kind: 'comb-gain', value: 1});
             });
             expect(kinds).toEqual(['c1', 'g1', 'c2']);
-            expect(graph.ownedOnBoard()).toBe(4);
+            expect(graph.ownedOnBoard()).toBe(3);
             const [teeth] = combCurves(graph);
             // 48 teeth shared over the C2 spline's 4 spans: 12 per span.
             expect(teeth.dataX).toHaveLength(3 * 48);
-            expect(slider(t('comb_gain'))).toHaveValue('1');
+            expect(await gainPuck()).toBe(1);
             expect(slider(t('comb_count'))).toHaveValue('48');
         } finally { view.unmount(); }
     });

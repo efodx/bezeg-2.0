@@ -2193,7 +2193,7 @@ const curvatureGeometry = {
     },
 };
 
-// Curvature comb: the board readout names the join with the largest jump on the spline steps 3..6. The cubic steps 1 and 2 have no join, so they check that the comb is hidden, then drawn.
+// Curvature comb: the Odčitki card (a declared note, the board caption is gone) names the join with the largest jump on the spline steps 3..6. The cubic steps 1 and 2 have no join, so they check that the comb is hidden, then drawn.
 const COMB_READOUTS = [null, null, /1[.,]3333.*0[.,]6667.*[-−]0[.,]6667/s, /0[.,]598.*0[.,]598/s, /0[.,]1217.*[-−]0[.,]5635.*[-−]0[.,]6852/s, /0[.,]1217.*[-−]0[.,]1409.*[-−]0[.,]2625/s];
 const curvatureComb = {
     id: 'curve-comb',
@@ -2203,7 +2203,7 @@ const curvatureComb = {
     minFrames: 13, // 2 frames per step, 3 on step 1 (calculation)
     stepProbe: async (page, ctx, step, label) => {
         const readout = COMB_READOUTS[step - 1];
-        if (readout) await expect(boardText(page, readout).first(), `comb readout at ${label}`).toBeVisible();
+        if (readout) await expect(page.locator('#board-card-readouts').filter({hasText: readout}).first(), `comb readout at ${label}`).toBeVisible();
         else await expect.poll(async () => (await boardStats(page)).visibleCurves, {message: `comb curves at ${label}`}).toBe(step === 1 ? 1 : 3);
     },
 };

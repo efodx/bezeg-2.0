@@ -7,9 +7,13 @@
  */
 import type {EvoluteTraceMode, LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {CombIds} from '../../graphs/curves/comb/CurveCombGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** Typed by the comb graph's declaration ids: an unknown note or control fails the type check. */
+const combFrame = frameDeclarer<CombIds>();
 
 // ---- L1: parametric and polar curves --------------------------------------------------------------------------------------
 
@@ -536,12 +540,12 @@ const combLesson: GuidedLesson = {
             title: text('Kje je krivulja najbolj ravna?', 'Where is the curve flattest?'),
             purpose: text('Pred prikazom glavnika napovedati, kje je kubična krivulja najmanj ukrivljena.', 'Predicting where the cubic is least curved before the comb is shown.'),
             explanation: text(
-                'Kubična krivulja ima kontrolne točke \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\) in je ista kot v lekciji o ukrivljenosti. Glavnik je skrit. Napovej, kje je krivulja najbolj ravna, nato vklopi glavnik: zobje so tam najkrajši.',
-                'The cubic has the control points \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\) and is the same as in the lesson on curvature. The comb is hidden. Predict where the curve is flattest, then switch the comb on: the teeth are shortest there.',
+                'Kubična krivulja ima kontrolne točke \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\) in je ista kot v lekciji o ukrivljenosti. Glavnik je skrit. Napovej, kje je krivulja najbolj ravna, nato vklopi krmilnik Glavnik: zobje so tam najkrajši.',
+                'The cubic has the control points \\((0,0)\\), \\((1,0)\\), \\((2,1)\\), \\((3,3)\\) and is the same as in the lesson on curvature. The comb is hidden. Predict where the curve is flattest, then turn on the Comb control: the teeth are shortest there.',
             ),
             formulaIds: ['comb-tooth'], workedExampleId: 'comb-cubic-example',
-            frames: [frame('comb-predict-explanation', 'explanation'), frame('comb-predict-calculation', 'calculation'), frame('comb-predict-observation', 'observation')],
-            observationPrompt: text('Vklopi glavnik in poišči najkrajši zob.', 'Switch the comb on and find the shortest tooth.'),
+            frames: [frame('comb-predict-explanation', 'explanation'), frame('comb-predict-calculation', 'calculation'), frame('comb-predict-observation', 'observation', combFrame({uses: ['comb-shown']}))],
+            observationPrompt: text('Vklopi krmilnik Glavnik in poišči najkrajši zob.', 'Turn on the Comb control and find the shortest tooth.'),
             expectedObservations: [text('Najkrajši zob je pri \\(t=1\\), kjer je \\(\\kappa=0{,}0596\\); pri \\(g=1{,}4\\) je dolg \\(0{,}0835\\). Najdaljši je pri \\(t=0\\): \\(0{,}9333\\).', 'The shortest tooth is at \\(t=1\\), where \\(\\kappa=0.0596\\); for \\(g=1.4\\) it has the length \\(0.0835\\). The longest is at \\(t=0\\): \\(0.9333\\).')],
             scene: combScene('comb-predict-hidden', 'cubic', false, 1.4,
                 'Kubična krivulja z glavnikom, ki je skrit; ojačitev je \\(1{,}4\\).',
@@ -550,14 +554,14 @@ const combLesson: GuidedLesson = {
         {
             id: 'comb-gain', order: 2,
             title: text('Ojačitev glavnika', 'The gain of the comb'),
-            purpose: text('Z drsnikom spreminjati ojačitev in videti, da se razmerja zob ohranijo.', 'Changing the gain with the slider and seeing that the ratios of the teeth are kept.'),
+            purpose: text('S krmilnikom Ojačitev spreminjati ojačitev in videti, da se razmerja zob ohranijo.', 'Changing the gain with the Gain control and seeing that the ratios of the teeth are kept.'),
             explanation: text(
                 'Glavnik je vklopljen. Ojačitev \\(g\\) vse zobe enako podaljša ali skrajša, zato je glavnik le bolje viden, ukrivljenost pa se ne spremeni. Pri \\(g=2\\) je zob pri \\(t=0\\) dolg \\(1{,}3333\\), pri \\(t=1\\) pa \\(0{,}1193\\).',
                 'The comb is on. The gain \\(g\\) enlarges or shrinks all the teeth equally, so the comb is only easier to see and the curvature does not change. For \\(g=2\\) the tooth at \\(t=0\\) has the length \\(1.3333\\) and at \\(t=1\\) it has \\(0.1193\\).',
             ),
             formulaIds: ['comb-tooth'],
-            frames: [frame('comb-gain-explanation', 'explanation'), frame('comb-gain-observation', 'observation')],
-            observationPrompt: text('Premakni drsnik za ojačitev in opazuj, kako se spreminja dolžina zob.', 'Move the gain slider and watch how the length of the teeth changes.'),
+            frames: [frame('comb-gain-explanation', 'explanation', combFrame({uses: ['comb-gain']})), frame('comb-gain-observation', 'observation', combFrame({uses: ['comb-gain']}))],
+            observationPrompt: text('Premakni krmilnik Ojačitev in opazuj, kako se spreminja dolžina zob.', 'Move the Gain control and watch how the length of the teeth changes.'),
             expectedObservations: [text('Dolžina vsakega zoba je sorazmerna z \\(g\\); razmerje med prvim in zadnjim zobom ostane \\(11{,}18\\).', 'The length of every tooth is proportional to \\(g\\); the ratio of the first to the last tooth stays \\(11.18\\).')],
             scene: combScene('comb-gain-doubled', 'cubic', true, 2,
                 'Kubična krivulja z glavnikom pri ojačitvi \\(g=2\\).',
@@ -568,48 +572,48 @@ const combLesson: GuidedLesson = {
             title: text('Zlepek C1: skok na stiku', 'C1 spline: a jump at a join'),
             purpose: text('Napovedati in preveriti, da ima kvadratni zlepek C1 na stikih skok ukrivljenosti.', 'Predicting and checking that the quadratic C1 spline has a jump of curvature at its joins.'),
             explanation: text(
-                'Kvadratni zlepek C1 ima zvezno tangento, drugi odvod pa se na stiku skokovito spremeni. Napovej, ali je glavnik na stiku zvezen, nato preveri izpis. Izpis navede stik z največjim skokom: Stik 1, kjer je \\(\\kappa\\) levo \\(1{,}3333\\), desno \\(0{,}6667\\), skok \\(-0{,}6667\\).',
-                'The quadratic C1 spline has a continuous tangent, but its second derivative jumps at a join. Predict whether the comb is continuous at a join, then check the readout. The readout names the join with the largest jump: Join 1, where \\(\\kappa\\) is \\(1.3333\\) on the left and \\(0.6667\\) on the right, the jump \\(-0.6667\\).',
+                'Kvadratni zlepek C1 ima zvezno tangento, drugi odvod pa se na stiku skokovito spremeni. Napovej, ali je glavnik na stiku zvezen, nato preveri odčitek v kartici Odčitki. Odčitek navede stik z največjim skokom: Stik 1, kjer je \\(\\kappa\\) levo \\(1{,}3333\\), desno \\(0{,}6667\\), skok \\(-0{,}6667\\).',
+                'The quadratic C1 spline has a continuous tangent, but its second derivative jumps at a join. Predict whether the comb is continuous at a join, then check the Readouts card. The card names the join with the largest jump: Join 1, where \\(\\kappa\\) is \\(1.3333\\) on the left and \\(0.6667\\) on the right, the jump \\(-0.6667\\).',
             ),
             formulaIds: ['comb-jump'],
-            frames: [frame('comb-c1-explanation', 'explanation'), frame('comb-c1-observation', 'observation')],
+            frames: [frame('comb-c1-explanation', 'explanation', combFrame({open: ['readouts'], highlight: ['join']})), frame('comb-c1-observation', 'observation', combFrame({highlight: ['join']}))],
             observationPrompt: text('Poišči stik, na katerem se zobje glavnika opazno spremenijo.', 'Find a join at which the teeth of the comb visibly change.'),
             expectedObservations: [text('Glavnik ni zvezen: pri Stiku 1 se \\(\\kappa\\) skokovito zmanjša z \\(1{,}3333\\) na \\(0{,}6667\\), čeprav je tangenta zvezna.', 'The comb is not continuous: at Join 1 the \\(\\kappa\\) drops from \\(1.3333\\) to \\(0.6667\\) although the tangent is continuous.')],
             scene: combScene('comb-c1-joins', 'c1', true, 1.4,
-                'Kvadratni zlepek C1 z glavnikom; izpis: Stik 1, \\(\\kappa\\) levo \\(1{,}3333\\), desno \\(0{,}6667\\), skok \\(-0{,}6667\\).',
-                'The quadratic C1 spline with the comb; the readout: Join 1, \\(\\kappa\\) left \\(1.3333\\), right \\(0.6667\\), jump \\(-0.6667\\).'),
+                'Kvadratni zlepek C1 z glavnikom; v kartici Odčitki: Stik 1, \\(\\kappa\\) levo \\(1{,}3333\\), desno \\(0{,}6667\\), skok \\(-0{,}6667\\).',
+                'The quadratic C1 spline with the comb; the Readouts card: Join 1, \\(\\kappa\\) left \\(1.3333\\), right \\(0.6667\\), jump \\(-0.6667\\).'),
         },
         {
             id: 'comb-c2', order: 4,
             title: text('Zlepek C2: zvezen glavnik', 'C2 spline: a continuous comb'),
             purpose: text('Preveriti, da kubični zlepek C2 na stikih nima skoka ukrivljenosti.', 'Checking that the cubic C2 spline has no jump of curvature at its joins.'),
             explanation: text(
-                'Kubični zlepek C2 ima na stiku zvezen tudi drugi odvod, zato je glavnik na regularnem stiku zvezen. Izpis pri Stiku 1 pokaže \\(\\kappa\\) levo \\(0{,}598\\), desno \\(0{,}598\\), skok \\(0\\). Pazi: iz C2 sledi G2 le za regularne krivulje, torej tam, kjer hitrost ni \\(0\\).',
-                'The cubic C2 spline also has a continuous second derivative at a join, so the comb is continuous at a regular join. The readout at Join 1 shows \\(\\kappa\\) left \\(0.598\\), right \\(0.598\\), the jump \\(0\\). Note that C2 implies G2 for regular curves only, that is where the speed is not \\(0\\).',
+                'Kubični zlepek C2 ima na stiku zvezen tudi drugi odvod, zato je glavnik na regularnem stiku zvezen. Odčitek pri Stiku 1 v kartici Odčitki pokaže \\(\\kappa\\) levo \\(0{,}598\\), desno \\(0{,}598\\), skok \\(0\\). Pazi: iz C2 sledi G2 le za regularne krivulje, torej tam, kjer hitrost ni \\(0\\).',
+                'The cubic C2 spline also has a continuous second derivative at a join, so the comb is continuous at a regular join. The Readouts card at Join 1 shows \\(\\kappa\\) left \\(0.598\\), right \\(0.598\\), the jump \\(0\\). Note that C2 implies G2 for regular curves only, that is where the speed is not \\(0\\).',
             ),
             formulaIds: ['comb-jump'],
-            frames: [frame('comb-c2-explanation', 'explanation'), frame('comb-c2-observation', 'observation')],
+            frames: [frame('comb-c2-explanation', 'explanation', combFrame({open: ['readouts'], highlight: ['join']})), frame('comb-c2-observation', 'observation', combFrame({highlight: ['join']}))],
             observationPrompt: text('Primerjaj glavnik pri vseh stikih z glavnikom zlepka C1.', 'Compare the comb at all joins with the comb of the C1 spline.'),
             expectedObservations: [text('Na nobenem stiku ni skoka: zobje levo in desno od stika so enako dolgi.', 'There is no jump at any join: the teeth on the left and on the right of a join have the same length.')],
             scene: combScene('comb-c2-joins', 'c2', true, 1.4,
-                'Kubični zlepek C2 z glavnikom; izpis: Stik 1, \\(\\kappa\\) levo \\(0{,}598\\), desno \\(0{,}598\\), skok \\(0\\).',
-                'The cubic C2 spline with the comb; the readout: Join 1, \\(\\kappa\\) left \\(0.598\\), right \\(0.598\\), jump \\(0\\).'),
+                'Kubični zlepek C2 z glavnikom; v kartici Odčitki: Stik 1, \\(\\kappa\\) levo \\(0{,}598\\), desno \\(0{,}598\\), skok \\(0\\).',
+                'The cubic C2 spline with the comb; the Readouts card: Join 1, \\(\\kappa\\) left \\(0.598\\), right \\(0.598\\), jump \\(0\\).'),
         },
         {
             id: 'comb-g1', order: 5,
             title: text('Zlepek G1: prosti parameter', 'G1 spline: the free parameter'),
             purpose: text('Z prostim parametrom \\(b\\) spreminjati skok ukrivljenosti na stiku.', 'Changing the jump of curvature at a join with the free parameter \\(b\\).'),
             explanation: text(
-                'Kvadratni zlepek G1 ima v vsakem stiku prosti parameter \\(b\\). Pri \\(b_1=b_2=1\\) izpis navede Stik 2: \\(\\kappa\\) levo \\(0{,}1217\\), desno \\(-0{,}1409\\), skok \\(-0{,}2625\\); skok pri Stiku 1 je le \\(-0{,}0427\\). Zdaj je \\(b_2=0{,}5\\): desna ukrivljenost je \\(-0{,}5635\\), skok \\(-0{,}6852\\).',
-                'The quadratic G1 spline has a free parameter \\(b\\) at every join. For \\(b_1=b_2=1\\) the readout names Join 2: \\(\\kappa\\) left \\(0.1217\\), right \\(-0.1409\\), jump \\(-0.2625\\); the jump at Join 1 is only \\(-0.0427\\). Now \\(b_2=0.5\\): the curvature on the right is \\(-0.5635\\), the jump \\(-0.6852\\).',
+                'Kvadratni zlepek G1 ima v vsakem stiku prosti parameter \\(b\\). Pri \\(b_1=b_2=1\\) odčitek v kartici Odčitki navede Stik 2: \\(\\kappa\\) levo \\(0{,}1217\\), desno \\(-0{,}1409\\), skok \\(-0{,}2625\\); skok pri Stiku 1 je le \\(-0{,}0427\\). Zdaj je \\(b_2=0{,}5\\): desna ukrivljenost je \\(-0{,}5635\\), skok \\(-0{,}6852\\).',
+                'The quadratic G1 spline has a free parameter \\(b\\) at every join. For \\(b_1=b_2=1\\) the Readouts card names Join 2: \\(\\kappa\\) left \\(0.1217\\), right \\(-0.1409\\), jump \\(-0.2625\\); the jump at Join 1 is only \\(-0.0427\\). Now \\(b_2=0.5\\): the curvature on the right is \\(-0.5635\\), the jump \\(-0.6852\\).',
             ),
             formulaIds: ['comb-jump'],
-            frames: [frame('comb-g1-explanation', 'explanation'), frame('comb-g1-observation', 'observation')],
+            frames: [frame('comb-g1-explanation', 'explanation', combFrame({open: ['readouts'], highlight: ['join']})), frame('comb-g1-observation', 'observation', combFrame({highlight: ['join']}))],
             observationPrompt: text('Premakni \\(b_2\\) na \\(2\\) in opazuj, kako se skok zmanjša.', 'Move \\(b_2\\) to \\(2\\) and watch how the jump decreases.'),
             expectedObservations: [text('Pri \\(b_2=2\\) je desna ukrivljenost \\(-0{,}0352\\) in skok \\(-0{,}1569\\); leva ukrivljenost se ne spremeni.', 'For \\(b_2=2\\) the curvature on the right is \\(-0.0352\\) and the jump is \\(-0.1569\\); the curvature on the left does not change.')],
             scene: combScene('comb-g1-beta', 'g1', true, 1.4,
-                'Zlepek G1 z glavnikom in \\(b_2=0{,}5\\); izpis: Stik 2, \\(\\kappa\\) levo \\(0{,}1217\\), desno \\(-0{,}5635\\), skok \\(-0{,}6852\\).',
-                'The G1 spline with the comb and \\(b_2=0.5\\); the readout: Join 2, \\(\\kappa\\) left \\(0.1217\\), right \\(-0.5635\\), jump \\(-0.6852\\).',
+                'Zlepek G1 z glavnikom in \\(b_2=0{,}5\\); v kartici Odčitki: Stik 2, \\(\\kappa\\) levo \\(0{,}1217\\), desno \\(-0{,}5635\\), skok \\(-0{,}6852\\).',
+                'The G1 spline with the comb and \\(b_2=0.5\\); the Readouts card: Join 2, \\(\\kappa\\) left \\(0.1217\\), right \\(-0.5635\\), jump \\(-0.6852\\).',
                 [[1, 0.5]]),
         },
         {
@@ -617,11 +621,11 @@ const combLesson: GuidedLesson = {
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno primerjati vrste krivulj, ojačitev in prosti parameter.', 'Comparing the kinds of curves, the gain and the free parameter on your own.'),
             explanation: text(
-                'Zlepek G1 je spet na začetnem mestu (\\(b_1=b_2=1\\)), izpis pa navaja Stik 2 s skokom \\(-0{,}2625\\). Preklapljaj med kubično krivuljo in zlepki, premikaj kontrolne točke in parametra \\(b\\) ter opazuj skoke.',
-                'The G1 spline is back at its starting place (\\(b_1=b_2=1\\)) and the readout names Join 2 with the jump \\(-0.2625\\). Switch between the cubic and the splines, move the control points and the parameters \\(b\\) and watch the jumps.',
+                'Zlepek G1 je spet na začetnem mestu (\\(b_1=b_2=1\\)), kartica Odčitki pa navaja Stik 2 s skokom \\(-0{,}2625\\). Preklapljaj med kubično krivuljo in zlepki, premikaj kontrolne točke in parametra \\(b\\) ter opazuj skoke.',
+                'The G1 spline is back at its starting place (\\(b_1=b_2=1\\)) and the Readouts card names Join 2 with the jump \\(-0.2625\\). Switch between the cubic and the splines, move the control points and the parameters \\(b\\) and watch the jumps.',
             ),
             formulaIds: ['comb-tooth', 'comb-jump'],
-            frames: [frame('comb-explore-explanation', 'explanation'), frame('comb-explore-observation', 'observation')],
+            frames: [frame('comb-explore-explanation', 'explanation', combFrame({open: ['readouts'], highlight: ['join']})), frame('comb-explore-observation', 'observation', combFrame({highlight: ['join']}))],
             observationPrompt: text('Poišči nastavitev zlepka G1, pri kateri je skok na Stiku 1 skoraj \\(0\\).', 'Find a setting of the G1 spline at which the jump at Join 1 is nearly \\(0\\).'),
             expectedObservations: [text('Pri \\(b_1=1\\) je skok pri Stiku 1 le \\(-0{,}0427\\), zato je tam glavnik skoraj zvezen.', 'For \\(b_1=1\\) the jump at Join 1 is only \\(-0.0427\\), so the comb is almost continuous there.')],
             scene: combScene('comb-explore-start', 'g1', true, 1.4,
@@ -638,7 +642,7 @@ const combLesson: GuidedLesson = {
         },
     ],
     edgeCases: [
-        text('Pri \\(r\'=0\\) ukrivljenost ni določena: graf izpiše, da je ukrivljenost na stiku nedoločena, in ne nariše zoba čez vozel.', 'Where \\(r\'=0\\) the curvature is not defined: the graph says that the curvature at the join is undefined and draws no tooth across a knot.'),
+        text('Pri \\(r\'=0\\) ukrivljenost ni določena: kartica Odčitki pove, da je ukrivljenost na stiku nedoločena, graf pa ne nariše zoba čez vozel.', 'Where \\(r\'=0\\) the curvature is not defined: the Readouts card says that the curvature at the join is undefined and the graph draws no tooth across a knot.'),
         text('Iz C2 sledi G2 le za regularne krivulje.', 'C2 implies G2 for regular curves only.'),
     ],
     unresolvedQuestions: [],

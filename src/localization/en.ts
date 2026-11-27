@@ -2376,7 +2376,7 @@ export const en: Record<keyof typeof sl, string> = {
     "curve_comb_title": "Curvature comb and spline joins",
     "curve_evolute_title": "Evolute",
     "curve_offset_title": "Offset curves",
-    "prompt_curve_comb": "Switch the comb on and scale it with the gain slider. Where is the curve flattest? Does the comb break at a spline join?",
+    "prompt_curve_comb": "Turn on the Comb control and scale it with the Gain control. Where is the curve flattest? Does the comb break at a spline join?",
     "prompt_curve_offset": "Change the distance d and watch the offset. At what distance does the first cusp appear? Where does it lie?",
     "curve_envelope_title": "Envelope",
     "prompt_curve_envelope": "Draw several lines between the de Casteljau points. What curve do they form? At which touching point does the line for the chosen t meet the curve?",

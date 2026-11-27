@@ -1,5 +1,5 @@
-import type {Board, GeometryElement, Text} from "jsxgraph";
-import {currentLanguage, onLanguageChange, t} from "../../../localization";
+import type {Board, GeometryElement} from "jsxgraph";
+import {currentLanguage, message, type Message, onLanguageChange, renderMessage} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {CombGeometry, CombJoin, computeComb, largestJoin, SpanRows} from "./curveComb";
@@ -14,6 +14,8 @@ interface CombSettings {
     fontSize: () => number;
     /** Called with the readout text on every board update that draws it (for a live region). */
     onReadout?: (text: string) => void;
+    /** Called when a board update redraws a comb curve, so the graph knows what the board last drew. */
+    onDraw?: () => void;
 }
 
 type DataCurve = GeometryElement & { dataX: number[]; dataY: number[]; updateDataArray: () => void };
@@ -22,7 +24,7 @@ const EMPTY: CombGeometry = {teethX: [], teethY: [], tipX: [], tipY: [], clipped
 
 /**
  * One owned comb: a JSXGraph curve for all teeth, one for the line through their tips, one for the cross-bars of clipped
- * teeth (ADR 0041), and a board text for the largest curvature jump at a join. All of them read the curve lazily in
+ * teeth (ADR 0041). All of them read the curve lazily in
  * `updateDataArray`, so no drag listener exists; the language subscription is released in {@link dispose}.
  */
 export class CombOverlay {
@@ -79,6 +81,7 @@ export class CombOverlay {
     private dataCurve(pick: (geometry: CombGeometry) => [number[], number[]], attributes: Record<string, unknown>) {
         const curve = this.create<DataCurve>('curve', [[], []], {fixed: true, highlight: false, withLabel: false, ...attributes});
         curve.updateDataArray = () => {
+            this.settings.onDraw?.();
             const [x, y] = pick(this.geometry());
             curve.dataX = x;
             curve.dataY = y;
@@ -86,30 +89,19 @@ export class CombOverlay {
     }
 
     private build() {
-        const board = this.board;
         // Teeth are dashed-free thin strokes; the tip line is heavier so the two read apart without colour.
         this.dataCurve(g => [g.teethX, g.teethY], {strokeColor: GraphPalette.comparisonCurve, strokeWidth: 1.5});
         this.dataCurve(g => [g.tipX, g.tipY], {strokeColor: GraphPalette.primaryCurve, strokeWidth: 2.5});
+        // The readout is a declared note of the graph; the live region still hears it on every board update.
+        const tip = this.elements[this.elements.length - 1] as DataCurve;
+        const draw = tip.updateDataArray;
+        tip.updateDataArray = () => { draw(); this.settings.onReadout?.(this.readoutText()); };
         // A clipped tooth gets a cross-bar at its tip: a different shape from a tooth, not only another colour.
         this.dataCurve(g => [g.clippedX, g.clippedY], {strokeColor: GraphPalette.warningText, strokeWidth: 3});
 
-        const box = () => board.getBoundingBox();
-        this.create<Text>('text', [
-            () => box()[0] + 0.02 * (box()[2] - box()[0]),
-            () => box()[1] - 0.02 * (box()[1] - box()[3]),
-            () => {
-                const text = this.readoutText();
-                this.settings.onReadout?.(text);
-                return text;
-            },
-        ], {
-            anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false,
-            fontSize: () => this.settings.fontSize(), strokeColor: GraphPalette.label,
-        });
-
-        // Board text is recomputed only on board update, which a language change does not trigger.
+        // The live region hears the readout on every board update; a language change does not trigger one.
         this.stopLanguageUpdates = onLanguageChange(() => {
-            if (!this.disposed && board.renderer) board.update();
+            if (!this.disposed && this.board.renderer) this.board.update();
         });
     }
 
@@ -118,18 +110,23 @@ export class CombOverlay {
      * never disappears behind a defined one. Empty without joins or while off.
      */
     readoutText(): string {
+        return this.readoutMessages().map(line => renderMessage(line.text)).join(" ");
+    }
+
+    /** The readout as messages, one per sentence: the join of the largest jump (`join`) and the first singular join (`singular`). */
+    readoutMessages(): {id: "join" | "singular"; text: Message}[] {
         const joins = this.joinCurvatures();
         const num = (value: number) => formatNumber(value, currentLanguage(), 4);
         const best = largestJoin(joins);
         const singular = joins.find(join => join.jump === undefined);
-        const lines: string[] = [];
+        const lines: {id: "join" | "singular"; text: Message}[] = [];
         if (best) {
-            lines.push(t("comb_readout_join", {
+            lines.push({id: "join", text: message("comb_readout_join", {
                 value0: String(best.index + 1), value1: num(best.kappaLeft!), value2: num(best.kappaRight!), value3: num(best.jump!),
-            }));
+            })});
         }
-        if (singular) lines.push(t("comb_readout_join_singular", {value0: String(singular.index + 1)}));
-        return lines.join(" ");
+        if (singular) lines.push({id: "singular", text: message("comb_readout_join_singular", {value0: String(singular.index + 1)})});
+        return lines;
     }
 
     /** Removes every owned element (later ones first) and releases the language subscription. Idempotent. */

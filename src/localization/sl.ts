@@ -2375,7 +2375,7 @@ export const sl = {
     "curve_comb_title": "Glavnik ukrivljenosti in stiki zlepkov",
     "curve_evolute_title": "Evoluta",
     "curve_offset_title": "Vzporedne krivulje",
-    "prompt_curve_comb": "Vklopi glavnik in ga povečaj z drsnikom. Kje je krivulja najbolj ravna? Ali se glavnik na stiku zlepka pretrga?",
+    "prompt_curve_comb": "Vklopi krmilnik Glavnik in ga povečaj s krmilnikom Ojačitev. Kje je krivulja najbolj ravna? Ali se glavnik na stiku zlepka pretrga?",
     "prompt_curve_offset": "Spreminjaj razdaljo d in opazuj vzporednico. Pri kateri razdalji se pojavi prva ost? Kje leži?",
     "curve_envelope_title": "Ovojnica",
     "prompt_curve_envelope": "Nariši več premic med de Casteljaujevimi točkami. Kakšno krivuljo tvorijo? V katerem dotikališču se premica pri izbranem t dotika krivulje?",

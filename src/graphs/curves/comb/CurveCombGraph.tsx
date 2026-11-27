@@ -1,12 +1,17 @@
 import React from "react";
-import {t} from "../../../localization";
+import {message, t} from "../../../localization";
 import Slider from "../../../inputs/Slider";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {COMB_MAX_COUNT, COMB_MIN_COUNT} from "../../../bezeg/impl/curve/curvature";
 import {COMB_GAIN_MAX, COMB_GAIN_MIN} from "./curveComb";
 import {BezierSpline} from "../../../bezeg/impl/curve/bezier-spline";
-import BaseCurveGraph, {BaseGraphStates} from "../../base/BaseCurveGraph";
+import BaseCurveGraph, {BaseCurveIds, BaseGraphStates} from "../../base/BaseCurveGraph";
+import type {GraphDeclaration, LegendEntry, ParameterDeclaration, ViewMarks} from "../../base/declare/graphDeclaration";
+import {PuckOwned} from "../../base/controls/PuckOwnership";
+import {runAs} from "../../base/writes/writeSource";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
+import {DomainError} from "../../functions/BaseFunctionGraph";
 import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {curveCombPresetCollection} from "../geometry/collections";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
@@ -64,6 +69,17 @@ export function isCombCurveKind(value: unknown): value is CombCurveKind {
     return typeof value === 'string' && (COMB_CURVE_KINDS as readonly string[]).includes(value);
 }
 
+/**
+ * The ids this graph declares: the gain (a range puck, bound in the arbiter), the comb switch (a switch puck), the sentences of the
+ * join readout as notes, and the legend of the curve, its control points and the comb. The count, the curve choice and the G1
+ * parameters stay in Orodja (setup and vector parameters).
+ */
+export type CombIds = {
+    param: 'comb-gain'; row: never; note: 'join' | 'singular'; section: never;
+    legend: BaseCurveIds['legend'] | 'comb';
+    action: BaseCurveIds['action'] | 'comb-shown';
+};
+
 export interface CurveCombStates extends BaseGraphStates {
     /** The comb is drawn. Off by default (ADR 0041); lessons switch it on. */
     combShown: boolean;
@@ -108,6 +124,8 @@ class CurveCombGraph extends BaseCurveGraph<CurveCombStates> {
      * Structured editing renders the Bezier-only subdivision and extrapolation tools for a selected curve, which a spline
      * does not have, so only the cubic uses it; a spline keeps the spline routes' selected-curve commands.
      */
+    protected override declaresCurveWorkspace() { return true; }
+
     protected override workspaceUsesStructuredEditing() { return this.curveKind() === 'cubic'; }
 
     override getInitialState(): CurveCombStates {
@@ -173,10 +191,9 @@ class CurveCombGraph extends BaseCurveGraph<CurveCombStates> {
         this.overlay = new CombOverlay({
             board: this.board,
             spans: () => this.spanRows(),
-            shown: () => {
-                this.drawn = {shown: this.state.combShown, gain: this.effectiveGain(), count: this.effectiveCount()};
-                return this.state.combShown;
-            },
+            shown: () => this.state.combShown,
+            // Only a board draw counts as drawn: the declaration and its notes read the geometry too, without redrawing the board.
+            onDraw: () => { this.drawn = {shown: this.state.combShown, gain: this.effectiveGain(), count: this.effectiveCount()}; },
             gain: () => this.effectiveGain(),
             count: () => this.effectiveCount(),
             fontSize: () => this.displaySettings.fontSize,
@@ -263,6 +280,79 @@ class CurveCombGraph extends BaseCurveGraph<CurveCombStates> {
         });
     }
 
+    // ---- Declaration -----------------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the key `comb-gain` reads and writes the gain through the validated setter. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            'comb-gain': {
+                read: () => this.effectiveGain(),
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isFinite(value) || value < COMB_GAIN_MIN || value > COMB_GAIN_MAX) {
+                        throw new DomainError(message('comb_gain_refused', {value0: String(COMB_GAIN_MIN), value1: String(COMB_GAIN_MAX)}));
+                    }
+                    this.setCombGain(value);
+                },
+            },
+        };
+    }
+
+    /**
+     * The common curve declaration plus the gain puck, the comb switch puck, the join sentences as notes and the comb in the legend
+     * while it is shown (a declared entry must be drawn). The old board caption of the join is the note.
+     */
+    protected override declaration(): GraphDeclaration<CombIds> {
+        const common = this.commonCurveDeclaration();
+        const parameters: ParameterDeclaration<CombIds['param']>[] = [
+            {key: 'comb-gain', kind: 'range', label: message('comb_gain_name'), symbol: 'g', placement: 'board', min: COMB_GAIN_MIN, max: COMB_GAIN_MAX, step: 0.05, maxDecimals: 2},
+        ];
+        const legend: LegendEntry<CombIds>[] = [
+            ...(common.legend ?? []),
+            ...(this.state.combShown ? [{id: 'comb' as const, label: message('comb_legend_teeth'), kind: 'line' as const, object: 'comb'}] : []),
+        ];
+        return {
+            ...common, parameters, legend,
+            actions: [...(common.actions ?? []), {id: 'comb-shown', label: message('comb_shown_puck'), enabled: true, pressed: this.state.combShown, placement: 'board', puck: true}],
+            notes: (this.overlay?.readoutMessages() ?? []).map(line => ({id: line.id, text: line.text})),
+            marks: this.curveViewMarks(),
+        };
+    }
+
+    private combMarksCache: {base: ViewMarks; tip: object; marks: ViewMarks} | undefined;
+
+    /** The control points and curve samples of the base, and the line through the tooth tips (nice) while the comb is shown. Memoized on both. */
+    protected override curveViewMarks(): ViewMarks {
+        const base = super.curveViewMarks();
+        const geometry = this.overlay?.geometry();
+        if (!geometry || geometry.tipX.length === 0) return base;
+        const cached = this.combMarksCache;
+        if (cached && cached.base === base && cached.tip === geometry) return cached.marks;
+        const tips: {kind: 'point'; x: number; y: number}[] = [];
+        const stride = Math.max(1, Math.ceil(geometry.tipX.length / 40));
+        for (let i = 0; i < geometry.tipX.length; i += stride) {
+            const x = geometry.tipX[i], y = geometry.tipY[i];
+            if (Number.isFinite(x) && Number.isFinite(y)) tips.push({kind: 'point', x, y});
+        }
+        const marks: ViewMarks = {...base, nice: [...(base.nice ?? []), ...tips]};
+        this.combMarksCache = {base, tip: geometry, marks};
+        return marks;
+    }
+
+    /** The first owned curve of the overlay (the teeth) stands for the comb; the base owns the curve and its control points. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id !== 'comb') return super.drawnObject(id);
+        const element = this.overlay?.ownedElements()[0];
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as typeof element & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp('strokecolor')), visible: Boolean(drawn.evalVisProp('visible'))};
+    }
+
+    override performAction(id: string): void {
+        if (id === 'comb-shown') runAs('learner', () => this.setCombShown(!this.state.combShown));
+        else super.performAction(id);
+    }
+
     // ---- Controls --------------------------------------------------------------------------------------------------
 
     /** Structured editing does not render `getGraphCommands`, and the spline path renders only the selected-curve tools, so the comb has its own Edit group, first. */
@@ -275,9 +365,9 @@ class CurveCombGraph extends BaseCurveGraph<CurveCombStates> {
         const curve = this.getFirstCurve();
         const bs = kind === 'g1' && curve instanceof BezierSpline ? curve.getBs() : [];
         return <div className="inspector-group">
-            <OnOffSwitch label={t("comb_shown")} checked={this.state.combShown} onChange={checked => this.setCombShown(checked)}/>
-            <Slider min={COMB_GAIN_MIN} max={COMB_GAIN_MAX} step={0.05} value={this.effectiveGain()} customText={t("comb_gain")}
-                    onChange={value => this.setCombGain(value)}/>
+            <PuckOwned param="comb-shown"><OnOffSwitch label={t("comb_shown")} checked={this.state.combShown} onChange={checked => this.setCombShown(checked)}/></PuckOwned>
+            <PuckOwned param="comb-gain"><Slider min={COMB_GAIN_MIN} max={COMB_GAIN_MAX} step={0.05} value={this.effectiveGain()} customText={t("comb_gain")}
+                    onChange={value => this.setCombGain(value)}/></PuckOwned>
             <Slider min={COMB_MIN_COUNT} max={COMB_MAX_COUNT} step={1} value={this.effectiveCount()} customText={t("comb_count")}
                     onChange={value => this.setCombCount(Math.round(value))}/>
             <ChoiceSelect label={t("parametric_curve_label")} value={kind}
