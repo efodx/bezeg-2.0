@@ -6,7 +6,9 @@ import type {LessonAction} from '../model';
 import type {GuidedLessonStep} from './guidedLessons';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../graphs/base/realGraphTestHarness';
 import {createGraph} from '../../graphs/base/createTestGraph';
-import {setLanguage, t} from '../../localization';
+import {renderMessage, setLanguage, t, type Message} from '../../localization';
+import type {GraphDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {EnvelopeIds} from '../../graphs/curves/envelope/CurveEnvelopeGraph';
 import {fitBoundingBox} from '../../graphs/base/fitBoundingBox';
 import {FAMILY_BANDS} from '../../graphs/curves/envelope/EnvelopeOverlay';
 
@@ -71,6 +73,8 @@ const familyOf = (graph: EnvelopeGraphView): Drawn => {
 };
 const highlightOf = (graph: EnvelopeGraphView) => curvesOf(graph)[FAMILY_BANDS];
 const touchOf = (graph: EnvelopeGraphView) => owned(graph).find(element => element.elType === 'point')!;
+const declaredNotes = (graph: EnvelopeGraphView) => ((graph as unknown as {getDeclaration(): GraphDeclaration<EnvelopeIds>}).getDeclaration().notes ?? []).map(note => renderMessage(note.text as Message));
+const declaredLines = (graph: EnvelopeGraphView) => ((graph as unknown as {getDeclaration(): GraphDeclaration<EnvelopeIds>}).getDeclaration().readouts![0].rows.find(row => row.id === 'lines')?.value as {value: number}).value;
 const captionsOf = (graph: EnvelopeGraphView) => owned(graph).filter(element => element.elType === 'text').map(element => element.plaintext ?? '').filter(Boolean);
 /** The actual JSXGraph visibility of the Bezier curve on the board, not the state. */
 const curveVisible = (graph: EnvelopeGraphView) => graph.getFirstJxgCurve().getJxgCurve().evalVisProp('visible') as boolean;
@@ -281,7 +285,8 @@ test('the collinear scene is collinear, says so in both languages on the board, 
             expect(note).not.toBe('envelope_readout_collinear');
             expect(h.graph.envelope()!.readoutLines(), language).toContain(note);
             expect(h.graph.envelope()!.readoutText(), language).toContain(note);
-            expect(captionsOf(h.graph), `${language} board caption`).toContain(note);
+            expect(captionsOf(h.graph), `${language} no board caption`).toEqual([]);
+            expect(declaredNotes(h.graph), `${language} declared note`).toEqual([note]);
         }
         expect(notes[0]).not.toBe(notes[1]);
         act(() => setLanguage('sl'));
@@ -366,7 +371,8 @@ test('every value the envelope prose quotes matches the scene or an independent 
                 }
                 const readout = h.graph.envelope()!.readoutLines();
                 expect(readout[0], `${language} ${row[0]} readout`).toBe(t('envelope_readout_lines', {value0: String(row[2])}));
-                expect(captionsOf(h.graph), `${language} ${row[0]} caption`).toContain(readout[0]);
+                expect(captionsOf(h.graph), `${language} ${row[0]} no board caption`).toEqual([]);
+                expect(declaredLines(h.graph), `${language} ${row[0]} declared row`).toBe(row[2]);
             }
         }
         act(() => setLanguage('sl'));
@@ -465,14 +471,14 @@ test('cycling the scenes keeps the board object count constant, without tick lab
     const h = mount();
     try {
         const initial = countWithoutTickLabels(h.graph);
-        expect(owned(h.graph)).toHaveLength(5 + FAMILY_BANDS); // the family bands, then highlight, point and captions
+        expect(owned(h.graph)).toHaveLength(2 + FAMILY_BANDS); // the family bands, then highlight and point (the readout is no board text)
         const counts = new Set<number>();
         for (let round = 0; round < 3; round++) {
             for (const id of [...stepIds, ...[...stepIds].reverse()]) {
                 h.scene(stepOf(id));
                 h.graph.board.update();
                 counts.add(countWithoutTickLabels(h.graph));
-                expect(owned(h.graph), `${id} owned`).toHaveLength(5 + FAMILY_BANDS);
+                expect(owned(h.graph), `${id} owned`).toHaveLength(2 + FAMILY_BANDS);
             }
         }
         expect([...counts]).toEqual([initial]);

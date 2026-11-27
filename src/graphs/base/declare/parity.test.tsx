@@ -102,6 +102,12 @@ const curvatureAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the status lines "Ukrivljenost je 0: krivinska krožnica je premica .." and "Ukrivljenost tu ni določena .." were board text (captions in the recording); they are declared notes of the Odčitki card and the board text is removed (owner, 2026-11-27)'},
 ];
 
+const envelopeAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'row lines', reason: 'the board caption lines "Število premic: N.", "t = .." and the collinear sentence were board text (the recording holds them as captions); the lines only repeated the values, so they are removed and the values are the declared rows and the note of the Odčitki card (owner, 2026-11-27)'},
+    {kind: 'extra', where: 'row t', reason: 'the board caption lines "Število premic: N.", "t = .." and the collinear sentence were board text (the recording holds them as captions); the lines only repeated the values, so they are removed and the values are the declared rows and the note of the Odčitki card (owner, 2026-11-27)'},
+    {kind: 'extra', where: 'note', reason: 'the board caption lines "Število premic: N.", "t = .." and the collinear sentence were board text (the recording holds them as captions); the lines only repeated the values, so they are removed and the values are the declared rows and the note of the Odčitki card (owner, 2026-11-27)'},
+];
+
 const quadratureAccepted:readonly AcceptedDifference[] = [];
 
 const eulerAccepted:readonly AcceptedDifference[] = [
@@ -863,6 +869,22 @@ const SAMPLES: readonly Sample[] = [
             {name: 'frame hidden', apply: run(g => g.setState({curvatureFrameShown: false}))},
             {name: 'the S cubic at t = 0,5 (an inflection)', apply: run(g => { g.setState({curvatureFrameShown: true}); replace(g, [[0, 0], [1, 2], [2, -2], [3, 0]]); g.setCurvatureT(0.5); })},
             {name: 'a curve with a singular start', apply: run(g => { replace(g, [[0, 0], [0, 0], [1, 1], [2, 0]]); g.setCurvatureT(0); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/envelope/__parity__/curve-envelope.json', demonstration: 'curve-envelope', accepted: envelopeAccepted, states: (() => {
+        type Env = {setEnvelopeT(value: number): void; setEnvelopeLineCount(value: number): void; setEnvelopeCurveShown(shown: boolean): void; setEnvelopeLinesShown(shown: boolean): void;
+            runLessonReplacement(spec: Record<string, unknown>): void; importPresetData(data: unknown): void; getInitialState(): object; lessonDefaultState(): object};
+        const run = (edit: (graph: Env) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Env)); };
+        const curveState = {showingJxgPoints: true, showingControlPolygon: true, showingConvexHull: false, showingDecasteljauScheme: false,
+            subdivisionT: 0.5, decasteljauT: 0.5, extrapolationT: 1.2};
+        const replace = (g: Env, points: number[][]) => g.runLessonReplacement({importData: () => g.importPresetData([['JSXBezierCurve', {points, state: curveState}]]), afterImport: () => undefined, state: () => ({...g.getInitialState(), ...g.lessonDefaultState()}), transientState: undefined});
+        return [
+            {name: 'default (16 lines, t = 0,5)', apply: () => undefined},
+            {name: 't = 0,8', apply: run(g => g.setEnvelopeT(0.8))},
+            {name: '4 lines, curve hidden', apply: run(g => { g.setEnvelopeLineCount(4); g.setEnvelopeCurveShown(false); })},
+            {name: '200 lines, curve shown', apply: run(g => { g.setEnvelopeLineCount(200); g.setEnvelopeCurveShown(true); })},
+            {name: 'the middle point at (1, 1)', apply: run(g => replace(g, [[1, 0], [1, 1], [0, 1]]))},
+            {name: 'collinear control points', apply: run(g => replace(g, [[1, 0], [0.5, 0.5], [0, 1]]))},
         ] satisfies ParityState[];
     })()},
     {file: 'curves/reduction/__parity__/reduction.json', demonstration: 'reduction', accepted: reductionAccepted, states: (() => {

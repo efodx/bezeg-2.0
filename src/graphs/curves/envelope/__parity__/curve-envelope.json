@@ -1,0 +1,67 @@
+{
+  "graph": "curve-envelope",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (16 lines, t = 0,5)",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "t = 0,5.",
+        "Število premic: 16."
+      ]
+    },
+    {
+      "name": "t = 0,8",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "t = 0,8.",
+        "Število premic: 16."
+      ]
+    },
+    {
+      "name": "4 lines, curve hidden",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "t = 0,8.",
+        "Število premic: 4."
+      ]
+    },
+    {
+      "name": "200 lines, curve shown",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "t = 0,8.",
+        "Število premic: 200."
+      ]
+    },
+    {
+      "name": "the middle point at (1, 1)",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "t = 0,5.",
+        "Število premic: 16."
+      ]
+    },
+    {
+      "name": "collinear control points",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Kontrolne točke ležijo na isti premici: vse premice ležijo na njej, krivulja je daljica in ne ovojnica.",
+        "t = 0,5.",
+        "Število premic: 16."
+      ]
+    }
+  ]
+}

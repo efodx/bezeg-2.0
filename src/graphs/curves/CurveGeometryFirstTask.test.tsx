@@ -33,7 +33,8 @@ const plan: Record<string, {first: Label; later: Label[]}> = {
     // The comb switch and the gain are pucks on the board (task 08): Orodja opens with the count of teeth.
     comb: {first: () => t('comb_count'), later: [() => t('parametric_curve_label')]},
     offset: {first: () => t('offset_distance'), later: [() => t('offset_shown'), () => t('parametric_curve_label')]},
-    envelope: {first: () => t('envelope_line_count'), later: [() => t('envelope_lines_shown'), () => t('envelope_parameter_t')]},
+    // The line count, the curve switch and t are pucks on the board (task 08): Orodja opens with the family switch.
+    envelope: {first: () => t('envelope_lines_shown'), later: [() => t('envelope_touch_shown')]},
     kinematics: {first: () => 'action:play-pause', later: [() => t('kinematics_graph_time_label'), () => t('kinematics_graph_motion_label')]},
     descent: {first: () => 'action:play-pause', later: [() => t('descent_graph_time_label'), () => t('descent_graph_mode_label')]},
 };
@@ -84,5 +85,21 @@ describe('curve-curvature pucks', () => {
         const strip = document.querySelector('.puck-strip') as HTMLElement;
         expect(strip.querySelector('[data-puck-key="curvature-t"]')).not.toBeNull();
         expect(within(root).queryAllByLabelText(new RegExp(`^${t('curvature_parameter_t')}`))).toEqual([]);
+    });
+});
+
+describe('curve-envelope pucks', () => {
+    // The line count, the curve switch and t are pucks on the board (task 08): there once, and not in Orodja, which keeps the family and touching-line switches.
+    test('the line count, the curve switch and t are pucks and Orodja holds no second copy', async () => {
+        mountGraph(new CurveEnvelopeGraph());
+        await waitUntil(() => document.querySelector('.puck-strip [data-puck-key="envelope-t"]') !== null); // the strip stays hidden without a board layout in this jsdom
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const key of ['envelope-t', 'envelope-lines', 'envelope-curve']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of ['envelope_line_count', 'envelope_curve_shown', 'envelope_parameter_t'] as const) {
+            expect(within(root).queryAllByLabelText(new RegExp(`^${t(label)}`)), label).toEqual([]);
+        }
+        expect(within(root).getAllByLabelText(new RegExp(`^${t('envelope_lines_shown')}`)).length).toBeGreaterThan(0);
     });
 });

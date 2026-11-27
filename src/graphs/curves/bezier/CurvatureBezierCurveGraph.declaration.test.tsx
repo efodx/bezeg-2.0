@@ -108,7 +108,7 @@ describe('curve-curvature declaration', () => {
     });
 
     test('a large radius does not pull the view out: every mark stays within the curve box grown by its own size', () => {
-        const {graph, declaration, view} = setup(curve([[0, 0], [1, 0], [2, 1], [3, 3]]), circle(true), at(1));
+        const {declaration, view} = setup(curve([[0, 0], [1, 0], [2, 1], [3, 3]]), circle(true), at(1));
         const marks = declaration().marks!;
         const points = [...marks.must, ...(marks.nice ?? [])].flatMap(mark => mark.kind === 'point' ? [[mark.x, mark.y] as const] : mark.kind === 'polyline' ? [...mark.points] : []);
         const xs = points.map(p => p[0]), ys = points.map(p => p[1]);

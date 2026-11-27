@@ -1,13 +1,16 @@
 import React from 'react';
-import {act, render, screen} from '@testing-library/react';
+import {act, render, waitFor} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import type {GeometryElement} from 'jsxgraph';
-import CurveEnvelopeGraph, {ENVELOPE_DEFAULT_POINTS, ENVELOPE_LINES_DEFAULT, ENVELOPE_T_DEFAULT} from './CurveEnvelopeGraph';
+import CurveEnvelopeGraph, {type EnvelopeIds, ENVELOPE_DEFAULT_POINTS, ENVELOPE_LINES_DEFAULT, ENVELOPE_T_DEFAULT} from './CurveEnvelopeGraph';
 import {envelopeFamily, tangentSegment} from './curveEnvelope';
 import {FAMILY_BANDS} from './EnvelopeOverlay';
-import {setLanguage, t} from '../../../localization';
+import {renderMessage, setLanguage, t, type Message} from '../../../localization';
 import {GraphHost} from '../../base/GraphHost';
 import {LessonAction} from '../../../learning/model';
+import {runAs} from '../../base/writes/writeSource';
+import type {GraphDeclaration} from '../../base/declare/graphDeclaration';
+
 
 /** Counts live language subscriptions, so a leaked listener shows even though the overlay also guards its callback. */
 const liveSubscriptions = vi.hoisted(() => ({count: 0}));
@@ -57,7 +60,18 @@ class Probe extends CurveEnvelopeGraph {
     }
     highlight() { return this.owned().filter(element => element.elType === 'curve')[FAMILY_BANDS]; }
     touch() { return this.owned().find(element => element.elType === 'point')!; }
+    /** The board carries no readout text any more: the readout is the declared rows and note. */
     captions() { return this.owned().filter(element => element.elType === 'text').map(element => element.plaintext ?? '').filter(Boolean); }
+    declared() { return this.getDeclaration() as GraphDeclaration<EnvelopeIds>; }
+    rowValue(id: string) { return (this.declared().readouts![0].rows.find(row => row.id === id)?.value as {value: number} | undefined)?.value; }
+    noteIds() { return (this.declared().notes ?? []).map(note => note.id); }
+    noteText() { return (this.declared().notes ?? []).map(note => renderMessage(note.text as Message)); }
+    // The test calls the setters directly, outside the DOM: they are learner writes.
+    override setEnvelopeT(value: number) { runAs('learner', () => super.setEnvelopeT(value)); }
+    override setEnvelopeLineCount(value: number) { runAs('learner', () => super.setEnvelopeLineCount(value)); }
+    override setEnvelopeLinesShown(value: boolean) { runAs('learner', () => super.setEnvelopeLinesShown(value)); }
+    override setEnvelopeCurveShown(value: boolean) { runAs('learner', () => super.setEnvelopeCurveShown(value)); }
+    override setEnvelopeTouchShown(value: boolean) { runAs('learner', () => super.setEnvelopeTouchShown(value)); }
     published(): string { return this['liveReadout'].getSnapshot(); }
     curveVisible(): boolean { return this.getFirstJxgCurve().getJxgCurve().visProp.visible as boolean; }
     curveLayer(): number { return this.getFirstJxgCurve().getJxgCurve().visProp.layer as number; }
@@ -133,7 +147,9 @@ describe('mounting and the opening scene', () => {
             }
             expectTouchIsDeCasteljau(graph, 0.5);
             expect(Math.sqrt(graph.touch().X!()) + Math.sqrt(graph.touch().Y!())).toBeCloseTo(1, 9);
-            expect(graph.captions()).toEqual([t('envelope_readout_lines', {value0: '16'}), t('envelope_readout_t', {value0: '0,5'})]);
+            expect(graph.captions()).toEqual([]);
+            expect(graph.rowValue('lines')).toBe(ENVELOPE_LINES_DEFAULT);
+            expect(graph.rowValue('t')).toBeCloseTo(0.5, 9);
         } finally { view.unmount(); }
     });
 });
@@ -284,7 +300,8 @@ describe('lesson actions run in one synchronous tick', () => {
             expectFamilyIsKernel(graph, 5);
             expectTouchIsDeCasteljau(graph, 0.25);
             expect(graph.curveVisible()).toBe(true);
-            expect(graph.captions()[0]).toBe(t('envelope_readout_lines', {value0: '5'}));
+            expect(graph.rowValue('lines')).toBe(5);
+            expect(graph.rowValue('t')).toBeCloseTo(0.25, 9);
         } finally { view.unmount(); }
     });
 });
@@ -295,8 +312,9 @@ describe('collinear and coincident controls', () => {
         try {
             points.forEach((to, index) => act(() => graph.movePoint(index, to)));
             expect(graph.envelope()!.collinear()).toBe(true);
-            expect(graph.captions()).toContain(t('envelope_readout_collinear'));
-            expect((await screen.findAllByText(t('envelope_readout_collinear'))).length).toBeGreaterThan(0);
+            expect(graph.noteIds()).toEqual(['collinear']);
+            expect(graph.noteText()).toEqual([t('envelope_readout_collinear')]);
+            await waitFor(() => expect(graph.published()).toContain(t('envelope_readout_collinear')));
             const family = graph.family();
             expect(family.dataX!.filter(Number.isNaN)).toHaveLength(ENVELOPE_LINES_DEFAULT - 1);
             expect(family.dataX!.filter(value => !Number.isNaN(value)).every(Number.isFinite)).toBe(true);
@@ -304,7 +322,7 @@ describe('collinear and coincident controls', () => {
             expectTouchIsDeCasteljau(graph, 0.5);
             setLanguage('en');
             act(() => graph.liveBoard().update());
-            expect(graph.captions()).toContain('The control points lie on one line: all lines lie on it, and the curve is a segment, not an envelope.');
+            expect(graph.noteText()).toEqual(['The control points lie on one line: all lines lie on it, and the curve is a segment, not an envelope.']);
             expect(t('envelope_readout_collinear')).not.toBe('');
         } finally { view.unmount(); }
     });
@@ -329,12 +347,12 @@ describe('collinear and coincident controls', () => {
     test('a proper curve has no collinear note, and moving a point onto the line adds it', () => {
         const {graph, view} = mount();
         try {
-            expect(graph.captions()).not.toContain(t('envelope_readout_collinear'));
+            expect(graph.noteIds()).toEqual([]);
             act(() => graph.movePoint(1, [0.5, 0.5]));
             expect(graph.envelope()!.collinear()).toBe(true);
-            expect(graph.captions()).toContain(t('envelope_readout_collinear'));
+            expect(graph.noteIds()).toEqual(['collinear']);
             act(() => graph.movePoint(1, [0, 0]));
-            expect(graph.captions()).not.toContain(t('envelope_readout_collinear'));
+            expect(graph.noteIds()).toEqual([]);
         } finally { view.unmount(); }
     });
 });
@@ -355,7 +373,7 @@ describe('Preset round trip and Reset', () => {
             expect(graph.envelope()).toBeDefined();
             act(() => graph.setEnvelopeLinesShown(true));
             expectFamilyIsKernel(graph, 40);
-            expect(screen.getByRole('slider', {name: t('envelope_line_count')})).toHaveValue('40');
+            expect(graph.parameters!.read('envelope-lines')).toBe(40); // the count is a puck, not an Orodja slider
         } finally { view.unmount(); }
     });
 
@@ -389,21 +407,21 @@ describe('the readout', () => {
         const {graph, view} = mount();
         try {
             act(() => graph.movePoint(1, [0.5, 0.5]));
-            await screen.findByText(t('envelope_readout_collinear'), {selector: '.inspector-help'});
+            await waitFor(() => expect(graph.published()).toContain(t('envelope_readout_collinear')));
             act(() => setLanguage('en'));
             expect(graph.published()).toContain(t('envelope_readout_collinear'));
-            expect(screen.getByText(t('envelope_readout_collinear'), {selector: '.inspector-help'})).toBeInTheDocument();
+            expect(graph.noteText()).toEqual([t('envelope_readout_collinear')]);
         } finally { view.unmount(); }
     });
 
-    test('a language switch refreshes the board caption, with the decimal comma in sl', () => {
+    test('a language switch refreshes the live region, with the decimal comma in sl', async () => {
         const {graph, view} = mount();
         try {
             act(() => graph.setEnvelopeT(0.25));
-            expect(graph.captions()[1]).toBe('t = 0,25.');
-            setLanguage('en');
-            act(() => graph.liveBoard().update());
-            expect(graph.captions()).toEqual(['Number of lines: 16.', 't = 0.25.']);
+            expect(graph.captions()).toEqual([]);
+            await waitFor(() => expect(graph.published()).toBe('Število premic: 16. t = 0,25.'));
+            act(() => setLanguage('en'));
+            expect(graph.published()).toBe('Number of lines: 16. t = 0.25.');
         } finally { view.unmount(); }
     });
 

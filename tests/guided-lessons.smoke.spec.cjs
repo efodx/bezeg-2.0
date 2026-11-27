@@ -2234,8 +2234,8 @@ const curveOffset = {
     },
 };
 
-// Envelope: the board readout names the number of lines of each step (4, 64, 200, then 21), and step 6 the collinear note.
-const ENVELOPE_READOUTS = [/(Število premic|Number of lines): 4\b/, /(Število premic|Number of lines): 64\b/, /(Število premic|Number of lines): 200\b/, /(Število premic|Number of lines): 21\b/, /(Število premic|Number of lines): 21\b/, /(isti premici|one line)/, /(Število premic|Number of lines): 21\b/];
+// Envelope: the Odčitki card names the number of lines of each step (4, 64, 200, then 21), and step 6 the collinear note.
+const ENVELOPE_READOUTS = [/(Število premic|Number of lines)\s*4(?![\d.,])/, /(Število premic|Number of lines)\s*64(?![\d.,])/, /(Število premic|Number of lines)\s*200(?![\d.,])/, /(Število premic|Number of lines)\s*21(?![\d.,])/, /(Število premic|Number of lines)\s*21(?![\d.,])/, /(isti premici|one line)/, /(Število premic|Number of lines)\s*21(?![\d.,])/];
 const curveEnvelope = {
     id: 'curve-envelope',
     path: `${BASE}/curve-geometry/envelope`,
@@ -2243,7 +2243,7 @@ const curveEnvelope = {
     steps: 7,
     minFrames: 15, // 2 frames per step, 3 on step 4 (calculation)
     stepProbe: async (page, ctx, step, label) => {
-        await expect(boardText(page, ENVELOPE_READOUTS[step - 1]).first(), `envelope readout at ${label}`).toBeVisible();
+        await expect(page.locator('#board-card-readouts').filter({hasText: ENVELOPE_READOUTS[step - 1]}).first(), `envelope readout at ${label}`).toBeVisible();
     },
 };
 

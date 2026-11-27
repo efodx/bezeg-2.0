@@ -1,15 +1,8 @@
-import type {Board, GeometryElement, Point, Text} from "jsxgraph";
+import type {Board, GeometryElement, Point} from "jsxgraph";
 import {currentLanguage, onLanguageChange, t} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {envelopeFamily, EnvelopeFamily, isCollinear, tangentSegment} from "./curveEnvelope";
-
-/** Caption lines on the board: the line count, t, and the collinear note. */
-const CAPTION_LINES = 3;
-/** The lines that are always short: the count and t. */
-const CAPTION_SHORT_LINES = 2;
-/** Board width in font sizes below which the collinear note is left to the inspector. */
-const CAPTION_NOTE_MIN_WIDTH = 24;
 
 type Rows = ReadonlyArray<ReadonlyArray<number>>;
 
@@ -21,8 +14,7 @@ interface EnvelopeSettings {
     count: () => number;
     linesShown: () => boolean;
     touchShown: () => boolean;
-    fontSize: () => number;
-    /** Called with the readout text on every board update that draws it (for a live region). */
+    /** Called with the readout text on every board update (for a live region; the readout itself is the rows and note of the Odčitki card). */
     onReadout?: (text: string) => void;
     /** Called with the translated readout after a language change, which must not wait for the quiet period. */
     onLanguageReadout?: (text: string) => void;
@@ -59,7 +51,7 @@ function familySlice(family: EnvelopeFamily, first: number, end: number): Envelo
 
 /**
  * One owned envelope overlay: the family of de Casteljau lines as one NaN-separated curve, the highlighted line at t, the
- * touching point and a board caption. Elements read the curve lazily, so no drag listener exists; the language
+ * touching point. Elements read the curve lazily, so no drag listener exists; the language
  * subscription is released in {@link dispose}.
  */
 export class EnvelopeOverlay {
@@ -98,7 +90,7 @@ export class EnvelopeOverlay {
         return rows !== undefined && isCollinear(rows, pixel);
     }
 
-    /** The caption lines: number of lines, t, and for collinear control points the note that there is no envelope. Empty without a curve. */
+    /** The readout lines for the live region: number of lines, t, and for collinear control points the note that there is no envelope. Empty without a curve. */
     readoutLines(): string[] {
         if (!this.settings.rows()) return [];
         const num = (value: number) => formatNumber(value, currentLanguage(), 3);
@@ -112,13 +104,6 @@ export class EnvelopeOverlay {
 
     readoutText(): string {
         return this.readoutLines().join(" ");
-    }
-
-    /** What the board shows: a narrow board keeps the short lines. The inspector and the live region always state the note. */
-    private captionLines(): string[] {
-        const lines = this.readoutLines();
-        const width = this.board.canvasWidth;
-        return width > 0 && width < CAPTION_NOTE_MIN_WIDTH * this.settings.fontSize() ? lines.slice(0, CAPTION_SHORT_LINES) : lines;
     }
 
     private create<E extends GeometryElement>(type: string, parents: unknown[], attributes: Record<string, unknown>): E {
@@ -154,6 +139,7 @@ export class EnvelopeOverlay {
 
         // The line at t and its touching point: the rust emphasis colour (the owner chose it over amber and dark ink against the blue family), above the family, the line clearly wider than a family line.
         this.dataCurve({strokeColor: GraphPalette.emphasis, strokeWidth: CURRENT_LINE_WIDTH, visible: () => this.settings.touchShown()}, () => {
+            this.settings.onReadout?.(this.readoutText());
             const segment = this.settings.touchShown() ? this.current() : undefined;
             return segment ? {x: [segment.q0[0], segment.q1[0]], y: [segment.q0[1], segment.q1[1]]} : NONE;
         });
@@ -166,24 +152,7 @@ export class EnvelopeOverlay {
             fillColor: GraphPalette.emphasis, visible: () => this.settings.touchShown() && this.current() !== undefined,
         });
 
-        const box = () => board.getBoundingBox();
-        // One line of the pixel height of the font, in graph units.
-        const lineHeight = () => (box()[1] - box()[3]) / Math.max(1, board.canvasHeight) * this.settings.fontSize() * 1.35;
-        for (let k = 0; k < CAPTION_LINES; k++) {
-            this.create<Text>('text', [
-                () => box()[0] + 0.02 * (box()[2] - box()[0]),
-                () => box()[1] - 0.02 * (box()[1] - box()[3]) - k * lineHeight(),
-                () => {
-                    if (k === 0) this.settings.onReadout?.(this.readoutText());
-                    return this.captionLines()[k] ?? "";
-                },
-            ], {
-                anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false,
-                fontSize: () => this.settings.fontSize(), strokeColor: GraphPalette.label,
-            });
-        }
-
-        // Board text is recomputed only on board update, which a language change does not trigger.
+        // The live region is fed on board update, which a language change does not trigger.
         this.stopLanguageUpdates = onLanguageChange(() => {
             if (this.disposed || !board.renderer) return;
             board.update();

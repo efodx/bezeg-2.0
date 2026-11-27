@@ -7,61 +7,7 @@
       "rows": [],
       "notes": [],
       "outputs": [],
-      "captions": [
-        "t = 0,5.",
-        "Število premic: 16."
-      ]
-    },
-    {
-      "name": "curve-envelope-guided/envelope-predict",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "t = 0,5.",
-        "Število premic: 4."
-      ]
-    },
-    {
-      "name": "curve-envelope-guided/envelope-more-lines",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "t = 0,5.",
-        "Število premic: 64."
-      ]
-    },
-    {
-      "name": "curve-envelope-guided/envelope-reveal",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "t = 0,5.",
-        "Število premic: 200."
-      ]
-    },
-    {
-      "name": "curve-envelope-guided/envelope-slide-t",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "t = 0,5.",
-        "Število premic: 21."
-      ]
-    },
-    {
-      "name": "curve-envelope-guided/envelope-collinear",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Kontrolne točke ležijo na isti premici: vse premice ležijo na njej, krivulja je daljica in ne ovojnica.",
-        "t = 0,5.",
-        "Število premic: 21."
-      ]
+      "captions": []
     }
   ]
 }
