@@ -15,7 +15,7 @@ import {SimulationGraph} from '../../graphs/random/SimulationGraph';
 import {setLanguage, t} from '../../localization';
 import {formatNumber} from '../../analysis/format';
 import {enterNumber} from '../../inputs/testEntry';
-import {chooseControl, puckKeyOf, typeControl} from '../../graphs/random/simulationTestPucks';
+import {puckKeyOf, typeControl} from '../../graphs/random/simulationTestPucks';
 import {markovDistribution, markovStationary} from '../../random/exact';
 import {runMarkov} from '../../random/runners';
 

@@ -13,7 +13,7 @@ import {installBoardShims, mountGraph, puckControl, REAL_GRAPH_TEST_TIMEOUT} fro
 import {SimulationGraph} from '../../graphs/random/SimulationGraph';
 import type {AnimationScheduler} from '../runtime/animation';
 import {enterNumber} from '../../inputs/testEntry';
-import {chooseControl, puckKeyOf, typeControl} from '../../graphs/random/simulationTestPucks';
+import {puckKeyOf, typeControl} from '../../graphs/random/simulationTestPucks';
 import {setLanguage, t} from '../../localization';
 import {runWalks} from '../../random/runners';
 import {walkLaw} from '../../random/exact';
