@@ -1,13 +1,16 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
-import {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, LABEL_STYLE} from "./BaseFunctionGraph";
-import IterativeFunctionGraph from "./IterativeFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import {BoundingBox, DomainError, FillCurve, FunctionLessonActions, FunctionPanel, LABEL_STYLE} from "./BaseFunctionGraph";
+import IterativeFunctionGraph, {IterationActionId} from "./IterativeFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {runAs} from "../base/writes/writeSource";
 import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {CountSetter} from "../../inputs/CountSetter";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, message, Message, t} from "../../localization";
+import {currentLanguage, message, Message, messageNumber, renderMessage, t} from "../../localization";
 import {formatNumber, formatSignificant, NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import {
     FIXED_POINT_EXAMPLE_IDS, FIXED_POINT_EXAMPLES, FIXED_POINT_MAX_DIGITS, FIXED_POINT_MAX_STEPS, FIXED_POINT_MIN_DIGITS, fixedPointExample, FixedPointExample,
@@ -58,6 +61,17 @@ const toleranceText = (digits: number): string => `10⁻${[...String(digits)].ma
 /** The map as it is written on the board. */
 const exampleFormula = (id: FixedPointExampleId): string => `T(x) = ${fixedPointExample(id).plain}`;
 
+/**
+ * The ids of the fixed-point declaration: the start x0 is a board puck, the error bound a switch puck, the playback actions are the
+ * iteration's; the rows are the readouts and the legend names every object the board draws.
+ */
+export type FixedPointIds = {
+    param: "fixed-point-x0";
+    row: "step" | "x0" | "current" | "delta" | "tolerance" | "q" | "a-priori" | "a-posteriori" | "end"; note: "guarantee";
+    legend: "function" | "diagonal" | "box" | "cobweb" | "iterate" | "start" | "fixed-point" | "bound"; section: never;
+    action: IterationActionId | "show-error-bound";
+};
+
 type StatusKind = "bound-hidden" | "hypotheses" | "bound-a-priori" | "bound-a-posteriori" | "bound-pending" | "no-bound" | "cycle"
     | "threshold" | "iteration-limit" | "fixed-point" | "stagnation";
 
@@ -85,6 +99,9 @@ interface View {
  * the same setters. Error bounds exist only where the map is a contraction; for 1 - x the board and the inspector say why there is none.
  */
 export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`); cleared when the scene is rebuilt. */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
+
     override presetCollection() {
         return functionPresetCollections["fixed-point"];
     }
@@ -198,33 +215,13 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
     }
 
     /** The short reason the iteration ended, or the word that it continues. */
-    private endText(history: FixedPointHistory): string {
+    private endMessage(history: FixedPointHistory): Message {
         switch (history.termination) {
-            case "threshold": return t("fixed_point_end_threshold");
-            case "iteration-limit": return t("fixed_point_end_limit");
-            case "fixed-point": return t("fixed_point_end_known");
-            case "stagnation": return t("fixed_point_end_stagnation");
-            default: return t("fixed_point_end_running");
-        }
-    }
-
-    /** The one board line about the bound and its tone: hidden or pending (neutral), shown (confirmed) or impossible (warning). */
-    private boardBound(model: FixedPointModel, view: View): { text: string; tone: "neutral" | "ok" | "warning" } {
-        if (!model.boundVisible) return {text: t("fixed_point_board_bound_hidden"), tone: "neutral"};
-        if (view.history.q === undefined) return {text: t("fixed_point_board_no_bound"), tone: "warning"};
-        const posteriori = view.history.current.aPosteriori;
-        if (posteriori === undefined) return {text: t("fixed_point_board_bound_pending"), tone: "neutral"};
-        return {text: t("fixed_point_board_bound", {value0: this.small(posteriori)}), tone: "ok"};
-    }
-
-    /** The board line that says why the iteration ended, with its tone, or undefined while it continues. */
-    private boardEnd(history: FixedPointHistory): { text: string; tone: "ok" | "warning" } | undefined {
-        switch (history.termination) {
-            case "threshold": return {text: t("fixed_point_board_end_threshold"), tone: "ok"};
-            case "fixed-point": return {text: t("fixed_point_board_end_known"), tone: "ok"};
-            case "iteration-limit": return {text: t("fixed_point_board_end_limit"), tone: "warning"};
-            case "stagnation": return {text: t("fixed_point_board_end_stagnation"), tone: "warning"};
-            default: return undefined;
+            case "threshold": return message("fixed_point_end_threshold");
+            case "iteration-limit": return message("fixed_point_end_limit");
+            case "fixed-point": return message("fixed_point_end_known");
+            case "stagnation": return message("fixed_point_end_stagnation");
+            default: return message("fixed_point_end_running");
         }
     }
 
@@ -247,26 +244,29 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
         const boundHalfWidth = () => model().boundVisible ? history().current.aPosteriori : undefined;
 
         // Layers, lowest first: the interval box, the diagonal, the map, the cobweb, the drop line and the bound bar, the iterates.
+        this.drawn.clear();
         const box = this.own(board.create("curve", [[0], [0]], {
             fillColor: GraphPalette.referenceCurve, fillOpacity: 0.1, strokeColor: GraphPalette.referenceCurve, strokeWidth: thin, dash: DIAGONAL_DASH,
             highlight: false, fixed: true,
         })) as unknown as FillCurve;
+        this.drawn.set("box", box as unknown as JXG.GeometryElement);
         box.updateDataArray = () => {
             const {a, b} = example();
             box.dataX = [a, b, b, a, a];
             box.dataY = [a, a, b, b, a];
         };
-        this.own(board.create("segment", [[() => example().a, () => example().a], [() => example().b, () => example().b]], {
+        this.drawn.set("diagonal", this.own(board.create("segment", [[() => example().a, () => example().a], [() => example().b, () => example().b]], {
             strokeColor: GraphPalette.comparisonCurve, dash: DIAGONAL_DASH, strokeWidth, highlight: false, fixed: true, withLabel: false,
-        }));
-        this.own(board.create("functiongraph", [(x: number) => example().value(x), () => example().a, () => example().b], {
+        })));
+        this.drawn.set("function", this.own(board.create("functiongraph", [(x: number) => example().value(x), () => example().a, () => example().b], {
             strokeColor: GraphPalette.primaryCurve, strokeWidth, highlight: false, fixed: true,
-        }));
+        })));
 
         // The cobweb: (x_0, x_0), then for every step the vertical segment to (x_k, T(x_k)) and the horizontal one to (x_{k+1}, x_{k+1}).
         const cobweb = this.own(board.create("curve", [[0], [0]], {
             strokeColor: GraphPalette.constructionAccent, strokeWidth: thin, highlight: false, fixed: true,
         })) as unknown as FillCurve;
+        this.drawn.set("cobweb", cobweb as unknown as JXG.GeometryElement);
         cobweb.updateDataArray = () => {
             const {x0} = history();
             const xs = [x0, x0];
@@ -283,12 +283,12 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
         this.own(board.create("segment", [[current, current], [current, 0]], {
             strokeColor: GraphPalette.referenceCurve, dash: DROP_DASH, strokeWidth: thin, highlight: false, fixed: true, withLabel: false,
         }));
-        this.own(board.create("segment", [
+        this.drawn.set("bound", this.own(board.create("segment", [
             [() => Math.max(example().a, current() - (boundHalfWidth() ?? 0)), 0], [() => Math.min(example().b, current() + (boundHalfWidth() ?? 0)), 0],
         ], {
             strokeColor: GraphPalette.additionalCurves[0], strokeWidth: () => Math.max(8, this.displaySettings.strokeWidth * 4), strokeOpacity: 0.45,
             highlight: false, fixed: true, withLabel: false, visible: () => boundHalfWidth() !== undefined,
-        }));
+        })));
 
         // The iterates on the diagonal: filled circles for 1 <= k < step, an open circle for the start, a larger filled circle for the current one.
         const size = () => Math.max(3, this.displaySettings.pointSize * 0.6);
@@ -298,21 +298,21 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
             visible: () => k < history().step,
         }));
         for (let k = 1; k <= ITERATE_POOL; k++) iteratePoint(k);
-        this.own(board.create("point", [() => history().x0, () => history().x0], {
+        this.drawn.set("start", this.own(board.create("point", [() => history().x0, () => history().x0], {
             ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, face: "o", size: () => Math.max(4, this.displaySettings.pointSize * 0.8),
             fillColor: GraphPalette.boardSurface, highlightFillColor: GraphPalette.boardSurface,
             strokeColor: GraphPalette.constructionAccent, highlightStrokeColor: GraphPalette.constructionAccent, strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth * 0.9),
             visible: () => history().step >= 1,
-        }));
-        this.own(board.create("point", [current, current], {
+        })));
+        this.drawn.set("iterate", this.own(board.create("point", [current, current], {
             ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, face: "o", size: () => Math.max(5, this.displaySettings.pointSize),
             fillColor: GraphPalette.constructionAccent, highlightFillColor: GraphPalette.constructionAccent, strokeColor: GraphPalette.label, highlightStrokeColor: GraphPalette.label,
-        }));
+        })));
         // The fixed point x*: a cross on the diagonal, where the map meets it.
-        this.own(board.create("point", [() => view().location, () => view().location], {
+        this.drawn.set("fixed-point", this.own(board.create("point", [() => view().location, () => view().location], {
             ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, face: "x", size: () => Math.max(5, this.displaySettings.pointSize),
             strokeColor: GraphPalette.label, highlightStrokeColor: GraphPalette.label, strokeWidth: () => Math.max(2, this.displaySettings.strokeWidth * 0.9),
-        }));
+        })));
         this.own(board.create("point", [current, 0], {
             ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, size,
             fillColor: GraphPalette.constructionAccent, highlightFillColor: GraphPalette.constructionAccent, strokeColor: GraphPalette.constructionAccent,
@@ -326,26 +326,6 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
             anchorX: "left", anchorY: "bottom", fixed: true, highlight: false, parse: false, strokeColor: GraphPalette.label,
             fontSize: () => Math.max(10, fontSize() * 0.9 * Math.min(1, this.boardWidth() / 700)), cssStyle: LABEL_STYLE, highlightCssStyle: LABEL_STYLE,
         }));
-
-        // The formula, the step, the bound line, the two-cycle, the reason the iteration ended and the key stay on the board (projection needs them).
-        this.caption("top-right", [
-            {text: () => exampleFormula(model().example), scale: 1.2, math: true},
-            {text: () => t("fixed_point_board_progress", {value0: history().step, value1: this.position(current())})},
-            {
-                text: () => this.boardBound(model(), view()).text,
-                color: () => ({neutral: GraphPalette.label, ok: GraphPalette.primaryCurve, warning: GraphPalette.warningText})[this.boardBound(model(), view()).tone],
-            },
-            {
-                text: () => t("fixed_point_board_cycle", {value0: this.position(history().cycle?.first ?? 0), value1: this.position(history().cycle?.second ?? 0)}),
-                minBoardWidth: COMPACT_BOARD_WIDTH, visible: () => history().cycle !== undefined,
-            },
-            {
-                text: () => this.boardEnd(history())?.text ?? "",
-                color: () => this.boardEnd(history())?.tone === "ok" ? GraphPalette.primaryCurve : GraphPalette.warningText,
-                visible: () => this.boardEnd(history()) !== undefined,
-            },
-            {text: () => t("fixed_point_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH},
-        ]);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -369,11 +349,11 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
                               options={FIXED_POINT_EXAMPLE_IDS.map(id => ({value: id, text: `${exampleFormula(id)}, x ∈ [${FIXED_POINT_EXAMPLES[id].a}, ${FIXED_POINT_EXAMPLES[id].b}]`}))}
                               onChange={next => this.ignoreOutOfDomain(() => this.setExample(next))}/>
             </div>
-            <div className="inspector-group">
-                <Slider customText={t("fixed_point_x0_label")} value={state.x0} min={example.a} max={example.b} step={0.01}
+            <PuckOwnedGroup params={["fixed-point-x0"]} className="inspector-group">
+                <PuckOwned param="fixed-point-x0"><Slider customText={t("fixed_point_x0_label")} value={state.x0} min={example.a} max={example.b} step={0.01}
                         rejectedHint={t("fixed_point_x0_rejected_hint", {value0: formatNumber(example.a, language), value1: formatNumber(example.b, language)})}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/>
-            </div>
+                        onChange={next => this.ignoreOutOfDomain(() => this.setX0(next))}/></PuckOwned>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <CountSetter label={t("fixed_point_digits_label")} n={state.digits} min={FIXED_POINT_MIN_DIGITS} max={FIXED_POINT_MAX_DIGITS} help={t("fixed_point_fields_help")}
                              rejectedHint={t("fixed_point_digits_rejected_hint", {value0: FIXED_POINT_MIN_DIGITS, value1: FIXED_POINT_MAX_DIGITS})}
@@ -386,101 +366,166 @@ export class FixedPointGraph extends IterativeFunctionGraph<FixedPointModel> {
 
     protected override renderReveals(): React.ReactNode {
         const state = this.model;
-        return <>
+        return <PuckOwnedGroup params={["show-error-bound"]}>
             <div className={CONTROL_ROW_FILL} role="group" aria-label={t("fixed_point_bound_actions_label")}>
                 <RevealButton action="toggle-fixed-point-bound" revealed={state.boundVisible} showLabel={t("show_error_bound")} hideLabel={t("hide_error_bound")}
                               onToggle={() => this.setBoundVisible(!this.model.boundVisible)}/>
             </div>
             <p className="inspector-help">{t("fixed_point_bound_help")}</p>
-        </>;
+        </PuckOwnedGroup>;
     }
 
+    /** The declared legend replaces the panel's own, so Orodja shows no second one. */
     protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "function", color: GraphPalette.primaryCurve, label: t("fixed_point_legend_function"), kind: "line"},
-            {id: "diagonal", color: GraphPalette.comparisonCurve, label: t("fixed_point_legend_diagonal"), kind: "dashed-line"},
-            {id: "box", color: GraphPalette.referenceCurve, label: t("fixed_point_legend_box"), kind: "dashed"},
-            {id: "cobweb", color: GraphPalette.constructionAccent, label: t("fixed_point_legend_cobweb"), kind: "line"},
-            {id: "iterate", color: GraphPalette.constructionAccent, label: t("fixed_point_legend_iterate"), kind: "dot"},
-            {id: "start", color: GraphPalette.constructionAccent, label: t("fixed_point_legend_start"), kind: "ring"},
-            {id: "fixed-point", color: GraphPalette.label, label: t("fixed_point_legend_fixed"), kind: "cross"},
-            {id: "bound", color: GraphPalette.additionalCurves[0], label: t("fixed_point_legend_bound"), kind: "line"},
-        ]}/>;
+        return null;
     }
 
-    /** The hypotheses of the theorem for the example, as one sentence per condition. */
-    private hypothesisText(view: View): string {
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {"fixed-point-x0": {read: () => this.model.x0, apply: (value: number) => this.setX0(value)}};
+    }
+
+    /**
+     * The common declaration (rows, note, status, view marks) plus the start x0 as a board puck, the error bound as a switch puck, the
+     * playback actions, the legend of every object the board draws and the map as the formula row. The example and the tolerance
+     * (setup: choosing either restarts the iteration) stay in Orodja, with the playback buttons.
+     */
+    protected override declaration(): GraphDeclaration {
+        const model = this.model;
+        const example = fixedPointExample(model.example);
+        return {
+            ...this.commonDeclaration(),
+            formula: {label: message("fixed_point_formula_label"), tex: `T(x)=${example.latex}`},
+            parameters: [{
+                key: "fixed-point-x0", kind: "range", label: message("fixed_point_x0_name"), symbol: "x_0", help: message("fixed_point_x0_help"), placement: "board",
+                min: example.a, max: example.b, step: 0.01, maxDecimals: 2,
+            }],
+            legend: [
+                {id: "function", label: message("fixed_point_legend_function"), kind: "line", object: "function"},
+                {id: "diagonal", label: message("fixed_point_legend_diagonal"), kind: "dashed", object: "diagonal"},
+                {id: "box", label: message("fixed_point_legend_box"), kind: "dashed", object: "box"},
+                {id: "cobweb", label: message("fixed_point_legend_cobweb"), kind: "line", object: "cobweb"},
+                {id: "iterate", label: message("fixed_point_legend_iterate"), kind: "point", object: "iterate"},
+                {id: "start", label: message("fixed_point_legend_start"), kind: "ring", object: "start"},
+                {id: "fixed-point", label: message("fixed_point_legend_fixed"), kind: "cross", object: "fixed-point"},
+                {id: "bound", label: message("fixed_point_legend_bound"), kind: "line", object: "bound"},
+            ],
+            actions: [
+                ...this.iterationActions(),
+                {id: "show-error-bound", label: message("fixed_point_bound_actions_label"), help: message("fixed_point_bound_help"), placement: "board", enabled: true,
+                    pressed: model.boundVisible, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "show-error-bound") runAs("learner", () => this.setBoundVisible(!this.model.boundVisible));
+        else if (!this.performIterationAction(id)) throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp(id === "iterate" ? "fillcolor" : "strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /** The hypotheses of the theorem for the example, as one sentence per condition (joined into one message). */
+    private hypothesisMessage(view: View): Message {
         const {hypotheses} = view.history;
         const language = currentLanguage();
-        const selfMap = hypotheses.selfMap.reason === "increasing-affine-image" ? t("fixed_point_hyp_selfmap_increasing")
-            : hypotheses.selfMap.reason === "decreasing-cosine-image" ? t("fixed_point_hyp_selfmap_cosine") : t("fixed_point_hyp_selfmap_reflection");
-        const contraction = hypotheses.contraction?.reason === "constant-derivative" ? t("fixed_point_hyp_contraction_constant")
-            : hypotheses.contraction ? t("fixed_point_hyp_contraction_sine", {value0: formatNumber(hypotheses.contraction.q, language, 4)}) : "";
-        return [
-            t("fixed_point_hyp_interval", {value0: formatNumber(hypotheses.interval.a, language), value1: formatNumber(hypotheses.interval.b, language)}),
-            selfMap, contraction,
-        ].filter(Boolean).join(" ");
+        const selfMap = hypotheses.selfMap.reason === "increasing-affine-image" ? message("fixed_point_hyp_selfmap_increasing")
+            : hypotheses.selfMap.reason === "decreasing-cosine-image" ? message("fixed_point_hyp_selfmap_cosine") : message("fixed_point_hyp_selfmap_reflection");
+        const interval = message("fixed_point_hyp_interval", {value0: formatNumber(hypotheses.interval.a, language), value1: formatNumber(hypotheses.interval.b, language)});
+        const first = message("fixed_point_join_space", {value0: interval, value1: selfMap});
+        if (!hypotheses.contraction) return first;
+        const contraction = hypotheses.contraction.reason === "constant-derivative" ? message("fixed_point_hyp_contraction_constant")
+            : message("fixed_point_hyp_contraction_sine", {value0: formatNumber(hypotheses.contraction.q, language, 4)});
+        return message("fixed_point_join_space", {value0: first, value1: contraction});
     }
 
     /** The statuses to state in words, most important first; each has a stable id for tests and for assistive technology. */
-    private statuses(model: FixedPointModel, view: View): { id: StatusKind; text: string }[] {
-        const result: { id: StatusKind; text: string }[] = [];
+    private statuses(model: FixedPointModel, view: View): { id: StatusKind; text: Message }[] {
+        const result: { id: StatusKind; text: Message }[] = [];
         const {history} = view;
         const language = currentLanguage();
         switch (history.termination) {
             case "threshold":
-                result.push({id: "threshold", text: t("fixed_point_status_threshold", {value0: toleranceText(model.digits), value1: history.step})});
+                result.push({id: "threshold", text: message("fixed_point_status_threshold", {value0: toleranceText(model.digits), value1: history.step})});
                 break;
             case "iteration-limit":
-                result.push({id: "iteration-limit", text: t("fixed_point_status_limit", {value0: FIXED_POINT_MAX_STEPS})});
+                result.push({id: "iteration-limit", text: message("fixed_point_status_limit", {value0: FIXED_POINT_MAX_STEPS})});
                 break;
             case "fixed-point":
-                result.push({id: "fixed-point", text: t("fixed_point_status_fixed_point", {value0: formatNumber(model.x0, language, 2)})});
+                result.push({id: "fixed-point", text: message("fixed_point_status_fixed_point", {value0: formatNumber(model.x0, language, 2)})});
                 break;
             case "stagnation":
-                result.push({id: "stagnation", text: t("fixed_point_status_stagnation")});
+                result.push({id: "stagnation", text: message("fixed_point_status_stagnation")});
                 break;
         }
         if (history.cycle) {
-            result.push({id: "cycle", text: t("fixed_point_status_cycle", {value0: this.position(history.cycle.first), value1: this.position(history.cycle.second)})});
+            result.push({id: "cycle", text: message("fixed_point_status_cycle", {value0: this.position(history.cycle.first), value1: this.position(history.cycle.second)})});
         }
         if (!model.boundVisible) {
-            result.push({id: "bound-hidden", text: t("fixed_point_status_bound_hidden")});
+            result.push({id: "bound-hidden", text: message("fixed_point_status_bound_hidden")});
         } else if (history.q === undefined) {
-            result.push({id: "no-bound", text: t("fixed_point_status_no_bound")});
+            result.push({id: "no-bound", text: message("fixed_point_status_no_bound")});
         } else {
-            result.push({id: "hypotheses", text: this.hypothesisText(view)});
-            result.push({id: "bound-a-priori", text: t("fixed_point_status_bound_a_priori", {value0: this.small(history.current.aPriori ?? 0)})});
+            result.push({id: "hypotheses", text: this.hypothesisMessage(view)});
+            result.push({id: "bound-a-priori", text: message("fixed_point_status_bound_a_priori", {value0: this.small(history.current.aPriori ?? 0)})});
             result.push(history.current.aPosteriori === undefined
-                ? {id: "bound-pending", text: t("fixed_point_status_bound_pending")}
-                : {id: "bound-a-posteriori", text: t("fixed_point_status_bound_a_posteriori", {value0: this.small(history.current.aPosteriori)})});
+                ? {id: "bound-pending", text: message("fixed_point_status_bound_pending")}
+                : {id: "bound-a-posteriori", text: message("fixed_point_status_bound_a_posteriori", {value0: this.small(history.current.aPosteriori)})});
         }
         return result;
     }
 
-    protected renderReadout(): React.ReactNode {
+    /**
+     * The rows, the note, the statuses and the drawn objects of the inspector as declared data (`renderReadout` draws them from it).
+     * The marks keep the whole interval square (the curve, the diagonal, the cobweb and every iterate lie in it) and the label x_k in sight.
+     */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
-        const language = currentLanguage();
         const view = this.viewOf(model);
-        const {history} = view;
+        const {history, example} = view;
         const shown = model.boundVisible;
-        const hidden = t("fixed_point_hidden");
+        const hidden = message("fixed_point_hidden");
         const contraction = history.q !== undefined;
-        const bound = (value: number | undefined): string => !shown ? hidden : !contraction ? t("fixed_point_no_bound") : value === undefined ? NOT_A_NUMBER_TEXT : this.small(value);
-        const rows = [
-            {id: "step", label: t("fixed_point_readout_step", {value0: FIXED_POINT_MAX_STEPS}), value: String(history.step)},
-            {id: "x0", label: t("fixed_point_readout_x0"), value: formatNumber(model.x0, language, 2)},
-            {id: "current", label: t("fixed_point_readout_current"), value: this.position(history.current.x)},
-            {id: "delta", label: t("fixed_point_readout_delta"), value: history.current.delta === undefined ? NOT_A_NUMBER_TEXT : this.small(history.current.delta)},
-            {id: "tolerance", label: t("fixed_point_readout_tolerance"), value: toleranceText(model.digits)},
-            {id: "q", label: t("fixed_point_readout_q"), value: !shown ? hidden : contraction ? formatNumber(history.q ?? 0, language, 6) : t("fixed_point_no_bound")},
-            {id: "a-priori", label: t("fixed_point_readout_a_priori"), value: bound(history.current.aPriori)},
-            {id: "a-posteriori", label: t("fixed_point_readout_a_posteriori"), value: bound(history.current.aPosteriori)},
-            {id: "end", label: t("fixed_point_readout_end"), value: this.endText(history)},
-        ];
+        const text = (value: number) => ({kind: "formatted", text: this.small(value)} as const);
+        const bound = (value: number | undefined) => !shown ? hidden : !contraction ? message("fixed_point_no_bound") : value === undefined ? ({kind: "formatted", text: NOT_A_NUMBER_TEXT} as const) : text(value);
+        const [left, boxTop, right, boxBottom] = EXAMPLE_VIEWS[model.example];
+        return {
+            rows: [
+                {id: "step", name: message("fixed_point_readout_step", {value0: messageNumber(FIXED_POINT_MAX_STEPS, 0)}), value: messageNumber(history.step, 0)},
+                {id: "x0", name: message("fixed_point_readout_x0"), value: messageNumber(model.x0, 2)},
+                {id: "current", name: message("fixed_point_readout_current"), value: messageNumber(history.current.x, 6)},
+                {id: "delta", name: message("fixed_point_readout_delta"), value: history.current.delta === undefined ? {kind: "formatted", text: NOT_A_NUMBER_TEXT} : text(history.current.delta)},
+                {id: "tolerance", name: message("fixed_point_readout_tolerance"), value: {kind: "formatted", text: toleranceText(model.digits)}},
+                {id: "q", name: message("fixed_point_readout_q"), value: !shown ? hidden : contraction ? messageNumber(history.q ?? 0, 6) : message("fixed_point_no_bound")},
+                {id: "a-priori", name: message("fixed_point_readout_a_priori"), value: bound(history.current.aPriori)},
+                {id: "a-posteriori", name: message("fixed_point_readout_a_posteriori"), value: bound(history.current.aPosteriori)},
+                {id: "end", name: message("fixed_point_readout_end"), value: this.endMessage(history)},
+            ],
+            notes: [{id: "guarantee", text: message("fixed_point_note")}],
+            status: this.statuses(model, view),
+            // The map over its interval only: the board draws it there.
+            plotted: [(x: number) => x >= example.a && x <= example.b ? example.value(x) : Number.NaN],
+            must: [
+                {x: example.a, y: example.a}, {x: example.b, y: example.b}, {x: example.a, y: example.b}, {x: example.b, y: example.a},
+                // The cobweb: every vertex of the path, and the label x_k right of the drop line.
+                ...history.steps.flatMap(step => [{x: step.from, y: step.to}, {x: step.to, y: step.to}]),
+                {x: history.current.x + 0.06 * (right - left), y: 0.06 * (boxTop - boxBottom)},
+            ],
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
         return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("fixed_point_note")}/>
-            <FunctionStatus className="demo-status" dataAttribute="fixed-point-status" lines={this.statuses(model, view)} muted={this.playback.isPlaying}/>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus className="demo-status" dataAttribute="fixed-point-status" lines={(this.functionPanel().status ?? []).map(line => ({id: line.id, text: renderMessage(line.text)}))} muted={this.playback.isPlaying}/>
         </>;
     }
 }

@@ -58,8 +58,9 @@ Rewritten by handler 1 at its soft budget (2026-11-27). Present state only.
   the view director runs on point-set/projective/curve graphs). It made master CI red once (Bezier batch export restored
   the box by raw JXG; A fixed it in BaseGraph `applyFigurePreset`).
 - **L50 so far:** accumulation `43e4628db`, convexity `42d6cb877`, convexity sign marks clear of cards `706f45046`,
-  sharedControls row dropped `c26f785a3`, and the darboux + caption-sweep commit (the last commit on lane-b; check
-  `git log -3`). All but the last are sent to A; send the last one if it is not mentioned as sent below.
+  sharedControls row dropped `c26f785a3`, darboux + caption sweep `f7f55df5d`, extrema `b9d478a81` (handler 2; all sent
+  to A). Extrema pattern for board labels vs cards: measure room against `this.boardView.intent().box`, compact labels
+  by card-free width, keep labels inside top/bottom edges (notes Session 4c).
 
 ### Rules learned this session (all in `briefs/08-lane-L50.md`; copy them into the L49/L44/L47 briefs)
 
@@ -79,7 +80,7 @@ Rewritten by handler 1 at its soft budget (2026-11-27). Present state only.
 
 ### Next
 
-1. L50 remaining, one per worker: extrema, fixed-point, sequence (both `IterativeFunctionGraph`, shared with L42/L47:
+1. L50 remaining, one per worker (handler 2 dispatched fixed-point): fixed-point, sequence (both `IterativeFunctionGraph`, shared with L42/L47:
    opt-in hook only, default off), mean-value, uniform-convergence. Dispatch template: the darboux dispatch in this
    handler's history is the shape: "read `briefs/08-lane-L50.md`, the shared brief, the notes; finished examples
    `43e4628db`, `42d6cb877`, the darboux commit; one demo; checks per the dispatch".

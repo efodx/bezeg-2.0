@@ -1,0 +1,497 @@
+{
+  "graph": "fixed-point",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Korak k (največ 60)#0",
+          "label": "Korak k (največ 60)",
+          "value": "0"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0"
+        },
+        {
+          "key": "Trenutni približek xₖ#0",
+          "label": "Trenutni približek xₖ",
+          "value": "0"
+        },
+        {
+          "key": "Razlika |xₖ - xₖ₋₁|#0",
+          "label": "Razlika |xₖ - xₖ₋₁|",
+          "value": "—"
+        },
+        {
+          "key": "Prag 10⁻ᵈ#0",
+          "label": "Prag 10⁻ᵈ",
+          "value": "10⁻³"
+        },
+        {
+          "key": "Faktor skrčitve q#0",
+          "label": "Faktor skrčitve q",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|#0",
+          "label": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|#0",
+          "label": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|",
+          "value": "skrito"
+        },
+        {
+          "key": "Konec iteracije#0",
+          "label": "Konec iteracije",
+          "value": "se nadaljuje"
+        }
+      ],
+      "notes": [
+        "Oceni napake sta zagotovljeni le, če je T skrčitev na zaprtem intervalu, ki ga slika vase. Konec pri pragu pove, da je ocena pod pragom, ne da je xₖ natančna negibna točka; enaka zaokrožena približka natančne negibne točke ne dokažeta."
+      ],
+      "outputs": [],
+      "captions": [
+        "T(x) = (x + 1) / 2",
+        "korak k = 0, xₖ = 0",
+        "krogec: približek; križec: negibna točka",
+        "ocena napake: skrita",
+        "x0"
+      ]
+    },
+    {
+      "name": "affine step 1",
+      "rows": [
+        {
+          "key": "Korak k (največ 60)#0",
+          "label": "Korak k (največ 60)",
+          "value": "1"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0"
+        },
+        {
+          "key": "Trenutni približek xₖ#0",
+          "label": "Trenutni približek xₖ",
+          "value": "0,5"
+        },
+        {
+          "key": "Razlika |xₖ - xₖ₋₁|#0",
+          "label": "Razlika |xₖ - xₖ₋₁|",
+          "value": "0,5"
+        },
+        {
+          "key": "Prag 10⁻ᵈ#0",
+          "label": "Prag 10⁻ᵈ",
+          "value": "10⁻³"
+        },
+        {
+          "key": "Faktor skrčitve q#0",
+          "label": "Faktor skrčitve q",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|#0",
+          "label": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|#0",
+          "label": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|",
+          "value": "skrito"
+        },
+        {
+          "key": "Konec iteracije#0",
+          "label": "Konec iteracije",
+          "value": "se nadaljuje"
+        }
+      ],
+      "notes": [
+        "Oceni napake sta zagotovljeni le, če je T skrčitev na zaprtem intervalu, ki ga slika vase. Konec pri pragu pove, da je ocena pod pragom, ne da je xₖ natančna negibna točka; enaka zaokrožena približka natančne negibne točke ne dokažeta."
+      ],
+      "outputs": [],
+      "captions": [
+        "T(x) = (x + 1) / 2",
+        "korak k = 1, xₖ = 0,5",
+        "krogec: približek; križec: negibna točka",
+        "ocena napake: skrita",
+        "x1"
+      ]
+    },
+    {
+      "name": "affine step 3, bound shown",
+      "rows": [
+        {
+          "key": "Korak k (največ 60)#0",
+          "label": "Korak k (največ 60)",
+          "value": "3"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0"
+        },
+        {
+          "key": "Trenutni približek xₖ#0",
+          "label": "Trenutni približek xₖ",
+          "value": "0,875"
+        },
+        {
+          "key": "Razlika |xₖ - xₖ₋₁|#0",
+          "label": "Razlika |xₖ - xₖ₋₁|",
+          "value": "0,125"
+        },
+        {
+          "key": "Prag 10⁻ᵈ#0",
+          "label": "Prag 10⁻ᵈ",
+          "value": "10⁻³"
+        },
+        {
+          "key": "Faktor skrčitve q#0",
+          "label": "Faktor skrčitve q",
+          "value": "0,5"
+        },
+        {
+          "key": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|#0",
+          "label": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|",
+          "value": "0,125"
+        },
+        {
+          "key": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|#0",
+          "label": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|",
+          "value": "0,125"
+        },
+        {
+          "key": "Konec iteracije#0",
+          "label": "Konec iteracije",
+          "value": "se nadaljuje"
+        }
+      ],
+      "notes": [
+        "Oceni napake sta zagotovljeni le, če je T skrčitev na zaprtem intervalu, ki ga slika vase. Konec pri pragu pove, da je ocena pod pragom, ne da je xₖ natančna negibna točka; enaka zaokrožena približka natančne negibne točke ne dokažeta."
+      ],
+      "outputs": [],
+      "captions": [
+        "T(x) = (x + 1) / 2",
+        "korak k = 3, xₖ = 0,875",
+        "krogec: približek; križec: negibna točka",
+        "x3",
+        "|xₖ - x*| ≤ 0,125"
+      ]
+    },
+    {
+      "name": "affine x0 1.5, tolerance 5, step 2",
+      "rows": [
+        {
+          "key": "Korak k (največ 60)#0",
+          "label": "Korak k (največ 60)",
+          "value": "2"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "1,5"
+        },
+        {
+          "key": "Trenutni približek xₖ#0",
+          "label": "Trenutni približek xₖ",
+          "value": "1,125"
+        },
+        {
+          "key": "Razlika |xₖ - xₖ₋₁|#0",
+          "label": "Razlika |xₖ - xₖ₋₁|",
+          "value": "0,125"
+        },
+        {
+          "key": "Prag 10⁻ᵈ#0",
+          "label": "Prag 10⁻ᵈ",
+          "value": "10⁻⁵"
+        },
+        {
+          "key": "Faktor skrčitve q#0",
+          "label": "Faktor skrčitve q",
+          "value": "0,5"
+        },
+        {
+          "key": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|#0",
+          "label": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|",
+          "value": "0,125"
+        },
+        {
+          "key": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|#0",
+          "label": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|",
+          "value": "0,125"
+        },
+        {
+          "key": "Konec iteracije#0",
+          "label": "Konec iteracije",
+          "value": "se nadaljuje"
+        }
+      ],
+      "notes": [
+        "Oceni napake sta zagotovljeni le, če je T skrčitev na zaprtem intervalu, ki ga slika vase. Konec pri pragu pove, da je ocena pod pragom, ne da je xₖ natančna negibna točka; enaka zaokrožena približka natančne negibne točke ne dokažeta."
+      ],
+      "outputs": [],
+      "captions": [
+        "T(x) = (x + 1) / 2",
+        "korak k = 2, xₖ = 1,125",
+        "krogec: približek; križec: negibna točka",
+        "x2",
+        "|xₖ - x*| ≤ 0,125"
+      ]
+    },
+    {
+      "name": "affine threshold reached",
+      "rows": [
+        {
+          "key": "Korak k (največ 60)#0",
+          "label": "Korak k (največ 60)",
+          "value": "3"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "1,5"
+        },
+        {
+          "key": "Trenutni približek xₖ#0",
+          "label": "Trenutni približek xₖ",
+          "value": "1,0625"
+        },
+        {
+          "key": "Razlika |xₖ - xₖ₋₁|#0",
+          "label": "Razlika |xₖ - xₖ₋₁|",
+          "value": "0,0625"
+        },
+        {
+          "key": "Prag 10⁻ᵈ#0",
+          "label": "Prag 10⁻ᵈ",
+          "value": "10⁻¹"
+        },
+        {
+          "key": "Faktor skrčitve q#0",
+          "label": "Faktor skrčitve q",
+          "value": "0,5"
+        },
+        {
+          "key": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|#0",
+          "label": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|",
+          "value": "0,0625"
+        },
+        {
+          "key": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|#0",
+          "label": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|",
+          "value": "0,0625"
+        },
+        {
+          "key": "Konec iteracije#0",
+          "label": "Konec iteracije",
+          "value": "ocena a posteriori pod pragom"
+        }
+      ],
+      "notes": [
+        "Oceni napake sta zagotovljeni le, če je T skrčitev na zaprtem intervalu, ki ga slika vase. Konec pri pragu pove, da je ocena pod pragom, ne da je xₖ natančna negibna točka; enaka zaokrožena približka natančne negibne točke ne dokažeta."
+      ],
+      "outputs": [],
+      "captions": [
+        "T(x) = (x + 1) / 2",
+        "konec: ocena pod pragom",
+        "korak k = 3, xₖ = 1,0625",
+        "krogec: približek; križec: negibna točka",
+        "x3",
+        "|xₖ - x*| ≤ 0,0625"
+      ]
+    },
+    {
+      "name": "cosine, step 2, bound shown",
+      "rows": [
+        {
+          "key": "Korak k (največ 60)#0",
+          "label": "Korak k (največ 60)",
+          "value": "2"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,3"
+        },
+        {
+          "key": "Trenutni približek xₖ#0",
+          "label": "Trenutni približek xₖ",
+          "value": "0,577334"
+        },
+        {
+          "key": "Razlika |xₖ - xₖ₋₁|#0",
+          "label": "Razlika |xₖ - xₖ₋₁|",
+          "value": "0,378"
+        },
+        {
+          "key": "Prag 10⁻ᵈ#0",
+          "label": "Prag 10⁻ᵈ",
+          "value": "10⁻³"
+        },
+        {
+          "key": "Faktor skrčitve q#0",
+          "label": "Faktor skrčitve q",
+          "value": "0,841471"
+        },
+        {
+          "key": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|#0",
+          "label": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|",
+          "value": "2,927"
+        },
+        {
+          "key": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|#0",
+          "label": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|",
+          "value": "2,006"
+        },
+        {
+          "key": "Konec iteracije#0",
+          "label": "Konec iteracije",
+          "value": "se nadaljuje"
+        }
+      ],
+      "notes": [
+        "Oceni napake sta zagotovljeni le, če je T skrčitev na zaprtem intervalu, ki ga slika vase. Konec pri pragu pove, da je ocena pod pragom, ne da je xₖ natančna negibna točka; enaka zaokrožena približka natančne negibne točke ne dokažeta."
+      ],
+      "outputs": [],
+      "captions": [
+        "T(x) = cos x",
+        "korak k = 2, xₖ = 0,577334",
+        "krogec: približek; križec: negibna točka",
+        "x2",
+        "|xₖ - x*| ≤ 2,006"
+      ]
+    },
+    {
+      "name": "reflection, step 3 (two-cycle)",
+      "rows": [
+        {
+          "key": "Korak k (največ 60)#0",
+          "label": "Korak k (največ 60)",
+          "value": "3"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,2"
+        },
+        {
+          "key": "Trenutni približek xₖ#0",
+          "label": "Trenutni približek xₖ",
+          "value": "0,8"
+        },
+        {
+          "key": "Razlika |xₖ - xₖ₋₁|#0",
+          "label": "Razlika |xₖ - xₖ₋₁|",
+          "value": "0,6"
+        },
+        {
+          "key": "Prag 10⁻ᵈ#0",
+          "label": "Prag 10⁻ᵈ",
+          "value": "10⁻³"
+        },
+        {
+          "key": "Faktor skrčitve q#0",
+          "label": "Faktor skrčitve q",
+          "value": "ni ocene (ni skrčitve)"
+        },
+        {
+          "key": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|#0",
+          "label": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|",
+          "value": "ni ocene (ni skrčitve)"
+        },
+        {
+          "key": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|#0",
+          "label": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|",
+          "value": "ni ocene (ni skrčitve)"
+        },
+        {
+          "key": "Konec iteracije#0",
+          "label": "Konec iteracije",
+          "value": "se nadaljuje"
+        }
+      ],
+      "notes": [
+        "Oceni napake sta zagotovljeni le, če je T skrčitev na zaprtem intervalu, ki ga slika vase. Konec pri pragu pove, da je ocena pod pragom, ne da je xₖ natančna negibna točka; enaka zaokrožena približka natančne negibne točke ne dokažeta."
+      ],
+      "outputs": [],
+      "captions": [
+        "T(x) = 1 - x",
+        "dvocikel 0,2 ↔ 0,8",
+        "korak k = 3, xₖ = 0,8",
+        "krogec: približek; križec: negibna točka",
+        "ni ocene: |T′| = 1, ni skrčitve",
+        "x3"
+      ]
+    },
+    {
+      "name": "reflection at 1/2",
+      "rows": [
+        {
+          "key": "Korak k (največ 60)#0",
+          "label": "Korak k (največ 60)",
+          "value": "0"
+        },
+        {
+          "key": "Začetek x₀#0",
+          "label": "Začetek x₀",
+          "value": "0,5"
+        },
+        {
+          "key": "Trenutni približek xₖ#0",
+          "label": "Trenutni približek xₖ",
+          "value": "0,5"
+        },
+        {
+          "key": "Razlika |xₖ - xₖ₋₁|#0",
+          "label": "Razlika |xₖ - xₖ₋₁|",
+          "value": "—"
+        },
+        {
+          "key": "Prag 10⁻ᵈ#0",
+          "label": "Prag 10⁻ᵈ",
+          "value": "10⁻³"
+        },
+        {
+          "key": "Faktor skrčitve q#0",
+          "label": "Faktor skrčitve q",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|#0",
+          "label": "Ocena a priori q^k/(1 - q) · |x₁ - x₀|",
+          "value": "skrito"
+        },
+        {
+          "key": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|#0",
+          "label": "Ocena a posteriori q/(1 - q) · |xₖ - xₖ₋₁|",
+          "value": "skrito"
+        },
+        {
+          "key": "Konec iteracije#0",
+          "label": "Konec iteracije",
+          "value": "začetek je znana negibna točka"
+        }
+      ],
+      "notes": [
+        "Oceni napake sta zagotovljeni le, če je T skrčitev na zaprtem intervalu, ki ga slika vase. Konec pri pragu pove, da je ocena pod pragom, ne da je xₖ natančna negibna točka; enaka zaokrožena približka natančne negibne točke ne dokažeta."
+      ],
+      "outputs": [],
+      "captions": [
+        "T(x) = 1 - x",
+        "konec: začetek je negibna točka",
+        "korak k = 0, xₖ = 0,5",
+        "krogec: približek; križec: negibna točka",
+        "ocena napake: skrita",
+        "x0"
+      ]
+    }
+  ]
+}

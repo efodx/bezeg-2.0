@@ -4,7 +4,7 @@ import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {FIXED_POINT_MAX_STEPS, fixedPointHistory} from '../../analysis/fixedPoint';
 import {defaultFixedPointModel, FixedPointModel} from '../../analysis/fixedPointModel';
-import {currentLanguage, onLanguageChange, setLanguage} from '../../localization';
+import {currentLanguage, onLanguageChange, renderMessage, setLanguage} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {COMPACT_BOARD_WIDTH, DomainError} from './BaseFunctionGraph';
 import {buttonActions, playbackButton} from "./playbackElementTree";
@@ -101,7 +101,7 @@ const resolve = (value: any) => typeof value === 'function' ? value() : value;
 const boardObjectCount = (graph: any) => graph.board.objectsList.length;
 const caption = (graph: any): string[] => graph.captionPlainLines();
 const statusIds = (graph: any) => graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { id: string }) => status.id);
-const statusTexts = (graph: any) => graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: string }) => status.text);
+const statusTexts = (graph: any) => graph.statuses(graph.model, graph.viewOf(graph.model)).map((status: { text: any }) => renderMessage(status.text));
 const model = (overrides: Partial<FixedPointModel>): FixedPointModel => ({...defaultFixedPointModel('affine'), ...overrides});
 const defaultOf = (example: 'affine' | 'cosine' | 'reflection') => defaultFixedPointModel(example);
 
@@ -146,7 +146,7 @@ const rows = (graph: any): Record<string, string> =>
 
 beforeEach(() => setLanguage('sl'));
 
-test('initialization draws the box, the diagonal, the map, the cobweb, the markers and one caption from a fixed pool of objects', () => {
+test('initialization draws the box, the diagonal, the map, the cobweb, the markers and no caption from a fixed pool of objects', () => {
     const graph = makeGraph();
     expect(graph.model).toEqual({example: 'affine', x0: 0, step: 0, digits: 3, boundVisible: false});
     expect(graph.presets()).toBe('fixed-point');
@@ -154,12 +154,14 @@ test('initialization draws the box, the diagonal, the map, the cobweb, the marke
     expect(segments(graph)).toHaveLength(3);
     expect(ofType(graph, 'functiongraph')).toHaveLength(1);
     expect(ofType(graph, 'point')).toHaveLength(ITERATE_POOL + 4);
-    expect(ofType(graph, 'text')).toHaveLength(2);
-    expect(boardObjectCount(graph)).toBe(71);
+    expect(ofType(graph, 'text')).toHaveLength(1);
+    expect(boardObjectCount(graph)).toBe(70);
     expect(graph.generatedObjectCount).toBe(boardObjectCount(graph));
     // equal axis units are kept: the cobweb is drawn against the 45 degree diagonal
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(AFFINE_BOX, true);
-    expect(caption(graph)).toEqual(['T(x) = (x + 1) / 2', 'korak k = 0, xₖ = 0', 'ocena napake: skrita', 'krogec: približek; križec: negibna točka']);
+    // the caption lines repeated the formula row, the readouts and the legend, which are cards now; the only board text left is the x_k label
+    expect(caption(graph)).toEqual([]);
+    expect(stepLabel(graph).parents[2]()).toBe('<div><i>x</i><sub>0</sub></div>');
     // the box is the closed square [a, b] x [a, b], the diagonal runs through its corners, the map is drawn over the interval only
     curves(graph)[BOX].updateDataArray();
     expect(curves(graph)[BOX].dataX).toEqual([0, 2, 2, 0, 0]);
@@ -213,7 +215,7 @@ test('a multi-action scene applied in one synchronous tick reads the earlier act
     apply(graph, defaultScene);
     for (const action of [choice('cosine'), parameter('fixed-point-x0', 0.5), parameter('fixed-point-digits', 5), command('next-step'), command('next-step'), command('next-step'), reveal(true)]) apply(graph, action);
     expect(graph.model).toEqual({example: 'cosine', x0: 0.5, step: 3, digits: 5, boundVisible: true});
-    expect(caption(graph)[1]).toBe(`korak k = 3, xₖ = ${String(Math.cos(Math.cos(Math.cos(0.5))).toFixed(6)).replace('.', ',').replace(/0+$/, '')}`);
+    expect(rows(graph)).toMatchObject({step: '3', current: String(Math.cos(Math.cos(Math.cos(0.5))).toFixed(6)).replace('.', ',').replace(/0+$/, '')});
     expect(statusIds(graph)).toEqual(['hypotheses', 'bound-a-priori', 'bound-a-posteriori']);
     // a later action in the same tick sees the earlier one
     apply(graph, choice('reflection'));
@@ -299,7 +301,6 @@ test('playback stops at the threshold, at a known fixed point and at the iterati
     expect(rows(affine).end).toBe('ocena a posteriori pod pragom');
     expect(statusIds(affine)).toEqual(['threshold', 'bound-hidden']);
     expect(statusTexts(affine)[0]).toBe('Ustavljeno pri koraku 10: ocena a posteriori je pod pragom 10⁻³. To pove, da je napaka pod pragom, ne da je xₖ natančna negibna točka.');
-    expect(caption(affine)).toContain('konec: ocena pod pragom');
     // the same stop for a cosine contraction, where the model agrees with the history
     const cosine = makeGraph();
     apply(cosine, choice('cosine'));
@@ -326,7 +327,6 @@ test('playback stops at the threshold, at a known fixed point and at the iterati
     expect(rows(reflection).end).toBe('meja korakov');
     expect(statusIds(reflection)).toEqual(['iteration-limit', 'cycle', 'bound-hidden']);
     expect(statusTexts(reflection)[0]).toBe('Ustavljeno: dosežena je meja 60 korakov. To ni zaključek o konvergenci.');
-    expect(caption(reflection)).toContain('konec: meja korakov');
     expect(() => next(reflection)).toThrow(DomainError);
 });
 
@@ -434,7 +434,7 @@ test('controls and lesson actions give equivalent models', () => {
     expect(viaControls.model).toEqual({example: 'cosine', x0: 0.75, step: 6, digits: 5, boundVisible: true});
     expect(rows(viaControls)).toEqual(rows(viaActions));
     expect(statusTexts(viaControls)).toEqual(statusTexts(viaActions));
-    expect(caption(viaControls)).toEqual(caption(viaActions));
+    expect(stepLabel(viaControls).parents[2]()).toBe(stepLabel(viaActions).parents[2]());
     // Play from the control and the lesson command run the same transition
     controls(viaControls).play.props.onClick();
     apply(viaActions, command('play'));
@@ -501,7 +501,6 @@ test('bound readouts exist only for contractions, are hidden until Show error bo
     next(graph, 3);
     expect(rows(graph)).toMatchObject({step: '3', x0: '0', current: '0,875', delta: '0,125', tolerance: '10⁻³', q: hidden, 'a-priori': hidden, 'a-posteriori': hidden, end: 'se nadaljuje'});
     expect(statusIds(graph)).toEqual(['bound-hidden']);
-    expect(caption(graph)[2]).toBe('ocena napake: skrita');
     expect(resolve(segments(graph)[BOUND_BAR].attributes.visible)).toBe(false);
     apply(graph, reveal(true));
     expect(rows(graph)).toMatchObject({q: '0,5', 'a-priori': '0,125', 'a-posteriori': '0,125'});
@@ -509,7 +508,6 @@ test('bound readouts exist only for contractions, are hidden until Show error bo
     expect(statusTexts(graph)[0]).toContain('zaprt in omejen');
     expect(statusTexts(graph)[0]).toContain('T([0; 2]) = [1/2; 3/2]');
     expect(statusTexts(graph)[0]).toContain('q = 1/2 < 1');
-    expect(caption(graph)[2]).toBe('|xₖ − x*| ≤ 0,125');
     // the bound bar on the x-axis is the interval around x_3 clipped to [a, b]
     expect(resolve(segments(graph)[BOUND_BAR].attributes.visible)).toBe(true);
     const bar = segments(graph)[BOUND_BAR];
@@ -518,7 +516,6 @@ test('bound readouts exist only for contractions, are hidden until Show error bo
     apply(graph, command('reset'));
     expect(rows(graph)).toMatchObject({q: '0,5', 'a-priori': '1', 'a-posteriori': '—', delta: '—'});
     expect(statusIds(graph)).toEqual(['hypotheses', 'bound-a-priori', 'bound-pending']);
-    expect(caption(graph)[2]).toBe('ocena a posteriori: od koraka 1');
     expect(resolve(segments(graph)[BOUND_BAR].attributes.visible)).toBe(false);
 
     // cosine: the hypotheses mention the image of [0, 1] and sin 1; both bounds hold at every step against the reference fixed point
@@ -544,7 +541,8 @@ test('bound readouts exist only for contractions, are hidden until Show error bo
     expect(rows(reflection)).toMatchObject({q: 'ni ocene (ni skrčitve)', 'a-priori': 'ni ocene (ni skrčitve)', 'a-posteriori': 'ni ocene (ni skrčitve)'});
     expect(statusIds(reflection)).toEqual(['cycle', 'no-bound']);
     expect(statusTexts(reflection)[1]).toContain('To še ne pomeni, da iteracija divergira');
-    expect(caption(reflection)).toEqual(['T(x) = 1 - x', 'korak k = 4, xₖ = 0,2', 'ni ocene: |T′| = 1, ni skrčitve', 'dvocikel 0,2 ↔ 0,8', 'krogec: približek; križec: negibna točka']);
+    expect(rows(reflection)).toMatchObject({step: '4', current: '0,2'});
+    expect(caption(reflection)).toEqual([]);
     expect(resolve(segments(reflection)[BOUND_BAR].attributes.visible)).toBe(false);
     expect(statusTexts(reflection)[0]).toContain('Vzrok je T(T(x)) = x.');
     setLanguage('en');
@@ -653,7 +651,7 @@ test('presets save the model with the step and the reveal, reopen paused and nev
     expect(reopened.model).toEqual(exported.data);
     expect(reopened.playback.isPlaying).toBe(false);
     expect(reopened.frames.callbacks.size).toBe(0);
-    expect(caption(reopened)[1]).toBe(`korak k = 5, xₖ = ${rows(reopened).current}`);
+    expect(rows(reopened)).toMatchObject({step: '5', current: '0,787214'});
     // continuing from the loaded step gives the same state as never having left it
     next(reopened);
     next(graph);
@@ -791,7 +789,7 @@ test('unmount disposes the controller: no timer, no callback and no generated ob
 test('generated objects are disposed and not duplicated across repeated generation, examples and default scenes', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(71);
+    expect(baseline).toBe(70);
     for (let i = 0; i < 4; i++) graph.initialize();
     expect(boardObjectCount(graph)).toBe(baseline);
     expect(graph.generatedObjectCount).toBe(baseline);
@@ -815,44 +813,42 @@ test('generated objects are disposed and not duplicated across repeated generati
     expect(boardObjectCount(graph)).toBe(baseline);
 });
 
-test('the board text follows the language and a language change notifies subscribers (the board text is re-evaluated on update)', () => {
+test('the readouts and statuses follow the language and a language change notifies subscribers; the board keeps no caption', () => {
     const graph = makeGraph();
     next(graph, 3);
     apply(graph, reveal(true));
-    expect(caption(graph)).toEqual(['T(x) = (x + 1) / 2', 'korak k = 3, xₖ = 0,875', '|xₖ − x*| ≤ 0,125', 'krogec: približek; križec: negibna točka']);
+    expect(caption(graph)).toEqual([]);
+    expect(rows(graph)).toMatchObject({step: '3', current: '0,875', q: '0,5', 'a-posteriori': '0,125'});
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
     expect(currentLanguage()).toBe('en');
-    expect(caption(graph)).toEqual(['T(x) = (x + 1) / 2', 'step k = 3, xₖ = 0.875', '|xₖ − x*| ≤ 0.125', 'circle: iterate; cross: fixed point']);
+    expect(caption(graph)).toEqual([]);
     // the readouts and the statuses follow as well
     expect(rows(graph)).toMatchObject({current: '0.875', q: '0.5', 'a-posteriori': '0.125', end: 'continues'});
     expect(statusTexts(graph)[0]).toBe('The interval [0, 2] is closed and bounded, hence complete. T is increasing, so T([0, 2]) = [1/2, 3/2], which lies in [0, 2]. |T′(x)| = 1/2 for every x, so by the mean value theorem |T(x) − T(y)| ≤ q |x − y| with q = 1/2 < 1.');
-    // the end-of-iteration line follows too
+    // the end-of-iteration row follows too
     next(graph, 7);
-    expect(caption(graph)).toContain('end: bound below the threshold');
+    expect(rows(graph).end).toBe('a posteriori bound below the threshold');
     setLanguage('sl');
-    expect(caption(graph)).toContain('konec: ocena pod pragom');
+    expect(rows(graph).end).toBe('ocena a posteriori pod pragom');
     unsubscribe();
 });
 
-test('below 520 px the board uses fewer caption lines, and no label is placed on an axis', () => {
+test('the board draws no caption at any width, and the x_k label sits above the axis, right of the drop line', () => {
     const graph = makeGraph();
     apply(graph, choice('reflection'));
     next(graph, 4);
-    expect(caption(graph)).toHaveLength(5);
+    expect(caption(graph)).toEqual([]);
     graph.board.canvasWidth = COMPACT_BOARD_WIDTH - 1;
-    // the two-cycle line and the key are dropped on narrow boards, the inspector keeps their content
-    expect(caption(graph)).toEqual(['T(x) = 1 - x', 'korak k = 4, xₖ = 0,2', 'ocena napake: skrita']);
+    expect(caption(graph)).toEqual([]);
+    // the inspector keeps the two-cycle content on narrow boards
     expect(statusIds(graph)).toContain('cycle');
-    graph.board.canvasWidth = COMPACT_BOARD_WIDTH;
-    expect(caption(graph)).toHaveLength(5);
-    // the reason the iteration ended stays on narrow boards
     const ended = makeGraph();
     next(ended, 10);
     ended.board.canvasWidth = COMPACT_BOARD_WIDTH - 1;
-    expect(caption(ended)).toEqual(['T(x) = (x + 1) / 2', 'korak k = 10, xₖ = 0,999023', 'ocena napake: skrita', 'konec: ocena pod pragom']);
+    expect(rows(ended).end).toBe('ocena a posteriori pod pragom');
     // the x_k label sits just above the axis (y > 0) and to the right of the drop line, anchored at its bottom left corner
     const label = stepLabel(ended);
     expect(label.attributes.anchorY).toBe('bottom');
@@ -862,16 +858,17 @@ test('below 520 px the board uses fewer caption lines, and no label is placed on
     expect(label.attributes.fixed).toBe(true);
 });
 
-test('the legend names the map, the diagonal, the box, the cobweb, the markers and the bound bar in words, with the line patterns', () => {
+test('the declared legend names the map, the diagonal, the box, the cobweb, the markers and the bound bar in words, with the line patterns', () => {
     const graph = makeGraph();
-    const items = graph.renderLegend().props.items as { id: string; label: string; kind: string }[];
+    const items = graph.declaration().legend as { id: string; label: any; kind: string }[];
     expect(items.map(item => [item.id, item.kind])).toEqual([
-        ['function', 'line'], ['diagonal', 'dashed-line'], ['box', 'dashed'], ['cobweb', 'line'], ['iterate', 'dot'], ['start', 'ring'], ['fixed-point', 'cross'], ['bound', 'line'],
+        ['function', 'line'], ['diagonal', 'dashed'], ['box', 'dashed'], ['cobweb', 'line'], ['iterate', 'point'], ['start', 'ring'], ['fixed-point', 'cross'], ['bound', 'line'],
     ]);
-    expect(items[1].label).toMatch(/črtkana/);
-    expect(items[6].label).toMatch(/križec/);
+    expect(renderMessage(items[1].label)).toMatch(/črtkana/);
+    expect(renderMessage(items[6].label)).toMatch(/križec/);
+    expect(graph.renderLegend()).toBeNull();
     setLanguage('en');
-    expect(graph.renderLegend().props.items.map((item: any) => item.label)).toEqual([
+    expect(graph.declaration().legend.map((item: any) => renderMessage(item.label))).toEqual([
         'Map y = T(x): solid curve', 'Diagonal y = x: dashed line', 'Interval [a, b] and its square: shaded box with a dashed edge',
         'Cobweb: vertical to the curve, horizontal to the diagonal', 'Iterate xₖ on the diagonal: filled circle (the current one is larger)', 'Start x₀: open circle',
         'Fixed point x*: cross on the diagonal', 'Interval around xₖ that contains x* (after the bound is shown): thick line on the x-axis',

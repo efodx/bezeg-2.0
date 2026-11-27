@@ -11,6 +11,7 @@ import {CLASSIFY_EXAMPLES} from '../../../isometry/isometryModel';
 import {createGraph} from '../createTestGraph';
 import {runAs} from '../writes/writeSource';
 import {DEFAULT_RANDOM_STATE, type RandomMode, withMode} from '../../../random/randomModel';
+import {DomainError} from '../../functions/BaseFunctionGraph';
 import {message, messageNumber, renderMessage} from '../../../localization';
 import type {GraphDeclaration} from './graphDeclaration';
 import {type AcceptedDifference, checkParity, describeDifferences, normalise, plainSymbol,type ParityRecording, type ParityState, recordParityWithDeclarations} from './parity';
@@ -1066,6 +1067,29 @@ const SAMPLES: readonly Sample[] = [
             {name: 'secant default', apply: act(choice('root-finding-method', 'secant'))},
             {name: 'secant step 3', apply: act(parameter('root-x1', 2), ...next(3))},
             {name: 'secant three roots', apply: act(choice('root-finding-example', 'cubic-three-roots'), parameter('root-x0', 0.4), parameter('root-x1', 0.6), ...next(1))},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/fixed-point.json', demonstration: 'fixed-point', states: (() => {
+        // A next step after the iteration ended is refused (a DomainError); the state keeps what was reached.
+        const act = (...actions: unknown[]): ParityState['apply'] => graph => {
+            for (const action of actions) {
+                try { (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction(action); } catch (error) { if (!(error instanceof DomainError)) throw error; }
+            }
+        };
+        const next = (count: number) => Array.from({length: count}, () => ({kind: 'animation', animationId: 'fixed-point', command: 'next-step'}));
+        const choice = (name: string, value: string) => ({kind: 'function-choice', name, value});
+        const parameter = (name: string, value: number) => ({kind: 'function-parameter', name, value});
+        const bound = (visible: boolean) => ({kind: 'function-visibility', target: 'fixed-point-bound', visible});
+        // Each example change returns to step 0 and hides the bound; the later states set what they show.
+        return [
+            {name: 'default', apply: act()},
+            {name: 'affine step 1', apply: act(...next(1))},
+            {name: 'affine step 3, bound shown', apply: act(...next(2), bound(true))},
+            {name: 'affine x0 1.5, tolerance 5, step 2', apply: act(parameter('fixed-point-x0', 1.5), parameter('fixed-point-digits', 5), bound(true), ...next(2))},
+            {name: 'affine threshold reached', apply: act(parameter('fixed-point-digits', 1), ...next(30))},
+            {name: 'cosine, step 2, bound shown', apply: act(choice('fixed-point-example', 'cosine'), parameter('fixed-point-digits', 3), parameter('fixed-point-x0', 0.3), bound(true), ...next(2))},
+            {name: 'reflection, step 3 (two-cycle)', apply: act(choice('fixed-point-example', 'reflection'), parameter('fixed-point-x0', 0.2), bound(true), ...next(3))},
+            {name: 'reflection at 1/2', apply: act(parameter('fixed-point-x0', 0.5), bound(false), ...next(1))},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/euler-method.json', demonstration: 'euler-method', accepted: eulerAccepted, states: (() => {

@@ -1289,10 +1289,10 @@ describe('the fixed-point lesson', () => {
             // a prediction step shows no calculation frame, which would give the answer away
             expect(fStep(id).frames.map(frame => frame.kind), id).toEqual(['explanation', 'observation']);
         }
-        // the cosine, rounding and reflection steps ask the learner to press the graph's own control
+        // the cosine, rounding and reflection steps ask the learner to turn on the error-bound puck
         for (const id of ['fixed-point-cosine-step', 'fixed-point-rounding-step', 'fixed-point-reflection-step']) {
-            expect(fStep(id).observationPrompt.en, id).toMatch(/Show error bound/);
-            expect(fStep(id).observationPrompt.sl, id).toMatch(/Pokaži oceno napake/);
+            expect(fStep(id).observationPrompt.en, id).toMatch(/turn on the Error bound control/);
+            expect(fStep(id).observationPrompt.sl, id).toMatch(/vklopi krmilnik Ocena napake/);
         }
         expect(fStep('fixed-point-next-iterate-step').observationPrompt.en).toMatch(/Next step/);
         expect(fStep('fixed-point-next-iterate-step').observationPrompt.sl).toMatch(/Naslednji korak/);

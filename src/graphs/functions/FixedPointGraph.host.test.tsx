@@ -7,14 +7,12 @@ import {AnimationScheduler} from '../../learning/runtime/animation';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {expectUnavailableKeepsFocus} from '../base/unavailableFocusBehaviour';
+import {installBoardShims, openTools, puckControl, waitForPucks} from '../base/realGraphTestHarness';
 
-// jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
-beforeAll(() => {
-    const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
-    HTMLCanvasElement.prototype.getContext = (() => context) as unknown as HTMLCanvasElement['getContext'];
-    window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
-        addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
-});
+// The cards hold formulas; jsdom never loads MathJax, so the layout would wait for it forever and the pucks stay hidden.
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
+
+beforeAll(installBoardShims);
 
 beforeEach(() => setLanguage('sl'));
 
@@ -58,12 +56,15 @@ class ObservedFixedPointGraph extends FixedPointGraph {
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const statusIds = () => [...document.querySelectorAll('[data-fixed-point-status]')].map(element => element.getAttribute('data-fixed-point-status'));
-const boardObjects = (graph: ObservedFixedPointGraph) => graph.liveBoard().objectsList.length;
+// the axis tick labels follow the fitted view, so they are not counted
+const boardObjects = (graph: ObservedFixedPointGraph) => graph.liveBoard().objectsList.filter((object: any) => object.elType !== 'label').length;
 
-test('a real board shows the cobweb: Next step, Play and Pause, Reset, the fields and Show error bound work through the real controls', () => {
+test('a real board shows the cobweb: Next step, Play and Pause, Reset, the tolerance and the x0 and error bound pucks work through the real controls', async () => {
     const frames = manualScheduler();
     const graph = new ObservedFixedPointGraph(frames.scheduler);
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    await waitForPucks('show-error-bound');
+    await openTools();
     expect(graph.state.initialized).toBe(true);
     expect(graph.ownedObjects()).toBeGreaterThan(0);
     const baseline = boardObjects(graph);
@@ -77,29 +78,30 @@ test('a real board shows the cobweb: Next step, Play and Pause, Reset, the field
     expect(readout('current')).toBe('0,875');
     expect(boardObjects(graph)).toBe(baseline);
 
-    // Show error bound is a native button whose label names its state
-    const toggle = () => screen.getByRole('button', {name: /oceno napake/}) as HTMLButtonElement;
-    expect(toggle().textContent).toBe('Pokaži oceno napake');
-    act(() => { fireEvent.click(toggle()); });
+    // the pucks own the error bound and x0: no second copy in Orodja
+    expect(screen.queryByRole('button', {name: /oceno napake/})).toBeNull();
+    expect(screen.queryByLabelText('Začetek x₀, vrednost')).toBeNull();
+
+    // the Ocena napake switch puck reveals the bounds
+    expect(puckControl('show-error-bound').getAttribute('aria-checked')).toBe('false');
+    act(() => { fireEvent.click(puckControl('show-error-bound')); });
     expect(graph.modelNow().boundVisible).toBe(true);
-    expect(toggle().textContent).toBe('Skrij oceno napake');
+    expect(puckControl('show-error-bound').getAttribute('aria-checked')).toBe('true');
     expect(readout('q')).toBe('0,5');
     expect(readout('a-priori')).toBe('0,125');
     expect(readout('a-posteriori')).toBe('0,125');
     expect(statusIds()).toEqual(['hypotheses', 'bound-a-priori', 'bound-a-posteriori']);
 
-    // the labelled fields take x0 on the 0.01 grid and the tolerance digits; other values are refused with a hint
-    const inputX0 = screen.getByLabelText('Začetek x₀, vrednost') as HTMLInputElement;
-    act(() => { enterNumber(inputX0, '0.5'); });
+    // x0 is written as the puck writes it, on the 0.01 grid; values outside [0, 2] and off the grid change nothing
+    act(() => { graph.parameters!.write('fixed-point-x0', 0.5, 'learner'); });
     expect(graph.modelNow()).toMatchObject({x0: 0.5, step: 0, boundVisible: true});
     expect(readout('step')).toBe('0');
-    act(() => { enterNumber(inputX0, '2.5'); });
+    act(() => { graph.parameters!.write('fixed-point-x0', 2.5, 'learner'); });
     expect(graph.modelNow().x0).toBe(0.5);
-    expect(screen.getByText('Vnesi vrednost med 0 in 2.')).toBeInTheDocument();
-    act(() => { enterNumber(inputX0, '0.555'); });
+    act(() => { graph.parameters!.write('fixed-point-x0', 0.555, 'learner'); });
     expect(graph.modelNow().x0).toBe(0.5);
-    expect(screen.getByText('Začetek x₀ mora biti večkratnik števila 0,01 med 0 in 2.')).toBeInTheDocument();
-    act(() => { enterNumber(inputX0, '0'); });
+    act(() => { graph.parameters!.write('fixed-point-x0', 0, 'learner'); });
+    expect(graph.modelNow().x0).toBe(0);
     const inputDigits = screen.getByRole('spinbutton', {name: 'Natančnost d (prag 10⁻ᵈ)'}) as HTMLInputElement;
     act(() => { enterNumber(inputDigits, '2.5'); });
     expect(graph.modelNow().digits).toBe(3);
@@ -143,17 +145,19 @@ test('a real board shows the cobweb: Next step, Play and Pause, Reset, the field
     expect(graph.modelNow()).toEqual({example: 'reflection', x0: 0.2, step: 0, digits: 3, boundVisible: false});
     expect(boardObjects(graph)).toBe(baseline);
     for (let i = 0; i < 3; i++) act(() => { fireEvent.click(nextButton()); });
-    act(() => { fireEvent.click(toggle()); });
+    act(() => { fireEvent.click(puckControl('show-error-bound')); });
     expect(statusIds()).toEqual(['cycle', 'no-bound']);
     expect(readout('a-posteriori')).toBe('ni ocene (ni skrčitve)');
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
     expect(boardObjects(graph)).toBe(baseline);
 });
 
-test('a focused control that becomes unavailable keeps keyboard focus (aria-disabled, never disabled) and its click does nothing', () => {
+test('a focused control that becomes unavailable keeps keyboard focus (aria-disabled, never disabled) and its click does nothing', async () => {
     const frames = manualScheduler();
     const graph = new ObservedFixedPointGraph(frames.scheduler);
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    await waitForPucks('show-error-bound');
+    await openTools();
     const nextButton = () => screen.getByRole('button', {name: 'Naslednji korak'}) as HTMLButtonElement;
     const resetButton = () => screen.getByRole('button', {name: 'Ponastavi na x₀'}) as HTMLButtonElement;
     expect(resetButton().getAttribute('aria-disabled')).toBe('true');
@@ -186,10 +190,12 @@ test('a focused control that becomes unavailable keeps keyboard focus (aria-disa
     expect(graph.modelNow().step).toBe(10);
 });
 
-test('StrictMode mounts, unmounts and mounts again: playback still works on the remounted board', () => {
+test('StrictMode mounts, unmounts and mounts again: playback still works on the remounted board', async () => {
     const frames = manualScheduler();
     const graph = new ObservedFixedPointGraph(frames.scheduler);
     render(<React.StrictMode><MemoryRouter><GraphHost create={() => graph}/></MemoryRouter></React.StrictMode>);
+    await waitForPucks('show-error-bound');
+    await openTools();
     expect(graph.state.initialized).toBe(true);
     const baseline = boardObjects(graph);
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Predvajaj'})); });
@@ -201,10 +207,12 @@ test('StrictMode mounts, unmounts and mounts again: playback still works on the 
     expect(boardObjects(graph)).toBe(baseline);
 });
 
-test('a Play click handled while the graph unmounts leaves no running playback', () => {
+test('a Play click handled while the graph unmounts leaves no running playback', async () => {
     const frames = manualScheduler();
     const graph = new ObservedFixedPointGraph(frames.scheduler);
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    await waitForPucks('show-error-bound');
+    await openTools();
     act(() => {
         fireEvent.click(screen.getByRole('button', {name: 'Predvajaj'}));
         view.unmount();
@@ -213,25 +221,24 @@ test('a Play click handled while the graph unmounts leaves no running playback',
     expect(frames.callbacks.size).toBe(0);
 });
 
-test('a live language switch re-evaluates the board texts and the readouts', () => {
+test('a live language switch re-evaluates the pucks and the readouts and leaves no caption on the board', async () => {
     const graph = new ObservedFixedPointGraph();
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+    await waitForPucks('show-error-bound');
+    await openTools();
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Naslednji korak'})); });
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži oceno napake'})); });
+    act(() => { fireEvent.click(puckControl('show-error-bound')); });
     const texts = () => graph.liveBoard().objectsList.filter((object: any) => object.elType === 'text') as any[];
     const boardText = () => texts().map(text => String(text.plaintext)).join('|');
-    expect(boardText()).toContain('korak k = 1, xₖ = 0,5');
-    expect(boardText()).toContain('|xₖ − x*| ≤ 0,5');
-    expect(boardText()).toContain('krogec: približek; križec: negibna točka');
+    expect(boardText()).not.toMatch(/korak k|ocena napake|krogec/);
     expect(readout('q')).toBe('0,5');
+    expect(document.querySelector('.puck-strip [data-puck-key="show-error-bound"]')?.textContent).toContain('Ocena napake');
     act(() => { setLanguage('en'); });
-    expect(boardText()).toContain('step k = 1, xₖ = 0.5');
-    expect(boardText()).toContain('|xₖ − x*| ≤ 0.5');
-    expect(boardText()).toContain('circle: iterate; cross: fixed point');
-    expect(boardText()).not.toContain('krogec');
+    expect(boardText()).not.toMatch(/step k|error bound|circle/);
     expect(readout('q')).toBe('0.5');
-    expect(screen.getByRole('button', {name: 'Hide error bound'})).toBeInTheDocument();
-    expect(screen.getByLabelText('Start x₀, value')).toBeInTheDocument();
+    expect(document.querySelector('.puck-strip [data-puck-key="show-error-bound"]')?.textContent).toContain('Error bound');
+    expect(document.querySelector('.puck-strip [data-puck-key="fixed-point-x0"]')?.textContent).toContain('Start');
+    expect(screen.getByRole('button', {name: 'Next step'})).toBeInTheDocument();
     act(() => { setLanguage('sl'); });
-    expect(boardText()).toContain('korak k = 1, xₖ = 0,5');
+    expect(readout('q')).toBe('0,5');
 });

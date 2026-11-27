@@ -27,7 +27,7 @@ const routes: Record<string, Route> = {
     'darboux': {lead: button(t('darboux_refine')), later: [labelled(t('darboux_example_label'))]},
     'sequence': {lead: labelled(t('sequence_epsilon_label')), later: [labelled(t('sequence_example_label'))]},
     'uniform-convergence': {lead: labelled(t('uniform_x_label')), later: [labelled(t('uniform_example_label')), labelled(t('uniform_r_label'))]},
-    'fixed-point': {lead: button(t('next_step')), later: [labelled(t('fixed_point_example_label')), labelled(t('fixed_point_x0_label'))]},
+    'fixed-point': {lead: button(t('next_step')), later: [labelled(t('fixed_point_example_label'))]},
     'recursion-cobweb': {lead: button(t('next_step')), later: []},
     'linear-program': {lead: labelled(t('levelsets_graph_lp_objective_p')), later: [labelled(t('levelsets_graph_lp_count'))]},
 };
@@ -159,6 +159,23 @@ describe('extrema pucks', () => {
         for (const label of [t('extrema_a_label'), t('extrema_b_label')]) expect(within(root).queryAllByLabelText(new RegExp(`^${label}`))).toEqual([]);
         expect(within(root).queryAllByRole('button', {name: t('extrema_show_classification')})).toEqual([]);
         expect(within(root).getAllByLabelText(t('extrema_example_label'))).not.toEqual([]);
+    });
+});
+
+describe('fixed-point pucks', () => {
+    // The start x0 and the error-bound switch are pucks on the board (task 08): there once, and not in Edit, which keeps the example and the
+    // playback buttons (the example select is found there first, so the container really holds the graph's controls).
+    test('x0 and the error bound are pucks and Edit holds no second copy', async () => {
+        mountGraph(graphFactories['fixed-point']());
+        await waitForPucks('show-error-bound');
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        expect(within(root).getAllByLabelText(t('fixed_point_example_label'))).not.toEqual([]);
+        for (const key of ['fixed-point-x0', 'show-error-bound']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        expect(within(root).queryAllByLabelText(t('fixed_point_x0_label'))).toEqual([]);
+        expect(within(root).queryAllByRole('button', {name: t('show_error_bound')})).toEqual([]);
+        expect(within(root).queryAllByRole('button', {name: t('hide_error_bound')})).toEqual([]);
     });
 });
 

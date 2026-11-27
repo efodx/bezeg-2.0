@@ -56,10 +56,6 @@
       ],
       "outputs": [],
       "captions": [
-        "T(x) = (x + 1) / 2",
-        "korak k = 0, xₖ = 0",
-        "krogec: približek; križec: negibna točka",
-        "ocena napake: skrita",
         "x0"
       ]
     },
@@ -117,10 +113,6 @@
       ],
       "outputs": [],
       "captions": [
-        "T(x) = (x + 1) / 2",
-        "korak k = 1, xₖ = 0,5",
-        "krogec: približek; križec: negibna točka",
-        "ocena napake: skrita",
         "x1"
       ]
     },
@@ -178,11 +170,7 @@
       ],
       "outputs": [],
       "captions": [
-        "T(x) = (x + 1) / 2",
-        "korak k = 3, xₖ = 0,875",
-        "krogec: približek; križec: negibna točka",
-        "x3",
-        "|xₖ - x*| ≤ 0,125"
+        "x3"
       ]
     },
     {
@@ -239,10 +227,6 @@
       ],
       "outputs": [],
       "captions": [
-        "T(x) = cos x",
-        "korak k = 8, xₖ = 0,722102",
-        "krogec: približek; križec: negibna točka",
-        "ocena napake: skrita",
         "x8"
       ]
     },
@@ -300,11 +284,6 @@
       ],
       "outputs": [],
       "captions": [
-        "T(x) = (x + 1) / 2",
-        "konec: ocena pod pragom",
-        "korak k = 27, xₖ = 1",
-        "krogec: približek; križec: negibna točka",
-        "ocena napake: skrita",
         "x27"
       ]
     },
@@ -362,11 +341,6 @@
       ],
       "outputs": [],
       "captions": [
-        "T(x) = 1 - x",
-        "dvocikel 0,2 ↔ 0,8",
-        "korak k = 4, xₖ = 0,2",
-        "krogec: približek; križec: negibna točka",
-        "ocena napake: skrita",
         "x4"
       ]
     },
@@ -424,10 +398,6 @@
       ],
       "outputs": [],
       "captions": [
-        "T(x) = cos x",
-        "korak k = 0, xₖ = 1",
-        "krogec: približek; križec: negibna točka",
-        "ocena napake: skrita",
         "x0"
       ]
     }

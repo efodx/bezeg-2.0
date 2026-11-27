@@ -64,6 +64,7 @@ import type {AccumulationIds} from '../../graphs/functions/AccumulationGraph';
 import type {ConvexityIds} from '../../graphs/functions/ConvexityGraph';
 import type {DarbouxIds} from '../../graphs/functions/DarbouxGraph';
 import type {ExtremaIds} from '../../graphs/functions/ExtremaGraph';
+import type {FixedPointIds} from '../../graphs/functions/FixedPointGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
@@ -73,6 +74,7 @@ const accumulationFrame = frameDeclarer<AccumulationIds>();
 const convexityFrame = frameDeclarer<ConvexityIds>();
 const darbouxFrame = frameDeclarer<DarbouxIds>();
 const extremaFrame = frameDeclarer<ExtremaIds>();
+const fixedPointFrame = frameDeclarer<FixedPointIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name: name, value: value});
 const bisectionExample = (value: BisectionExampleId): LessonAction => ({kind: 'function-choice', name: 'bisection-example', value: value});
 /** The scene shows the state after `count` revealed steps. */
@@ -2844,7 +2846,7 @@ const fixedPoint: GuidedLesson = {
                 'The map \\(T(x)=\\frac{x+1}{2}\\) maps the interval \\([0,2]\\) into itself. A fixed point \\(x^*\\) solves \\(T(x^*)=x^*\\): on the graph it is the intersection of the curve \\(y=T(x)\\) with the diagonal \\(y=x\\), marked by a cross, here \\(x^*=1\\). The iteration starts at \\(x_0\\) and computes \\(x_{k+1}=T(x_k)\\); every iterate is a value of a composed map, \\(x_2=T(T(x_0))\\), and the sequence \\(x_k\\) is an ordinary sequence, so its convergence is the same question as in the lesson on sequences. The cobweb goes from the point \\((x_k,x_k)\\) on the diagonal vertically to the curve and then horizontally back to the diagonal. Now only the start \\(x_0=0\\) is shown at step \\(0\\); step \\(0\\) has no segments yet.',
             ),
             formulaIds: ['fixed-point-iteration'],
-            frames: [frame('fixed-point-cobweb-explanation', 'explanation'), frame('fixed-point-cobweb-observation', 'observation')],
+            frames: [frame('fixed-point-cobweb-explanation', 'explanation', fixedPointFrame({highlight: ['x0', 'current']})), frame('fixed-point-cobweb-observation', 'observation', fixedPointFrame({highlight: ['step', 'current'], uses: ['next-step']}))],
             observationPrompt: text(
                 'Poišči križec na diagonali in preberi, kje je negibna točka. Izračunaj \\(T(0)\\) in napovej, kje bo končala prva navpična črta, nato pritisni Naslednji korak.',
                 'Find the cross on the diagonal and read where the fixed point is. Compute \\(T(0)\\) and predict where the first vertical segment ends, then press Next step.',
@@ -2877,7 +2879,7 @@ const fixedPoint: GuidedLesson = {
                 'The first step gave \\(x_1=\\frac12\\). The next iterate is \\(x_2=T(x_1)\\): from the point \\((\\frac12,\\frac12)\\) on the diagonal we go vertically to the curve and then horizontally to the diagonal. The height of the curve at \\(x=\\frac12\\) is \\(T(\\frac12)\\), and that height is also the new iterate. Predict it before you press Next step, then press again and predict \\(x_3\\). Also watch the distance to the fixed point \\(1\\): at \\(x_1\\) it is \\(\\frac12\\), at \\(x_2\\) it is less.',
             ),
             formulaIds: ['fixed-point-iteration'],
-            frames: [frame('fixed-point-next-explanation', 'explanation'), frame('fixed-point-next-observation', 'observation')],
+            frames: [frame('fixed-point-next-explanation', 'explanation', fixedPointFrame({highlight: ['step', 'current']})), frame('fixed-point-next-observation', 'observation', fixedPointFrame({highlight: ['step', 'current', 'delta'], uses: ['next-step']}))],
             observationPrompt: text(
                 'Napovej \\(x_2\\) in to, ali je razdalja do negibne točke po tem koraku večja ali manjša; šele nato pritisni Naslednji korak. Nato napovej še \\(x_3\\).',
                 'Predict \\(x_2\\) and whether the distance to the fixed point is larger or smaller after this step; only then press Next step. Then predict \\(x_3\\) as well.',
@@ -2910,7 +2912,7 @@ const fixedPoint: GuidedLesson = {
                 'For \\(T(x)=\\frac{x+1}{2}\\) we have \\(|T\'(x)|=\\frac12\\), so by the mean value theorem the distance of the images \\(|T(x)-T(y)|\\) is at most \\(q|x-y|\\) with \\(q=\\frac12\\). Together with the fact that \\(T\\) maps the closed interval \\([0,2]\\) into itself (the image is \\([\\frac12,\\frac32]\\)), this is a contraction. So it has exactly one fixed point and the iteration converges to it from every start. The error bound is now shown: at step \\(3\\) both bounds equal \\(0.125\\), and so does the actual error, because \\(x_k=1-2^{-k}\\). The thick line on the \\(x\\)-axis is an interval around \\(x_3\\) that is sure to contain \\(x^*\\). At the threshold \\(10^{-3}\\) the iteration stops when the a posteriori bound falls below it, which is at step \\(10\\). This says the error is below the threshold, not that the iterate is exactly \\(1\\).',
             ),
             formulaIds: ['fixed-point-contraction', 'fixed-point-contraction-factor', 'fixed-point-bounds'], workedExampleId: 'fixed-point-affine-example',
-            frames: [frame('fixed-point-contraction-explanation', 'explanation'), frame('fixed-point-contraction-calculation', 'calculation'), frame('fixed-point-contraction-observation', 'observation')],
+            frames: [frame('fixed-point-contraction-explanation', 'explanation', fixedPointFrame({highlight: ['q']})), frame('fixed-point-contraction-calculation', 'calculation', fixedPointFrame({highlight: ['q', 'a-priori', 'a-posteriori']})), frame('fixed-point-contraction-observation', 'observation', fixedPointFrame({highlight: ['q', 'a-posteriori', 'end'], uses: ['play']}))],
             observationPrompt: text(
                 'Preberi \\(q\\), pogoje izreka in obe oceni. Napovej, pri katerem koraku se predvajanje ustavi pri pragu \\(10^{-3}\\), pritisni Predvajaj in primerjaj; nato nastavi natančnost \\(d=6\\) in napovej še enkrat.',
                 'Read \\(q\\), the hypotheses of the theorem and both bounds. Predict at which step playback stops at the threshold \\(10^{-3}\\), press Play and compare; then set the tolerance to \\(d=6\\) and predict again.',
@@ -2943,10 +2945,10 @@ const fixedPoint: GuidedLesson = {
                 'For the map \\(T(x)=\\cos x\\) on \\([0,1]\\): \\(\\cos\\) is decreasing there, so it maps \\([0,1]\\) to \\([\\cos1,1]\\), a subset of the interval. For the derivative we have \\(|T\'(x)|=\\sin x\\) and \\(\\sin x\\le\\sin1\\), so \\(q=\\sin1\\), which is about \\(0.8415\\) and less than \\(1\\). All hypotheses of the theorem hold, so there is exactly one fixed point, \\(x^*\\approx0.739085\\), and the iteration converges to it. Because \\(q\\) is close to \\(1\\), the convergence is slower than for the previous map. Step \\(8\\) is shown with \\(x_8\\approx0.722102\\), and the actual error is about \\(0.017\\). The error bound is hidden; predict whether the bound at this step is smaller or larger than the actual error.',
             ),
             formulaIds: ['fixed-point-contraction', 'fixed-point-contraction-factor', 'fixed-point-bounds'],
-            frames: [frame('fixed-point-cosine-explanation', 'explanation'), frame('fixed-point-cosine-observation', 'observation')],
+            frames: [frame('fixed-point-cosine-explanation', 'explanation', fixedPointFrame({highlight: ['q', 'current']})), frame('fixed-point-cosine-observation', 'observation', fixedPointFrame({highlight: ['a-priori', 'a-posteriori', 'end'], uses: ['show-error-bound', 'play']}))],
             observationPrompt: text(
-                'Napovej, ali je ocena napake pri koraku \\(8\\) manjša ali večja od dejanske napake \\(0{,}017\\); pritisni Pokaži oceno napake, preberi pogoje izreka in obe oceni. Nato pritisni Predvajaj in preberi, kdaj se ustavi pri pragu \\(10^{-3}\\).',
-                'Predict whether the error bound at step \\(8\\) is smaller or larger than the actual error \\(0.017\\); press Show error bound, read the hypotheses of the theorem and both bounds. Then press Play and read when it stops at the threshold \\(10^{-3}\\).',
+                'Napovej, ali je ocena napake pri koraku \\(8\\) manjša ali večja od dejanske napake \\(0{,}017\\); vklopi krmilnik Ocena napake, preberi pogoje izreka in obe oceni. Nato pritisni Predvajaj in preberi, kdaj se ustavi pri pragu \\(10^{-3}\\).',
+                'Predict whether the error bound at step \\(8\\) is smaller or larger than the actual error \\(0.017\\); turn on the Error bound control, read the hypotheses of the theorem and both bounds. Then press Play and read when it stops at the threshold \\(10^{-3}\\).',
             ),
             expectedObservations: [
                 text(
@@ -2954,8 +2956,8 @@ const fixedPoint: GuidedLesson = {
                     'At step \\(8\\), \\(x_8\\approx0.722102\\); the error bound is hidden.',
                 ),
                 text(
-                    'Po pritisku na Pokaži oceno napake je \\(q\\approx0{,}8415\\), ocena a posteriori je približno \\(0{,}2222\\), ocena a priori približno \\(1{,}586\\); obe sta nad dejansko napako \\(0{,}017\\), torej veljata, a sta ohlapni. Predvajanje se pri \\(d=3\\) ustavi pri koraku \\(22\\).',
-                    'After Show error bound, \\(q\\approx0.8415\\), the a posteriori bound is about \\(0.2222\\) and the a priori bound about \\(1.586\\); both are above the actual error \\(0.017\\), so they hold but are loose. At \\(d=3\\) playback stops at step \\(22\\).',
+                    'Ko vklopiš krmilnik Ocena napake, je \\(q\\approx0{,}8415\\), ocena a posteriori je približno \\(0{,}2222\\), ocena a priori približno \\(1{,}586\\); obe sta nad dejansko napako \\(0{,}017\\), torej veljata, a sta ohlapni. Predvajanje se pri \\(d=3\\) ustavi pri koraku \\(22\\).',
+                    'After you turn on the Error bound control, \\(q\\approx0.8415\\), the a posteriori bound is about \\(0.2222\\) and the a priori bound about \\(1.586\\); both are above the actual error \\(0.017\\), so they hold but are loose. At \\(d=3\\) playback stops at step \\(22\\).',
                 ),
             ],
             scene: {
@@ -2976,10 +2978,10 @@ const fixedPoint: GuidedLesson = {
                 'At the tolerance \\(d=8\\) the iteration for \\(\\frac{x+1}{2}\\) stops at step \\(27\\), when the a posteriori bound falls below \\(10^{-8}\\). The readout of the iterate \\(x_{27}\\) is rounded to \\(1\\) at six decimals, but \\(x_{27}=1-2^{-27}\\) is not equal to \\(1\\): the error is \\(2^{-27}\\approx7.45\\cdot10^{-9}\\). A rounded value equal to \\(1\\) and a stop at a threshold therefore do not prove that the iterate is an exact fixed point. The same holds if two consecutive iterates became equal in the computer: the app would report that as rounding, not as a proof. An exact fixed point is only a start that we know from the formula, for example \\(x_0=1\\) for this map, since \\(T(1)=1\\). Step \\(27\\) is shown and the error bound is hidden.',
             ),
             formulaIds: ['fixed-point-bounds'],
-            frames: [frame('fixed-point-rounding-explanation', 'explanation'), frame('fixed-point-rounding-observation', 'observation')],
+            frames: [frame('fixed-point-rounding-explanation', 'explanation', fixedPointFrame({highlight: ['tolerance', 'current']})), frame('fixed-point-rounding-observation', 'observation', fixedPointFrame({highlight: ['current', 'a-posteriori', 'end'], uses: ['show-error-bound', 'fixed-point-x0']}))],
             observationPrompt: text(
-                'Napovej, ali je \\(x_{27}\\) natančno \\(1\\), ker ga odčitek kaže kot \\(1\\); pritisni Pokaži oceno napake in preberi oceno. Nato z drsnikom Začetek nastavi \\(x_0=1\\) in preberi, zakaj se iteracija ne premakne.',
-                'Predict whether \\(x_{27}\\) is exactly \\(1\\) because the readout shows \\(1\\); press Show error bound and read the bound. Then enter \\(x_0=1\\) and read why the iteration does not move.',
+                'Napovej, ali je \\(x_{27}\\) natančno \\(1\\), ker ga odčitek kaže kot \\(1\\); vklopi krmilnik Ocena napake in preberi oceno. Nato s krmilnikom Začetek nastavi \\(x_0=1\\) in preberi, zakaj se iteracija ne premakne.',
+                'Predict whether \\(x_{27}\\) is exactly \\(1\\) because the readout shows \\(1\\); turn on the Error bound control and read the bound. Then set \\(x_0=1\\) with the Start control and read why the iteration does not move.',
             ),
             expectedObservations: [
                 text(
@@ -2987,8 +2989,8 @@ const fixedPoint: GuidedLesson = {
                     'At step \\(27\\) the readout of the iterate shows \\(1\\) and the end of the iteration is "a posteriori bound below the threshold".',
                 ),
                 text(
-                    'Po pritisku na Pokaži oceno napake je ocena približno \\(7{,}451\\cdot10^{-9}\\), torej večja od \\(0\\). Pri \\(x_0=1\\) iteracija ostane pri koraku \\(0\\), ker je začetek znana negibna točka.',
-                    'After Show error bound the bound is about \\(7.451\\cdot10^{-9}\\), so greater than \\(0\\). For \\(x_0=1\\) the iteration stays at step \\(0\\), because the start is a known fixed point.',
+                    'Ko vklopiš krmilnik Ocena napake, je ocena približno \\(7{,}451\\cdot10^{-9}\\), torej večja od \\(0\\). Pri \\(x_0=1\\) iteracija ostane pri koraku \\(0\\), ker je začetek znana negibna točka.',
+                    'After you turn on the Error bound control the bound is about \\(7.451\\cdot10^{-9}\\), so greater than \\(0\\). For \\(x_0=1\\) the iteration stays at step \\(0\\), because the start is a known fixed point.',
                 ),
             ],
             scene: {
@@ -3009,10 +3011,10 @@ const fixedPoint: GuidedLesson = {
                 'The map \\(T(x)=1-x\\) maps \\([0,1]\\) into itself, because it swaps the endpoints, and its fixed point is \\(\\frac12\\). But \\(|T\'(x)|=1\\), so there is no \\(q<1\\) and the contraction theorem gives neither a conclusion nor an error bound. From \\(x_0=0.2\\) we get \\(0.8\\), \\(0.2\\), \\(0.8\\), …: a two-cycle, because \\(T(T(x))=x\\). The iteration does not approach \\(\\frac12\\) unless it starts exactly there. Step \\(4\\) is shown and there is no error bound. A failing hypothesis does not by itself prove divergence: the theorem simply gives no conclusion. For this map we see the two-cycle directly from \\(T(T(x))=x\\); for another map with \\(q\\ge1\\) the iteration might even converge. Playback would stop only at the limit of \\(60\\) steps.',
             ),
             formulaIds: ['fixed-point-reflection', 'fixed-point-reflection-derivative'],
-            frames: [frame('fixed-point-reflection-explanation', 'explanation'), frame('fixed-point-reflection-observation', 'observation')],
+            frames: [frame('fixed-point-reflection-explanation', 'explanation', fixedPointFrame({highlight: ['q', 'current']})), frame('fixed-point-reflection-observation', 'observation', fixedPointFrame({highlight: ['q', 'end'], uses: ['show-error-bound', 'fixed-point-x0']}))],
             observationPrompt: text(
-                'Napovej, kam se približuje iteracija iz \\(x_0=0{,}2\\); pritisni Pokaži oceno napake in preberi, zakaj ocene ni. Nato z drsnikom Začetek nastavi \\(x_0=0{,}5\\) in primerjaj.',
-                'Predict where the iteration from \\(x_0=0.2\\) is heading; press Show error bound and read why there is no bound. Then enter \\(x_0=0.5\\) and compare.',
+                'Napovej, kam se približuje iteracija iz \\(x_0=0{,}2\\); vklopi krmilnik Ocena napake in preberi, zakaj ocene ni. Nato s krmilnikom Začetek nastavi \\(x_0=0{,}5\\) in primerjaj.',
+                'Predict where the iteration from \\(x_0=0.2\\) is heading; turn on the Error bound control and read why there is no bound. Then set \\(x_0=0.5\\) with the Start control and compare.',
             ),
             expectedObservations: [
                 text(
@@ -3020,8 +3022,8 @@ const fixedPoint: GuidedLesson = {
                     'At step \\(4\\) the iterates alternate between \\(0.2\\) and \\(0.8\\) (a two-cycle); the error bound is hidden.',
                 ),
                 text(
-                    'Po pritisku na Pokaži oceno napake aplikacija pove, da ocene ni, ker je \\(|T\'|=1\\), in ne trdi, da iteracija divergira. Pri \\(x_0=0{,}5\\) se iteracija ne premakne, ker je začetek znana negibna točka.',
-                    'After Show error bound the app says there is no bound because \\(|T\'|=1\\), and it does not claim that the iteration diverges. For \\(x_0=0.5\\) the iteration does not move, because the start is a known fixed point.',
+                    'Ko vklopiš krmilnik Ocena napake, aplikacija pove, da ocene ni, ker je \\(|T\'|=1\\), in ne trdi, da iteracija divergira. Pri \\(x_0=0{,}5\\) se iteracija ne premakne, ker je začetek znana negibna točka.',
+                    'After you turn on the Error bound control the app says there is no bound because \\(|T\'|=1\\), and it does not claim that the iteration diverges. For \\(x_0=0.5\\) the iteration does not move, because the start is a known fixed point.',
                 ),
             ],
             scene: {
@@ -3042,7 +3044,7 @@ const fixedPoint: GuidedLesson = {
                 'Summary: if \\(T\\) maps a closed interval \\([a,b]\\) into itself and is a contraction (the distance of the images \\(|T(x)-T(y)|\\) is at most \\(q|x-y|\\) for some \\(q<1\\)), it has exactly one fixed point, the iteration converges to it from every start, and the a priori and a posteriori bounds hold. If one of the hypotheses fails, the theorem gives no conclusion; that is not the same as divergence. A stop at a threshold says the bound is below the threshold and does not prove an exact fixed point. Now \\(\\cos x\\) is chosen with the start \\(x_0=1\\). Explore on your own: choose a map, change the start and the tolerance, press Next step or Play, and predict before you show the error bound.',
             ),
             formulaIds: ['fixed-point-contraction', 'fixed-point-contraction-factor'],
-            frames: [frame('fixed-point-free-explanation', 'explanation'), frame('fixed-point-free-observation', 'observation')],
+            frames: [frame('fixed-point-free-explanation', 'explanation', fixedPointFrame({highlight: ['q', 'end']})), frame('fixed-point-free-observation', 'observation', fixedPointFrame({highlight: ['end'], uses: ['play']}))],
             observationPrompt: text(
                 'Napovej, ali iteracija iz \\(x_0=1\\) konvergira k isti negibni točki kot iz \\(x_0=0\\); pritisni Predvajaj in preberi razlog ustavitve. Nato izberi drugo preslikavo in napovej, preden pokažeš oceno napake.',
                 'Predict whether the iteration from \\(x_0=1\\) converges to the same fixed point as from \\(x_0=0\\); press Play and read the reason it stops. Then choose another map and predict before you show the error bound.',
