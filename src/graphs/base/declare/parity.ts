@@ -8,7 +8,7 @@ import {act} from '@testing-library/react';
 import JXG from 'jsxgraph';
 import type BaseGraph from '../BaseGraph';
 import type {BaseGraphState} from '../BaseGraph';
-import {failMathJaxLoads, mountGraph} from '../realGraphTestHarness';
+import {mountGraph} from '../realGraphTestHarness';
 import {formatNumber} from '../../../analysis/format';
 import {isMessageNumber, renderMessage, setLanguage, type Message, type MessageNumber} from '../../../localization';
 import type {FormattedValue, GraphDeclaration} from './graphDeclaration';
@@ -99,9 +99,6 @@ export async function recordParityWithDeclarations(id: string, graph: BaseGraph<
         matches: query.includes('prefers-reduced-motion: reduce'), media: query, onchange: null,
         addEventListener: () => undefined, removeEventListener: () => undefined, addListener: () => undefined, removeListener: () => undefined, dispatchEvent: () => false,
     })) as unknown as typeof window.matchMedia;
-    // The cards lay out, and the director fits, only once MathJax has loaded or failed; in jsdom that was its 15 s timeout, at a moment
-    // unrelated to the states. Failing it at once lays the cards out on mount, so every state is recorded fitted.
-    const stopFailingMathJax = failMathJaxLoads();
     const frame = () => act(async () => { await new Promise<void>(resolve => requestAnimationFrame(() => resolve())); });
     const mounted = mountGraph(graph);
     const recorded: RecordedState[] = [];
@@ -129,7 +126,6 @@ export async function recordParityWithDeclarations(id: string, graph: BaseGraph<
     } finally {
         mounted.view.unmount();
         window.matchMedia = matchMedia;
-        stopFailingMathJax();
     }
     return {recording: {graph: id, language: 'sl', states: recorded}, declarations};
 }

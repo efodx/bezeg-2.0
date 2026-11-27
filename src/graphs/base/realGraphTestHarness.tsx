@@ -44,6 +44,16 @@ export function installBoardShims(): void {
     HTMLCanvasElement.prototype.getContext = (() => context) as unknown as HTMLCanvasElement['getContext'];
     window.matchMedia = (() => ({matches: false, addEventListener: () => undefined, removeEventListener: () => undefined,
         addListener: () => undefined, removeListener: () => undefined})) as unknown as typeof window.matchMedia;
+    // No test may wait for the 15 s MathJax timeout; a test that needs a script to load calls `allowMathJaxLoads`.
+    mathJaxFailure ??= failMathJaxLoads();
+}
+
+let mathJaxFailure: (() => void) | undefined;
+
+/** Opt-out of the default set by `installBoardShims`: MathJax scripts are left alone again (they then end only at the 15 s timeout). */
+export function allowMathJaxLoads(): void {
+    mathJaxFailure?.();
+    mathJaxFailure = undefined;
 }
 
 /**
