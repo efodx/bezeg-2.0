@@ -40,5 +40,9 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
 ## Status
 
 - Handler 1 (2026-11-27): worktree `.claude/worktrees/lane-b` (branch `lane-b` from `board-workspace-2` at `4b5fcd5fa`,
-  `node_modules` junction). Dispatch `briefs/08-lane-L54.md` (lesson smoke port 4395). L54 session 1 (bezier-hulls,
-  convex-hull, delaunay) dispatched; notes `briefs/notes/08-lane-L54.md`. No lanes accepted yet.
+  `node_modules` junction). Dispatch `briefs/08-lane-L54.md` (lesson smoke port 4395). Notes `briefs/notes/08-lane-L54.md`.
+- Three demonstrations exhaust a Sonnet worker's 175k budget; dispatch two per worker.
+- Accepted: `fa98874c4` bezier-hulls, convex-hull (+ delaunay parity/markers); sent to stream A.
+- In progress: delaunay + ear-clipping. Then fortune + hull-robustness (drop its `declaresHullWorkspace` false override),
+  interval-sweep + monotone-partition, monotone-triangulation + orientation, point-in-polygon + point-set-triangulation,
+  segment-intersections + voronoi, voronoi-degenerate; then L50, L49, L44, L47.
