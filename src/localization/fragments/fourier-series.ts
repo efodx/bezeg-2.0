@@ -1,5 +1,6 @@
 // Declaration text of the Fourier series graph (ADR 0066): the bare name and help of its puck and the legend entries. `en` must have exactly `sl`'s keys.
 const sl = {
+    "fourier_series_formula_label": "Funkcija",
     "fourier_series_n_name": "Harmoniki",
     "fourier_series_terms_value": "{value0}",
     "fourier_series_n_help": "Delna vsota Sₙ vsebuje harmonike do N, od 1 do 1001. Pri pravokotnem valu sodi harmoniki ne prispevajo, zato je Sₙ pri sodem N enaka vsoti pri N − 1.",
@@ -15,6 +16,7 @@ const sl = {
 export const fourierSeries = {
     sl,
     en: {
+        "fourier_series_formula_label": "Function",
         "fourier_series_n_name": "Harmonics",
         "fourier_series_terms_value": "{value0}",
         "fourier_series_n_help": "The partial sum Sₙ contains the harmonics up to N, from 1 to 1001. For the square wave the even harmonics add nothing, so Sₙ at an even N equals the sum at N − 1.",

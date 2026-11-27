@@ -7,7 +7,7 @@ import {currentLanguage, message, Message, messageNumber, renderMessage, t} from
 import type {FormattedValue, GraphDeclaration, LegendEntry, StatusLine} from "../base/declare/graphDeclaration";
 import type {ParameterBinding} from "../base/writes/parameterArbiter";
 import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
-import {formatNumber, formatSignificant} from "../../analysis/format";
+import {formatSignificant} from "../../analysis/format";
 import {catalogFunction, FUNCTION_IDS, FunctionId} from "../../analysis/functions";
 import {BOUND_MAX, BOUND_MIN, BOUND_STEP} from "../../analysis/riemann";
 import {simpsonParabolas} from "../../analysis/quadrature";
@@ -179,7 +179,6 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
     protected createScene(): void {
         const board = this.board;
         const model = () => this.model;
-        const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
 
         // Layers, lowest first: the shapes of the rule, the function, then the bound points.
@@ -197,21 +196,7 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
             min: () => cleanNumber(model().a + QUADRATURE_MIN_WIDTH), max: () => BOUND_MAX, write: x => this.setBound("b", x, {syncScene: false}),
         });
 
-        // The function, the approximation with its error and the error ratio stay on the board (projection needs them), top left.
         this.drawn.bound = this.pointA;
-        this.caption("top-left", [
-            {text: () => `f(x) = ${catalogFunction(model().fn).plain}`, scale: 1.2, math: true},
-            {
-                text: () => t("quadrature_board_values", {
-                    value0: String(model().n), value1: formatNumber(this.viewOf(model()).approximation, language(), PRECISE),
-                    value2: formatSignificant(this.viewOf(model()).error, language(), ERROR_DIGITS),
-                }),
-            },
-            {
-                text: () => t("quadrature_board_ratio", {value0: formatSignificant(this.viewOf(model()).ratio ?? NaN, language(), RATIO_DIGITS)}),
-                visible: () => this.viewOf(model()).ratio !== undefined,
-            },
-        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -302,6 +287,7 @@ export class QuadratureGraph extends BaseFunctionGraph<QuadratureModel> {
         ];
         return {
             ...this.commonDeclaration(),
+            formula: {label: message("quadrature_formula_label"), tex: `f(x)=${catalogFunction(this.model.fn).latex}`},
             parameters: [
                 {key: "quadrature-rule", kind: "choice", label: message("quadrature_rule_label"), help: message("quadrature_rule_help"), placement: "board", puck: true,
                     options: QUADRATURE_RULES.map(id => ({

@@ -180,7 +180,7 @@ export const leastSquaresLesson: GuidedLesson = {
     ],
     edgeCases: [
         text('Stopnja je celo število od \\(1\\) do \\(\\min(\\text{št. točk}-1,\\,5)\\); drugačna vrednost je zavrnjena z izpisanim sporočilom in se ne zaokroži.', 'The degree is a whole number from \\(1\\) to \\(\\min(\\text{points}-1,\\,5)\\); another value is refused with a message and not rounded.'),
-        text('Če imajo vse točke isti \\(x\\), krivulje ni in graf izpiše razlog; manj kot dve točki ni mogoče imeti.', 'If all points have the same \\(x\\) there is no curve and the graph states the reason; fewer than two points cannot be set.'),
+        text('Če imajo vse točke isti \\(x\\), krivulje ni in Odčitki izpišejo razlog; manj kot dve točki ni mogoče imeti.', 'If all points have the same \\(x\\) there is no curve and the Readouts card states the reason; fewer than two points cannot be set.'),
         text('Normalni sistem je prikazan za stopnji \\(1\\) in \\(2\\); pri ročni premici prikazuje sistem najboljše premice.', 'The normal equations are shown for degrees \\(1\\) and \\(2\\); with the manual line they show the system of the best line.'),
     ],
     unresolvedQuestions: [],

@@ -40,11 +40,7 @@
         "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = sin x",
-        "n = 2, približek 1,5708, napaka 0,4292",
-        "napaka(n/2) / napaka(n) = 4,66"
-      ]
+      "captions": []
     },
     {
       "name": "quadrature-guided/trapezoid-halve",
@@ -84,11 +80,7 @@
         "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = sin x",
-        "n = 4, približek 1,8961, napaka 0,1039",
-        "napaka(n/2) / napaka(n) = 4,13"
-      ]
+      "captions": []
     },
     {
       "name": "quadrature-guided/simpson-parabolas",
@@ -128,11 +120,7 @@
         "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = sin x",
-        "n = 4, približek 2,0046, napaka 0,00456",
-        "napaka(n/2) / napaka(n) = 20,7"
-      ]
+      "captions": []
     },
     {
       "name": "quadrature-guided/simpson-halve",
@@ -172,11 +160,7 @@
         "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = sin x",
-        "n = 8, približek 2,0003, napaka 0,0002692",
-        "napaka(n/2) / napaka(n) = 16,9"
-      ]
+      "captions": []
     },
     {
       "name": "quadrature-guided/simpson-exact",
@@ -216,10 +200,7 @@
         "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x²",
-        "n = 2, približek 9, napaka 0"
-      ]
+      "captions": []
     },
     {
       "name": "quadrature-guided/simpson-even",
@@ -259,10 +240,7 @@
         "Razmerje napak je opazovano na gladkih primerih: pri trapeznem pravilu je napaka reda h², pri Simpsonovem pa reda h⁴ (izrek ob ustrezni gladkosti), zato se razmerje približuje 4 oziroma 16, a ga pri majhnem n še ne doseže; prvo razmerje pri Simpsonovem pravilu ni 16."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = sin x",
-        "n = 2, približek 2,0944, napaka 0,0944"
-      ]
+      "captions": []
     }
   ]
 }

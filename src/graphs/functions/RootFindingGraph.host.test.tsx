@@ -7,6 +7,9 @@ import {AnimationScheduler} from '../../learning/runtime/animation';
 import {setLanguage} from '../../localization';
 import {chooseOnPuck, installBoardShims, openTools, puckControl, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 
+// The cards hold formulas; jsdom never loads MathJax, so the layout would wait for it forever and the pucks stay hidden.
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
+
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
     const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
@@ -92,6 +95,7 @@ test('a real board shows the iteration: Next step, Play and Pause, Reset, the me
     typePuck('root-x0', '0.5');
     expect(graph.modelNow()).toEqual({method: 'newton', example: 'square-minus-two', x0: 0.5, x1: 2, step: 0});
     expect(statusId()).toBe('ready');
+    await openTools(); // the taller Odčitki card (the Funkcija row) folds Orodja while the puck is edited
     act(() => { fireEvent.click(nextButton()); });
     act(() => { fireEvent.click(screen.getByRole('button', {name: 'Ponastavi iteracijo'})); });
     expect(graph.modelNow().step).toBe(0);

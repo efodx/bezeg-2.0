@@ -1,5 +1,5 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import {FourierSpectrumBars} from "./FourierSpectrumBars";
 import {FourierDecaySpectra} from "./FourierDecaySpectra";
 import {guard, guardField} from "../base/controls/guard";
@@ -23,7 +23,6 @@ import {
 } from "../../analysis/fourierCoefficientsModel";
 import {fourierCoefficientsIssueMessage} from "./fourierCoefficientsMessages";
 import {functionPresetCollections} from "./functionPresetCollections";
-import {GraphPalette} from "../styles/GraphPalette";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 
 /** The most handle values of any layout (the free layout), and the most linear pieces of f. */
@@ -40,7 +39,7 @@ const FOURIER_COLORS = {
 /** The ids of the declaration: the four numbers and choices flipped while watching (arbiter keys), the rows of both views, the legends. */
 export type FourierCoefficientsIds = {
     param: "fourier-order" | "fourier-harmonic" | "fourier-term" | "fourier-n";
-    row: "order" | "selected" | "square-integral" | "parseval" | "seam" | "n" | "sup-1" | "sup-2" | "sup-3";
+    row: "order" | "selected" | "a0" | "square-integral" | "parseval" | "seam" | "n" | "sup-1" | "sup-2" | "sup-3";
     note: "about" | "sup-help" | "decay-theorem" | "uniform";
     legend: "f" | "harmonic" | "positive" | "negative" | "sum" | "midpoint" | "f-0" | "f-1" | "f-2" | "sum-0" | "sum-1" | "sum-2";
     section: never; action: never;
@@ -374,15 +373,6 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
         // Without a seam jump the seam value is shared, so the same handle is also offered at +pi.
         this.seamMirror = handleAt(() => (slots()[0].side === "value" ? 0 : undefined));
         this.seamMirror.moveTo([Math.PI, this.model.values[0]]);
-
-        this.caption("top-left", [
-            {text: () => t("fourier_coef_board_title", {value0: this.harmonicName(model())}), scale: 1.1, visible: projection},
-            {text: () => t("fourier_coef_board_coefficient", {value0: this.coefficientName(model()), value1: this.number(view().selectedValue, 5)}), color: GraphPalette.label, visible: projection},
-            {text: () => t("fourier_coef_board_sums", {value0: this.number(view().squareIntegral, 5), value1: this.number(view().parseval, 5)}), visible: projection},
-            {text: () => t("fourier_coef_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH, visible: projection},
-            {text: () => t("fourier_decay_board_title", {value0: model().n}), scale: 1.1, visible: decay},
-            {text: () => t("fourier_decay_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH, visible: decay},
-        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -563,7 +553,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
             };
         }
         const view = this.viewOf(model);
-        /** For a_0 the readout gives the constant term a_0/2, as the spectrum does; the board caption keeps a_0 = area / pi. */
+        /** For a_0 the readout gives the constant term a_0/2, as the spectrum does. */
         const constant = model.selected.term === "a" && model.selected.k === 0;
         const shape = view.shape;
         return {
@@ -572,6 +562,7 @@ export class FourierCoefficientsGraph extends BaseFunctionGraph<FourierCoefficie
                 constant
                     ? {id: "selected", name: message("fourier_coef_readout_constant"), value: messageNumber(view.selectedValue / 2, 5)}
                     : {id: "selected", name: message("fourier_coef_readout_selected", {value0: this.coefficientName(model)}), value: messageNumber(view.selectedValue, 5)},
+                ...(constant ? [{id: "a0" as const, name: message("fourier_coef_readout_a0"), value: messageNumber(view.selectedValue, 5)}] : []),
                 {id: "square-integral", name: message("fourier_coef_readout_square_integral"), value: messageNumber(view.squareIntegral, 5)},
                 {id: "parseval", name: message("fourier_coef_readout_parseval"), value: messageNumber(view.parseval, 5)},
                 {id: "seam", name: message("fourier_coef_readout_seam"), value: messageNumber(view.seamMidpoint, 5)},

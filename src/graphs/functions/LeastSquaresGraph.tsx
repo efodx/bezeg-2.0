@@ -1,5 +1,5 @@
 import React, {useRef} from "react";
-import BaseFunctionGraph, {BoundingBox, cleanNumber, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionPanel} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FillCurve, FunctionPanel} from "./BaseFunctionGraph";
 import {FunctionStatus} from "./FunctionStatus";
 import {CountSetter} from "../../inputs/CountSetter";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
@@ -232,33 +232,6 @@ export class LeastSquaresGraph extends BaseFunctionGraph<LeastSquaresModel> {
             this.pointObjects.push(point);
         }
         this.drawn.set("points", this.pointObjects[0]);
-
-        const equation = () => {
-            const drawn = view().drawn;
-            if (!drawn) return "";
-            return model().manualLine
-                ? formatLineEquation({slope: drawn[1], intercept: drawn[0]}, currentLanguage(), 3)
-                : polynomialText(drawn, currentLanguage());
-        };
-        this.caption("top-left", [
-            {
-                text: () => model().manualLine ? t("interp_lsq_board_manual_title") : t("interp_lsq_board_title", {value0: model().degree}), scale: 1.2,
-            },
-            {text: () => equation()},
-            {text: () => {
-                const v = view();
-                return v.sumOfSquares === undefined ? "" : t("interp_lsq_board_sum", {value0: leastSquaresNumber(v.sumOfSquares)});
-            }, color: GraphPalette.warningText},
-            {text: () => {
-                const v = view();
-                return model().manualLine && v.optimalSumOfSquares !== undefined ? t("interp_lsq_board_optimal", {value0: leastSquaresNumber(v.optimalSumOfSquares)}) : "";
-            }},
-            {text: () => {
-                const fit = view().fit;
-                return !model().manualLine && !fit.ok ? t("interp_lsq_board_reason", {value0: leastSquaresReason(fit.reason)}) : "";
-            }, color: GraphPalette.warningText},
-            {text: () => t("interp_lsq_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH},
-        ]);
     }
 
     protected override onSceneRemoved(): void {

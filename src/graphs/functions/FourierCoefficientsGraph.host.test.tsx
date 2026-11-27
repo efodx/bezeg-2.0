@@ -106,8 +106,11 @@ test('the spectrum plots the constant term a0/2 for k = 0: the table, the bar an
     act(() => graph.lesson({kind: 'function-parameter', name: 'fourier-harmonic', value: 0}));
     expect(label('selected')).toBe('Konstantni člen a₀/2');
     expect(readout('selected')).toBe(sl(constant, 4));
+    expect(label('a0')).toBe('Koeficient a₀');
+    expect(readout('a0')).toBe(sl(coefficients.a[0], 5));
     act(() => { setLanguage('en'); });
     expect(label('selected')).toBe('Constant term a₀/2');
+    expect(label('a0')).toBe('Coefficient a₀');
     expect(document.querySelector('[data-testid="fourier-spectrum-table"] tr[data-k="0"] th')?.textContent).toBe('0 (a₀/2)');
 });
 
@@ -255,7 +258,8 @@ test('the decay view shows three spectra with tables from the kernel, hides the 
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
     // the board: f and S_N of the three examples are drawn, the projection's S_K is hidden
     expect(graph.sumCurve().visPropCalc?.visible).toBe(false);
-    expect(graph.captionPlainLines().join(' ')).toContain('N = 11');
+    expect(readout('n')).toBe('11'); // the board keeps no caption: N is a readout row and a puck
+    expect(graph.captionPlainLines()).toEqual([]);
     expect(errors.mock.calls.filter(call => !String(call[0]).includes('ReactDOMTestUtils.act'))).toEqual([]);
     errors.mockRestore();
 });

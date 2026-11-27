@@ -178,6 +178,7 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
             min: BISECTION_BOUND_MIN, max: BISECTION_BOUND_MAX, step: 0.1, maxDecimals: 3, morph: false,
         });
         return {
+            formula: {label: message("bisection_formula_label"), tex: `f(x)=${bisectionExample(this.model.example).latex}`},
             parameters: [
                 {key: "bisection-example", kind: "choice", label: message("bisection_example_label"), help: message("bisection_example_help"), placement: "board",
                     options: BISECTION_EXAMPLE_IDS.map(id => ({value: id, label: message(EXAMPLE_LABEL_KEYS[id])}))},
@@ -259,23 +260,10 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
         return this.own(curve);
     }
 
-    /** The short status line of the board, or undefined when there is nothing to warn about or confirm. */
-    private boardStatus(model: BisectionModel, language: NumberLanguage): { text: string; ok: boolean } | undefined {
-        const {history} = this.viewOf(model);
-        if (history.exactRoot !== undefined) return {text: t("bisection_board_exact_root", {value0: formatPrecise(history.exactRoot, language)}), ok: true};
-        if (history.bracket === "same-sign") return {text: t("bisection_board_invalid"), ok: false};
-        if (!history.continuous) return {text: t("bisection_board_hypothesis"), ok: false};
-        if (history.termination === "stagnation") return {text: t("bisection_board_stagnation"), ok: false};
-        if (history.termination === "iteration-limit") return {text: t("bisection_board_limit"), ok: false};
-        return undefined;
-    }
-
     protected createScene(): void {
         const board = this.board;
-        const model = () => this.model;
         const view = () => this.viewOf(this.model);
         const example = () => bisectionExample(this.model.example);
-        const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
         const thick = () => Math.max(3, this.displaySettings.strokeWidth * 2);
         const valid = () => view().history.bracket === "opposite-signs";
@@ -335,17 +323,6 @@ export class BisectionGraph extends IterativeFunctionGraph<BisectionModel> {
         valuePoint(() => view().a, () => view().fa, () => true, GraphPalette.comparisonCurve);
         valuePoint(() => view().b, () => view().fb, () => true, GraphPalette.comparisonCurve);
         valuePoint(() => view().last?.mid ?? 0, () => view().last?.fMid ?? 0, revealed, GraphPalette.constructionAccent);
-
-        // The formula, the progress and the status, in text as well as colour, in the corner no default curve reaches.
-        this.caption("bottom-right", [
-            {text: () => exampleTitle(model().example), scale: 1.2, math: true},
-            {text: () => t("bisection_board_progress", {value0: model().step, value1: formatPrecise(view().history.currentWidth, language())})},
-            {
-                text: () => this.boardStatus(model(), language())?.text ?? "",
-                visible: () => this.boardStatus(model(), language()) !== undefined,
-                color: () => this.boardStatus(model(), language())?.ok ? GraphPalette.primaryCurve : GraphPalette.warningText,
-            },
-        ]);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

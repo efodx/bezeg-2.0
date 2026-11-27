@@ -79,7 +79,7 @@ test('defaults: four points, degree 1, fit mode; the readouts give the line y = 
     // the drawn curve is the fitted line
     const curve = graph.visibleFunctionGraphs()[0];
     expect(curve.Y(2)).toBeCloseTo(2.7, 12);
-    expect(graph.captionPlainLines().join('\n')).toMatch(/Vsota kvadratov ostankov: 0,7/);
+    expect(graph.captionPlainLines()).toEqual([]); // the board keeps no caption: the sum is the readout row asserted above
 });
 
 test('degree 2 and 3 reproduce the spec equations and sums; English uses the decimal point', async () => {
@@ -164,7 +164,7 @@ test('vertical data show a localized reason instead of a curve; the board and th
     expect(readout('equation')).toBe('ni določeno');
     expect(readout('sum')).toBe('ni določeno');
     expect(document.querySelector('[data-lsq="reason"]')?.textContent).toMatch(/Ni krivulje: vse točke imajo isti x/);
-    expect(graph.captionPlainLines().join('\n')).toMatch(/Ni krivulje: vse točke imajo isti x/);
+    expect(graph.captionPlainLines()).toEqual([]); // the reason is the status line asserted above
     expect(graph.squares().filter(square => square.visPropCalc?.visible)).toHaveLength(0);
     act(() => { setLanguage('en'); });
     expect(document.querySelector('[data-lsq="reason"]')?.textContent).toMatch(/No curve: all points have the same x/);
@@ -222,7 +222,8 @@ test('manual line mode draws the manual line, shows its sum beside the optimum a
     setLine('lsq-slope', 2);
     expect(readout('sum')).toBe('17,64');
     expect(graph.visibleFunctionGraphs()[0].Y(1)).toBeCloseTo(2.9, 12);
-    expect(graph.captionPlainLines().join('\n')).toMatch(/Najmanjša možna vsota \(najboljša premica\): 0,7/);
+    expect(readout('optimal-sum')).toBe('0,7'); // the optimum stays when the manual line moves away from it
+    expect(graph.captionPlainLines()).toEqual([]);
     act(() => { fireEvent.click(manualSwitch()); });
     expect(readout('equation')).toBe('y = 0,9x + 0,9');
 });
@@ -333,19 +334,19 @@ test('the same rejection is worded in English', () => {
     expect(() => preflightPresetImport(filePreset({...validData, degree: 4}))).toThrow(/degree field must be a whole number between 1 and 3/);
 });
 
-test('a live language switch updates the board text, the labels and the readouts and keeps the state', () => {
+test('a live language switch updates the labels and the readouts and keeps the state', () => {
     const {graph} = mount();
     graph.drag(3, 3, 8);
     const update = vi.spyOn(graph as unknown as { boardUpdate: () => void }, 'boardUpdate');
     act(() => { setLanguage('en'); });
     expect(update).toHaveBeenCalled();
-    expect(graph.captionPlainLines().join('\n')).toMatch(/Sum of squared residuals: 8\.7/);
-    expect(graph.captionPlainLines().join('\n')).toMatch(/y = 2\.1x \+ 0\.1/);
+    expect(readout('equation')).toBe('y = 2.1x + 0.1');
+    expect(graph.captionPlainLines()).toEqual([]);
     expect(readout('sum')).toBe('8.7');
     expect(graph.modelNow().points[3]).toEqual([3, 8]);
     expect(list(4, 'y').value).toBe('8');
     act(() => { setLanguage('sl'); });
-    expect(graph.captionPlainLines().join('\n')).toMatch(/Vsota kvadratov ostankov: 8,7/);
+    expect(readout('sum')).toBe('8,7');
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 });
 

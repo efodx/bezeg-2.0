@@ -8,6 +8,9 @@ import {setLanguage} from '../../localization';
 import {installBoardShims, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import {expectUnavailableKeepsFocus} from '../base/unavailableFocusBehaviour';
 
+// The cards hold formulas; jsdom never loads MathJax, so the layout would wait for it forever and the pucks stay hidden.
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
+
 // jsdom has no canvas, matchMedia or layout; the shared shims give boards, cards and pucks a desktop size.
 beforeAll(() => installBoardShims());
 

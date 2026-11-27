@@ -46,7 +46,7 @@ describe('Fourier coefficients declares its panel, pucks and legend', () => {
             for (const entry of declaration.parameters ?? []) expect(graph.parameters!.keys()).toContain(entry.key);
             expect(declaration.parameters?.map(entry => entry.key)).toEqual(decay ? ['fourier-n'] : ['fourier-order', 'fourier-harmonic', 'fourier-term']);
             const rows = (declaration.readouts ?? []).flatMap(group => [...group.rows]);
-            expect(rows.map(row => row.id)).toEqual(decay ? DECAY_ROWS : PROJECTION_ROWS);
+            expect(rows.map(row => row.id)).toEqual(decay ? DECAY_ROWS : name === 'constant term a0' ? ['order', 'selected', 'a0', ...PROJECTION_ROWS.slice(2)] : PROJECTION_ROWS);
             for (const row of rows) {
                 const shown = view.container.querySelector(`[data-readout="${row.id}"] dd`)?.textContent;
                 const value = row.value;

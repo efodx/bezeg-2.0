@@ -45,9 +45,7 @@
         "Pri h = 0 je kvocient 0/0 in ni definiran, zato je |h| ≥ 0,01."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x²"
-      ]
+      "captions": []
     },
     {
       "name": "derivative-guided/derivative-quotient-step",
@@ -92,9 +90,7 @@
         "Pri h = 0 je kvocient 0/0 in ni definiran, zato je |h| ≥ 0,01."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x²"
-      ]
+      "captions": []
     },
     {
       "name": "derivative-guided/derivative-shrinking-step",
@@ -139,9 +135,7 @@
         "Pri h = 0 je kvocient 0/0 in ni definiran, zato je |h| ≥ 0,01."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x²"
-      ]
+      "captions": []
     },
     {
       "name": "derivative-guided/derivative-tangent-step",
@@ -186,9 +180,7 @@
         "Pri h = 0 je kvocient 0/0 in ni definiran, zato je |h| ≥ 0,01."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x²"
-      ]
+      "captions": []
     },
     {
       "name": "derivative-guided/derivative-sin-step",
@@ -233,9 +225,7 @@
         "Pri h = 0 je kvocient 0/0 in ni definiran, zato je |h| ≥ 0,01."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = sin x"
-      ]
+      "captions": []
     }
   ]
 }

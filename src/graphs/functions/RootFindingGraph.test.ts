@@ -2,7 +2,7 @@ import {RootFindingGraph, ROOT_FINDING_STEP_INTERVAL_MS, ROOT_FINDING_TABLE_ROWS
 import {AnimationScheduler} from '../../learning/runtime/animation';
 import {ROOT_FINDING_EXAMPLES, ROOT_FINDING_MAX_STEPS, rootFindingExample} from '../../analysis/rootFinding';
 import {secantLine, tangentLine} from '../../analysis/derivative';
-import {setLanguage} from '../../localization';
+import {renderMessage, setLanguage} from '../../localization';
 import {DomainError} from './BaseFunctionGraph';
 import {RootFindingModel} from '../../analysis/rootFindingModel';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
@@ -84,7 +84,9 @@ function makeGraph(model?: Partial<RootFindingModel>) {
 const next = (graph: any, count = 1) => { for (let i = 0; i < count; i++) graph.nextStep(); };
 const view = (graph: any) => graph.viewOf(graph.model);
 const statusId = (graph: any) => graph.status(graph.model, 'sl').id;
-const progressText = (graph: any) => graph.captionPlainLines()[1];
+/** The step and the error, from the readout rows (the board keeps no caption). */
+const progressText = (graph: any) => `korak ${rows(graph).step}, napaka ${rows(graph).error}`;
+const statusText = (graph: any) => renderMessage(graph.status(graph.model, 'sl').text);
 
 function collect(node: any, found: Record<string, any[]> = {}) {
     if (!node || typeof node !== 'object') return found;
@@ -248,27 +250,28 @@ test('secant x^3 - x from 0 and 2: one step ends as root-found at the current it
     expect(view(graph).history.iterates).toEqual([0, 2, 0]);
     expect(statusId(graph)).toBe('root-found');
     expect(graph.canAdvance()).toBe(false);
-    expect(graph.boardStatus(graph.model, 'sl')?.text).toMatch(/^ustalitev pri 0$/);
+    expect(statusText(graph)).toMatch(/^Iteracija se je ustalila pri 0:/);
     const reversed = makeGraph({method: 'secant', example: 'cubic-three-roots', x0: 2, x1: 0});
     expect(view(reversed).history.iterates).toEqual([2, 0]);
     expect(statusId(reversed)).toBe('root-found');
     expect(reversed.canAdvance()).toBe(false);
 });
 
-test('every termination is stated in words and on the board', () => {
+test('every termination is stated in words in the status line and the board keeps no caption', () => {
     const cases: Array<[Partial<RootFindingModel>, number, string, RegExp]> = [
-        [{}, 20, 'root-found', /^ustalitev pri 1,41421/],
-        [{x0: 0}, 0, 'flat-tangent', /vodoravna tangenta/], // f'(0) = 0 for x^2 - 2
-        [{example: 'cubic-two-cycle', x0: 0}, 5, 'repeated-iterate', /ponavljajo/],
-        [{method: 'secant', x0: -1, x1: 1}, 0, 'flat-secant', /vodoravna sekanta/], // f(-1) = f(1) = -1
-        [{example: 'cubic-three-roots', x0: 0}, 0, 'root-found', /^ustalitev pri 0$/], // f(0) = 0 exactly
+        [{}, 20, 'root-found', /^Iteracija se je ustalila pri 1,41421/],
+        [{x0: 0}, 0, 'flat-tangent', /Tangenta je vodoravna/], // f'(0) = 0 for x^2 - 2
+        [{example: 'cubic-two-cycle', x0: 0}, 5, 'repeated-iterate', /Približki se ponavljajo/],
+        [{method: 'secant', x0: -1, x1: 1}, 0, 'flat-secant', /Sekanta je vodoravna/], // f(-1) = f(1) = -1
+        [{example: 'cubic-three-roots', x0: 0}, 0, 'root-found', /^Iteracija se je ustalila pri 0:/], // f(0) = 0 exactly
     ];
     for (const [model, steps, id, board] of cases) {
         const graph = makeGraph(model);
         for (let i = 0; i < steps && graph.canAdvance(); i++) next(graph);
         expect(statusId(graph), JSON.stringify(model)).toBe(id);
         expect(graph.canAdvance()).toBe(false);
-        expect(graph.boardStatus(graph.model, 'sl')?.text).toMatch(board);
+        expect(statusText(graph)).toMatch(board);
+        expect(graph.captionPlainLines()).toEqual([]);
         expect(() => graph.nextStep()).toThrow(DomainError);
         expect(controls(graph).next.props['aria-disabled']).toBe(true);
     }

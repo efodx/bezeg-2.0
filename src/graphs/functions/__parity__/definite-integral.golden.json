@@ -45,9 +45,7 @@
         "Deli pod osjo x štejejo negativno. Pri a = b je širina 0 in sta vsota ter integral enaka 0."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x²"
-      ]
+      "captions": []
     },
     {
       "name": "definite-integral-guided/integral-left-right-step",
@@ -92,9 +90,7 @@
         "Deli pod osjo x štejejo negativno. Pri a = b je širina 0 in sta vsota ter integral enaka 0."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x²"
-      ]
+      "captions": []
     },
     {
       "name": "definite-integral-guided/integral-midpoint-trapezoid-step",
@@ -139,9 +135,7 @@
         "Deli pod osjo x štejejo negativno. Pri a = b je širina 0 in sta vsota ter integral enaka 0."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x²"
-      ]
+      "captions": []
     },
     {
       "name": "definite-integral-guided/integral-more-rectangles-step",
@@ -186,9 +180,7 @@
         "Deli pod osjo x štejejo negativno. Pri a = b je širina 0 in sta vsota ter integral enaka 0."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = x²"
-      ]
+      "captions": []
     },
     {
       "name": "definite-integral-guided/integral-signed-step",
@@ -233,9 +225,7 @@
         "Deli pod osjo x štejejo negativno. Pri a = b je širina 0 in sta vsota ter integral enaka 0."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = sin x"
-      ]
+      "captions": []
     }
   ]
 }

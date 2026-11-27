@@ -80,13 +80,7 @@
         "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
       ],
       "outputs": [],
-      "captions": [
-        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
-        "N = 11, x = 0,5, ε = 0,1",
-        "Sₙ(x) = 0,90241, f(x) = 1, napaka 0,097589",
-        "Vrh: x = 0,2618, Sₙ = 1,1813, preseg 9,07 %",
-        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-series-guided/fourier-wave",
@@ -166,13 +160,7 @@
         "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
       ],
       "outputs": [],
-      "captions": [
-        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
-        "N = 1, x = 1,57, ε = 0,1",
-        "Sₙ(x) = 1,27324, f(x) = 1, napaka 0,27324",
-        "Vrh: x = 1,5708, Sₙ = 1,27324, preseg 13,66 %",
-        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-series-guided/fourier-third",
@@ -252,13 +240,7 @@
         "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
       ],
       "outputs": [],
-      "captions": [
-        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
-        "N = 3, x = 1,57, ε = 0,1",
-        "Sₙ(x) = 0,84883, f(x) = 1, napaka 0,15117",
-        "Vrh: x = 0,7854, Sₙ = 1,20042, preseg 10,02 %",
-        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-series-guided/fourier-more",
@@ -338,13 +320,7 @@
         "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
       ],
       "outputs": [],
-      "captions": [
-        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
-        "N = 11, x = 1,57, ε = 0,1",
-        "Sₙ(x) = 0,94731, f(x) = 1, napaka 0,052693",
-        "Vrh: x = 0,2618, Sₙ = 1,1813, preseg 9,07 %",
-        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-series-guided/fourier-error",
@@ -424,13 +400,7 @@
         "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
       ],
       "outputs": [],
-      "captions": [
-        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
-        "N = 101, x = 0,5, ε = 0,1",
-        "Sₙ(x) = 0,99019, f(x) = 1, napaka 0,0098108",
-        "Vrh: x = 0,0308, Sₙ = 1,17901, preseg 8,95 %",
-        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-series-guided/fourier-jump",
@@ -510,13 +480,7 @@
         "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
       ],
       "outputs": [],
-      "captions": [
-        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
-        "N = 11, x = 0, ε = 0,1",
-        "Sₙ(x) = 0, f(x) = 0, napaka 0",
-        "Vrh: x = 0,2618, Sₙ = 1,1813, preseg 9,07 %",
-        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-series-guided/fourier-sawtooth",
@@ -596,13 +560,7 @@
         "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
       ],
       "outputs": [],
-      "captions": [
-        "Fourierova vrsta: f(x) = x, x ∈ (-π, π)",
-        "N = 11, x = 1, ε = 0,1",
-        "Sₙ(x) = 0,91464, f(x) = 1, napaka 0,085365",
-        "Vrh: x = 2,87979, Sₙ = 3,43844, preseg 4,72 %",
-        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-series-guided/fourier-gibbs-peak",
@@ -682,13 +640,7 @@
         "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
       ],
       "outputs": [],
-      "captions": [
-        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
-        "N = 11, x = 0,26, ε = 0,1",
-        "Sₙ(x) = 1,18125, f(x) = 1, napaka 0,18125",
-        "Vrh: x = 0,2618, Sₙ = 1,1813, preseg 9,07 %",
-        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-series-guided/fourier-gibbs-narrow",
@@ -768,13 +720,7 @@
         "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
       ],
       "outputs": [],
-      "captions": [
-        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
-        "N = 101, x = 0,03, ε = 0,1",
-        "Sₙ(x) = 1,17833, f(x) = 1, napaka 0,17833",
-        "Vrh: x = 0,0308, Sₙ = 1,17901, preseg 8,95 %",
-        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-series-guided/fourier-gibbs-band",
@@ -854,13 +800,7 @@
         "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
       ],
       "outputs": [],
-      "captions": [
-        "Fourierova vrsta: f(x) = sgn x, x ∈ (-π, π)",
-        "N = 1001, x = 0,5, ε = 0,1",
-        "Sₙ(x) = 1,00011, f(x) = 1, napaka 0,00011364",
-        "Vrh: x = 0,00314, Sₙ = 1,17898, preseg 8,95 %",
-        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-series-guided/fourier-gibbs-sawtooth",
@@ -940,13 +880,7 @@
         "Vrh je izračunan po obrazcu x = π/(N + 1) in ni prebran s slike. Preseg ob skoku je Gibbsov pojav (tudi Gibbsov fenomen), ne napaka risanja ali računanja. Znak — pomeni, da vrh ne preseže zgornje limite."
       ],
       "outputs": [],
-      "captions": [
-        "Fourierova vrsta: f(x) = x, x ∈ (-π, π)",
-        "N = 101, x = 1, ε = 0,1",
-        "Sₙ(x) = 1,00927, f(x) = 1, napaka 0,0092712",
-        "Vrh: x = 3,11079, Sₙ = 3,67302, preseg 8,46 %",
-        "polna črta: Sₙ; črtkana črta: f; križec: vrh; pikčast pravokotnik: okno"
-      ]
+      "captions": []
     }
   ]
 }

@@ -1,6 +1,6 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, COMPACT_BOARD_WIDTH, DomainError, FillCurve, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
@@ -36,10 +36,10 @@ const BOARD_VIEWS: Readonly<Record<FourierSeriesExampleId, BoundingBox>> = {
     sawtooth: [-7.2, 7.4, 7.2, -4.4],
 };
 
-/** The formulas as they are written on the board. */
-const EXAMPLE_FORMULA: Readonly<Record<FourierSeriesExampleId, string>> = {
-    square: "f(x) = sgn x, x ∈ (−π, π)",
-    sawtooth: "f(x) = x, x ∈ (−π, π)",
+/** The formulas as the Funkcija row sets them. */
+const EXAMPLE_FORMULA_TEX: Readonly<Record<FourierSeriesExampleId, string>> = {
+    square: String.raw`f(x)=\operatorname{sgn} x,\ x\in(-\pi,\pi)`,
+    sawtooth: String.raw`f(x)=x,\ x\in(-\pi,\pi)`,
 };
 
 /** The ids of the declaration: the number of harmonics (an arbiter key, flipped while the sum is watched), the rows, the legend. */
@@ -306,14 +306,6 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
             x: model().x, name: "$$x$$", placement: "below-right", color: GraphPalette.warningText, step: FOURIER_X_STEP, min: FOURIER_X_MIN, max: FOURIER_X_MAX,
             write: value => this.setX(value, {syncScene: false}),
         });
-
-        this.caption("top-left", [
-            {text: () => t("fourier_board_title", {value0: EXAMPLE_FORMULA[model().example]}), scale: 1.2, math: true},
-            {text: () => t("fourier_board_parameters", {value0: model().n, value1: this.number(model().x), value2: this.number(model().epsilon)})},
-            {text: () => t("fourier_board_values", {value0: this.precise(view().sum), value1: this.number(view().target), value2: this.small(view().error)}), color: GraphPalette.warningText},
-            {text: () => t("fourier_board_peak", {value0: this.precise(view().peak.x), value1: this.precise(view().peak.value), value2: this.overshootText(view())})},
-            {text: () => t("fourier_board_key"), minBoardWidth: COMPACT_BOARD_WIDTH},
-        ], () => board.getBoundingBox()[0] + 0.02 * (board.getBoundingBox()[2] - board.getBoundingBox()[0]));
     }
 
     protected override syncSceneToModel(): void {
@@ -393,6 +385,7 @@ export class FourierSeriesGraph extends BaseFunctionGraph<FourierSeriesModel> {
         ];
         return {
             ...this.commonDeclaration(),
+            formula: {label: message("fourier_series_formula_label"), tex: EXAMPLE_FORMULA_TEX[this.model.example]},
             parameters: [{
                 key: "fourier-n", kind: "count", label: message("fourier_series_n_name"), symbol: "N", help: message("fourier_series_n_help"), placement: "board",
                 min: FOURIER_N_MIN, max: FOURIER_N_MAX,

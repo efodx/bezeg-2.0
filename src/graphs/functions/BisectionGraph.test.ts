@@ -94,7 +94,9 @@ const next = (graph: any, count = 1) => { for (let i = 0; i < count; i++) apply(
 const ofType = (graph: any, type: string) => graph.board.objectsList.filter((object: any) => object.type === type);
 const resolve = (value: any) => typeof value === 'function' ? value() : value;
 const boardObjectCount = (graph: any) => graph.board.objectsList.length;
-const progressText = (graph: any) => graph.captionPlainLines()[1];
+/** The step and the width, from the readout rows (the board keeps no caption). */
+const progressText = (graph: any) => `korak ${rows(graph).step}, širina ${rows(graph).width}`;
+const statusText = (graph: any, language: 'sl' | 'en' = 'sl') => graph.statuses(graph.model, language).map((status: { text: string }) => status.text).join(' ');
 const statusIds = (graph: any, language: 'sl' | 'en' = 'sl') => graph.statuses(graph.model, language).map((status: { id: string }) => status.id);
 
 /** Collects the React elements of a rendered tree by component name or host tag. */
@@ -115,7 +117,7 @@ const rows = (graph: any) => Object.fromEntries((graph.renderReadout().props.chi
 
 beforeEach(() => setLanguage('sl'));
 
-test('initialization draws the function, the bracket, the points and one caption text for x^2 - 2 on [1, 2]', () => {
+test('initialization draws the function, the bracket, the points and no text for x^2 - 2 on [1, 2]', () => {
     const graph = makeGraph();
     expect(graph.model).toEqual({example: 'square-minus-two', a: 1, b: 2, step: 0});
     expect(graph.presets()).toBe('bisection');
@@ -123,10 +125,12 @@ test('initialization draws the function, the bracket, the points and one caption
     expect(ofType(graph, 'curve')).toHaveLength(2);
     expect(ofType(graph, 'segment')).toHaveLength(5);
     expect(ofType(graph, 'point')).toHaveLength(8);
-    expect(ofType(graph, 'text')).toHaveLength(1);
+    expect(ofType(graph, 'text')).toHaveLength(0);
     expect(graph.generatedObjectCount).toBe(boardObjectCount(graph));
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, false);
-    expect(graph.captionPlainLines()).toEqual(['f(x) = x² − 2', 'korak 0, širina 1']);
+    expect(graph.captionPlainLines()).toEqual([]);
+    expect(graph.getDeclaration()!.formula?.tex).toBe('f(x)=x^2-2');
+    expect(progressText(graph)).toBe('korak 0, širina 1');
     // the function curve is the continuous one; the jump pieces and markers are hidden
     expect(ofType(graph, 'functiongraph')[0].parents[0](3)).toBe(7);
     expect(resolve(ofType(graph, 'functiongraph')[0].attributes.visible)).toBe(true);
@@ -258,7 +262,7 @@ test('playback ends at stagnation for x^2 - 2 and the state never calls the midp
     expect(graph.model.step).toBeLessThan(BISECTION_MAX_STEPS);
     expect(history.exactRoot).toBeUndefined();
     expect(statusIds(graph)).toEqual(['bracket', 'stagnation']);
-    const text = graph.statuses(graph.model, 'sl').map((status: { text: string }) => status.text).join(' ') + graph.captionPlainLines().join(' ');
+    const text = graph.statuses(graph.model, 'sl').map((status: { text: string }) => status.text).join(' ');
     expect(text).not.toMatch(/Natančna ničla|natančna ničla pri/);
     expect(text).toMatch(/ne natančna ničla/);
     expect(controls(graph).next.props['aria-disabled']).toBe(true);
@@ -342,7 +346,7 @@ test('exact roots, invalid brackets, the step limit and the hypothesis are state
     apply(graph, parameter('bisect-b', 3));
     apply(graph, parameter('bisect-a', 2));
     expect(statusIds(graph)).toEqual(['invalid-bracket']);
-    expect(graph.captionPlainLines()[2]).toBe('isti predznak: ničla ni zagotovljena');
+    expect(statusText(graph)).toMatch(/isti predznak/);
     expect(controls(graph).next.props['aria-disabled']).toBe(true);
     expect(() => next(graph)).toThrow(DomainError);
 
@@ -358,7 +362,7 @@ test('exact roots, invalid brackets, the step limit and the hypothesis are state
     apply(graph, parameter('bisect-b', 1.5));
     next(graph);
     expect(statusIds(graph)).toEqual(['bracket', 'exact-midpoint-root']);
-    expect(graph.captionPlainLines()[2]).toBe('natančna ničla pri 1');
+    expect(statusText(graph)).toMatch(/Natančna ničla: razpolovišče m = 1 /);
     expect(rows(graph)).toMatchObject({mid: '1', 'f-mid': '0', retained: 'nobena, m je ničla', interval: '[1; 1]', width: '0'});
     expect(graph.playback['controller'].isComplete()).toBe(true);
     expect(controls(graph).next.props['aria-disabled']).toBe(true);
@@ -372,14 +376,14 @@ test('exact roots, invalid brackets, the step limit and the hypothesis are state
     expect(graph.playback['controller'].isComplete()).toBe(true);
     expect(() => next(graph)).toThrow(DomainError);
     expect(graph.model.step).toBe(BISECTION_MAX_STEPS);
-    expect(graph.captionPlainLines()[2]).toBe('omejitev korakov dosežena');
+    expect(statusText(graph)).toMatch(/omejitev 60 korakov/);
 
     // the sign step: opposite signs, but the hypothesis is not satisfied (in both languages)
     apply(graph, choice('sign-step'));
     expect(statusIds(graph)).toEqual(['hypothesis']);
-    expect(graph.captionPlainLines()[2]).toBe('predpostavka izreka ni izpolnjena');
+    expect(statusText(graph)).toMatch(/^Predpostavka izreka ni izpolnjena/);
     setLanguage('en');
-    expect(graph.captionPlainLines()[2]).toBe('theorem hypothesis not satisfied');
+    expect(statusText(graph, 'en')).toMatch(/^Theorem hypothesis not satisfied/);
     expect(statusIds(graph, 'en')).toEqual(['hypothesis']);
     expect(graph.statuses(graph.model, 'en')[0].text).toMatch(/^Theorem hypothesis not satisfied/);
     next(graph, 3);
@@ -626,7 +630,7 @@ test('unmount disposes the controller: no timer, no callback and no generated ob
 test('generated objects are disposed and not duplicated across repeated generation and default scenes', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(17);
+    expect(baseline).toBe(16);
     for (let i = 0; i < 4; i++) graph.initialize();
     expect(boardObjectCount(graph)).toBe(baseline);
     expect(graph.generatedObjectCount).toBe(baseline);
@@ -645,15 +649,17 @@ test('generated objects are disposed and not duplicated across repeated generati
     expect(boardObjectCount(graph)).toBe(baseline);
 });
 
-test('the caption follows the language and a language change notifies subscribers', () => {
+test('the step and width readouts follow the language and a language change notifies subscribers', () => {
     const graph = makeGraph();
     next(graph, 3);
-    expect(graph.captionPlainLines()).toEqual(['f(x) = x² − 2', 'korak 3, širina 0,125']);
+    expect(graph.captionPlainLines()).toEqual([]);
+    expect(progressText(graph)).toBe('korak 3, širina 0,125');
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(graph.captionPlainLines()).toEqual(['f(x) = x² − 2', 'step 3, width 0.125']);
+    expect(graph.captionPlainLines()).toEqual([]);
+    expect(rows(graph)).toMatchObject({step: '3', width: '0.125'});
     unsubscribe();
 });
 

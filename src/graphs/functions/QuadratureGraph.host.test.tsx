@@ -6,6 +6,9 @@ import {GraphHost} from '../base/GraphHost';
 import {setLanguage} from '../../localization';
 import {chooseOnPuck, installBoardShims, puckControl, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 
+// The cards hold formulas; jsdom never loads MathJax, so the layout would wait for it forever and the pucks stay hidden.
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
+
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
     const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
@@ -110,22 +113,24 @@ test('Simpson: odd n is refused, a switch from odd n is adjusted with a stated m
     expect(document.querySelector('[data-quadrature-status="adjusted"]')).toBeNull();
 });
 
-test('the function switch keeps the rule and n, and a live language switch updates board text, labels and readouts', () => {
+test('the function switch keeps the rule and n, and a live language switch updates labels and readouts', () => {
     const {graph} = mount();
     setRule(graph, 'simpson');
     act(() => { fireEvent.change(screen.getByLabelText('Funkcija'), {target: {value: 'square'}}); });
     expect(graph.modelNow()).toMatchObject({rule: 'simpson', fn: 'square', n: 2});
     expect(readout('exact')).toBe('10,3354');
     const texts = () => graph.liveBoard().objectsList.filter((object: any) => object.elType === 'text').map((text: any) => String(text.plaintext)).join('|');
-    expect(texts()).toContain('n = 2, približek');
+    const readoutName = () => document.querySelector('[data-readout="approximation"] dt')?.textContent;
+    expect(texts()).not.toContain('približek'); // the board keeps no caption: n, the approximation and the error are readout rows
+    expect(readout('n')).toBe('2');
+    expect(readoutName()).toBe('Približek');
     act(() => { setLanguage('en'); });
-    expect(texts()).toContain('n = 2, approximation');
-    expect(texts()).not.toContain('približek');
+    expect(readoutName()).toBe('Approximation');
     expect(screen.getByLabelText('Function')).toBeInTheDocument();
     expect(readout('approximation')).toMatch(/\./);
     expect(statusIds()).toEqual(['simpson', 'no-half']);
     act(() => { setLanguage('sl'); });
-    expect(texts()).toContain('približek');
+    expect(readoutName()).toBe('Približek');
 });
 
 test('Preset import and Reset restore the controls and the board objects; unmount releases everything', () => {

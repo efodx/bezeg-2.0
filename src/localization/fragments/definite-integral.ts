@@ -1,5 +1,6 @@
 // Declaration text of the definite-integral graph (ADR 0066): the bare names of its pucks, the short method labels and the legend entries.
 const sl = {
+    "integral_formula_label": "Funkcija",
     "integral_n_name": "Podintervali",
     "integral_a_name": "Prva meja",
     "integral_b_name": "Druga meja",
@@ -16,6 +17,7 @@ const sl = {
 export const definiteIntegral = {
     sl,
     en: {
+        "integral_formula_label": "Function",
         "integral_n_name": "Subintervals",
         "integral_a_name": "First bound",
         "integral_b_name": "Second bound",

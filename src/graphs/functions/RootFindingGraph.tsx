@@ -199,30 +199,14 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
 
     // ---- Board ---------------------------------------------------------------------------------------------------
 
-    /** The short status line of the board, or undefined while the iteration runs. */
-    private boardStatus(model: RootFindingModel, language: NumberLanguage): { text: string; ok: boolean } | undefined {
-        const {history, last} = this.viewOf(model);
-        switch (history.termination) {
-            case "root-found": return {text: t("root_finding_board_root_found", {value0: formatPrecise(last, language)}), ok: true};
-            case "flat-tangent": return {text: t("root_finding_board_flat_tangent"), ok: false};
-            case "flat-secant": return {text: t("root_finding_board_flat_secant"), ok: false};
-            case "repeated-iterate": return {text: t("root_finding_board_repeated"), ok: false};
-            case "non-finite": return {text: t("root_finding_board_non_finite"), ok: false};
-            case "step-cap": return {text: t("root_finding_board_cap"), ok: false};
-            case "running": return undefined;
-        }
-    }
-
     private errorOf(model: RootFindingModel, x: number): number {
         return Math.abs(x - rootFindingExample(model.example).referenceRoot);
     }
 
     protected createScene(): void {
         const board = this.board;
-        const model = () => this.model;
         const view = () => this.viewOf(this.model);
         const example = () => rootFindingExample(this.model.example);
-        const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
         const thick = () => Math.max(3, this.displaySettings.strokeWidth * 2);
         const hasLine = () => view().line !== undefined;
@@ -263,16 +247,6 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
         };
         start("x0", "$$x_0$$", "below-left", () => true);
         start("x1", "$$x_1$$", "below-right", secant);
-
-        this.caption("bottom-right", [
-            {text: () => exampleTitle(model().example), scale: 1.2, math: true},
-            {text: () => t("root_finding_board_progress", {value0: model().step, value1: formatPrecise(this.errorOf(model(), view().last), language())})},
-            {
-                text: () => this.boardStatus(model(), language())?.text ?? "",
-                visible: () => this.boardStatus(model(), language()) !== undefined,
-                color: () => this.boardStatus(model(), language())?.ok ? GraphPalette.primaryCurve : GraphPalette.warningText,
-            },
-        ]);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -362,6 +336,7 @@ export class RootFindingGraph extends IterativeFunctionGraph<RootFindingModel> {
         ];
         return {
             ...this.commonDeclaration(),
+            formula: {label: message("root_finding_formula_label"), tex: `f(x)=${rootFindingExample(this.model.example).latex}`},
             parameters: [
                 {key: "root-finding-method", kind: "choice", label: message("root_finding_method_label"), help: message("root_finding_method_help"), placement: "board", puck: true,
                     options: ROOT_FINDING_METHODS.map(id => ({

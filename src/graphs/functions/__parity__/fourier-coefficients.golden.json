@@ -35,12 +35,7 @@
         "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
       ],
       "outputs": [],
-      "captions": [
-        "Integral kvadrata 6,57974; Parsevalova vsota 6,57967",
-        "Produkt f · cos x",
-        "a₁ = -1,27324",
-        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-coefficients-guided/coef-overlap",
@@ -75,12 +70,7 @@
         "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
       ],
       "outputs": [],
-      "captions": [
-        "Integral kvadrata 2; Parsevalova vsota 1,95204",
-        "Produkt f · sin x",
-        "b₁ = 0,98059",
-        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-coefficients-guided/coef-area",
@@ -115,12 +105,7 @@
         "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
       ],
       "outputs": [],
-      "captions": [
-        "Integral kvadrata 2; Parsevalova vsota 1,95204",
-        "Produkt f · sin 2x",
-        "b₂ = -0,45077",
-        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-coefficients-guided/coef-drag",
@@ -155,12 +140,7 @@
         "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
       ],
       "outputs": [],
-      "captions": [
-        "Integral kvadrata 9,3408; Parsevalova vsota 9,34077",
-        "Produkt f · cos x",
-        "a₁ = -0,86795",
-        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-coefficients-guided/coef-jump",
@@ -195,12 +175,7 @@
         "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
       ],
       "outputs": [],
-      "captions": [
-        "Integral kvadrata 2; Parsevalova vsota 1,95204",
-        "Produkt f · sin 5x",
-        "b₅ = 0,16344",
-        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-coefficients-guided/coef-explore",
@@ -235,12 +210,7 @@
         "Koeficient je ploščina produkta f · harmonik, deljena s π. Parsevalova identiteta trdi, da se Parsevalova vsota z naraščanjem K približuje integralu kvadrata (1/π)∫f²; tu je navedena kot izrek, ne dokazana."
       ],
       "outputs": [],
-      "captions": [
-        "Integral kvadrata 2,66667; Parsevalova vsota 2,66664",
-        "Produkt f · cos x",
-        "a₁ = 0,81057",
-        "polna črta: f; pikčasta: harmonik; črtkana: S_K; osenčeno: produkt"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-coefficients-guided/decay-three",
@@ -272,10 +242,7 @@
         "Če je Σ|cₖ| < ∞, vrsta konvergira enakomerno (Weierstrassov M-test). Obrata ne trdimo in v splošnem ne velja: razhajajoča vsota Σ|cₖ| ne pomeni, da enakomerne konvergence ni."
       ],
       "outputs": [],
-      "captions": [
-        "Funkcije in delne vsote Sₙ za N = 11",
-        "polna črta: f; črtkana: Sₙ; barva ustreza spektru"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-coefficients-guided/decay-square",
@@ -307,10 +274,7 @@
         "Če je Σ|cₖ| < ∞, vrsta konvergira enakomerno (Weierstrassov M-test). Obrata ne trdimo in v splošnem ne velja: razhajajoča vsota Σ|cₖ| ne pomeni, da enakomerne konvergence ni."
       ],
       "outputs": [],
-      "captions": [
-        "Funkcije in delne vsote Sₙ za N = 101",
-        "polna črta: f; črtkana: Sₙ; barva ustreza spektru"
-      ]
+      "captions": []
     },
     {
       "name": "fourier-coefficients-guided/decay-explore",
@@ -342,10 +306,7 @@
         "Če je Σ|cₖ| < ∞, vrsta konvergira enakomerno (Weierstrassov M-test). Obrata ne trdimo in v splošnem ne velja: razhajajoča vsota Σ|cₖ| ne pomeni, da enakomerne konvergence ni."
       ],
       "outputs": [],
-      "captions": [
-        "Funkcije in delne vsote Sₙ za N = 21",
-        "polna črta: f; črtkana: Sₙ; barva ustreza spektru"
-      ]
+      "captions": []
     }
   ]
 }

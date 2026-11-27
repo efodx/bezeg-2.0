@@ -1,6 +1,7 @@
 // Declaration text of the quadrature graph (ADR 0066): bare names of the n puck and the bounds, short rule names for the rule puck and the
 // function options. `en` must have exactly `sl`'s keys.
 const sl = {
+    "quadrature_formula_label": "Funkcija",
     "quadrature_n_name": "Podintervali",
     "quadrature_a_name": "Spodnja meja",
     "quadrature_b_name": "Zgornja meja",
@@ -14,6 +15,7 @@ const sl = {
 export const quadrature = {
     sl,
     en: {
+        "quadrature_formula_label": "Function",
         "quadrature_n_name": "Subintervals",
         "quadrature_a_name": "Lower bound",
         "quadrature_b_name": "Upper bound",

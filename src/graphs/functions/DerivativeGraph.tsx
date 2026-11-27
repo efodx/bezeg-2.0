@@ -128,9 +128,6 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         this.drawn.set("point-p", pointP);
         this.drawn.set("point-q", pointQ);
 
-        // The rule of f is the one line no card shows (the legend says only "graph of f"), so it stays on the board; the slopes are readout rows.
-        // At the top centre: the catalog graphs rise at both sides of x0 only far from the centre of the default view.
-        this.caption("top-center", [{text: () => `f(x) = ${fn().plain}`, scale: 1.2, math: true}]);
     }
 
     protected override syncSceneToModel(): void {
@@ -184,6 +181,7 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
     protected override declaration(): GraphDeclaration {
         return {
             ...this.commonDeclaration(),
+            formula: {label: message("derivative_formula_label"), tex: `f(x)=${catalogFunction(this.model.fn).latex}`},
             parameters: [
                 {key: "h", kind: "range", label: message("derivative_h_name"), symbol: "h", help: message("derivative_h_help"), placement: "board",
                     min: H_MIN, max: H_MAX, step: H_STEP, maxDecimals: 2},

@@ -182,8 +182,8 @@ const coefficientsLesson: GuidedLesson = {
             calculationLatex: 'a_1=\\frac2\\pi\\int_0^\\pi x\\cos x\\,dx=\\frac2\\pi\\Bigl[x\\sin x+\\cos x\\Bigr]_0^\\pi=\\frac2\\pi(-2)',
             resultLatex: '-1{,}27324',
             check: text(
-                'Funkcija \\(|x|\\) je soda, zato je \\(b_k=0\\), \\(a_k=\\tfrac2\\pi\\int_0^\\pi x\\cos kx\\,dx\\). Za \\(k=1\\) dobimo \\(-\\tfrac4\\pi=-1{,}27324\\), kar graf prikaže kot koeficient \\(a_1\\). Splošno je \\(a_k=-\\tfrac{4}{\\pi k^2}\\) za lih \\(k\\) in \\(a_k=0\\) za sod \\(k\\).',
-                'The function \\(|x|\\) is even, so \\(b_k=0\\) and \\(a_k=\\tfrac2\\pi\\int_0^\\pi x\\cos kx\\,dx\\). For \\(k=1\\) this gives \\(-\\tfrac4\\pi=-1.27324\\), which the graph shows as the coefficient \\(a_1\\). In general \\(a_k=-\\tfrac{4}{\\pi k^2}\\) for odd \\(k\\) and \\(a_k=0\\) for even \\(k\\).',
+                'Funkcija \\(|x|\\) je soda, zato je \\(b_k=0\\), \\(a_k=\\tfrac2\\pi\\int_0^\\pi x\\cos kx\\,dx\\). Za \\(k=1\\) dobimo \\(-\\tfrac4\\pi=-1{,}27324\\), kar Odčitki prikažejo kot koeficient \\(a_1\\). Splošno je \\(a_k=-\\tfrac{4}{\\pi k^2}\\) za lih \\(k\\) in \\(a_k=0\\) za sod \\(k\\).',
+                'The function \\(|x|\\) is even, so \\(b_k=0\\) and \\(a_k=\\tfrac2\\pi\\int_0^\\pi x\\cos kx\\,dx\\). For \\(k=1\\) this gives \\(-\\tfrac4\\pi=-1.27324\\), which the Readouts card shows as the coefficient \\(a_1\\). In general \\(a_k=-\\tfrac{4}{\\pi k^2}\\) for odd \\(k\\) and \\(a_k=0\\) for even \\(k\\).',
             ),
         },
         {
@@ -280,8 +280,8 @@ const coefficientsLesson: GuidedLesson = {
             title: text('Parsevalova identiteta', 'Parseval\'s identity'),
             purpose: text('Primerjati integral kvadrata s Parsevalovo vsoto.', 'Comparing the integral of the square with the Parseval sum.'),
             explanation: text(
-                'Za \\(f=|x|\\) je integral kvadrata \\(\\tfrac1\\pi\\int_{-\\pi}^{\\pi}x^2\\,dx=\\tfrac{2\\pi^2}{3}=6{,}57974\\). Graf izpiše tudi Parsevalovo vsoto \\(\\tfrac{a_0^2}{2}+\\sum_{k\\le K}(a_k^2+b_k^2)\\) za izbrani \\(K=16\\): \\(6{,}57967\\), le malo pod integralom. Parsevalova identiteta je izrek, ki ga navajamo: z večanjem \\(K\\) se vsota bliža integralu. Kvadratni val, ki ga graf nima, je omenjen primer v formuli.',
-                'For \\(f=|x|\\) the integral of the square is \\(\\tfrac1\\pi\\int_{-\\pi}^{\\pi}x^2\\,dx=\\tfrac{2\\pi^2}{3}=6.57974\\). The graph also shows the Parseval sum \\(\\tfrac{a_0^2}{2}+\\sum_{k\\le K}(a_k^2+b_k^2)\\) for the chosen \\(K=16\\): \\(6.57967\\), a little below the integral. Parseval\'s identity is a theorem that we cite: as \\(K\\) grows the sum approaches the integral. The square wave, which the graph does not have, is a stated example in the formula.',
+                'Za \\(f=|x|\\) je integral kvadrata \\(\\tfrac1\\pi\\int_{-\\pi}^{\\pi}x^2\\,dx=\\tfrac{2\\pi^2}{3}=6{,}57974\\). Odčitki izpišejo tudi Parsevalovo vsoto \\(\\tfrac{a_0^2}{2}+\\sum_{k\\le K}(a_k^2+b_k^2)\\) za izbrani \\(K=16\\): \\(6{,}57967\\), le malo pod integralom. Parsevalova identiteta je izrek, ki ga navajamo: z večanjem \\(K\\) se vsota bliža integralu. Kvadratni val, ki ga graf nima, je omenjen primer v formuli.',
+                'For \\(f=|x|\\) the integral of the square is \\(\\tfrac1\\pi\\int_{-\\pi}^{\\pi}x^2\\,dx=\\tfrac{2\\pi^2}{3}=6.57974\\). The Readouts card also shows the Parseval sum \\(\\tfrac{a_0^2}{2}+\\sum_{k\\le K}(a_k^2+b_k^2)\\) for the chosen \\(K=16\\): \\(6.57967\\), a little below the integral. Parseval\'s identity is a theorem that we cite: as \\(K\\) grows the sum approaches the integral. The square wave, which the graph does not have, is a stated example in the formula.',
             ),
             formulaIds: ['parseval'],
             observationPrompt: text('Preberi oba odčitka pri \\(K=16\\), zmanjšaj \\(K\\) in opazuj vsoto. Nato izberi skok: integral kvadrata je \\(2\\), vsota pri \\(K=16\\) pa \\(1{,}95204\\).', 'Read both readouts at \\(K=16\\), lower \\(K\\) and watch the sum. Then choose the jump: the integral of the square is \\(2\\) and the sum at \\(K=16\\) is \\(1.95204\\).'),

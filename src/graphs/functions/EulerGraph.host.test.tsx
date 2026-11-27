@@ -7,6 +7,9 @@ import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import {installBoardShims, puckControl, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 
+// The cards hold formulas; jsdom never loads MathJax, so the layout would wait for it forever and the pucks stay hidden.
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
+
 // jsdom has no canvas and no matchMedia; JSXGraph touches both while creating a board.
 beforeAll(() => {
     const context = new Proxy({}, {get: (_target, name) => name === 'measureText' ? () => ({width: 0}) : () => undefined});
@@ -269,16 +272,16 @@ test('a blow-up run stops the polyline at the last finite point, says so, and hi
     expect(polyline.dataX[polyline.dataX.length - 1]).toBeLessThan(3);
     // the readout counts the steps taken, not the planned ones
     expect(readout('steps')).toBe(String(polyline.dataX.length - 1));
-    expect(texts(graph)).toContain('izračun se ustavi pri x =');
+    expect(texts(graph)).not.toContain('izračun se ustavi'); // the board keeps no caption: the stop is the left-window or non-finite status line, asserted above
     expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
 });
 
 test('a live language switch updates board text, labels and readouts', () => {
     const {graph} = mount();
-    expect(texts(graph)).toContain('napaka 0,4683');
+    expect(readout('error')).toBe('0,4683');
+    expect(texts(graph)).not.toContain('napaka'); // the board keeps no caption: the error is a readout row
     act(() => { setLanguage('en'); });
-    expect(texts(graph)).toContain('error 0.4683');
-    expect(texts(graph)).not.toContain('napaka');
+    expect(readout('error')).toBe('0.4683');
     expect(screen.getByLabelText('Equation')).toBeInTheDocument();
     expect(readout('value')).toBe('2.25');
     act(() => { setLanguage('sl'); });

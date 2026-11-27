@@ -1,5 +1,6 @@
 // Declaration text of the bisection graph (ADR 0066): the example choice's formula options and the function-value readout names. `en` must have exactly `sl`'s keys.
 const sl = {
+    "bisection_formula_label": "Funkcija",
     "bisection_example_square_minus_two": "f(x) = x² − 2",
     "bisection_example_cubic": "f(x) = x³ − x",
     "bisection_readout_fa": "f(a)",
@@ -10,6 +11,7 @@ const sl = {
 export const bisection = {
     sl,
     en: {
+        "bisection_formula_label": "Function",
         "bisection_example_square_minus_two": "f(x) = x² − 2",
         "bisection_example_cubic": "f(x) = x³ − x",
         "bisection_readout_fa": "f(a)",

@@ -1,5 +1,6 @@
 // Declaration text of the derivative graph (ADR 0066): the bare names of its pucks and the legend entries.
 const sl = {
+    "derivative_formula_label": "Funkcija",
     "derivative_x0_name": "Točka",
     "derivative_h_name": "Korak",
     "derivative_tangent_name": "Tangenta",
@@ -13,6 +14,7 @@ const sl = {
 export const derivative = {
     sl,
     en: {
+        "derivative_formula_label": "Function",
         "derivative_x0_name": "Point",
         "derivative_h_name": "Step",
         "derivative_tangent_name": "Tangent",

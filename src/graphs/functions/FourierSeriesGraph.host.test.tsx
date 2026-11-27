@@ -12,6 +12,9 @@ import {enterNumber} from '../../inputs/testEntry';
 import {runAs} from '../base/writes/writeSource';
 
 // jsdom has no canvas, no matchMedia and no layout: the shared harness gives the board a size, so its view can be read.
+// The cards hold formulas; jsdom never loads MathJax, so the layout would wait for it forever and the pucks stay hidden.
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
+
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 

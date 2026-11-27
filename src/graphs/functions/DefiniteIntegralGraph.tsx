@@ -183,8 +183,6 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         this.drawn.set("point-a", this.pointA);
         this.drawn.set("point-b", this.pointB);
 
-        // The rule of f is the one line no card shows (the legend says only "graph of f"), so it stays on the board, top left: every catalog graph rises to the right or is small there. The sum and the integral are readout rows.
-        this.caption("top-left", [{text: () => `f(x) = ${fn().plain}`, scale: 1.2, math: true}]);
     }
 
     protected override syncSceneToModel(): void {
@@ -246,6 +244,7 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         });
         return {
             ...this.commonDeclaration(),
+            formula: {label: message("integral_formula_label"), tex: `f(x)=${catalogFunction(this.model.fn).latex}`},
             parameters: [
                 {key: "n", kind: "count", label: message("integral_n_name"), symbol: "n", placement: "board", min: N_MIN, max: N_MAX},
                 bound("a"),

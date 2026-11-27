@@ -2384,10 +2384,10 @@ const rootFinding = {
     minFrames: 45, // 2 frames per step plus a calculation frame for each of 5 worked-example steps
     offscreenSteps: [11], // x1 = 12.2 lies far right of the window on purpose
     stepProbe: async (page, ctx, step, label) => {
-        await expect(boardText(page, new RegExp(`(korak|step) ${ROOT_FINDING_STEP_COUNTS[step - 1]},`)).first(), `root-finding step count at ${label}`).toBeVisible();
-        if (step === 8) await expect(boardText(page, /približki se ponavljajo|iterates repeat/).first(), `repeat status at ${label}`).toBeVisible();
-        if (step === 5 || step === 19) await expect(boardText(page, /ustalitev pri|settled at/).first(), `root found at ${label}`).toBeVisible();
-        if (step === 18) await expect(boardText(page, /vodoravna sekanta|horizontal secant/).first(), `horizontal secant at ${label}`).toBeVisible();
+        await expect(page.locator('[data-readout="step"] dd').first(), `root-finding step count at ${label}`).toHaveText(String(ROOT_FINDING_STEP_COUNTS[step - 1]));
+        if (step === 8) await expect(page.locator(`[data-root-finding-status="repeated-iterate"]`).first(), `repeat status at ${label}`).toBeAttached();
+        if (step === 5 || step === 19) await expect(page.locator(`[data-root-finding-status="root-found"]`).first(), `root found at ${label}`).toBeAttached();
+        if (step === 18) await expect(page.locator(`[data-root-finding-status="flat-secant"]`).first(), `horizontal secant at ${label}`).toBeAttached();
     },
 };
 

@@ -62,21 +62,21 @@ const tangentCurve = (graph: any) => ofType(graph, 'functiongraph')[TANGENT];
 const pointP = (graph: any) => ofType(graph, 'point')[POINT_P];
 const pointQ = (graph: any) => ofType(graph, 'point')[POINT_Q];
 const q = (graph: any) => [pointQ(graph).X(), pointQ(graph).Y()];
-/** The board's one text is the caption, the rule of f only; the slopes are readout rows. */
+/** The board keeps no caption: the rule of f is the declared Funkcija row, the slopes are readout rows. */
 const readoutRows = (graph: any) => Object.fromEntries((graph.renderReadout().props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
 const slopesText = (graph: any) => `naklon sekante ${readoutRows(graph).quotient}, f′(x₀) = ${readoutRows(graph).derivative}`;
 
 beforeEach(() => setLanguage('sl'));
 
-test('initialization draws the function, the tangent, P, Q, the secant and one caption text for x^2, x0 = 1, h = 1', () => {
+test('initialization draws the function, the tangent, P, Q, the secant and no text for x^2, x0 = 1, h = 1', () => {
     const graph = makeGraph();
     expect(graph.model).toEqual({fn: 'square', x0: 1, h: 1, tangent: false});
     expect(graph.presets()).toBe('derivative');
     expect(ofType(graph, 'functiongraph')).toHaveLength(2);
     expect(ofType(graph, 'point')).toHaveLength(2);
     expect(ofType(graph, 'line')).toHaveLength(1);
-    expect(ofType(graph, 'text')).toHaveLength(1);
-    expect(graph.captionPlainLines()).toEqual(['f(x) = x²']);
+    expect(ofType(graph, 'text')).toHaveLength(0);
+    expect(graph.getDeclaration()!.formula?.tex).toBe('f(x)=x^{2}');
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-3, 6, 4, -2], true);
     expect([pointP(graph).x, pointP(graph).y]).toEqual([1, 1]);
     expect(q(graph)).toEqual([2, 4]);
@@ -250,13 +250,13 @@ test('the rule and the slopes follow the language, and a language change notifie
     const graph = makeGraph();
     apply(graph, choice('sin'));
     apply(graph, parameter('h', 0.2));
-    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x']);
+    expect(graph.getDeclaration()!.formula?.tex).toBe('f(x)=\\sin x');
     expect([readoutRows(graph).quotient, readoutRows(graph).derivative]).toEqual(['0,4528', '0,5403']);
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x']);
+    expect(graph.getDeclaration()!.formula?.tex).toBe('f(x)=\\sin x');
     expect([readoutRows(graph).quotient, readoutRows(graph).derivative]).toEqual(['0.4528', '0.5403']);
     unsubscribe();
 });
@@ -379,7 +379,7 @@ test('default scene preparation resets model and view and keeps the object count
 test('generated objects are disposed and not duplicated across repeated generation', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(6);
+    expect(baseline).toBe(5);
     expect(graph.generatedObjectCount).toBe(baseline);
     for (let i = 0; i < 4; i++) graph.initialize();
     expect(boardObjectCount(graph)).toBe(baseline);

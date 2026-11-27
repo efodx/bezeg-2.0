@@ -172,7 +172,6 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
     protected createScene(): void {
         const board = this.board;
         const model = () => this.model;
-        const language = () => currentLanguage();
         const thin = this.displayThinWidth(0.5);
         let cache: { key: string; marks: FieldMarks } | undefined;
 
@@ -248,33 +247,6 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
         });
         this.pointP = point;
         this.drawn.initial = point;
-
-        // The equation, the end value with its error and the error ratio stay on the board (projection needs them), top left.
-        this.caption("top-left", [
-            {text: () => eulerExample(model().example).plain, scale: 1.2, math: true},
-            {
-                text: () => {
-                    const view = this.viewOf(model());
-                    return t("euler_ode_board_values", {
-                        value0: formatNumber(model().step, language(), PRECISE), value1: formatNumber(model().xEnd, language(), PRECISE),
-                        value2: formatNumber(view.endValue ?? NaN, language(), PRECISE),
-                        value3: view.error === undefined ? t("euler_ode_none") : formatSignificant(view.error, language(), ERROR_DISPLAY_DIGITS),
-                    });
-                },
-                visible: () => this.viewOf(model()).endValue !== undefined,
-            },
-            {
-                text: () => t("euler_ode_board_ratio", {value0: formatSignificant(this.viewOf(model()).ratio ?? NaN, language(), RATIO_DIGITS)}),
-                visible: () => this.viewOf(model()).ratio !== undefined,
-            },
-            {
-                text: () => {
-                    const nodes = this.viewOf(model()).path.nodes;
-                    return t("euler_ode_board_stopped", {value0: formatNumber(nodes[nodes.length - 1].x, language(), PRECISE)});
-                },
-                visible: () => this.viewOf(model()).path.termination !== "reached-end",
-            },
-        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -374,6 +346,7 @@ export class EulerGraph extends BaseFunctionGraph<EulerModel> {
         ];
         return {
             ...this.commonDeclaration(),
+            formula: {label: message("euler_ode_formula_label"), tex: eulerExample(this.model.example).latex},
             parameters: [
                 {key: "euler-step", kind: "count", label: message("euler_ode_halvings_name"), symbol: "k", help: message("euler_ode_halvings_help"), placement: "board",
                     min: 0, max: STEP_SIZES.length - 1},

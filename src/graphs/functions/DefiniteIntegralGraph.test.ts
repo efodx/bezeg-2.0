@@ -77,20 +77,20 @@ const polygons = (list: number[]) => list.reduce<number[][]>((groups, value) => 
 }, [[]]);
 const pointA = (graph: any) => ofType(graph, 'point')[POINT_A];
 const pointB = (graph: any) => ofType(graph, 'point')[POINT_B];
-/** The board's one text is the caption, the rule of f only; the sum and the integral are readout rows. */
+/** The board keeps no caption: the rule of f is the declared Funkcija row, the sum and the integral are readout rows. */
 const readoutRows = (graph: any) => Object.fromEntries((graph.renderReadout().props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
 const valuesText = (graph: any) => `vsota ${readoutRows(graph).sum}, integral ${readoutRows(graph).exact}`;
 
 beforeEach(() => setLanguage('sl'));
 
-test('initialization draws two fill curves, the function, the two bound points and two texts for x^2 on [0, 2], n = 4, left', () => {
+test('initialization draws two fill curves, the function, the two bound points and no text for x^2 on [0, 2], n = 4, left', () => {
     const graph = makeGraph();
     expect(graph.model).toEqual({fn: 'square', a: 0, b: 2, n: 4, method: 'left'});
     expect(graph.presets()).toBe('definite-integral');
     expect(ofType(graph, 'curve')).toHaveLength(2);
     expect(ofType(graph, 'functiongraph')).toHaveLength(1);
     expect(ofType(graph, 'point')).toHaveLength(2);
-    expect(ofType(graph, 'text')).toHaveLength(1);
+    expect(ofType(graph, 'text')).toHaveLength(0);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, true);
     expect([pointA(graph).x, pointA(graph).y, pointB(graph).x, pointB(graph).y]).toEqual([0, 0, 2, 0]);
     // the shapes use two different palette colours, the function is drawn after (above) them
@@ -156,7 +156,7 @@ test('every lesson scene reproduces the state its expectedState describes', () =
 test('changing n or the method regenerates the data but never the number of board objects', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(6);
+    expect(baseline).toBe(5);
     for (const method of ['left', 'right', 'midpoint', 'trapezoid']) {
         for (const n of [1, 4, 150, 37, 2]) {
             apply(graph, methodChoice(method));
@@ -292,13 +292,13 @@ test('the rule and the results follow the language, and a language change notifi
     apply(graph, parameter('b', Math.PI));
     apply(graph, parameter('n', 2));
     apply(graph, methodChoice('midpoint'));
-    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x']);
+    expect(graph.getDeclaration()!.formula?.tex).toBe('f(x)=\\sin x');
     expect([readoutRows(graph).sum, readoutRows(graph).exact]).toEqual(['2,2214', '2']);
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x']);
+    expect(graph.getDeclaration()!.formula?.tex).toBe('f(x)=\\sin x');
     expect([readoutRows(graph).sum, readoutRows(graph).exact]).toEqual(['2.2214', '2']);
     unsubscribe();
 });
