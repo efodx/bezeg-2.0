@@ -14,9 +14,6 @@ const EXAMPLE_IDS: readonly VoronoiExampleId[] = ["square", "trapezoid", "near",
  * its own; the modes, the incircle readout and the collinear display belong to `VoronoiGraph`. It never moves a point by itself.
  */
 export class DegenerateSitesGraph extends VoronoiGraph {
-    /** Not declared yet: the voronoi-degenerate session converts it and removes this line. */
-    protected override declaresVoronoiWorkspace() { return false; }
-
     protected override defaultMode(): VoronoiMode {
         return "four-point";
     }

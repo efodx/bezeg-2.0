@@ -510,6 +510,47 @@ const SAMPLES: readonly Sample[] = [
             step('duplicate sites (refused)', act(...fresh, sites([[0, 0], [0, 0], [3, 3]]))),
         ];
     })()},
+    {file: 'compgeo/__parity__/voronoi-degenerate.json', demonstration: 'voronoi-degenerate', states: (() => {
+        type Degenerate = {applyPointSetAction(action: unknown): void; setMode(mode: string): boolean; loadExample(id: string): void};
+        const on = (apply: (graph: Degenerate) => void): ParityState['apply'] => graph => {
+            runAs('learner', () => apply(graph as unknown as Degenerate));
+        };
+        const example = (id: string) => (graph: Degenerate) => {
+            graph.loadExample(id);
+            graph.applyPointSetAction({kind: 'point-set', operation: 'set-overlay', overlay: 'diagram', visible: true});
+            graph.applyPointSetAction({kind: 'point-set', operation: 'select-site', site: null});
+        };
+        const sites = (list: [number, number][]) => ({kind: 'point-set', operation: 'set-points', mode: 'points', points: list});
+        const step = (name: string, apply: ParityState['apply']): ParityState => ({name, apply});
+        return [
+            step('default', () => {}),
+            step('trapezoid', on(example('trapezoid'))),
+            step('near (almost cocircular)', on(example('near'))),
+            step('collinear (sites mode)', on(example('collinear'))),
+            step('square, sites mode', on(graph => { example('square')(graph); graph.setMode('sites'); })),
+            step('square, sites mode, cell construction', on(graph => {
+                example('square')(graph);
+                graph.setMode('sites');
+                graph.applyPointSetAction({kind: 'point-set', operation: 'select-site', site: 0});
+                graph.applyPointSetAction({kind: 'point-set', operation: 'set-construction', count: 2});
+            })),
+            step('five sites, four-point refused', on(graph => {
+                example('square')(graph);
+                graph.setMode('sites');
+                graph.applyPointSetAction(sites([[0, 0], [4, 0], [4, 4], [0, 4], [2, 2]]));
+                graph.setMode('four-point');
+            })),
+            step('three sites in four-point mode', on(graph => {
+                example('square')(graph);
+                graph.applyPointSetAction(sites([[0, 0], [4, 0], [4, 4]]));
+            })),
+            step('one site (refused)', on(graph => {
+                example('square')(graph);
+                graph.setMode('sites');
+                graph.applyPointSetAction(sites([[1, 1]]));
+            })),
+        ];
+    })()},
     {file: 'compgeo/__parity__/monotone-partition.json', demonstration: 'monotone-partition', states: (() => {
         type Partition = {applyPointSetAction(action: unknown): void; loadModel(model: unknown): void};
         const polygon = (points: [number, number][]) => ({mode: 'polygon', closed: true, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))});

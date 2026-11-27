@@ -126,9 +126,9 @@ describe('voronoi declaration', () => {
         expect(declare(graph).marks!.must).not.toEqual(before);
     });
 
-    test('the degenerate-sites graph is not declared yet', () => {
+    test('the degenerate-sites graph is declared too', () => {
         const graph = new DegenerateSitesGraph();
         mountGraph(graph);
-        expect(graph.getDeclaration()).toBeUndefined();
+        expect(graph.getDeclaration()).toBeDefined();
     });
 });

@@ -12,7 +12,7 @@ import {ExampleSelect} from "./ExampleSelect";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
 import type {FourPointReadout} from "./degenerateSites";
 import type {VoronoiMode} from "./voronoiPresetCollection";
-import {voronoiConstructionMessage, voronoiNotes, voronoiVertexMessage, type VoronoiNoteId} from "./voronoiNotes";
+import {voronoiConstructionMessage, voronoiFourPointMessages, voronoiNotes, voronoiVertexMessage, type VoronoiNoteId} from "./voronoiNotes";
 
 /** The named examples of the degenerate-sites graph. */
 export type VoronoiExampleId = "square" | "trapezoid" | "near" | "collinear";
@@ -89,31 +89,6 @@ const vertexTextOf = (vertex: VoronoiStatus["selectedVertex"]) => {
     return text ? renderMessage(text) : undefined;
 };
 
-/** The sentences of the four-point readout; undefined while there is nothing to read (not four distinct sites). */
-function fourPointText(t: ReturnType<typeof useT>, status: VoronoiStatus) {
-    const f = status.fourPoint;
-    if (!f) return undefined;
-    const circle = f.circle;
-    const triple = circle ? `P${circle.a + 1}, P${circle.b + 1}, P${circle.c + 1}` : "";
-    const fourth = circle ? `P${circle.d + 1}` : "";
-    const values = {value0: f.determinant ?? "", value1: triple, value2: fourth};
-    const incircle = !circle || f.sign === undefined ? t("deg_no_circle")
-        : f.sign === "inside" ? t("deg_incircle_inside", values)
-        : f.sign === "on" ? t("deg_incircle_on", values)
-        : t("deg_incircle_outside", values);
-    const vertices = f.degrees.length > 0 ? t("deg_vertices", {value0: f.degrees.length, value1: f.degrees.join(", ")}) : t("deg_vertices_none");
-    const diagonals = (f.diagonals ?? []).map(d => {
-        const names = {value0: d.from + 1, value1: d.to + 1};
-        return {key: `${d.from}-${d.to}`, text: d.legal ? t("deg_diagonal_legal", names) : t("deg_diagonal_illegal", names)};
-    });
-    const legal = (f.diagonals ?? []).filter(d => d.legal);
-    const verdict = !f.diagonals ? t("deg_not_convex")
-        : legal.length === 2 ? t("deg_not_unique")
-        : legal.length === 1 ? t("deg_unique", {value0: legal[0].from + 1, value1: legal[0].to + 1})
-        : undefined;
-    return {incircle, vertices, diagonals, verdict};
-}
-
 /** The mode switch and the named examples of the degenerate-sites graph. */
 function DegenerateModes(props: VoronoiControlsProps) {
     const t = useT();
@@ -126,7 +101,7 @@ function DegenerateModes(props: VoronoiControlsProps) {
         {status.modeSwitch && <>
             <ChoiceSelect label={t("deg_mode_group")} value={status.mode} onChange={mode => actions.setMode(mode === "four-point" ? "four-point" : "sites")}
                           options={[{value: "sites", text: t("deg_mode_sites")}, {value: "four-point", text: t("deg_mode_four")}]}/>
-            {status.modeRefused && <p data-readout-note className="inspector-help" role="alert" data-voronoi="mode-refused">{t("deg_mode_needs_four", {value0: status.counts.sites})}</p>}
+            {status.modeRefused && <div data-declared-panel=""><p data-readout-note className="inspector-help" role="alert" data-voronoi="mode-refused">{t("deg_mode_needs_four", {value0: status.counts.sites})}</p></div>}
         </>}
     </div>;
 }
@@ -169,7 +144,12 @@ export function VoronoiControls(props: VoronoiControlsProps) {
     const vertexText = vertexTextOf(selectedVertex);
     const queryAnswer = refusal ? undefined : `${text("query-at")} ${queryText}`;
     const stepText = renderMessage(voronoiConstructionMessage(status));
-    const four = fourPointText(t, status);
+    const fourMessages = voronoiFourPointMessages(status);
+    const four = fourMessages && {
+        incircle: renderMessage(fourMessages.incircle), vertices: renderMessage(fourMessages.vertices),
+        diagonals: fourMessages.diagonals.map(d => ({key: d.key, text: renderMessage(d.text)})),
+        verdict: fourMessages.verdict && renderMessage(fourMessages.verdict),
+    };
     // Short on purpose: the live text changes only when the sign, the verdict or the vertex degrees change, not on every determinant value.
     const fourSign = status.fourPoint?.sign;
     const fourAnnouncement = four ? [fourSign === undefined ? four.incircle : t(fourSign === "inside" ? "deg_say_inside" : fourSign === "on" ? "deg_say_on" : "deg_say_outside"), four.verdict, four.vertices] : [];

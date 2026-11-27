@@ -3,7 +3,7 @@ import type {VoronoiStatus} from "./VoronoiControls";
 
 /** The ids of the sentences of the Voronoi readout, in reading order; `vertex-k` is the k-th vertex of the diagram. */
 export type VoronoiNoteId =
-    "refusal" | "collinear" | "construction" | "sites" | "vertices" | "edges" | "rays" | "lines" | "bounded" | "unbounded"
+    "mode-refused" | "refusal" | "collinear" | "four-fixed" | "wrong-count" | "incircle" | "four-vertices" | `diagonal-${number}` | "verdict" | "construction" | "sites" | "vertices" | "edges" | "rays" | "lines" | "bounded" | "unbounded"
     | `vertex-${number}` | "query-at" | "query-nearest" | "selected-vertex";
 
 const sorted = (corners: readonly number[]) => [...corners].sort((a, b) => a - b);
@@ -44,16 +44,52 @@ export function voronoiNearestMessage(status: VoronoiStatus): Message | undefine
     return nearest.length === 1 ? message("vor_query_nearest", {value0: nearest[0] + 1}) : message("vor_query_tie", {value0: siteList(nearest)});
 }
 
+/** The sentences of the four-point readout; undefined while there is nothing to read (not four distinct sites). */
+export function voronoiFourPointMessages(status: VoronoiStatus) {
+    const f = status.fourPoint;
+    if (!f) return undefined;
+    const circle = f.circle;
+    const triple3 = circle ? `P${circle.a + 1}, P${circle.b + 1}, P${circle.c + 1}` : "";
+    const fourth = circle ? `P${circle.d + 1}` : "";
+    const values = {value0: f.determinant ?? "", value1: triple3, value2: fourth};
+    const incircle = !circle || f.sign === undefined ? message("deg_no_circle")
+        : f.sign === "inside" ? message("deg_incircle_inside", values)
+        : f.sign === "on" ? message("deg_incircle_on", values)
+        : message("deg_incircle_outside", values);
+    const vertices = f.degrees.length > 0 ? message("deg_vertices", {value0: f.degrees.length, value1: f.degrees.join(", ")}) : message("deg_vertices_none");
+    const diagonals = (f.diagonals ?? []).map(d => {
+        const names = {value0: d.from + 1, value1: d.to + 1};
+        return {key: `${d.from}-${d.to}`, text: d.legal ? message("deg_diagonal_legal", names) : message("deg_diagonal_illegal", names)};
+    });
+    const legal = (f.diagonals ?? []).filter(d => d.legal);
+    const verdict = !f.diagonals ? message("deg_not_convex")
+        : legal.length === 2 ? message("deg_not_unique")
+        : legal.length === 1 ? message("deg_unique", {value0: legal[0].from + 1, value1: legal[0].to + 1})
+        : undefined;
+    return {incircle, vertices, diagonals, verdict};
+}
+
 /**
- * The sentences the Voronoi readout shows in the `sites` mode, in reading order, as catalog messages: the one source of the Orodja
- * panel's text and of the declaration's notes (task 08). The four-point sentences of the degenerate-sites graph are not here.
+ * The sentences the Voronoi readout shows, in reading order, as catalog messages: the one source of the Orodja
+ * panel's text and of the declaration's notes (task 08). The degenerate-sites graph adds its mode refusal and the four-point sentences.
  * A refused set has its refusal, the construction line and the query point; the diagram's counts appear while the diagram is shown.
  */
 export function voronoiNotes(status: VoronoiStatus): {id: VoronoiNoteId; text: Message}[] {
     const notes: {id: VoronoiNoteId; text: Message}[] = [];
     const refusal = voronoiRefusalMessage(status);
+    if (status.modeSwitch && status.modeRefused) notes.push({id: "mode-refused", text: message("deg_mode_needs_four", {value0: status.counts.sites})});
     if (refusal) notes.push({id: "refusal", text: refusal});
     else if (status.collinear) notes.push({id: "collinear", text: message("vor_collinear_note")});
+    if (status.mode === "four-point") {
+        notes.push({id: "four-fixed", text: message("deg_four_fixed")});
+        if (status.counts.sites !== 4) notes.push({id: "wrong-count", text: message("deg_wrong_count", {value0: status.counts.sites})});
+    }
+    const four = voronoiFourPointMessages(status);
+    if (four) {
+        notes.push({id: "incircle", text: four.incircle}, {id: "four-vertices", text: four.vertices});
+        four.diagonals.forEach((d, index) => notes.push({id: `diagonal-${index}`, text: d.text}));
+        if (four.verdict) notes.push({id: "verdict", text: four.verdict});
+    }
     if (!refusal) notes.push({id: "construction", text: voronoiConstructionMessage(status)});
     const {counts} = status;
     if (!refusal && status.diagramShown) {

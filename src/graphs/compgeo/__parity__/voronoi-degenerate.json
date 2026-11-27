@@ -1,0 +1,464 @@
+{
+  "graph": "voronoi-degenerate",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 4"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 1"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 0"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 4"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 0"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 4"
+        }
+      ],
+      "notes": [
+        "V načinu štirih točk so mesta natanko štiri: dodajanje in odstranjevanje sta izklopljena, točke pa še vedno lahko premikaš.",
+        "Preizkus krožnice za P1, P2, P3 (v nasprotni smeri urnega kazalca) in P4: D = 0; točka P4 leži na krožnici skozi P1, P2, P3, točke so kocirkularne.",
+        "Voronojeva oglišča: 1; stopnje: 4.",
+        "Diagonala P1-P3 je dovoljena.",
+        "Diagonala P2-P4 je dovoljena.",
+        "Točke so kocirkularne: obe diagonali sta dovoljeni, zato Delaunayeva triangulacija ni enolična.",
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "V1 = (1/2, 1/2); enako oddaljeno od mest P1, P2, P3, P4",
+        "Točka poizvedbe: (4, 2).",
+        "Najbližje mesto: P3; njegova celica je poudarjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "trapezoid",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 4"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 1"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 0"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 4"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 0"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 4"
+        }
+      ],
+      "notes": [
+        "V načinu štirih točk so mesta natanko štiri: dodajanje in odstranjevanje sta izklopljena, točke pa še vedno lahko premikaš.",
+        "Preizkus krožnice za P1, P2, P3 (v nasprotni smeri urnega kazalca) in P4: D = 0; točka P4 leži na krožnici skozi P1, P2, P3, točke so kocirkularne.",
+        "Voronojeva oglišča: 1; stopnje: 4.",
+        "Diagonala P1-P3 je dovoljena.",
+        "Diagonala P2-P4 je dovoljena.",
+        "Točke so kocirkularne: obe diagonali sta dovoljeni, zato Delaunayeva triangulacija ni enolična.",
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "V1 = (4, 17/5); enako oddaljeno od mest P1, P2, P3, P4",
+        "Točka poizvedbe: (4, 2).",
+        "Točka leži na simetrali: enako blizu so mesta P1, P2."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "near (almost cocircular)",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 4"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 2"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 1"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 4"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 0"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 4"
+        }
+      ],
+      "notes": [
+        "V načinu štirih točk so mesta natanko štiri: dodajanje in odstranjevanje sta izklopljena, točke pa še vedno lahko premikaš.",
+        "Preizkus krožnice za P1, P2, P3 (v nasprotni smeri urnega kazalca) in P4: D = -30; točka P4 leži zunaj krožnice skozi P1, P2, P3.",
+        "Voronojeva oglišča: 2; stopnje: 3, 3.",
+        "Diagonala P1-P3 je dovoljena.",
+        "Diagonala P2-P4 je nedovoljena.",
+        "Dovoljena je samo diagonala P1-P3, zato je Delaunayeva triangulacija enolična.",
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "V1 = (-1/38, -3/38); enako oddaljeno od mest P1, P3, P4",
+        "V2 = (0, 0); enako oddaljeno od mest P1, P2, P3",
+        "Točka poizvedbe: (4, 2).",
+        "Točka leži na simetrali: enako blizu so mesta P1, P2."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "→",
+        "↓"
+      ]
+    },
+    {
+      "name": "collinear (sites mode)",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 5"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 0"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 0"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 0"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Premic: 4"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Omejenih celic: 0"
+        },
+        {
+          "key": "#6",
+          "label": "",
+          "value": "Neomejenih celic: 5"
+        }
+      ],
+      "notes": [
+        "Vsa mesta ležijo na isti premici, zato so celice pasovi med vzporednimi simetralami; triangulacije ni.",
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "Točka poizvedbe: (4, 2).",
+        "Najbližje mesto: P5; njegova celica je poudarjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "↑",
+        "↑",
+        "↑",
+        "↑",
+        "↑",
+        "→",
+        "↓",
+        "↓",
+        "↓",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "square, sites mode",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 4"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 1"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 0"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 4"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 0"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 4"
+        }
+      ],
+      "notes": [
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "V1 = (1/2, 1/2); enako oddaljeno od mest P1, P2, P3, P4",
+        "Točka poizvedbe: (4, 2).",
+        "Najbližje mesto: P3; njegova celica je poudarjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "square, sites mode, cell construction",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 4"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 1"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 0"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 4"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 0"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 4"
+        }
+      ],
+      "notes": [
+        "Simetrala 2 od 3: polravnina, ki je bližje mestu P1 kot mestu P4.",
+        "V1 = (1/2, 1/2); enako oddaljeno od mest P1, P2, P3, P4",
+        "Točka poizvedbe: (4, 2).",
+        "Najbližje mesto: P3; njegova celica je poudarjena."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "five sites, four-point refused",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 5"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 4"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 4"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 4"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 1"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 4"
+        }
+      ],
+      "notes": [
+        "Za način štirih točk potrebuješ natanko štiri mesta, zdaj jih je 5; dodaj ali odstrani mesta in poskusi znova.",
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "V1 = (0, 2); enako oddaljeno od mest P1, P4, P5",
+        "V2 = (2, 0); enako oddaljeno od mest P1, P2, P5",
+        "V3 = (4, 2); enako oddaljeno od mest P2, P3, P5",
+        "V4 = (2, 4); enako oddaljeno od mest P3, P4, P5",
+        "Točka poizvedbe: (4, 2).",
+        "Točka leži na simetrali: enako blizu so mesta P2, P3, P5."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "←",
+        "↑",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "three sites in four-point mode",
+      "rows": [
+        {
+          "key": "#0",
+          "label": "",
+          "value": "Mest: 3"
+        },
+        {
+          "key": "#1",
+          "label": "",
+          "value": "Voronojevih oglišč: 1"
+        },
+        {
+          "key": "#2",
+          "label": "",
+          "value": "Končnih robov: 0"
+        },
+        {
+          "key": "#3",
+          "label": "",
+          "value": "Poltrakov: 3"
+        },
+        {
+          "key": "#4",
+          "label": "",
+          "value": "Omejenih celic: 0"
+        },
+        {
+          "key": "#5",
+          "label": "",
+          "value": "Neomejenih celic: 3"
+        }
+      ],
+      "notes": [
+        "V načinu štirih točk so mesta natanko štiri: dodajanje in odstranjevanje sta izklopljena, točke pa še vedno lahko premikaš.",
+        "Odčitek štirih točk potrebuje natanko štiri mesta, zdaj jih je 3; preklopi na način Mesta ali popravi število mest.",
+        "Izberi mesto, da pokažeš gradnjo njegove celice.",
+        "V1 = (2, 2); enako oddaljeno od mest P1, P2, P3",
+        "Točka poizvedbe: (4, 2).",
+        "Točka leži na simetrali: enako blizu so mesta P2, P3."
+      ],
+      "outputs": [],
+      "captions": [
+        "←",
+        "↑",
+        "→",
+        "→",
+        "↓",
+        "↓"
+      ]
+    },
+    {
+      "name": "one site (refused)",
+      "rows": [],
+      "notes": [
+        "Za Voronojev diagram sta potrebni vsaj dve mesti.",
+        "Točka poizvedbe: (4, 2)."
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}

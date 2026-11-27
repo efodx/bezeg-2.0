@@ -879,10 +879,7 @@ export class VoronoiGraph extends PointSetGraph<"delaunay" | "diagram"> {
 
     // ---- Declaration (task 08): marks, legend, switches (pucks) from the point-set base, the readout sentences as notes ---------
 
-    /** Whether this graph declares its workspace; the degenerate-sites graph does not yet (its own session converts it). */
-    protected declaresVoronoiWorkspace(): boolean { return true; }
-
-    protected override declaresPointSetWorkspace() { return this.declaresVoronoiWorkspace(); }
+    protected override declaresPointSetWorkspace() { return true; }
 
     protected override overlayMessage(id: "delaunay" | "diagram" | "grid"): Message {
         return id === "diagram" ? message("vor_puck_diagram") : id === "delaunay" ? message("vor_puck_duality") : super.overlayMessage(id);

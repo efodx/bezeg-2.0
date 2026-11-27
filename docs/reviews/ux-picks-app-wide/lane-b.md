@@ -60,7 +60,11 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
   projective-three-views, projective-five-point; morph no jump). Committed `cb59a901f` (notes `briefs/notes/08-view-binding-fix.md`),
   picked by A as 71b3b08ab (a14152ab2 as fbeb69755). Morph glide and dev-console sweep clean, sent to A. Follow-up
   `2420f7a87` (Fortune `_ticks_` filter, Bezier decision 6 asserts marks) sent to A.
-- Uncommitted in the tree: segment-intersections (converted, graph-check green) and voronoi (converted; golden is a
+- Accepted: `dfb8498ad` segment-intersections, voronoi (voronoi golden re-recorded, notes only); sent to A.
+- **L54 done** with the session 6 commit (voronoi-degenerate; golden re-recorded: notes plus one deg-off ray arrow that
+  follows the director's framing; 16 "pod grafom" sentences now name the Odčitki card). Next: L50 (8 demos; dispatch
+  `briefs/08-lane-L50.md`, two demos per worker).
+- (old) Uncommitted in the tree: segment-intersections (converted, graph-check green) and voronoi (converted; golden is a
   notes-only diff to re-record after the fix; VoronoiGraph.host.test Fit case ~536 and hull-robustness "untagged view" writes
   fail, probably from the view fix in progress, which the fix worker now owns). After the fix commit: one worker reruns
   family unit, tsc, lint, build, smoke-lesson for both, then commit them. Then + voronoi, voronoi-degenerate; then L50, L49, L44, L47.
