@@ -174,8 +174,6 @@ export class LinearFunctionGraph extends BaseFunctionGraph<LinearModel> {
         label(() => ` Δy = ${formatNumber(slopeTriangle({x: model().x1, y: model().y1}, {x: model().x2, y: model().y2}).dy, language())} `,
             () => model().x2, () => (model().y1 + model().y2) / 2, () => (model().x1 <= model().x2 ? "left" : "right"), () => "middle", "dy");
 
-        // The equation, the most important readout, stays on the board.
-        this.caption("top-left", [{text: () => lineEquation(this.currentLine(), language()), scale: 1.2, math: true}]);
     }
 
     protected override syncSceneToModel(): void {

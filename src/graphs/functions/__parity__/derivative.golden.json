@@ -46,8 +46,7 @@
       ],
       "outputs": [],
       "captions": [
-        "f(x) = x²",
-        "naklon sekante 3, f′(x₀) = 2"
+        "f(x) = x²"
       ]
     },
     {
@@ -94,8 +93,7 @@
       ],
       "outputs": [],
       "captions": [
-        "f(x) = x²",
-        "naklon sekante 2,5, f′(x₀) = 2"
+        "f(x) = x²"
       ]
     },
     {
@@ -142,8 +140,7 @@
       ],
       "outputs": [],
       "captions": [
-        "f(x) = x²",
-        "naklon sekante 2,1, f′(x₀) = 2"
+        "f(x) = x²"
       ]
     },
     {
@@ -190,8 +187,7 @@
       ],
       "outputs": [],
       "captions": [
-        "f(x) = x²",
-        "naklon sekante 1,5, f′(x₀) = 2"
+        "f(x) = x²"
       ]
     },
     {
@@ -238,8 +234,7 @@
       ],
       "outputs": [],
       "captions": [
-        "f(x) = sin x",
-        "naklon sekante 0,4528, f′(x₀) = 0,5403"
+        "f(x) = sin x"
       ]
     }
   ]

@@ -58,9 +58,7 @@
       ],
       "notes": [],
       "outputs": [],
-      "captions": [
-        "f(x) = sin(x)"
-      ]
+      "captions": []
     },
     {
       "name": "trigonometric-functions-guided/trig-amplitude",
@@ -118,10 +116,7 @@
       ],
       "notes": [],
       "outputs": [],
-      "captions": [
-        "f(x) = 2·sin(x)",
-        "sin(x) (referenčni graf)"
-      ]
+      "captions": []
     },
     {
       "name": "trigonometric-functions-guided/trig-vertical-shift",
@@ -179,10 +174,7 @@
       ],
       "notes": [],
       "outputs": [],
-      "captions": [
-        "f(x) = sin(x) + 1",
-        "sin(x) (referenčni graf)"
-      ]
+      "captions": []
     },
     {
       "name": "trigonometric-functions-guided/trig-frequency",
@@ -240,10 +232,7 @@
       ],
       "notes": [],
       "outputs": [],
-      "captions": [
-        "f(x) = sin(2x)",
-        "sin(x) (referenčni graf)"
-      ]
+      "captions": []
     },
     {
       "name": "trigonometric-functions-guided/trig-phase-cosine",
@@ -301,10 +290,7 @@
       ],
       "notes": [],
       "outputs": [],
-      "captions": [
-        "f(x) = sin(x + π/2)",
-        "sin(x) (referenčni graf)"
-      ]
+      "captions": []
     },
     {
       "name": "trigonometric-functions-guided/trig-combined",
@@ -362,9 +348,7 @@
       ],
       "notes": [],
       "outputs": [],
-      "captions": [
-        "f(x) = 2·sin(2x + π/2) + 1"
-      ]
+      "captions": []
     },
     {
       "name": "trigonometric-functions-guided/trig-tangent",
@@ -424,9 +408,7 @@
         "Tangens ima navpične asimptote, kjer je ωx + φ = π/2 + mπ, in nima največje ali najmanjše vrednosti, zato amplitude ni."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = tan(x)"
-      ]
+      "captions": []
     }
   ]
 }

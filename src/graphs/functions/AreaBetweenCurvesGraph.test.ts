@@ -82,14 +82,14 @@ const textAt = (graph: any, index: number) => {
     const parent = ofType(graph, 'text')[index].parents[2];
     return typeof parent === 'function' ? parent() : parent;
 };
-/** The caption (the last board text) holds the two results, then the two formulas on a wide board. */
-const valuesText = (graph: any) => graph.captionPlainLines().slice(0, 2).join(', ');
 const readout = (graph: any) => Object.fromEntries((graph.renderReadout().props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
-const DEFAULT_OBJECTS = 13;
+/** The two results as the readout rows carry them (the board writes no caption: the results are rows, the formulas the legend). */
+const valuesText = (graph: any) => `∫(g − f) dx = ${readout(graph).signed}, ploščina = ${readout(graph).unsigned}`;
+const DEFAULT_OBJECTS = 12;
 
 beforeEach(() => setLanguage('sl'));
 
-test('initialization draws two fill curves, two bound lines, two curves, two fixed intersections, two bound points, two curve names and one caption', () => {
+test('initialization draws two fill curves, two bound lines, two curves, two fixed intersections, two bound points, two curve names and no caption', () => {
     const graph = makeGraph();
     expect(graph.model).toEqual({a: 2 - S, b: 2 + S, mode: 'between'});
     expect(graph.presets()).toBe('area-between-curves');
@@ -97,7 +97,7 @@ test('initialization draws two fill curves, two bound lines, two curves, two fix
     expect(ofType(graph, 'segment')).toHaveLength(2);
     expect(ofType(graph, 'functiongraph')).toHaveLength(2);
     expect(ofType(graph, 'point')).toHaveLength(4);
-    expect(ofType(graph, 'text')).toHaveLength(3);
+    expect(ofType(graph, 'text')).toHaveLength(2);
     expect(boardObjectCount(graph)).toBe(DEFAULT_OBJECTS);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith(BOX, true);
     // the default view has about the aspect of the workspace (1.27) and shows x from -0.5 to 4.5 and both intersections
@@ -120,7 +120,8 @@ test('initialization draws two fill curves, two bound lines, two curves, two fix
     expect(curveF.attributes.strokeColor).not.toBe(curveG.attributes.strokeColor);
     expect([curveF.parents[0](2), curveG.parents[0](2)]).toEqual([0, 3]);
     expect([textAt(graph, LABEL_F), textAt(graph, LABEL_G)]).toEqual(['<i>f</i>', '<i>g</i>']);
-    expect(graph.captionPlainLines().slice(2)).toEqual(['f(x) = (x − 2)²', 'g(x) = 3 − (x − 2)²']);
+    expect(graph.captionPlainLines()).toEqual([]);
+    expect(graph.getDeclaration()!.legend!.slice(0, 2).map((entry: any) => renderMessage(entry.label))).toEqual(['f(x) = (x − 2)²', 'g(x) = 3 − (x − 2)²']);
     expect(ofType(graph, 'text')[LABEL_F].attributes.strokeColor).toBe(curveF.attributes.strokeColor);
     expect(ofType(graph, 'text')[LABEL_G].attributes.strokeColor).toBe(curveG.attributes.strokeColor);
     // values far outside the view are left out of the paths, so their extent stays near the view
@@ -364,16 +365,16 @@ test('readouts: a, b, ∫f, ∫g, signed ∫(g-f), unsigned ∫|g-f| and the sha
     }
 });
 
-test('the caption follows the language, and a language change notifies subscribers', () => {
+test('the results follow the language, and a language change notifies subscribers', () => {
     const graph = makeGraph();
     apply(graph, parameter('a', 0));
     apply(graph, parameter('b', 4));
-    expect(graph.captionPlainLines().slice(0, 2)).toEqual(['∫(g − f) dx = 1,3333', 'ploščina = 8,4646']);
+    expect([readout(graph).signed, readout(graph).unsigned]).toEqual(['1,3333', '8,4646']);
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(graph.captionPlainLines().slice(0, 2)).toEqual(['∫(g − f) dx = 1.3333', 'area = 8.4646']);
+    expect([readout(graph).signed, readout(graph).unsigned]).toEqual(['1.3333', '8.4646']);
     unsubscribe();
 });
 

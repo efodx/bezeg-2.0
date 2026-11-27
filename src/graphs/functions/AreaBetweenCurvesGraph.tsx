@@ -2,11 +2,10 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, BOARD_TEXT_STYLE, DomainError, mathTextHtml, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, message, messageNumber, t} from "../../localization";
+import {message, messageNumber, t} from "../../localization";
 import type {GraphDeclaration} from "../base/declare/graphDeclaration";
 import type {ParameterBinding} from "../base/writes/parameterArbiter";
 import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
-import {formatNumber} from "../../analysis/format";
 import {
     AREA_MODES, AreaFill, areaFill, AreaMode, BOUND_MAX, BOUND_MIN, BOUND_STEP, f, g, INTERSECTION_HEIGHT, INTERSECTIONS, integralF, integralG,
     isAreaMode, isBound, shadedQuantity, signedBetween, unsignedBetween,
@@ -53,8 +52,6 @@ const MODE_LABELS: Readonly<Record<AreaMode, () => string>> = {
  */
 const DEFAULT_VIEW: BoundingBox = [-1.3, 4.2, 5.3, -1];
 
-/** The formulas are written on the board only from this board width on; below it the legend in the inspector holds them. */
-const WIDE_BOARD = 620;
 
 /**
  * The area between f(x) = (x - 2)^2 and g(x) = 3 - (x - 2)^2 over bounds a and b that are points on the x-axis (dragging
@@ -114,7 +111,6 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
     protected createScene(): void {
         const board = this.board;
         const model = () => this.model;
-        const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
         // Values far above or below the view are left out or clamped (a quarter of the view height beyond it, much more than
         // the sampling step), so the drawn paths never reach f(-1) = 9; this keeps their extent, which framing tools read, close to the view.
@@ -180,13 +176,6 @@ export class AreaBetweenCurvesGraph extends BaseFunctionGraph<AreaBetweenModel> 
             }));
         label(4.08, f(3.95), "left", "top", "f", GraphPalette.comparisonCurve);
         label(3.72, g(3.6), "left", "bottom", "g", GraphPalette.primaryCurve);
-        // The two results are the caption, at the top centre above the peak of g; at small widths only they remain (the formulas are in the inspector legend).
-        this.caption("top-center", [
-            {text: () => t("area_board_signed", {value0: formatNumber(signedBetween(model().a, model().b), language(), PRECISE)}), scale: 1.1},
-            {text: () => t("area_board_area", {value0: formatNumber(unsignedBetween(model().a, model().b), language(), PRECISE)})},
-            {text: () => "f(x) = (x − 2)²", color: GraphPalette.comparisonCurve, minBoardWidth: WIDE_BOARD, scale: 0.9, math: true},
-            {text: () => "g(x) = 3 − (x − 2)²", color: GraphPalette.primaryCurve, minBoardWidth: WIDE_BOARD, scale: 0.9, math: true},
-        ]);
     }
 
     protected override syncSceneToModel(): void {

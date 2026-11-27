@@ -117,7 +117,6 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
     protected createScene(): void {
         const board = this.board;
         const model = () => this.model;
-        const language = () => currentLanguage();
         const isTangent = () => model().fn === "tan";
         const view = () => {
             const [left, top, right, bottom] = board.getBoundingBox();
@@ -156,12 +155,6 @@ export class TrigonometricFunctionsGraph extends BaseFunctionGraph<Trigonometric
         this.drawn.set("curve-tan", this.dataCurve(() => isTangent() ? branches(model())() : [], {
             strokeColor: GraphPalette.comparisonCurve, highlight: false, fixed: true, strokeWidth, visible: isTangent,
         }));
-
-        // The equation, the most important readout, stays on the board; the reference has its own line while it is shown.
-        this.caption("top-left", [
-            {text: () => equationText(model(), language()), scale: 1.2, math: true},
-            {text: () => `${model().fn}(x) (${t("trig_reference_legend")})`, visible: () => model().reference},
-        ]);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

@@ -7,8 +7,7 @@ import {runAs} from "../base/writes/writeSource";
 import Slider from "../../inputs/Slider";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, message, t, messageNumber} from "../../localization";
-import {formatNumber} from "../../analysis/format";
+import {message, t, messageNumber} from "../../localization";
 import {catalogFunction, FUNCTION_IDS, isFunctionId} from "../../analysis/functions";
 import {
     differenceQuotient, H_MAX, H_MIN, H_MIN_ABS, H_STEP, isStep, isX0, lineValue, stepOutOfBand, tangentLine, X0_MAX, X0_MIN, X0_STEP,
@@ -99,7 +98,6 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         const board = this.board;
         const model = () => this.model;
         const fn = () => this.currentFunction();
-        const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
 
         // Layers, lowest first: the function, the exact tangent, the secant, then the points.
@@ -130,15 +128,9 @@ export class DerivativeGraph extends BaseFunctionGraph<DerivativeModel> {
         this.drawn.set("point-p", pointP);
         this.drawn.set("point-q", pointQ);
 
-        // The function and the slopes, the most important readouts, stay on the board.
+        // The rule of f is the one line no card shows (the legend says only "graph of f"), so it stays on the board; the slopes are readout rows.
         // At the top centre: the catalog graphs rise at both sides of x0 only far from the centre of the default view.
-        this.caption("top-center", [
-            {text: () => `f(x) = ${fn().plain}`, scale: 1.2, math: true},
-            {text: () => t("derivative_board_slopes", {
-                value0: formatNumber(differenceQuotient(fn(), model().x0, model().h), language(), PRECISE),
-                value1: formatNumber(fn().derivative(model().x0), language(), PRECISE),
-            })},
-        ]);
+        this.caption("top-center", [{text: () => `f(x) = ${fn().plain}`, scale: 1.2, math: true}]);
     }
 
     protected override syncSceneToModel(): void {

@@ -77,8 +77,9 @@ const polygons = (list: number[]) => list.reduce<number[][]>((groups, value) => 
 }, [[]]);
 const pointA = (graph: any) => ofType(graph, 'point')[POINT_A];
 const pointB = (graph: any) => ofType(graph, 'point')[POINT_B];
-/** The board's one text is the caption: line 0 the function, line 1 the sum and the integral. */
-const valuesText = (graph: any) => graph.captionPlainLines()[1];
+/** The board's one text is the caption, the rule of f only; the sum and the integral are readout rows. */
+const readoutRows = (graph: any) => Object.fromEntries((graph.renderReadout().props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
+const valuesText = (graph: any) => `vsota ${readoutRows(graph).sum}, integral ${readoutRows(graph).exact}`;
 
 beforeEach(() => setLanguage('sl'));
 
@@ -285,18 +286,20 @@ test('readouts: a, b, n, h, sum, exact integral and difference, in both language
     }
 });
 
-test('the caption follows the language, and a language change notifies subscribers', () => {
+test('the rule and the results follow the language, and a language change notifies subscribers', () => {
     const graph = makeGraph();
     apply(graph, fnChoice('sin'));
     apply(graph, parameter('b', Math.PI));
     apply(graph, parameter('n', 2));
     apply(graph, methodChoice('midpoint'));
-    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'vsota 2,2214, integral 2']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x']);
+    expect([readoutRows(graph).sum, readoutRows(graph).exact]).toEqual(['2,2214', '2']);
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'sum 2.2214, integral 2']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x']);
+    expect([readoutRows(graph).sum, readoutRows(graph).exact]).toEqual(['2.2214', '2']);
     unsubscribe();
 });
 

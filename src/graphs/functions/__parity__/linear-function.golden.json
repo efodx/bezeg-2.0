@@ -34,7 +34,6 @@
       "notes": [],
       "outputs": [],
       "captions": [
-        "y = 2x + 1",
         "Δx = 2",
         "Δy = 4"
       ]
@@ -71,7 +70,6 @@
       "notes": [],
       "outputs": [],
       "captions": [
-        "y = 2x - 2",
         "Δx = 2",
         "Δy = 4"
       ]
@@ -108,7 +106,6 @@
       "notes": [],
       "outputs": [],
       "captions": [
-        "y = -0,5x + 1",
         "Δx = 2",
         "Δy = -1"
       ]
@@ -145,7 +142,6 @@
       "notes": [],
       "outputs": [],
       "captions": [
-        "x = 1",
         "Δy = 4"
       ]
     }

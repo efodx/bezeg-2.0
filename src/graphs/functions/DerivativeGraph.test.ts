@@ -62,8 +62,9 @@ const tangentCurve = (graph: any) => ofType(graph, 'functiongraph')[TANGENT];
 const pointP = (graph: any) => ofType(graph, 'point')[POINT_P];
 const pointQ = (graph: any) => ofType(graph, 'point')[POINT_Q];
 const q = (graph: any) => [pointQ(graph).X(), pointQ(graph).Y()];
-/** The board's one text is the caption: line 0 the function, line 1 the slopes. */
-const slopesText = (graph: any) => graph.captionPlainLines()[1];
+/** The board's one text is the caption, the rule of f only; the slopes are readout rows. */
+const readoutRows = (graph: any) => Object.fromEntries((graph.renderReadout().props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
+const slopesText = (graph: any) => `naklon sekante ${readoutRows(graph).quotient}, f′(x₀) = ${readoutRows(graph).derivative}`;
 
 beforeEach(() => setLanguage('sl'));
 
@@ -75,7 +76,7 @@ test('initialization draws the function, the tangent, P, Q, the secant and one c
     expect(ofType(graph, 'point')).toHaveLength(2);
     expect(ofType(graph, 'line')).toHaveLength(1);
     expect(ofType(graph, 'text')).toHaveLength(1);
-    expect(graph.captionPlainLines()).toEqual(['f(x) = x²', 'naklon sekante 3, f′(x₀) = 2']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = x²']);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-3, 6, 4, -2], true);
     expect([pointP(graph).x, pointP(graph).y]).toEqual([1, 1]);
     expect(q(graph)).toEqual([2, 4]);
@@ -245,16 +246,18 @@ test('readouts: x0, h, values, quotient, exact derivative and difference, in bot
     }
 });
 
-test('the caption follows the language, and a language change notifies subscribers', () => {
+test('the rule and the slopes follow the language, and a language change notifies subscribers', () => {
     const graph = makeGraph();
     apply(graph, choice('sin'));
     apply(graph, parameter('h', 0.2));
-    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'naklon sekante 0,4528, f′(x₀) = 0,5403']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x']);
+    expect([readoutRows(graph).quotient, readoutRows(graph).derivative]).toEqual(['0,4528', '0,5403']);
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x', 'secant slope 0.4528, f′(x₀) = 0.5403']);
+    expect(graph.captionPlainLines()).toEqual(['f(x) = sin x']);
+    expect([readoutRows(graph).quotient, readoutRows(graph).derivative]).toEqual(['0.4528', '0.5403']);
     unsubscribe();
 });
 

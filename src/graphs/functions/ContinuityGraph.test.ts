@@ -58,28 +58,19 @@ const pointY = (point: any) => point.parents[1]();
 const resolve = (value: any) => typeof value === 'function' ? value() : value;
 const MATCH = GraphPalette.primaryCurve;
 const MISMATCH = GraphPalette.constructionLevels[5];
-const MISMATCH_TEXT = '#9c5d48';
-
-/** WCAG contrast ratio of two #rrggbb colours. */
-const contrast = (first: string, second: string) => {
-    const luminance = (hex: string) => {
-        const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
-            .map(c => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)));
-        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    };
-    const [lighter, darker] = [luminance(first), luminance(second)].sort((x, y) => y - x);
-    return (lighter + 0.05) / (darker + 0.05);
-};
+/** The status as its readout row carries it (the board writes no caption: status and limits are rows). */
+const statusRow = (graph: any) => (graph.renderReadout().props.rows as { id: string; value: string }[]).find(row => row.id === 'status')!.value;
 
 beforeEach(() => setLanguage('sl'));
 
-test('initialization draws the two pieces, the hollow and the filled point, and one caption text for a = 1', () => {
+test('initialization draws the two pieces, the hollow and the filled point, and no board text for a = 1', () => {
     const graph = makeGraph();
     expect(graph.model).toEqual({a: 1});
     expect(graph.presets()).toBe('piecewise-continuity');
     expect(pieces(graph)).toHaveLength(2);
     expect(points(graph)).toHaveLength(2);
-    expect(ofType(graph, 'text')).toHaveLength(1);
+    expect(ofType(graph, 'text')).toHaveLength(0);
+    expect(graph.captionPlainLines()).toEqual([]);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-2, 5, 4, -2], true);
     // the filled point is the value and left limit (1, a), the hollow point the right limit (1, 3 - a)
     expect(points(graph)[FILLED].parents[0]).toBe(1);
@@ -141,37 +132,33 @@ test('every lesson scene reproduces the state its expectedState describes', () =
 
 test('colour and text agree: green and "zvezna pri x = 1" when the limits match, terracotta and the jump otherwise', () => {
     const graph = makeGraph();
-    const status = () => graph.captionPlainLines()[0];
-    const color = () => [resolve(points(graph)[FILLED].attributes.fillColor), resolve(points(graph)[OPEN].attributes.strokeColor),
-        graph.captionColors()[0]];
+    const status = () => statusRow(graph);
+    const color = () => [resolve(points(graph)[FILLED].attributes.fillColor), resolve(points(graph)[OPEN].attributes.strokeColor)];
     expect(status()).toBe('skok 1 pri x = 1');
-    expect(color()).toEqual([MISMATCH, MISMATCH, MISMATCH_TEXT]);
+    expect(color()).toEqual([MISMATCH, MISMATCH]);
     apply(graph, parameter('a', 1.5));
     expect(status()).toBe('zvezna pri x = 1');
-    expect(color()).toEqual([MATCH, MATCH, MATCH]);
+    expect(color()).toEqual([MATCH, MATCH]);
     apply(graph, parameter('a', 1.45));
     expect(status()).toBe('skok 0,1 pri x = 1');
-    expect(color()).toEqual([MISMATCH, MISMATCH, MISMATCH_TEXT]);
+    expect(color()).toEqual([MISMATCH, MISMATCH]);
     // the hollow point is hollow: board-colored fill with a colored ring; the filled point is solid
     expect(points(graph)[OPEN].attributes.fillColor).toBe(GraphPalette.boardSurface);
     expect(points(graph)[FILLED].attributes.fillColor).not.toBe(GraphPalette.boardSurface);
     expect(MATCH).not.toBe(MISMATCH);
-    // the status text is readable on the board surface in both states
-    expect(contrast(MATCH, GraphPalette.boardSurface)).toBeGreaterThanOrEqual(4.5);
-    expect(contrast(MISMATCH_TEXT, GraphPalette.boardSurface)).toBeGreaterThanOrEqual(4.5);
 });
 
 test('the tolerance accepts slider rounding noise at a = 1.5 but not a visible difference', () => {
     const graph = makeGraph();
     apply(graph, parameter('a', 1.5 + 1e-10));
-    expect(graph.captionPlainLines()[0]).toBe('zvezna pri x = 1');
+    expect(statusRow(graph)).toBe('zvezna pri x = 1');
     // slider arithmetic is cleaned, so 30 * 0.05 style noise ends on exactly 1.5
     apply(graph, parameter('a', 1.5000000000000007));
     expect(graph.model.a).toBe(1.5);
     apply(graph, parameter('a', 1.5 + 1e-7));
     // not continuous: the colors say so, and the jump 2e-7 is shown with enough decimals rather than as 0
     expect(resolve(points(graph)[FILLED].attributes.fillColor)).toBe(MISMATCH);
-    expect(graph.captionPlainLines()[0]).toBe('skok 0,0000002 pri x = 1');
+    expect(statusRow(graph)).toBe('skok 0,0000002 pri x = 1');
 });
 
 test('domain edges are accepted and out-of-domain values are rejected without changing the model', () => {
@@ -223,16 +210,16 @@ test('readouts: f(1), both limits, the jump, the status and the one-sided slopes
     }
 });
 
-test('the caption follows the language, and a language change notifies subscribers', () => {
+test('the status and limits follow the language, and a language change notifies subscribers', () => {
     const graph = makeGraph();
     apply(graph, parameter('a', 1.25));
-    expect(graph.captionPlainLines()).toEqual(['skok 0,5 pri x = 1', 'limita z leve 1,25, z desne 1,75']);
+    const rowsOf = () => Object.fromEntries((graph.renderReadout().props.rows as { id: string; value: string }[]).map(row => [row.id, row.value]));
+    expect([rowsOf().status, rowsOf()['left-limit'], rowsOf()['right-limit']]).toEqual(['skok 0,5 pri x = 1', '1,25', '1,75']);
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(graph.captionPlainLines()).toEqual(['jump 0.5 at x = 1', 'limit from the left 1.25, from the right 1.75']);
-    expect(graph.captionColors()[1]).toBe(GraphPalette.label);
+    expect([rowsOf().status, rowsOf()['left-limit'], rowsOf()['right-limit']]).toEqual(['jump 0.5 at x = 1', '1.25', '1.75']);
     unsubscribe();
 });
 
@@ -312,7 +299,7 @@ test('default scene preparation resets model and view and keeps the object count
 test('generated objects are disposed and not duplicated across repeated generation', () => {
     const graph = makeGraph();
     const baseline = boardObjectCount(graph);
-    expect(baseline).toBe(5);
+    expect(baseline).toBe(4);
     expect(graph.generatedObjectCount).toBe(baseline);
     for (let i = 0; i < 4; i++) graph.initialize();
     expect(boardObjectCount(graph)).toBe(baseline);

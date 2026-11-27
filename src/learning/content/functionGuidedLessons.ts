@@ -116,12 +116,12 @@ const linearFunction: GuidedLesson = {
             formulaIds: ['linear-function-form'],
             frames: [frame('linear-line-through-points-explanation', 'explanation', linearFrame({highlight: ['equation']})), frame('linear-line-through-points-observation', 'observation', linearFrame({highlight: ['equation']}))],
             observationPrompt: text(
-                'Premakni točko \\(P_1\\) in opazuj, kaj se zgodi s premico in z enačbo na grafu.',
-                'Move point \\(P_1\\) and observe what happens to the line and to the equation on the graph.',
+                'Premakni točko \\(P_1\\) in opazuj, kaj se zgodi s premico in z enačbo v kartici Odčitki.',
+                'Move point \\(P_1\\) and observe what happens to the line and to the equation in the Readouts card.',
             ),
             expectedObservations: [text(
-                'Premica vedno poteka skozi obe točki, enačba na grafu pa se spreminja skupaj z njima.',
-                'The line always passes through both points, and the equation on the graph changes along with them.',
+                'Premica vedno poteka skozi obe točki, enačba v kartici Odčitki pa se spreminja skupaj z njima.',
+                'The line always passes through both points, and the equation in the Readouts card changes along with them.',
             )],
             scene: {
                 id: 'linear-default', basedOn: 'demonstration-default',
@@ -970,8 +970,8 @@ const continuity: GuidedLesson = {
                 'Find the filled and the hollow point and read off the vertical distance between them. Compare it with the jump readout.',
             ),
             expectedObservations: [text(
-                'Pri \\(a=1\\) je razdalja med točkama \\(1\\), enaka skoku \\(|3-2\\cdot1|=1\\); točki sta obarvani rdečkasto in na grafu piše, da je skok \\(1\\).',
-                'For \\(a=1\\) the distance between the points is \\(1\\), equal to the jump \\(|3-2\\cdot1|=1\\); the points are colored terracotta and the board says the jump is \\(1\\).',
+                'Pri \\(a=1\\) je razdalja med točkama \\(1\\), enaka skoku \\(|3-2\\cdot1|=1\\); točki sta obarvani rdečkasto in kartica Odčitki v vrstici Zveznost pokaže, da je skok \\(1\\).',
+                'For \\(a=1\\) the distance between the points is \\(1\\), equal to the jump \\(|3-2\\cdot1|=1\\); the points are colored terracotta and the Continuity row of the Readouts card says the jump is \\(1\\).',
             )],
             scene: {
                 id: 'continuity-jump-example', basedOn: 'demonstration-default',
@@ -1014,8 +1014,8 @@ const continuity: GuidedLesson = {
             title: text('Zvezna funkcija pri \\(a=3/2\\)', 'The continuous function at \\(a=3/2\\)'),
             purpose: text('Preveriti, da se pri \\(a=3/2\\) obe točki pokrijeta in skoka ni.', 'Checking that for \\(a=3/2\\) both points coincide and there is no jump.'),
             explanation: text(
-                'Pri \\(a=3/2\\) leži zapolnjena točka \\((1,3/2)\\) znotraj votle: obe sta zeleni, skok je \\(0\\) in na grafu piše, da je funkcija zvezna pri \\(x=1\\). Drsnik ima korak \\(0{,}05\\), zato je \\(a=1{,}5\\) dosegljiv; odločitev o zveznosti dopušča razliko \\(10^{-9}\\), da zaokrožitvene napake pri premikanju drsnika ne bi skrile zveznosti.',
-                'For \\(a=3/2\\) the filled point \\((1,3/2)\\) sits inside the hollow one: both are green, the jump is \\(0\\) and the board says the function is continuous at \\(x=1\\). The slider has the step \\(0.05\\), so \\(a=1.5\\) is reachable; the decision about continuity allows a difference of \\(10^{-9}\\), so that rounding errors from moving the slider do not hide continuity.',
+                'Pri \\(a=3/2\\) leži zapolnjena točka \\((1,3/2)\\) znotraj votle: obe sta zeleni, skok je \\(0\\) in kartica Odčitki v vrstici Zveznost pokaže, da je funkcija zvezna pri \\(x=1\\). Drsnik ima korak \\(0{,}05\\), zato je \\(a=1{,}5\\) dosegljiv; odločitev o zveznosti dopušča razliko \\(10^{-9}\\), da zaokrožitvene napake pri premikanju drsnika ne bi skrile zveznosti.',
+                'For \\(a=3/2\\) the filled point \\((1,3/2)\\) sits inside the hollow one: both are green, the jump is \\(0\\) and the Continuity row of the Readouts card says the function is continuous at \\(x=1\\). The slider has the step \\(0.05\\), so \\(a=1.5\\) is reachable; the decision about continuity allows a difference of \\(10^{-9}\\), so that rounding errors from moving the slider do not hide continuity.',
             ),
             formulaIds: ['continuity-condition'],
             frames: [frame('continuity-continuous-explanation', 'explanation', continuityFrame({highlight: ['jump', 'status'], uses: ['a']})), frame('continuity-continuous-observation', 'observation', continuityFrame({highlight: ['jump', 'status'], uses: ['a']}))],

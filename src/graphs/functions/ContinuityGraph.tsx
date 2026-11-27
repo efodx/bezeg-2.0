@@ -1,7 +1,7 @@
 import React from "react";
 import BaseFunctionGraph, {DomainError, localizedSliderValue, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import Slider from "../../inputs/Slider";
-import {currentLanguage, message, messageNumber, t} from "../../localization";
+import {message, messageNumber, t} from "../../localization";
 import type {GraphDeclaration} from "../base/declare/graphDeclaration";
 import type {ParameterBinding} from "../base/writes/parameterArbiter";
 import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
@@ -23,20 +23,12 @@ export type ContinuityIds = {
     legend: "curve" | "value" | "right"; section: never; action: never;
 };
 
-/** The jump, never shown as "0" while the function is not continuous (an imported a can lie between slider steps). */
-const formatJump = (a: number, language: "sl" | "en") => {
-    const text = formatNumber(jump(a), language);
-    return text === "0" && !isContinuous(a) ? formatNumber(jump(a), language, 12) : text;
-};
 /** The jump's decimals for `messageNumber`: more while the function is not continuous, same rule as `formatJump`. */
 const jumpDecimals = (a: number) => !isContinuous(a) && formatNumber(jump(a), "en") === "0" ? 12 : undefined;
 
 /** The one-sided values match: the palette's green; they do not: the palette's terracotta. The status text repeats the meaning, colour is never the only cue. */
 const MATCH_COLOR = GraphPalette.primaryCurve;
 const MISMATCH_COLOR = GraphPalette.constructionLevels[5];
-/** The status text uses darker tones of the same two hues so that it reaches about 4.5:1 on the board surface (the points keep the palette colours). */
-const MATCH_TEXT_COLOR = GraphPalette.primaryCurve;
-const MISMATCH_TEXT_COLOR = "#9c5d48";
 
 /**
  * Piecewise function `f(x) = a*x^2` for `x <= 1` and `-a*x + 3` for `x > 1` with a slider `a`. Each piece is drawn only on
@@ -92,7 +84,6 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
     protected createScene(): void {
         const board = this.board;
         const model = () => this.model;
-        const language = () => currentLanguage();
         const matches = () => isContinuous(model().a);
         const statusColor = () => matches() ? MATCH_COLOR : MISMATCH_COLOR;
         const strokeWidth = () => this.displaySettings.strokeWidth;
@@ -114,20 +105,6 @@ export class ContinuityGraph extends BaseFunctionGraph<ContinuityModel> {
             label: this.pointLabel("below-right"),
             fillColor: statusColor, highlightFillColor: statusColor,
         })));
-
-        // The status, the most important readout, stays on the board in text as well as colour.
-        // Top right: the left piece falls to the top left and the right piece descends below it, so no default curve reaches that corner.
-        this.caption("top-right", [
-            {text: () => this.statusText(language()), scale: 1.2, color: () => matches() ? MATCH_TEXT_COLOR : MISMATCH_TEXT_COLOR},
-            {text: () => t("continuity_board_limits", {
-                value0: formatNumber(leftLimit(model().a), language()), value1: formatNumber(rightLimit(model().a), language()),
-            })},
-        ]);
-    }
-
-    private statusText(language: "sl" | "en"): string {
-        const {a} = this.model;
-        return isContinuous(a) ? t("continuity_board_continuous") : t("continuity_board_jump", {value0: formatJump(a, language)});
     }
 
     protected override onSceneRemoved(): void {

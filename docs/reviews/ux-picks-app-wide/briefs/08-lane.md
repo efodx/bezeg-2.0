@@ -76,6 +76,10 @@ Notes: `docs/reviews/ux-picks-app-wide/briefs/notes/08-lane-<lane id>.md`.
 
 ## Common misses (found at acceptance)
 
+- Browser specs beyond smoke-lesson: grep `tests/*.spec.cjs` for the graph's id and route, and run every spec that touches
+  them. Round 11 broke master CI in `curve-ownership.smoke.spec.cjs` (a batch export did not restore a directed view).
+  Restore views through `BoardView`, never a raw `setBoundingBox`.
+
 - A declared legend replaces the graph's own legend panel: make `renderLegend()` (or the inline legend block) render nothing
   once the legend is declared, or Orodja shows a second legend (L06).
 - Marks cover everything the learner watches: every main curve (both curves of a pair, e.g. f and f⁻¹), not only the first

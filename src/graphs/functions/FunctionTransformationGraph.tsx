@@ -195,12 +195,6 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
         this.imageDot = this.marker("image", GraphPalette.constructionAccent, () => tracked() !== undefined);
         this.drawn.set("point", this.imageDot);
         this.syncSceneToModel();
-
-        // The rule and the tracked point stay on the board (projection needs them).
-        this.caption("bottom-right", [
-            {text: () => transformRuleText(model(), currentLanguage()), scale: 1.2, math: true},
-            {text: () => this.boardPointText(model()), minBoardWidth: 520},
-        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -318,14 +312,6 @@ export class FunctionTransformationGraph extends BaseFunctionGraph<FunctionTrans
     private pointText(x: number, y: number): string {
         const language = currentLanguage();
         return `(${this.number(x, language)}${language === "sl" ? "; " : ", "}${this.number(y, language)})`;
-    }
-
-    private boardPointText(model: FunctionTransformationModel): string {
-        const point = trackedPointOf(model);
-        if (!point) return t("function_transformation_board_point_undefined", {value0: this.number(model.u)});
-        return t("function_transformation_board_point", {
-            value0: this.number(point.base.x), value1: this.number(point.base.y), value2: this.number(point.image.x), value3: this.number(point.image.y),
-        });
     }
 
     private stepText(step: RuleStep): string {

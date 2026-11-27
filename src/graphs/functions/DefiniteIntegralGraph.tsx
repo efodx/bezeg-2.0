@@ -2,11 +2,10 @@ import React from "react";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, message, messageNumber, t} from "../../localization";
+import {message, messageNumber, t} from "../../localization";
 import type {GraphDeclaration, ParameterDeclaration} from "../base/declare/graphDeclaration";
 import type {ParameterBinding} from "../base/writes/parameterArbiter";
 import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
-import {formatNumber} from "../../analysis/format";
 import {catalogFunction, FUNCTION_IDS, FunctionId, isFunctionId} from "../../analysis/functions";
 import {
     BOUND_MAX, BOUND_MIN, BOUND_STEP, exactIntegral, FillData, fillData, isBound, isSubintervalCount, isSumMethod, N_MAX, N_MIN, N_STEP,
@@ -151,7 +150,6 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         const board = this.board;
         const model = () => this.model;
         const fn = () => this.currentFunction();
-        const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
 
         // Layers, lowest first: the shapes above the axis, the shapes below it, the function, then the bound points.
@@ -185,14 +183,8 @@ export class DefiniteIntegralGraph extends BaseFunctionGraph<RiemannModel> {
         this.drawn.set("point-a", this.pointA);
         this.drawn.set("point-b", this.pointB);
 
-        // The function and the two results, the most important readouts, stay on the board, top left: every catalog graph rises to the right or is small there.
-        this.caption("top-left", [
-            {text: () => `f(x) = ${fn().plain}`, scale: 1.2, math: true},
-            {text: () => t("integral_board_values", {
-                value0: formatNumber(riemannSum(fn(), model().a, model().b, model().n, model().method), language(), PRECISE),
-                value1: formatNumber(exactIntegral(fn(), model().a, model().b), language(), PRECISE),
-            })},
-        ]);
+        // The rule of f is the one line no card shows (the legend says only "graph of f"), so it stays on the board, top left: every catalog graph rises to the right or is small there. The sum and the integral are readout rows.
+        this.caption("top-left", [{text: () => `f(x) = ${fn().plain}`, scale: 1.2, math: true}]);
     }
 
     protected override syncSceneToModel(): void {

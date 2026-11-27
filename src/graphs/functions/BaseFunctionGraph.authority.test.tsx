@@ -370,18 +370,19 @@ describe('linear function: replacement paths keep domain, controls and board tog
         expect(graph.exportPresetData()).toEqual({x1: 0, y1: 1, x2: 2, y2: 7});
     });
 
-    test('a language change keeps model and points, and redraws the board texts and readouts in the new language', () => {
+    test('a language change keeps model and points, and redraws the board texts and readouts in the new language (the equation is a readout row, not a board caption)', () => {
         const {graph} = mountLinear();
         typeLinear('y₂', 4);
         expect(graph.exportPresetData()).toEqual({x1: 0, y1: 1, x2: 2, y2: 4});
         expect(readout('k')).toBe('1,5');
-        expect(texts(graph).some(text => text.includes('1,5'))).toBe(true);
+        expect(readout('equation')).toContain('1,5');
         act(() => { setLanguage('en'); });
         expect(graph.exportPresetData()).toEqual({x1: 0, y1: 1, x2: 2, y2: 4});
         expect(linearFields()).toEqual(['0', '1', '2', '4']);
         near(handles(graph)[1], [2, 4]);
         expect(readout('k')).toBe('1.5');
-        expect(texts(graph).some(text => text.includes('1.5'))).toBe(true);
+        expect(readout('equation')).toContain('1.5');
+        expect(readout('equation')).not.toContain('1,5');
         expect(texts(graph).some(text => text.includes('1,5'))).toBe(false);
     });
 });

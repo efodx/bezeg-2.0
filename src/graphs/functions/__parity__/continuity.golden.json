@@ -48,10 +48,7 @@
       ],
       "notes": [],
       "outputs": [],
-      "captions": [
-        "limita z leve 1, z desne 2",
-        "skok 1 pri x = 1"
-      ]
+      "captions": []
     },
     {
       "name": "continuity-guided/continuity-continuous-step",
@@ -101,10 +98,7 @@
         "Zvezna ne pomeni gladka: kosa se stikata, a imata v točki x = 1 različna naklona 3 in -1,5, zato ima graf ostri vogal."
       ],
       "outputs": [],
-      "captions": [
-        "limita z leve 1,5, z desne 1,5",
-        "zvezna pri x = 1"
-      ]
+      "captions": []
     }
   ]
 }

@@ -40,10 +40,7 @@
         "Lomljenka je vedno krajša od loka ali enako dolga. Pri a = b sta obe dolžini 0."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = sin x",
-        "lomljenka 3,7242, lok 3,8202"
-      ]
+      "captions": []
     },
     {
       "name": "arc-length-guided/arc-chord-step",
@@ -83,10 +80,7 @@
         "Lomljenka je vedno krajša od loka ali enako dolga. Pri a = b sta obe dolžini 0."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = sin x",
-        "lomljenka 3,1416, lok 3,8202"
-      ]
+      "captions": []
     },
     {
       "name": "arc-length-guided/arc-more-step",
@@ -126,10 +120,7 @@
         "Lomljenka je vedno krajša od loka ali enako dolga. Pri a = b sta obe dolžini 0."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = sin x",
-        "lomljenka 3,8153, lok 3,8202"
-      ]
+      "captions": []
     },
     {
       "name": "arc-length-guided/arc-limit-step",
@@ -169,10 +160,7 @@
         "Lomljenka je vedno krajša od loka ali enako dolga. Pri a = b sta obe dolžini 0."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = sin x",
-        "lomljenka 3,8201, lok 3,8202"
-      ]
+      "captions": []
     },
     {
       "name": "arc-length-guided/arc-link-step",
@@ -212,10 +200,7 @@
         "Lomljenka je vedno krajša od loka ali enako dolga. Pri a = b sta obe dolžini 0."
       ],
       "outputs": [],
-      "captions": [
-        "f(x) = sin x",
-        "lomljenka 6,2832, lok 7,6404"
-      ]
+      "captions": []
     }
   ]
 }

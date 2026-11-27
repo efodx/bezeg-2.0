@@ -215,13 +215,6 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
         this.drawn.set("point-p", this.dotP);
         this.drawn.set("point-mirror", this.dotMirror);
         this.syncSceneToModel();
-
-        // The pair, the points and the slopes stay on the board (projection needs them).
-        this.caption("bottom-right", [
-            {text: () => this.ruleText(model()), scale: 1.2},
-            {text: () => this.boardPointText(model()), minBoardWidth: 520},
-            {text: () => this.boardSlopeText(model()), minBoardWidth: 520},
-        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -248,30 +241,6 @@ export class FunctionInverseGraph extends BaseFunctionGraph<FunctionInverseModel
     private pointText(p: Point2): string {
         const language = currentLanguage();
         return `(${this.number(p.x, language)}${language === "sl" ? "; " : ", "}${this.number(p.y, language)})`;
-    }
-
-    /** A slope: the number, or the words for a vertical tangent (never a number there). */
-    private slopeText(slope: SlopeResult): string {
-        if (slope.kind === "slope") return this.number(slope.value);
-        return t(slope.kind === "vertical" ? "function_inverse_slope_vertical" : "function_inverse_slope_undefined");
-    }
-
-    private ruleText(model: FunctionInverseModel): string {
-        switch (model.restriction) {
-            case "square": return t("function_inverse_rule_square");
-            case "exp": return t("function_inverse_rule_exp", {value0: this.number(model.base)});
-            case "natural": return t("function_inverse_rule_natural");
-        }
-    }
-
-    private boardPointText(model: FunctionInverseModel): string {
-        const s = inverseSlopesOf(model);
-        return s ? t("function_inverse_board_point", {value0: this.pointText(s.point), value1: this.pointText(s.mirror)}) : "";
-    }
-
-    private boardSlopeText(model: FunctionInverseModel): string {
-        const s = inverseSlopesOf(model);
-        return s ? t("function_inverse_board_slopes", {value0: this.slopeText(s.forwardSlope), value1: this.slopeText(s.inverseSlope)}) : "";
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------

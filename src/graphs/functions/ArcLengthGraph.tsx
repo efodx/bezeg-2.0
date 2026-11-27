@@ -1,11 +1,10 @@
 import React from "react";
 import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import Slider from "../../inputs/Slider";
-import {currentLanguage, message, messageNumber, t} from "../../localization";
+import {message, messageNumber, t} from "../../localization";
 import type {GraphDeclaration, ParameterDeclaration} from "../base/declare/graphDeclaration";
 import type {ParameterBinding} from "../base/writes/parameterArbiter";
 import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
-import {formatNumber} from "../../analysis/format";
 import {
     arcLength, arcValue, BOUND_MAX, BOUND_MIN, BOUND_STEP, isBound, isSegmentCount, lengthDifference, N_MAX, N_MIN, N_STEP, polylineLength, polylineVertices,
 } from "../../analysis/arcLength";
@@ -92,7 +91,6 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
     protected createScene(): void {
         const board = this.board;
         const model = () => this.model;
-        const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
 
         // Layers, lowest first: the curve, the polyline, the polyline vertices, then the endpoints.
@@ -146,15 +144,6 @@ export class ArcLengthGraph extends BaseFunctionGraph<ArcLengthModel> {
         this.pointB = endpoint("b");
         this.drawn.set("point-a", this.pointA);
         this.drawn.set("point-b", this.pointB);
-
-        // The function and the two lengths, the most important readouts, stay on the board, top right: the arch never rises above y = 1.
-        this.caption("top-right", [
-            {text: () => "f(x) = sin x", scale: 1.2, math: true},
-            {text: () => t("arc_board_lengths", {
-                value0: formatNumber(polylineLength(model().a, model().b, model().n), language(), PRECISE),
-                value1: formatNumber(arcLength(model().a, model().b), language(), PRECISE),
-            })},
-        ]);
     }
 
     protected override syncSceneToModel(): void {

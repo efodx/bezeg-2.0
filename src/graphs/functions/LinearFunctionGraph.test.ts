@@ -52,6 +52,9 @@ const points = (graph: any) => graph.board.objectsList.filter((object: any) => o
     .map((object: any) => [object.x, object.y]);
 const boardObjectCount = (graph: any) => graph.board.objectsList.length;
 
+/** The equation as its readout row carries it (the board writes no caption). */
+const equationRow = (graph: any) => (graph.renderReadout().props.rows as { id: string; value: string }[]).find(row => row.id === 'equation')!.value;
+
 beforeEach(() => setLanguage('sl'));
 
 test('initialization draws the default points and keeps k, n and the model in the lesson example', () => {
@@ -62,7 +65,8 @@ test('initialization draws the default points and keeps k, n and the model in th
     const types = graph.board.objectsList.map((object: any) => object.type);
     expect(types.filter((type: string) => type === 'line')).toHaveLength(1);
     expect(types.filter((type: string) => type === 'segment')).toHaveLength(2);
-    expect(types.filter((type: string) => type === 'text')).toHaveLength(3);
+    expect(types.filter((type: string) => type === 'text')).toHaveLength(2);
+    expect(graph.captionPlainLines()).toEqual([]);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-6, 8, 6, -4], true);
 });
 
@@ -182,16 +186,16 @@ test('readouts never contain Infinity or NaN, including the vertical and coincid
     expect(text(rowsFor(0, 0, 3, -1)).split('|')[1]).toBe('−0.33');
 });
 
-test('the caption follows the language, and a language change notifies subscribers', () => {
+test('the equation row follows the language, and a language change notifies subscribers', () => {
     const graph = makeGraph();
     apply(graph, parameter('k', -0.5));
     setLanguage('sl');
-    expect(graph.captionPlainLines()).toEqual(['y = −0,5x + 1']);
+    expect(equationRow(graph)).toBe('y = −0,5x + 1');
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(graph.captionPlainLines()).toEqual(['y = −0.5x + 1']);
+    expect(equationRow(graph)).toBe('y = −0.5x + 1');
     unsubscribe();
     setLanguage('sl');
     expect(listener).toHaveBeenCalledTimes(1);

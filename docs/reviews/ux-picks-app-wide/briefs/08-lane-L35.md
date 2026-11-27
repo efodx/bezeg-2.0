@@ -13,7 +13,7 @@ in one graph, each framed by its real content extent). Lessons from earlier roun
 - A multi-graph `*FirstTask.test.tsx` case for a control that became a puck must move to the strip.
 - Anchor board captions in user coordinates inside the marks, so cards never cover them.
 - Never write the canvas-sized `fitBoundingBox` result as the view intent; the director then shrinks the board to its 1/2.2 limit. Write the tight content box plus margin.
-- Pixel-anchored corner captions stay as they are (08 triage).
+- Owner, 2026-11-27: drop every board caption line that only repeats a legend entry or a readout row. Follow the Taylor removal `e0bfe3576` and see the "Board captions" bullet in `docs/tasks/ux-picks-app-wide/08-convert-all-graphs.md`. A line with information no card shows stays, and must be clear of cards when a step names it.
 - List every new file (fragment, `__parity__/*.json`, declaration test) in your report: the handler stages them.
 
 ## Lane (`inventory/08-partition.json`)

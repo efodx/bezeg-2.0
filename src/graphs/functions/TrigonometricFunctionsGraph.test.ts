@@ -1,7 +1,7 @@
 import {TrigonometricFunctionsGraph} from './TrigonometricFunctionsGraph';
 import {getLessonForDemonstration} from '../../learning/runtime/lessonCatalog';
 import {LessonAction, UnsupportedLessonActionError} from '../../learning/model';
-import {onLanguageChange, setLanguage} from '../../localization';
+import {onLanguageChange, renderMessage, setLanguage} from '../../localization';
 import {refusalTexts} from './refusalTexts.testutil';
 import {tangentAsymptotes} from '../../analysis/trigonometric';
 
@@ -64,7 +64,7 @@ test('initialization draws f(x) = sin x, the midline, hidden reference, tangent 
     expect(graph.presets()).toBe('trigonometric-function');
     expect(functions(graph)).toHaveLength(3);
     expect(dataCurves(graph)).toHaveLength(3);
-    expect(ofType(graph, 'text')).toHaveLength(1);
+    expect(ofType(graph, 'text')).toHaveLength(0);
     expect(graph.board.setBoundingBox).toHaveBeenCalledWith([-7, 4, 7, -4], true);
     expect(mainValue(graph, Math.PI / 2)).toBeCloseTo(1, 12);
     expect(functions(graph)[MIDLINE].parents[0](123)).toBe(0);
@@ -307,18 +307,23 @@ test('readouts: amplitude, period, shift and range, with exact multiples of pi, 
     }
 });
 
-test('the caption follows the language, and a language change notifies subscribers', () => {
+test('the equation row and the reference legend entry follow the language, and a language change notifies subscribers', () => {
     const graph = makeGraph();
+    const equation = () => (graph.renderReadout().props.rows as { id: string; value: string }[]).find(row => row.id === 'equation')!.value;
+    const legend = () => (graph.getDeclaration()!.legend ?? []).map((item: {id: unknown; label: unknown}) => [item.id, renderMessage(item.label as never)]);
     apply(graph, parameter('A', 0.5));
     apply(graph, parameter('omega', 0.5));
-    expect(graph.captionPlainLines()).toEqual(['f(x) = 0,5·sin(0,5x)']);
+    expect(equation()).toBe('f(x) = 0,5·sin(0,5x)');
+    expect(graph.captionPlainLines()).toEqual([]);
     apply(graph, reference(true));
-    expect(graph.captionPlainLines()).toEqual(['f(x) = 0,5·sin(0,5x)', 'sin(x) (referenčni graf)']);
+    expect(legend().map(([id]: unknown[]) => id)).toEqual(['curve', 'midline', 'reference']);
+    expect(legend()[2][1]).toBe('Referenčni graf osnovne funkcije g');
     const listener = vi.fn();
     const unsubscribe = onLanguageChange(listener);
     setLanguage('en');
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(graph.captionPlainLines()).toEqual(['f(x) = 0.5·sin(0.5x)', 'sin(x) (reference graph)']);
+    expect(equation()).toBe('f(x) = 0.5·sin(0.5x)');
+    expect(legend()[2][1]).toBe('Reference graph of the basic function g');
     unsubscribe();
 });
 
