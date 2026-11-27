@@ -14,11 +14,10 @@ import {SERIES_A_MAX, SERIES_A_MIN} from '../../analysis/geometricSeriesModel';
 import {curveAccess} from './curveGraphTestAccess';
 import {INTERPOLATION_COORDINATE_LIMIT} from '../curves/interpolation/interpolationModel';
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN} from '../../analysis/interpolation';
-import {ACCUMULATION_BOUND_MAX, ACCUMULATION_BOUND_MIN} from '../../analysis/accumulation';
 import {DENSITY_BOUND_LIMIT, DENSITY_DRAG_STEP} from '../../analysis/densityAreaModel';
 
 /** Catalog keys without placeholders (a union of keys would not type check against `t`). */
-type PlainKey = 'accumulation_a_label' | 'prob_density_a_label' | 'prob_density_b_label' | 'series_a_label' | 'interp_slider_position' | 'bsd_point_count' | 'interp_point_count' | 'increase_count' | 'decrease_count';
+type PlainKey = 'prob_density_a_label' | 'prob_density_b_label' | 'series_a_label' | 'interp_slider_position' | 'bsd_point_count' | 'interp_point_count' | 'increase_count' | 'decrease_count';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -76,7 +75,7 @@ numeric('prob-density', 'prob_density_b_label', {min: -DENSITY_BOUND_LIMIT, max:
 
 slider('geometric-series', 'series_a_label', {min: SERIES_A_MIN, max: SERIES_A_MAX, step: 0.1, valid: 2, outOfRange: SERIES_A_MAX + 1});
 slider('interp-lagrange', 'interp_slider_position', {min: 0, max: 1, step: 0.01, valid: 0.5, outOfRange: 2});
-slider('accumulation', 'accumulation_a_label', {min: ACCUMULATION_BOUND_MIN, max: ACCUMULATION_BOUND_MAX, step: 0.1, valid: -3, outOfRange: ACCUMULATION_BOUND_MAX + 1});
+// Accumulation a, and convexity a/b/t and Darboux a/b/n, are board pucks now: no Orodja slider remains. Bounds, rejection and puck drag are covered in AccumulationGraph.test.ts and AccumulationGraph.host.test.tsx.
 
 count('bspline-deboor', 'bsd_point_count', {min: 3, max: 12});
 /**
