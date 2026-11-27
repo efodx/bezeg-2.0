@@ -33,6 +33,11 @@ more stops that demonstration and is reported with the exact change you want.
 - Marks cover every object the learner watches (both curves of a pair, tangents, secants, chords, sums, the iteration path),
   not only the first `plotted` function.
 - Board-drawn captions (JSXGraph texts) are not marks: marks (and `followView`) cover every caption the learner reads.
+  **Owner, 2026-11-27:** remove board caption lines (the `this.caption(...)` corner text and similar) that only repeat a
+  legend entry or readout row, as Taylor (`e0bfe3576`); quote each removed line and the card entry that shows it in the
+  notes; caption-only golden differences are reported, the handler re-records. Any remaining board text a lesson step tells the learner to read must be clear of cards: user-coordinate anchors go into
+  `marks.must` for those steps; pixel-anchored text is re-anchored in user coordinates inside the followed frame (L37
+  recursion-cobweb, `89e4245ee`, `captionFrame`/`cobwebFocus`). Browser-check that step at 1440 and 1280.
 - Puck labels at most 16 characters; `symbol` set means bare `label`; Orodja controls keep their old key, bare keys go to the fragment.
 - The multi-graph `*FirstTask.test.tsx` files: a control that becomes a puck updates its own case there (puck on `[data-puck-strip]`).
 - JSXGraph drag handlers that write state need `runAs('learner', ...)`; tests writing a bound key outside the DOM wrap in it too.

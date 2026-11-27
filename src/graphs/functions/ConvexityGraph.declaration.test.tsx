@@ -70,6 +70,25 @@ describe('Convexity declares through BaseFunctionGraph', () => {
         expect(rowText('second-derivative-sign')).toBe('f″ ≥ 0 na [a, b]');
     });
 
+    test('the sign marks are declared as view marks (top row of the example view) only once f\'\' is shown, so the director keeps them clear of the cards', () => {
+        const graph = new ConvexityGraph();
+        mountGraph(graph);
+        const signRow = () => {
+            const [, top, , bottom] = (graph as unknown as {defaultBoundingBox(): number[]}).defaultBoundingBox();
+            const y = top - 0.07 * (top - bottom);
+            return graph.getDeclaration()!.marks!.must.filter(mark => mark.kind === 'point' && Math.abs(mark.y - y) < 1e-9);
+        };
+        act(() => { runAs('learner', () => (graph as unknown as {setExample(value: string): void}).setExample('cube')); });
+        expect(signRow()).toHaveLength(0);
+        act(() => { graph.performAction('show-second-derivative'); });
+        // cube: f'' = 6x changes sign at 0: "−" on the left, "+" on the right, "0" at the zero; the pieces across the axis name both places
+        const xs = signRow().map(mark => (mark as {x: number}).x);
+        expect(xs.length).toBeGreaterThanOrEqual(3);
+        expect(xs.some(x => x < 0)).toBe(true);
+        expect(xs.some(x => x > 0)).toBe(true);
+        expect(xs).toContain(0);
+    });
+
     test('a write through the arbiter changes the model and reads back; a refused value changes nothing', () => {
         const graph = new ConvexityGraph();
         mountGraph(graph);

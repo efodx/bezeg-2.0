@@ -152,8 +152,36 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
 
     /** The pieces of the view on which f'' has one strict sign; none while the board has no extent. */
     private piecesInView(example: ConvexityExample): readonly SecondDerivativePiece[] {
-        const [left, , right] = this.board.getBoundingBox();
+        const [left, right] = this.markRange();
         return left < right ? secondDerivativePieces(example, left, right) : [];
+    }
+
+    /**
+     * The x range the sign marks are laid out over: the view intent (the box the board is asked to show), not the box on screen. The
+     * director maps the intent into the card-free area, so the marks stand clear of the cards, while the box on screen also reaches
+     * under them. No intent (no extent yet): the box on screen.
+     */
+    private markRange(): [number, number] {
+        const [left, , right] = this.boardView.intent().box;
+        if (left < right) return [left, right];
+        const [shownLeft, , shownRight] = this.board.getBoundingBox();
+        return [shownLeft, shownRight];
+    }
+
+    /**
+     * Where the sign marks (+, −, 0) stand at the top of the example's own view (the view intent, see `markRange`), in user
+     * coordinates, so that the view director keeps them clear of the board cards. A piece across the y-axis can have its mark moved off the axis (`signMarkX`), so both
+     * places it may take are named. Computed from the model alone (the live board is what the director is still choosing).
+     */
+    private signMarkAnchors(example: ConvexityExample): { x: number; y: number }[] {
+        const [left, top, right, bottom] = EXAMPLE_VIEWS[this.model.example];
+        const y = top - 0.07 * (top - bottom);
+        const xs: number[] = example.secondDerivativeZeros.filter(x => x > left && x < right);
+        for (const {from, to} of secondDerivativePieces(example, left, right)) {
+            xs.push((from + to) / 2);
+            if (from < 0 && to > 0) xs.push(to > -from ? to / 2 : from / 2);
+        }
+        return xs.map(x => ({x, y}));
     }
 
     // ---- Model operations (read and write the synchronous model) ---------------------------------------
@@ -315,7 +343,7 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
         for (let index = 0; index < MAX_ZEROS; index++) {
             const zero = () => {
                 if (!revealed()) return undefined;
-                const [left, , right] = board.getBoundingBox();
+                const [left, right] = this.markRange();
                 return view().example.secondDerivativeZeros.filter(x => x > left && x < right)[index];
             };
             // The y-axis tick labels sit left of x = 0, so a 0 mark there is set just right of the axis.
@@ -494,6 +522,7 @@ export class ConvexityGraph extends BaseFunctionGraph<ConvexityModel> {
             must: [
                 ...[a, b, tangentPoint].flatMap(x => [{x, y: 0}, {x, y: f(x)}]),
                 ...(shown && view.inflection !== undefined ? [{x: view.inflection, y: f(view.inflection)}] : []),
+                ...(shown ? this.signMarkAnchors(view.example) : []),
             ],
         };
     }

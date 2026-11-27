@@ -65,7 +65,9 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
   follows the director's framing; 16 "pod grafom" sentences now name the Odčitki card). Sent to A (with dfb8498ad pending pick).
 - Merged board-workspace-2 (incl. ee7a33aa7) into lane-b at `156d36f7c`; A picks only lane commits after it.
 - L50 (8 demos; dispatch `briefs/08-lane-L50.md`, ONE per worker for function graphs (accumulation alone took 175k):
-  accepted `43e4628db` accumulation (sent to A). Convexity running. Then darboux, extrema, fixed-point + sequence (IterativeFunctionGraph shared with L42/L47: opt-in hook only), mean-value +
+  accepted `43e4628db` accumulation, `42d6cb877` convexity (sent to A; A ruled the f'' sign marks are NOT case (c): a
+  step names them, so fix in a follow-up (worker running). Rule now in the L50 brief: board text a step tells the learner
+  to read must be clear of cards). Darboux running. Then extrema, fixed-point + sequence (IterativeFunctionGraph shared with L42/L47: opt-in hook only), mean-value +
   uniform-convergence. Then L49, L44, L47.
 - (old) Uncommitted in the tree: segment-intersections (converted, graph-check green) and voronoi (converted; golden is a
   notes-only diff to re-record after the fix; VoronoiGraph.host.test Fit case ~536 and hull-robustness "untagged view" writes
@@ -75,6 +77,13 @@ publishes. **Stream B (you)** runs the long-pole lanes, in this order: **L54, L5
   function graphs; cards cover it (accumulation 1280x720). Stream A decided (c): captions stay board-drawn in 08
   (08 task file :40), never change shared caption() in a lane; extending the Taylor removal is on the owner's list in A's
   state note. Lanes keep corner captions as is (L50, L47).
+  Owner, 2026-11-27, asked whether removing captions that repeat the legend/readouts is planned: it is not in any task
+  (08 triage :40 defers it to unnamed "feel follow-ups"; 09-11 do not cover it). Owner thinks it should be part of 08;
+  **Owner confirmed 2026-11-27: "Yes, remove that. I thought it was part
+  of it since you can do it when you move to cards."** Lanes remove repeating caption lines as they convert (rule in the
+  L50 brief; carry it into L49/L44/L47 briefs); sweep of converted graphs: B does accumulation + convexity (follow-up
+  after the sign-mark fix), A its own; recorded by A in e5e4374fb (08 task file :40).
+  A picked 43e4628db as de294bbb1, 42d6cb877 as 45b3cc85c; round 11 on master 6c5c063bf.
 - (done) L54 closeout (handler): compgeo lesson prose says "pod grafom" / "under the graph" for readouts that are now cards
   (`compgeoGuidedLessons.ts` ~lines 572, 766, 1133, 1181, 1322, 2802); reword once all L54 demos are in. Take
   inspector-width screenshots of a few converted panels before the final L54 commit.
