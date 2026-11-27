@@ -37,7 +37,11 @@ Triage: [`08-triage.md`](../../reviews/ux-picks-app-wide/inventory/08-triage.md)
 - **Vector-valued parameters** (B-spline knots, summary statistics data): as the linear-map and phase-portrait pilots: the editor stays in Orodja, the parameter is not declared.
 - **Point and point-set parameters** (22 point-set, 32 curve-point demonstrations): as triangle centres (task 02 decision): points are board-owned, shown as rows and legend only; their row editors are the declared point rows.
 - **`equalAxisUnits` false** (19): the director's fit already takes the intent's `keepAspectRatio`; a graph whose content is tall relative to its width declares `followView` as bisection does.
-- **Board captions and formula values** (54): stay board-drawn in 08; that cards can cover them stays an open item for the feel follow-ups.
+- **Board captions and formula values** (54), owner decision 2026-11-27 (relayed by stream B, extending the Taylor removal `e0bfe3576`: "Yes, remove that. I thought it was part of it since you can do it when you move to cards."):
+  - A lane drops every board caption line that only repeats a legend entry or a readout row. This covers `BaseFunctionGraph.caption()` corner text and similar board text; use Taylor's removal as the pattern.
+  - A line carrying information no card shows stays board-drawn and must be clear of the cards when a lesson step names it.
+  - Re-record a caption-only golden difference after the browser check.
+  - A sweep applies the same rule to graphs converted before the decision: stream B sweeps its own lanes, stream A the rest.
 
 ## Round 1 measurements (from `briefs/notes/08-lane-L0*.md`)
 
