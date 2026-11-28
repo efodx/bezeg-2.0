@@ -73,6 +73,11 @@ Rewritten by handler 2 at its soft budget (2026-11-27). Present state only.
   (two reworded observation prompts in `splineGuidedLessons.ts`) and commit. Stale rows for A:
   `demonstration-preview-recipes.cjs:33`, `demonstration-preview-curve-motion.cjs:382`.
 
+### Pending merge
+
+- Merge `board-workspace-2` after the prob-binomial-normal worker returns (before its commit): it carries a stricter
+  ViewMark type check and the puck-strip-over-Lekcija fix. Long prompts scrolling behind "Več vsebine" are with the owner.
+
 ### Waiting on stream A
 
 - Nothing blocking. A repoints stale clip/preview/perf script rows (controls that became pucks) in one pass; lane workers

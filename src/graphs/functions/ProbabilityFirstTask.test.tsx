@@ -48,8 +48,8 @@ const checkOrder = (graph: BaseGraph<BaseGraphState>, first: Label, later: Label
 const plan: Record<string, {make: () => BaseGraph<BaseGraphState>; first: Label; later: Label[]}> = {
     // The ends, the mean and the deviation are board pucks (task 08 lane L47): Edit holds the example chooser alone.
     density: {make: () => new DensityAreaGraph(), first: () => t('prob_density_example_label'), later: []},
-    'binomial-normal': {make: () => new BinomialNormalGraph(), first: () => t('prob_binomial_n_label'),
-        later: [() => t('prob_binomial_p_label'), () => t('prob_binomial_k_label'), () => t('prob_binomial_correction_label'), () => t('prob_binomial_example_label')]},
+    // n, p, k and the two switches are board pucks (task 08 lane L47): Edit holds the example chooser alone.
+    'binomial-normal': {make: () => new BinomialNormalGraph(), first: () => t('prob_binomial_example_label'), later: []},
     // The first control is the "Add another copy" action of the playback group.
     clt: {make: () => new CltGraph(), first: () => 'action:next-step',
         later: [() => t('prob_clt_n_label'), () => t('prob_clt_example_label'), () => t('prob_clt_cdf_label')]},
@@ -78,5 +78,21 @@ describe('density pucks', () => {
         for (const label of [t('prob_density_a_label'), t('prob_density_b_label'), t('prob_density_mu_label'), t('prob_density_sigma_label')]) {
             expect(within(root).queryAllByLabelText(label), label).toEqual([]);
         }
+    });
+});
+
+describe('binomial-normal pucks', () => {
+    // n, p and k are range pucks and the correction and the Poisson bars switch pucks: there once, and not in Orodja, which keeps the example chooser.
+    test('n, p, k, the correction and the Poisson bars are pucks and Orodja holds no second copy', async () => {
+        mountGraph(new BinomialNormalGraph());
+        await waitForPucks('binomial-n');
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const key of ['binomial-n', 'binomial-p', 'binomial-k', 'correction', 'poisson']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of [t('prob_binomial_n_label'), t('prob_binomial_p_label'), t('prob_binomial_k_label'), t('prob_binomial_correction_label'), t('prob_binomial_poisson_label')]) {
+            expect(within(root).queryAllByLabelText(label), label).toEqual([]);
+        }
+        expect(within(root).queryAllByLabelText(t('prob_binomial_example_label')).length).toBeGreaterThan(0);
     });
 });

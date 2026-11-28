@@ -1,19 +1,21 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import {FunctionStatus} from "./FunctionStatus";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, renderMessage, t} from "../../localization";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {binomialPmf, poissonPmf} from "../../analysis/distributions";
 import {
     BINOMIAL_NORMAL_N_MAX, BinomialNormalEdit, BinomialNormalModel, BinomialNormalView, DEFAULT_BINOMIAL_NORMAL_MODEL,
     binomialBars, binomialNormalDensity, chooseBinomialCorrection, binomialNormalExampleOf, binomialNormalView, binomialShadedBars, chooseBinomialNormalExample,
     fitBinomialNormalView, isBinomialNormalExampleId, poissonBars, setBinomialFlag, setBinomialK, setBinomialN, setBinomialP,
 } from "../../analysis/binomialNormalModel";
-import {
-    binomialNormalEditMessage, binomialNumber, binomialP, binomialProbability,
-} from "./binomialNormalMessages";
+import {binomialNormalEditMessage, binomialProbability} from "./binomialNormalMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
@@ -23,6 +25,16 @@ const NORMAL_AREA_POINTS = 160;
 const NORMAL_AREA_SIGMAS = 8;
 /** The Poisson mass above n is mentioned when it exceeds this. */
 const POISSON_TAIL_NOTE_MIN = 1e-4;
+
+/**
+ * The ids of the binomial declaration: n, p and k are board pucks, the continuity correction and the Poisson bars are switch pucks; the
+ * legend names every drawn object (the Poisson bars only while they are shown).
+ */
+export type BinomialNormalIds = {
+    param: "binomial-n" | "binomial-p" | "binomial-k";
+    row: "n" | "p" | "mean" | "sigma" | "k" | "exact" | "corrected" | "uncorrected" | "poisson" | "error-corrected" | "error-uncorrected" | "error-poisson";
+    note: "binomial"; legend: "bars" | "shaded" | "normal" | "normal-area" | "poisson"; section: never; action: "correction" | "poisson";
+};
 
 /**
  * From binomial to normal (lesson P2): the bars of B(n, p), the shaded bars of P(X <= k), the normal curve with the same mean
@@ -36,6 +48,8 @@ const POISSON_TAIL_NOTE_MIN = 1e-4;
  */
 export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> {
     protected pointK?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
     private readonly barsOf = this.modelCache((model: BinomialNormalModel) => binomialBars(model));
     private readonly shadedOf = this.modelCache((model: BinomialNormalModel) => binomialShadedBars(model));
     private readonly poissonOf = this.modelCache((model: BinomialNormalModel) => poissonBars(model));
@@ -146,16 +160,15 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
     protected createScene(): void {
         const board = this.board;
         const model = () => this.model;
-        const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
         const barColor = GraphPalette.additionalCurves[0];
         const poissonColor = GraphPalette.additionalCurves[1];
 
         // Layers, lowest first: shaded bars, normal area, bar outlines, normal density, Poisson bars, then the point k.
-        this.signedFill(barColor, () => this.shadedOf(this.model));
-        this.signedFill(GraphPalette.comparisonCurve, () => this.normalAreaOf(this.model));
+        this.drawn.set("shaded", this.signedFill(barColor, () => this.shadedOf(this.model)) as unknown as JXG.GeometryElement);
+        this.drawn.set("normal-area", this.signedFill(GraphPalette.comparisonCurve, () => this.normalAreaOf(this.model)) as unknown as JXG.GeometryElement);
 
-        const polyline = (color: string, data: () => { x: number[]; y: number[] }, width: () => number) => {
+        const polyline = (id: string, color: string, data: () => { x: number[]; y: number[] }, width: () => number) => {
             const curve = this.own(board.create("curve", [[], []], {
                 strokeColor: color, fillOpacity: 0, highlight: false, fixed: true, strokeWidth: width,
             })) as unknown as { updateDataArray: () => void; dataX: number[]; dataY: number[] };
@@ -164,12 +177,13 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
                 curve.dataX = x;
                 curve.dataY = y;
             };
+            this.drawn.set(id, curve as unknown as JXG.GeometryElement);
         };
-        polyline(barColor, () => this.barsOf(this.model), strokeWidth);
-        this.own(board.create("functiongraph", [(x: number) => binomialNormalDensity(model())(x)], {
+        polyline("bars", barColor, () => this.barsOf(this.model), strokeWidth);
+        this.drawn.set("normal", this.own(board.create("functiongraph", [(x: number) => binomialNormalDensity(model())(x)], {
             strokeColor: GraphPalette.primaryCurve, highlight: false, fixed: true, strokeWidth,
-        }));
-        polyline(poissonColor, () => model().poisson ? this.poissonOf(this.model) : {x: [], y: []}, strokeWidth);
+        })));
+        polyline("poisson", poissonColor, () => model().poisson ? this.poissonOf(this.model) : {x: [], y: []}, strokeWidth);
 
         // The threshold slides along the x-axis in whole steps, at the centre of the bar of k.
         this.pointK = this.slidingPoint({
@@ -177,14 +191,6 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
             attributes: {...this.styles.point.default, name: "$$k$$", label: this.pointLabel("below-right", 1.6)},
             write: x => this.setK(x, {syncScene: false}),
         });
-
-        this.caption("top-left", [
-            {text: () => t("prob_binomial_board_title", {value0: binomialNumber(model().n, language()), value1: binomialP(model().p, language())}), scale: 1.2},
-            {text: () => t("prob_binomial_board_moments", {
-                value0: binomialNumber(this.viewOf(model()).mean, language()), value1: binomialNumber(this.viewOf(model()).sigma, language()),
-            })},
-            {text: () => t("prob_binomial_board_probability", {value0: binomialNumber(model().k, language()), value1: binomialProbability(this.viewOf(model()).exact, language())})},
-        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -193,6 +199,7 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
 
     protected override onSceneRemoved(): void {
         this.pointK = undefined;
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -207,23 +214,23 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
             ...(example === undefined ? [{value: "custom", text: t("prob_binomial_example_custom")}] : []),
         ];
         return <>
-            <div className="inspector-group">
-                <Slider customText={t("prob_binomial_n_label")} min={1} max={BINOMIAL_NORMAL_N_MAX} step={1} value={state.n}
+            <PuckOwnedGroup params={["binomial-n", "binomial-p", "binomial-k"]} className="inspector-group">
+                <PuckOwned param="binomial-n"><Slider customText={t("prob_binomial_n_label")} min={1} max={BINOMIAL_NORMAL_N_MAX} step={1} value={state.n}
                         rejectedHint={t("prob_binomial_n_rejected", {value0: BINOMIAL_NORMAL_N_MAX})}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setN(next))}/>
-                <Slider customText={t("prob_binomial_p_label")} min={0} max={1} step={0.01} fieldDecimals={4} value={state.p}
-                        rejectedHint={t("prob_binomial_p_help")} onChange={next => this.ignoreOutOfDomain(() => this.setP(next))}/>
-                <Slider customText={t("prob_binomial_k_label")} value={state.k} min={0} max={state.n} step={1}
+                        onChange={next => this.ignoreOutOfDomain(() => this.setN(next))}/></PuckOwned>
+                <PuckOwned param="binomial-p"><Slider customText={t("prob_binomial_p_label")} min={0} max={1} step={0.01} fieldDecimals={4} value={state.p}
+                        rejectedHint={t("prob_binomial_p_help")} onChange={next => this.ignoreOutOfDomain(() => this.setP(next))}/></PuckOwned>
+                <PuckOwned param="binomial-k"><Slider customText={t("prob_binomial_k_label")} value={state.k} min={0} max={state.n} step={1}
                         rejectedHint={t("prob_binomial_k_rejected", {value0: state.n})}
-                        onChange={next => this.ignoreOutOfDomain(() => this.setK(next))}/>
+                        onChange={next => this.ignoreOutOfDomain(() => this.setK(next))}/></PuckOwned>
                 <p className="inspector-help">{t("prob_binomial_k_help")}</p>
-            </div>
-            <div className="inspector-group">
-                <OnOffSwitch checked={state.correction} label={t("prob_binomial_correction_label")}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setFlag("correction", next))}/>
-                <OnOffSwitch checked={state.poisson} label={t("prob_binomial_poisson_label")}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setFlag("poisson", next))}/>
-            </div>
+            </PuckOwnedGroup>
+            <PuckOwnedGroup params={["correction", "poisson"]} className="inspector-group">
+                <PuckOwned param="correction"><OnOffSwitch checked={state.correction} label={t("prob_binomial_correction_label")}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setFlag("correction", next))}/></PuckOwned>
+                <PuckOwned param="poisson"><OnOffSwitch checked={state.poisson} label={t("prob_binomial_poisson_label")}
+                             onChange={next => this.ignoreOutOfDomain(() => this.setFlag("poisson", next))}/></PuckOwned>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <ChoiceSelect label={t("prob_binomial_example_label")} value={example ?? "custom"} help={t("prob_binomial_example_help")} options={options}
                               onChange={next => { if (isBinomialNormalExampleId(next)) this.setExample(next); }}/>
@@ -231,36 +238,101 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
         </>;
     }
 
-    protected renderReadout(): React.ReactNode {
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys; a learner's write keeps the view as the inspector did. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "binomial-n": {read: () => this.model.n, apply: (value: number) => this.setN(value)},
+            "binomial-p": {read: () => this.model.p, apply: (value: number) => this.setP(value)},
+            "binomial-k": {read: () => this.model.k, apply: (value: number) => this.setK(value)},
+        };
+    }
+
+    /** The common declaration plus n, p and k as board pucks, the correction and the Poisson bars as switch pucks, and the legend. */
+    protected override declaration(): GraphDeclaration | undefined {
+        const {n, correction, poisson} = this.model;
+        return {
+            ...this.commonDeclaration(),
+            parameters: [
+                {key: "binomial-n", kind: "range", label: message("prob_binomial_n_name"), symbol: "n", placement: "board", min: 1, max: BINOMIAL_NORMAL_N_MAX, step: 1, maxDecimals: 0},
+                {key: "binomial-p", kind: "range", label: message("prob_binomial_p_name"), symbol: "p", help: message("prob_binomial_p_help"), placement: "board", min: 0, max: 1, step: 0.01, maxDecimals: 4},
+                {key: "binomial-k", kind: "range", label: message("prob_binomial_k_name"), symbol: "k", help: message("prob_binomial_k_help"), placement: "board", min: 0, max: n, step: 1, maxDecimals: 0},
+            ],
+            legend: [
+                {id: "bars", label: message("prob_binomial_legend_bars"), kind: "line", object: "bars"},
+                {id: "shaded", label: message("prob_binomial_legend_shaded"), kind: "area", object: "shaded"},
+                {id: "normal", label: message("prob_binomial_legend_normal"), kind: "line", object: "normal"},
+                {id: "normal-area", label: message("prob_binomial_legend_normal_area"), kind: "area", object: "normal-area"},
+                ...(poisson ? [{id: "poisson" as const, label: message("prob_binomial_legend_poisson"), kind: "line" as const, object: "poisson"}] : []),
+            ],
+            actions: [
+                {id: "correction", label: message("prob_binomial_correction_name"), help: message("prob_binomial_correction_label"), placement: "board", enabled: true, pressed: correction, puck: true},
+                {id: "poisson", label: message("prob_binomial_poisson_name"), help: message("prob_binomial_poisson_label"), placement: "board", enabled: true, pressed: poisson, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "correction") runAs("learner", () => this.setFlag("correction", !this.model.correction));
+        else if (id === "poisson") runAs("learner", () => this.setFlag("poisson", !this.model.poisson));
+        else throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const colorProperty = id === "shaded" || id === "normal-area" ? "fillcolor" : "strokecolor";
+        return {color: String(element.evalVisProp(colorProperty)), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /** Declared by the base: the readout rows (the values the board caption gave, then the three probabilities and their errors), the note and the status. */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
-        const probability = (value: number) => binomialProbability(value, language);
-        const rows = [
-            {id: "exact", label: t("prob_binomial_readout_exact"), value: probability(view.exact)},
-            {id: "corrected", label: t("prob_binomial_readout_corrected"), value: probability(view.corrected)},
-            {id: "uncorrected", label: t("prob_binomial_readout_uncorrected"), value: probability(view.uncorrected)},
-            {id: "poisson", label: t("prob_binomial_readout_poisson"), value: probability(view.poisson)},
-            {id: "error-corrected", label: t("prob_binomial_readout_error_corrected"), value: probability(view.correctedError)},
-            {id: "error-uncorrected", label: t("prob_binomial_readout_error_uncorrected"), value: probability(view.uncorrectedError)},
-            {id: "error-poisson", label: t("prob_binomial_readout_error_poisson"), value: probability(view.poissonError)},
-        ];
-        const tail = model.poisson ? this.poissonOf(model).tail : 0;
-        return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_binomial_note")}/>
-            <FunctionStatus dataAttribute="prob-binomial"
-                            lines={tail > POISSON_TAIL_NOTE_MIN ? [{id: "poisson-tail", text: t("prob_binomial_poisson_tail", {value0: probability(tail)})}] : []}/>
-        </>;
+        const formatted = (value: number) => ({kind: "formatted" as const, text: binomialProbability(value, language)});
+        const lambda = model.n * model.p;
+        const tail = this.poissonTail(model);
+        return {
+            rows: [
+                {id: "n", symbol: "n", value: messageNumber(model.n, 2)},
+                {id: "p", symbol: "p", value: messageNumber(model.p, 4)},
+                {id: "mean", name: message("prob_binomial_mean_name"), symbol: "μ", value: messageNumber(view.mean, 2)},
+                {id: "sigma", symbol: "σ", value: messageNumber(view.sigma, 2)},
+                {id: "k", symbol: "k", value: messageNumber(model.k, 2)},
+                {id: "exact", name: message("prob_binomial_readout_exact"), value: formatted(view.exact)},
+                {id: "corrected", name: message("prob_binomial_readout_corrected"), value: formatted(view.corrected)},
+                {id: "uncorrected", name: message("prob_binomial_readout_uncorrected"), value: formatted(view.uncorrected)},
+                {id: "poisson", name: message("prob_binomial_readout_poisson"), value: formatted(view.poisson)},
+                {id: "error-corrected", name: message("prob_binomial_readout_error_corrected"), value: formatted(view.correctedError)},
+                {id: "error-uncorrected", name: message("prob_binomial_readout_error_uncorrected"), value: formatted(view.uncorrectedError)},
+                {id: "error-poisson", name: message("prob_binomial_readout_error_poisson"), value: formatted(view.poissonError)},
+            ],
+            notes: [{id: "binomial", text: message("prob_binomial_note")}],
+            ...(tail > POISSON_TAIL_NOTE_MIN ? {status: [{id: "poisson-tail", text: message("prob_binomial_poisson_tail", {value0: binomialProbability(tail, language)}), tone: "muted" as const}]} : {}),
+            // The marks: the normal curve, the bars (as a step envelope) and, while shown, the Poisson bars, over the example view.
+            plotted: [
+                (x: number) => binomialNormalDensity(model)(x),
+                (x: number) => Math.round(x) >= 0 && Math.round(x) <= model.n ? binomialPmf(model.n, model.p, Math.round(x)) : 0,
+                ...(model.poisson ? [(x: number) => Math.round(x) >= 0 && Math.round(x) <= model.n ? poissonPmf(lambda, Math.round(x)) : 0] : []),
+            ],
+        };
     }
 
-    protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "bars", color: GraphPalette.additionalCurves[0], label: t("prob_binomial_legend_bars"), kind: "line"},
-            {id: "shaded", color: GraphPalette.additionalCurves[0], label: t("prob_binomial_legend_shaded"), kind: "area"},
-            {id: "normal", color: GraphPalette.primaryCurve, label: t("prob_binomial_legend_normal"), kind: "line"},
-            {id: "normal-area", color: GraphPalette.comparisonCurve, label: t("prob_binomial_legend_normal_area"), kind: "area"},
-            {id: "poisson", color: GraphPalette.additionalCurves[1], label: t("prob_binomial_legend_poisson"), kind: "line"},
-        ]}/>;
+    /** The Poisson mass above n (zero while the Poisson bars are off). */
+    private poissonTail(model: BinomialNormalModel): number {
+        return model.poisson ? this.poissonOf(model).tail : 0;
+    }
+
+    protected renderReadout(): React.ReactNode {
+        const status = this.functionPanel().status ?? [];
+        return <>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus dataAttribute="prob-binomial" lines={status.map(line => ({id: line.id, text: renderMessage(line.text)}))}/>
+        </>;
     }
 }
 

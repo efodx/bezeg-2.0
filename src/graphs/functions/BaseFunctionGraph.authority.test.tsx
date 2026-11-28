@@ -80,6 +80,10 @@ class ObservedLinearGraph extends LinearFunctionGraph {
 }
 
 class ObservedBinomialGraph extends BinomialNormalGraph {
+    // BinomialNormalGraph declares the board workspace (task 08 lane L47): n, p, k and the switches are pucks. These tests exercise the
+    // undeclared inspector path (Orodja sliders and switches, a drag with no write source), so the fixture withdraws the declaration.
+    protected override declaration() { return undefined; }
+    protected override parameterBindings() { return {}; }
     liveBoard() { return this.board; }
     draggable() { return [this.pointK] as unknown as BoardObject[]; }
 }

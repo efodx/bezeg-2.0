@@ -11,10 +11,12 @@ import type {FunctionParameterName, LessonAction} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {DensityAreaIds} from '../../graphs/functions/DensityAreaGraph';
+import type {BinomialNormalIds} from '../../graphs/functions/BinomialNormalGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 const densityFrame = frameDeclarer<DensityAreaIds>();
+const binomialFrame = frameDeclarer<BinomialNormalIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name, value});
 
 interface DensityScene {
@@ -271,7 +273,7 @@ const binomialNormal: GuidedLesson = {
                 'The graph shows the bars of the distribution \\(X\\sim B(20;\\tfrac12)\\), for example the number of heads in \\(20\\) coin tosses, and the normal curve with the same mean \\(10\\) and standard deviation \\(\\sigma=\\sqrt5\\approx2.24\\). The bars up to \\(k=10\\) are shaded: \\(P(X\\le10)=0.5881\\). Predict: what is \\(P(X\\le8)\\)?',
             ),
             formulaIds: ['binomial-normal-approximation'],
-            frames: [frame('binomial-bars-explanation', 'explanation'), frame('binomial-bars-observation', 'observation')],
+            frames: [frame('binomial-bars-explanation', 'explanation', binomialFrame({highlight: ['mean', 'sigma', 'exact']})), frame('binomial-bars-observation', 'observation', binomialFrame({highlight: ['exact']}))],
             observationPrompt: text('Pred naslednjim korakom se odloči: je \\(P(X\\le8)\\) bližje \\(0{,}1\\), \\(0{,}25\\) ali \\(0{,}4\\)?', 'Before the next step decide: is \\(P(X\\le8)\\) closer to \\(0.1\\), \\(0.25\\) or \\(0.4\\)?'),
             expectedObservations: [text('Stolpci so simetrični okoli \\(10\\) in normalna krivulja gre skoraj skozi njihove vrhove; \\(P(X\\le10)=0{,}5881\\) je več kot polovica, ker stolpec \\(10\\) šteje v celoti.', 'The bars are symmetric about \\(10\\) and the normal curve passes almost through their tops; \\(P(X\\le10)=0.5881\\) is more than one half because the bar of \\(10\\) counts in full.')],
             scene: binomialScene('binomial-bars-start', {example: 'fair20', k: 10},
@@ -283,11 +285,11 @@ const binomialNormal: GuidedLesson = {
             title: text('Natančna vsota do 8', 'The exact sum up to 8'),
             purpose: text('Prebrati natančno vrednost \\(P(X\\le8)\\) kot vsoto devetih stolpcev.', 'Reading the exact value of \\(P(X\\le8)\\) as the sum of nine bars.'),
             explanation: text(
-                'Meja je zdaj \\(k=8\\): pobarvanih je devet stolpcev, od \\(0\\) do \\(8\\). Njihova vsota je natančna verjetnost \\(P(X\\le8)=0{,}25172\\). Normalna porazdelitev s popravkom za zveznost da \\(0{,}25117\\), absolutna napaka je \\(0{,}00055\\). Povleci točko \\(k\\) po osi in opazuj, kako se vrednosti spreminjajo.',
-                'The bound is now \\(k=8\\): nine bars are shaded, from \\(0\\) to \\(8\\). Their sum is the exact probability \\(P(X\\le8)=0.25172\\). The normal distribution with the continuity correction gives \\(0.25117\\), an absolute error of \\(0.00055\\). Drag the point \\(k\\) along the axis and watch how the values change.',
+                'Meja je zdaj \\(k=8\\): pobarvanih je devet stolpcev, od \\(0\\) do \\(8\\). Njihova vsota je natančna verjetnost \\(P(X\\le8)=0{,}25172\\). Normalna porazdelitev s popravkom za zveznost da \\(0{,}25117\\), absolutna napaka je \\(0{,}00055\\). Povleci točko \\(k\\) po osi ali jo nastavi s krmilnikom Meja in opazuj, kako se vrednosti spreminjajo.',
+                'The bound is now \\(k=8\\): nine bars are shaded, from \\(0\\) to \\(8\\). Their sum is the exact probability \\(P(X\\le8)=0.25172\\). The normal distribution with the continuity correction gives \\(0.25117\\), an absolute error of \\(0.00055\\). Drag the point \\(k\\) along the axis or set it with the Threshold control and watch how the values change.',
             ),
             formulaIds: ['binomial-normal-approximation'],
-            frames: [frame('binomial-shade-explanation', 'explanation'), frame('binomial-shade-observation', 'observation')],
+            frames: [frame('binomial-shade-explanation', 'explanation', binomialFrame({highlight: ['k', 'exact', 'error-corrected']})), frame('binomial-shade-observation', 'observation', binomialFrame({highlight: ['exact', 'corrected'], uses: ['binomial-k']}))],
             observationPrompt: text('Primerjaj z napovedjo. Za koliko se poveča natančna vrednost, ko premakneš \\(k\\) z \\(8\\) na \\(9\\)?', 'Compare with your prediction. By how much does the exact value grow when you move \\(k\\) from \\(8\\) to \\(9\\)?'),
             expectedObservations: [text('\\(P(X\\le8)=0{,}25172\\); pri \\(k=9\\) je \\(P(X\\le9)=0{,}41190\\), povečanje je ravno stolpec \\(9\\).', '\\(P(X\\le8)=0.25172\\); at \\(k=9\\), \\(P(X\\le9)=0.41190\\), and the increase is exactly the bar of \\(9\\).')],
             scene: binomialScene('binomial-shade-start', {example: 'fair20', k: 8},
@@ -299,11 +301,11 @@ const binomialNormal: GuidedLesson = {
             title: text('Popravek za zveznost', 'The continuity correction'),
             purpose: text('Razumeti, zakaj se ploščina pod krivuljo konča pri \\(8{,}5\\) in ne pri \\(8\\).', 'Understanding why the area under the curve ends at \\(8.5\\) and not at \\(8\\).'),
             explanation: text(
-                'Popravek za zveznost je zdaj izklopljen: ploščina pod normalno krivuljo sega le do \\(8\\) in je \\(0{,}18555\\), napaka je \\(0{,}06618\\). Stolpec \\(8\\) leži nad intervalom \\([7{,}5;8{,}5]\\), zato meja \\(8\\) odreže njegovo desno polovico. Vklopi popravek: ploščina seže do \\(8{,}5\\) in je \\(0{,}25117\\) proti natančnim \\(0{,}25172\\). Pri tako majhnem \\(n\\), kot ga srečamo pri pouku, popravka ne smemo izpustiti.',
-                'The continuity correction is now off: the area under the normal curve only reaches \\(8\\) and is \\(0.18555\\), an error of \\(0.06618\\). The bar of \\(8\\) stands over the interval \\([7.5;8.5]\\), so the bound \\(8\\) cuts off its right half. Switch the correction on: the area reaches \\(8.5\\) and is \\(0.25117\\) against the exact \\(0.25172\\). At an \\(n\\) as small as the ones met in class the correction must not be left out.',
+                'Popravek za zveznost je zdaj izklopljen: ploščina pod normalno krivuljo sega le do \\(8\\) in je \\(0{,}18555\\), napaka je \\(0{,}06618\\). Stolpec \\(8\\) leži nad intervalom \\([7{,}5;8{,}5]\\), zato meja \\(8\\) odreže njegovo desno polovico. S krmilnikom Popravek vklopi popravek: ploščina seže do \\(8{,}5\\) in je \\(0{,}25117\\) proti natančnim \\(0{,}25172\\). Pri tako majhnem \\(n\\), kot ga srečamo pri pouku, popravka ne smemo izpustiti.',
+                'The continuity correction is now off: the area under the normal curve only reaches \\(8\\) and is \\(0.18555\\), an error of \\(0.06618\\). The bar of \\(8\\) stands over the interval \\([7.5;8.5]\\), so the bound \\(8\\) cuts off its right half. Switch the correction on with the Correction control: the area reaches \\(8.5\\) and is \\(0.25117\\) against the exact \\(0.25172\\). At an \\(n\\) as small as the ones met in class the correction must not be left out.',
             ),
             formulaIds: ['binomial-normal-approximation'],
-            frames: [frame('binomial-correction-explanation', 'explanation'), frame('binomial-correction-observation', 'observation')],
+            frames: [frame('binomial-correction-explanation', 'explanation', binomialFrame({highlight: ['uncorrected', 'error-uncorrected']})), frame('binomial-correction-observation', 'observation', binomialFrame({highlight: ['error-uncorrected', 'error-corrected'], uses: ['correction']}))],
             observationPrompt: text('Kolikšna je napaka brez popravka in kolikšna s popravkom? Kolikokrat je manjša?', 'What is the error without the correction, and what with it? How many times smaller is it?'),
             expectedObservations: [text('Brez popravka je napaka \\(0{,}06618\\), s popravkom \\(0{,}00055\\), več kot stokrat manjša.', 'Without the correction the error is \\(0.06618\\), with it \\(0.00055\\), more than a hundred times smaller.')],
             scene: binomialScene('binomial-correction-start', {example: 'fair20', k: 8, correction: 'off'},
@@ -315,11 +317,11 @@ const binomialNormal: GuidedLesson = {
             title: text('Večji \\(n\\)', 'A larger \\(n\\)'),
             purpose: text('Opaziti, da se napaka popravljenega približka pri večjem \\(n\\) zmanjša.', 'Noticing that the error of the corrected approximation decreases at a larger \\(n\\).'),
             explanation: text(
-                'Zdaj je \\(n=50\\) in \\(k=22\\), meja leži malo pod povprečjem \\(25\\) kot prej \\(8\\) pod \\(10\\). Natančno je \\(P(X\\le22)=0{,}23994\\), s popravkom \\(0{,}23975\\) (napaka \\(0{,}00019\\)), brez popravka \\(0{,}19807\\) (napaka \\(0{,}04187\\)). Izberi še primer \\(B(100;\\tfrac12)\\) s \\(k=45\\): napaka s popravkom je tam \\(0{,}00004\\). To ponazarja izrek de Moivre–Laplace, limitno trditev: ko \\(n\\) narašča, gre napaka proti \\(0\\). Napake veljajo le za te \\(n\\), \\(p\\) in \\(k\\); hitrosti iz slike ne razberemo.',
-                'Now \\(n=50\\) and \\(k=22\\), a bound a little below the mean \\(25\\) as \\(8\\) was below \\(10\\). The exact value is \\(P(X\\le22)=0.23994\\), corrected \\(0.23975\\) (error \\(0.00019\\)), uncorrected \\(0.19807\\) (error \\(0.04187\\)). Also choose the example \\(B(100;\\tfrac12)\\) with \\(k=45\\): the corrected error there is \\(0.00004\\). This illustrates the de Moivre–Laplace theorem, a limit statement: as \\(n\\) grows the error tends to \\(0\\). The errors hold only for these \\(n\\), \\(p\\) and \\(k\\); the picture does not show a rate.',
+                'Zdaj je \\(n=50\\) in \\(k=22\\), meja leži malo pod povprečjem \\(25\\) kot prej \\(8\\) pod \\(10\\). Natančno je \\(P(X\\le22)=0{,}23994\\), s popravkom \\(0{,}23975\\) (napaka \\(0{,}00019\\)), brez popravka \\(0{,}19807\\) (napaka \\(0{,}04187\\)). V kartici Orodja izberi še primer \\(B(100;\\tfrac12)\\) s \\(k=45\\): napaka s popravkom je tam \\(0{,}00004\\). To ponazarja izrek de Moivre–Laplace, limitno trditev: ko \\(n\\) narašča, gre napaka proti \\(0\\). Napake veljajo le za te \\(n\\), \\(p\\) in \\(k\\); hitrosti iz slike ne razberemo.',
+                'Now \\(n=50\\) and \\(k=22\\), a bound a little below the mean \\(25\\) as \\(8\\) was below \\(10\\). The exact value is \\(P(X\\le22)=0.23994\\), corrected \\(0.23975\\) (error \\(0.00019\\)), uncorrected \\(0.19807\\) (error \\(0.04187\\)). Also choose the example \\(B(100;\\tfrac12)\\) with \\(k=45\\) in the Tools card: the corrected error there is \\(0.00004\\). This illustrates the de Moivre–Laplace theorem, a limit statement: as \\(n\\) grows the error tends to \\(0\\). The errors hold only for these \\(n\\), \\(p\\) and \\(k\\); the picture does not show a rate.',
             ),
             formulaIds: ['binomial-normal-approximation'],
-            frames: [frame('binomial-growing-n-explanation', 'explanation'), frame('binomial-growing-n-observation', 'observation')],
+            frames: [frame('binomial-growing-n-explanation', 'explanation', binomialFrame({highlight: ['exact', 'corrected', 'uncorrected']})), frame('binomial-growing-n-observation', 'observation', binomialFrame({highlight: ['error-corrected', 'error-uncorrected']}))],
             observationPrompt: text('Pri \\(B(100;\\tfrac12)\\) in \\(k=45\\) preberi vse tri vrednosti. Ali je napaka brez popravka še vedno opazna?', 'At \\(B(100;\\tfrac12)\\) and \\(k=45\\) read all three values. Is the error without the correction still noticeable?'),
             expectedObservations: [text('Natančno \\(0{,}1841\\), s popravkom \\(0{,}18406\\), brez popravka \\(0{,}15866\\); napaka brez popravka \\(0{,}02545\\) je še vedno velika.', 'Exact \\(0.1841\\), corrected \\(0.18406\\), uncorrected \\(0.15866\\); the uncorrected error of \\(0.02545\\) is still large.')],
             scene: binomialScene('binomial-growing-n-start', {example: 'fair20', n: 50, k: 22},
@@ -335,7 +337,7 @@ const binomialNormal: GuidedLesson = {
                 'Now \\(n=100\\), \\(p=0.02\\) and \\(k=2\\); the mean is \\(np=2\\). The bars are not symmetric, and the normal curve gives probability to negative values as well. The exact value is \\(P(X\\le2)=0.67669\\), the corrected normal approximation \\(0.63951\\) (error \\(0.03718\\)) and the Poisson distribution with \\(\\lambda=2\\) gives \\(0.67668\\) (error \\(0.00001\\)). The Poisson distribution is the better limit when \\(n\\) is large, \\(p\\) small and \\(np\\) moderate. A common rule of thumb (a rule of thumb, not a theorem) allows the normal approximation only for \\(np\\ge5\\) and \\(n(1-p)\\ge5\\); here \\(np=2\\).',
             ),
             formulaIds: ['binomial-normal-approximation'],
-            frames: [frame('binomial-poisson-explanation', 'explanation'), frame('binomial-poisson-observation', 'observation')],
+            frames: [frame('binomial-poisson-explanation', 'explanation', binomialFrame({highlight: ['mean', 'exact', 'error-poisson']})), frame('binomial-poisson-observation', 'observation', binomialFrame({highlight: ['error-corrected', 'error-poisson'], uses: ['poisson']}))],
             observationPrompt: text('Primerjaj stolpce binomske in Poissonove porazdelitve. Kje se najbolj razlikujeta od normalne krivulje?', 'Compare the binomial and the Poisson bars. Where do they differ most from the normal curve?'),
             expectedObservations: [text('Binomski in Poissonovi stolpci se skoraj prekrivajo; normalna krivulja je simetrična okoli \\(2\\), stolpci pa imajo daljši desni rep in ne segajo pod \\(0\\).', 'The binomial and the Poisson bars almost coincide; the normal curve is symmetric about \\(2\\), while the bars have a longer right tail and do not reach below \\(0\\).')],
             scene: binomialScene('binomial-poisson-start', {example: 'fair100', p: 0.02, k: 2, poisson: true},
@@ -347,11 +349,11 @@ const binomialNormal: GuidedLesson = {
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno raziskovati, kdaj je kateri približek dober.', 'Exploring on your own when each approximation is good.'),
             explanation: text(
-                'Graf je spet pri \\(B(20;\\tfrac12)\\) s \\(k=8\\). Spreminjaj \\(n\\) (do \\(1000\\)), \\(p\\) in \\(k\\), vklapljaj popravek in Poissonove stolpce. Poskusi \\(p=0{,}9\\): stolpci so zrcalna slika primera s \\(p=0{,}1\\). Poišči \\(n\\) in \\(p\\), pri katerih sta normalni in Poissonov približek podobno dobra. Gumb za prilagoditev pogleda pokaže vse stolpce.',
-                'The graph is back at \\(B(20;\\tfrac12)\\) with \\(k=8\\). Change \\(n\\) (up to \\(1000\\)), \\(p\\) and \\(k\\), and switch the correction and the Poisson bars. Try \\(p=0.9\\): the bars are the mirror image of the case \\(p=0.1\\). Look for an \\(n\\) and a \\(p\\) at which the normal and the Poisson approximations are about equally good. The fit view button shows all bars.',
+                'Graf je spet pri \\(B(20;\\tfrac12)\\) s \\(k=8\\). Spreminjaj \\(n\\) (do \\(1000\\)), \\(p\\) in \\(k\\) s krmilniki Število poskusov, Verjetnost in Meja ter vklapljaj popravek in Poissonove stolpce s krmilnikoma Popravek in Poisson. Poskusi \\(p=0{,}9\\): stolpci so zrcalna slika primera s \\(p=0{,}1\\). Poišči \\(n\\) in \\(p\\), pri katerih sta normalni in Poissonov približek podobno dobra. Gumb za prilagoditev pogleda pokaže vse stolpce.',
+                'The graph is back at \\(B(20;\\tfrac12)\\) with \\(k=8\\). Change \\(n\\) (up to \\(1000\\)), \\(p\\) and \\(k\\) with the Trials, Probability and Threshold controls, and switch the correction and the Poisson bars with the Correction and Poisson controls. Try \\(p=0.9\\): the bars are the mirror image of the case \\(p=0.1\\). Look for an \\(n\\) and a \\(p\\) at which the normal and the Poisson approximations are about equally good. The fit view button shows all bars.',
             ),
             formulaIds: ['binomial-normal-approximation'],
-            frames: [frame('binomial-explore-explanation', 'explanation'), frame('binomial-explore-observation', 'observation')],
+            frames: [frame('binomial-explore-explanation', 'explanation', binomialFrame({highlight: ['mean', 'sigma']})), frame('binomial-explore-observation', 'observation', binomialFrame({uses: ['binomial-n', 'binomial-p', 'binomial-k', 'correction', 'poisson']}))],
             observationPrompt: text('Kaj se zgodi z napako Poissonovega približka pri \\(p=\\tfrac12\\), ko \\(n\\) narašča?', 'What happens to the error of the Poisson approximation at \\(p=\\tfrac12\\) as \\(n\\) grows?'),
             expectedObservations: [text('Pri \\(p=\\tfrac12\\) je varianca \\(np(1-p)\\) le polovica povprečja, pri Poissonovi porazdelitvi pa je enaka povprečju, zato Poissonov približek ne postane dober; normalni približek s popravkom pa se izboljšuje.', 'At \\(p=\\tfrac12\\) the variance \\(np(1-p)\\) is only half of the mean while the Poisson variance equals the mean, so the Poisson approximation does not become good; the corrected normal approximation does improve.')],
             scene: binomialScene('binomial-explore-default', {example: 'fair20'},
@@ -370,7 +372,7 @@ const binomialNormal: GuidedLesson = {
     edgeCases: [
         text('\\(n\\) je celo število od \\(1\\) do \\(1000\\), \\(k\\) celo število od \\(0\\) do \\(n\\); \\(p\\) mora biti strogo med \\(0\\) in \\(1\\): pri \\(p=0\\) ali \\(p=1\\) je varianca \\(0\\) in graf vrednost zavrne s sporočilom.', '\\(n\\) is an integer from \\(1\\) to \\(1000\\) and \\(k\\) an integer from \\(0\\) to \\(n\\); \\(p\\) must lie strictly between \\(0\\) and \\(1\\): at \\(p=0\\) or \\(p=1\\) the variance is \\(0\\) and the graph rejects the value with a message.'),
         text('Napake na grafu veljajo samo za izbrane \\(n\\), \\(p\\) in \\(k\\) in ne povedo, kako hitro se približek izboljšuje.', 'The errors on the graph hold only for the chosen \\(n\\), \\(p\\) and \\(k\\) and do not say how fast the approximation improves.'),
-        text('Poissonova porazdelitev ima verjetnost tudi nad \\(n\\); kadar ta ni zanemarljiva, graf izpiše, koliko je ni narisane.', 'The Poisson distribution also has probability above \\(n\\); when it is not negligible the graph states how much of it is not drawn.'),
+        text('Poissonova porazdelitev ima verjetnost tudi nad \\(n\\); kadar ta ni zanemarljiva, kartica Odčitki izpiše, koliko je ni narisane.', 'The Poisson distribution also has probability above \\(n\\); when it is not negligible the Readouts card states how much of it is not drawn.'),
     ],
     unresolvedQuestions: [],
 };

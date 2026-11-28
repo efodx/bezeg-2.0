@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {BinomialNormalGraph} from './BinomialNormalGraph';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {LocalizedError, setLanguage} from '../../localization';
 import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetImport';
 import {BINOMIAL_NORMAL_N_MAX, checkBinomialNormalModel, DEFAULT_BINOMIAL_NORMAL_MODEL, fitBinomialNormalView} from '../../analysis/binomialNormalModel';
@@ -33,37 +34,33 @@ class ObservedBinomialNormalGraph extends BinomialNormalGraph {
     poissonCurve() { return this.curves()[4]; }
     dragK(x: number) {
         const handle = this.handleK();
-        act(() => { handle.moveTo([x, 0]); handle.triggerEventHandlers(['drag'], []); });
+        act(() => { runAs('learner', () => { handle.moveTo([x, 0]); handle.triggerEventHandlers(['drag'], []); }); });
     }
     /** The host Fit button. */
-    fit() { act(() => { this.fitToVisiblePoints(); }); }
-    callSetP(value: unknown) { this.setP(value); }
+    fit() { act(() => { runAs('learner', () => { this.setViewDirector(undefined); this.fitToVisiblePoints(); }); }); }
+    callSetP(value: unknown) { runAs('learner', () => this.setP(value)); }
     lesson(action: LessonAction) { act(() => { this.applyLessonAction(action); }); }
 }
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
-const field = (label: RegExp) => screen.getByLabelText(label, {selector: 'input:not([type="range"])'}) as HTMLInputElement;
-const typeIn = (label: RegExp, value: number) => act(() => {
-    fireEvent.change(field(label), {target: {value: String(value)}});
-    fireEvent.keyDown(field(label), {key: 'Enter'});
-});
-const N_FIELD = /^Število poskusov n, vrednost$/;
-const typeN = (value: number) => typeIn(N_FIELD, value);
-const typeP = (value: number) => typeIn(/^Verjetnost uspeha p, vrednost$/, value);
-const K_FIELD = /^Meja k \(P\(X ≤ k\)\), vrednost$/;
-const typeK = (value: number) => typeIn(K_FIELD, value);
-const kField = () => field(K_FIELD);
+// n, p, k and the two switches are pucks on the board (task 08 lane L47): the tests write through the arbiter and `performAction` as the learner.
+let current: ObservedBinomialNormalGraph;
+type Key = 'binomial-n' | 'binomial-p' | 'binomial-k';
+const write = (key: Key, value: number) => { let result: unknown; act(() => { result = current.parameters!.write(key, value, 'learner'); }); return result as {status: string; error?: Error}; };
+const typeN = (value: number) => write('binomial-n', value);
+const typeP = (value: number) => write('binomial-p', value);
+const typeK = (value: number) => write('binomial-k', value);
 const exampleSelect = () => screen.getByLabelText(/^Primer$/) as HTMLSelectElement;
 const choose = (id: string) => act(() => { fireEvent.change(exampleSelect(), {target: {value: id}}); });
-const toggle = (label: RegExp) => act(() => { fireEvent.click(screen.getByLabelText(label)); });
-const correctionSwitch = /^Popravek za zveznost/;
-const poissonSwitch = /^Poissonovi stolpci$/;
+const flip = (id: 'correction' | 'poisson') => act(() => { current.performAction(id); });
+const pressed = (id: 'correction' | 'poisson') => current.getDeclaration()!.actions!.find(action => action.id === id)!.pressed;
 const READOUTS = ['exact', 'corrected', 'uncorrected', 'poisson', 'error-corrected', 'error-uncorrected', 'error-poisson'];
 const readouts = () => READOUTS.map(id => readout(id));
 const mount = () => {
     const graph = new ObservedBinomialNormalGraph();
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     expect(graph.state.initialized).toBe(true);
+    current = graph;
     return {graph, ...view};
 };
 
@@ -95,14 +92,18 @@ test('defaults: B(20; 1/2), k = 8 reads 0,25172 / 0,25117 / 0,18555 in Slovenian
     expect(readout('poisson')).toBe(comma(poissonCdf(10, 8)));
     expect(readout('error-corrected')).toBe('0,00055');
     expect(readout('error-uncorrected')).toBe('0,06618');
-    expect(graph.captionPlainLines().join('\n')).toMatch(/B\(20; 0,5\)/);
+    expect(graph.captionPlainLines()).toEqual([]);
+    expect(readout('n')).toBe('20');
+    expect(readout('p')).toBe('0,5');
+    expect(readout('mean')).toBe('10');
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
     act(() => { setLanguage('en'); });
     expect(readout('exact')).toBe('0.25172');
     expect(readout('corrected')).toBe('0.25117');
     expect(readout('uncorrected')).toBe('0.18555');
     expect(readout('error-uncorrected')).toBe('0.06618');
-    expect(graph.captionPlainLines().join('\n')).toMatch(/B\(20, 0\.5\)/);
+    expect(graph.captionPlainLines()).toEqual([]);
+    expect(readout('p')).toBe('0.5');
 });
 
 describe('edits through the inspector', () => {
@@ -119,7 +120,7 @@ describe('edits through the inspector', () => {
     test('the host Fit frames the bars (there is no fit-view button) after the user changed it', () => {
         const {graph} = mount();
         const fitted = [...graph.liveBoard().getBoundingBox()];
-        act(() => { graph.liveBoard().setBoundingBox([-50, 5, 50, -5], false); });
+        act(() => { runAs('learner', () => graph.liveBoard().setBoundingBox([-50, 5, 50, -5], false)); });
         expect(graph.liveBoard().getBoundingBox()).not.toEqual(fitted);
         expect(document.querySelector('[data-action="fit-view"]')).toBeNull();
         graph.fit();
@@ -133,7 +134,7 @@ describe('edits through the inspector', () => {
         expect(graph.modelNow().poisson).toBe(true);
         expect(graph.poissonCurve().dataX!.length).toBeGreaterThan(0);
         expect(graph.poissonCurve().dataY!.length).toBeGreaterThan(0);
-        toggle(poissonSwitch);
+        flip('poisson');
         expect(graph.modelNow().poisson).toBe(false);
         expect(graph.poissonCurve().dataX).toHaveLength(0);
     });
@@ -143,22 +144,22 @@ describe('edits through the inspector', () => {
         const end = () => { const x = graph.normalArea().dataX!; return x[x.length - 1]; };
         expect(end()).toBeCloseTo(8.5, 10);
         const exact = readout('exact');
-        toggle(correctionSwitch);
+        flip('correction');
         expect(graph.modelNow().correction).toBe(false);
         expect(end()).toBeCloseTo(8, 10);
         expect(readout('exact')).toBe(exact);
-        toggle(correctionSwitch);
+        flip('correction');
         expect(end()).toBeCloseTo(8.5, 10);
     });
 
-    test.each([0, 1])('typing p = %d is refused: model and readouts stay and the hint names the zero variance', value => {
+    test.each([0, 1])('writing p = %d is refused: model and readouts stay and the refusal names the zero variance', value => {
         const {graph} = mount();
         const model = graph.modelNow();
         const shown = readouts();
-        typeP(value);
+        const result = typeP(value);
+        expect(result.status).toBe('refused-domain');
         expect(graph.modelNow()).toBe(model);
         expect(readouts()).toEqual(shown);
-        expect(document.querySelector('.number-input-hint')?.textContent).toMatch(/varianca nič/);
         expect(() => graph.callSetP(value)).toThrow(/varianca nič/);
     });
 
@@ -166,7 +167,7 @@ describe('edits through the inspector', () => {
         const {graph} = mount();
         typeN(5);
         expect(graph.modelNow()).toMatchObject({n: 5, k: 5});
-        expect(kField().value).toBe('5');
+        expect(readout('k')).toBe('5');
         expect(graph.handleK().X()).toBe(5);
         expect(readout('exact')).toBe('1');
     });
@@ -187,7 +188,7 @@ describe('dragging the point k', () => {
         expect(graph.modelNow().k).toBe(11);
         expect(comma(binomialCdf(20, 0.5, 11))).toBe('0,74828');
         expect(readout('exact')).toBe('0,74828');
-        expect(kField().value).toBe('11');
+        expect(readout('k')).toBe('11');
     });
 
     test('dragging beyond n clamps to n', () => {
@@ -207,7 +208,7 @@ test('the board object count does not depend on n, with the Poisson overlay on o
     const lists: number[] = [];
     for (const poisson of [false, true]) {
         for (const n of [20, 1000]) {
-            if (graph.modelNow().poisson !== poisson) toggle(poissonSwitch);
+            if (graph.modelNow().poisson !== poisson) flip('poisson');
             typeN(n);
             expect(graph.modelNow()).toMatchObject({n, poisson});
             counts.push(graph.ownedObjects());
@@ -223,14 +224,14 @@ test('Reset restores the default model, the controls and the readouts', async ()
     const baseline = graph.ownedObjects();
     const shown = readouts();
     choose('rare');
-    toggle(correctionSwitch);
+    flip('correction');
     graph.dragK(1);
     await settle(() => graph.reset());
     expect(graph.modelNow()).toEqual(DEFAULT_BINOMIAL_NORMAL_MODEL);
-    expect(kField().value).toBe('8');
+    expect(readout('k')).toBe('8');
     expect(exampleSelect().value).toBe('fair20');
-    expect((screen.getByLabelText(correctionSwitch) as HTMLInputElement).checked).toBe(true);
-    expect((screen.getByLabelText(poissonSwitch) as HTMLInputElement).checked).toBe(false);
+    expect(pressed('correction')).toBe(true);
+    expect(pressed('poisson')).toBe(false);
     expect(readouts()).toEqual(shown);
     expect(graph.handleK().X()).toBe(8);
     expect(graph.ownedObjects()).toBe(baseline);
@@ -243,7 +244,7 @@ describe('Presets', () => {
         const {graph} = mount();
         choose('rare');
         graph.dragK(4);
-        toggle(correctionSwitch);
+        flip('correction');
         const saved = {n: 100, p: 0.02, k: 4, correction: false, poisson: true};
         const exported = graph.exportPreset();
         expect(exported.data).toEqual(saved);
@@ -251,13 +252,13 @@ describe('Presets', () => {
         expect(functionPresetCollections['prob-binomial-normal'].checkGraphState?.(exported.graphState)).toBeUndefined();
         const shown = readouts();
         choose('fair100');
-        toggle(poissonSwitch);
+        flip('poisson');
         expect(graph.modelNow()).not.toEqual(saved);
         act(() => { graph.importPreset({...exported, id: 'stored'}); });
         expect(graph.modelNow()).toEqual(saved);
         expect(graph.handleK().X()).toBe(4);
         expect(readouts()).toEqual(shown);
-        expect((screen.getByLabelText(correctionSwitch) as HTMLInputElement).checked).toBe(false);
+        expect(pressed('correction')).toBe(false);
         commitPresetImport(preflightPresetImport(fileWith(exported.data as object)));
         expect(JSON.parse(localStorage.getItem('preset-prob-binomial-normal')!).data[0].data).toEqual(saved);
     });
@@ -289,7 +290,7 @@ describe('live region', () => {
         act(() => { graph.importPreset({id: 'x', data: {n: 5, p: 0.9, k: 3, correction: true, poisson: true}}); });
         expect(tailNote()).not.toBeNull();
         expect(tailNote()!.textContent).toMatch(/Poissonova porazdelitev ima nad n še verjetnost/);
-        toggle(poissonSwitch);
+        flip('poisson');
         expect(tailNote()).toBeNull();
         expect(region()).not.toBeNull();
     });
@@ -372,7 +373,7 @@ describe('lesson actions (P2)', () => {
 
     test('binomial-k and binomial-correction keep a custom view', () => {
         const {graph} = mount();
-        act(() => { graph.liveBoard().setBoundingBox([-50, 5, 50, -5], false); });
+        act(() => { runAs('learner', () => graph.liveBoard().setBoundingBox([-50, 5, 50, -5], false)); });
         const custom = box(graph);
         graph.lesson(param('binomial-k', 12));
         expect(box(graph)).toEqual(custom);

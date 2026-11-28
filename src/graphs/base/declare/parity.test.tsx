@@ -45,6 +45,10 @@ const eulerLineAccepted: readonly AcceptedDifference[] = [
 const continuityAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'row a', reason: 'the parameter is a board puck now, so its slider output "a = 1,5" is a readout row; the panel showed the value only on the slider'},
 ];
+const probBinomialAccepted: readonly AcceptedDifference[] = ['n', 'p', 'mean', 'sigma', 'k'].map(key => ({
+    kind: 'extra', where: `row ${key}`,
+    reason: 'the board captions "X ∼ B(n; p)", "Povprečje μ, σ = ..." and "P(X ≤ k) = ..." are removed and their values are rows of the declaration; the panel showed n, p and k only on its sliders and fields',
+}) as const);
 const probDensityAccepted: readonly AcceptedDifference[] = ['mu', 'sigma', 'a', 'b'].map(key => ({
     kind: 'extra', where: `row ${key}`,
     reason: 'the board caption "X ∼ N(μ; σ²)" is removed and the values are rows of the declaration; the panel showed them only on its sliders and fields',
@@ -1221,6 +1225,20 @@ const SAMPLES: readonly Sample[] = [
             {name: 'reversed a > b', apply: run(g => { g.setExample('standard'); g.setBound('a', 1); g.setBound('b', -1); })},
             {name: 'a = b', apply: run(g => { g.setExample('standard'); g.setBound('a', 0.5); g.setBound('b', 0.5); })},
             {name: 'thin interval', apply: run(g => { g.setExample('standard'); g.setSigma(2); g.setBound('a', 0); g.setBound('b', 0.02); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/prob-binomial-normal.json', demonstration: 'prob-binomial-normal', accepted: probBinomialAccepted, states: (() => {
+        type BinomialSetters = {setN(value: number): void; setP(value: number): void; setK(value: number): void; setFlag(field: 'correction' | 'poisson', value: boolean): void; setExample(id: string): void};
+        const run = (edit: (graph: BinomialSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as BinomialSetters)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'k 12', apply: run(g => g.setK(12))},
+            {name: 'correction off, k 6', apply: run(g => { g.setFlag('correction', false); g.setK(6); })},
+            {name: 'n 50, k 22', apply: run(g => { g.setN(50); g.setK(22); })},
+            {name: 'fair100', apply: run(g => g.setExample('fair100'))},
+            {name: 'rare with Poisson', apply: run(g => g.setExample('rare'))},
+            {name: 'Poisson tail', apply: run(g => { g.setN(10); g.setP(0.9); g.setK(9); g.setFlag('poisson', true); })},
+            {name: 'p 0.3, k 0', apply: run(g => { g.setP(0.3); g.setK(0); })},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/derivative.json', demonstration: 'derivative', states: (() => {
