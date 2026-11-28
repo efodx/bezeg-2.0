@@ -1,8 +1,12 @@
 import type {LessonCurveFixture, LessonViewBox} from '../model';
 import type {ContentSource, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {SubdivisionIds} from '../../graphs/curves/bezier/SubdivisionGraph1';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** Typed by the declared subdivision graph's ids: an unknown control fails the type check. */
+const subdivisionFrame = frameDeclarer<SubdivisionIds>();
 
 const farinSource = (implementationCorrespondence?: string): ContentSource => ({
     id: 'farin-cagd-construction',
@@ -113,8 +117,8 @@ const subdivision: GuidedLesson = {
                 'The parameter \\(t\\) decides where the curve is cut. At \\(t=\\tfrac{3}{10}\\) the cut is nearer the start, and the orange part is the rest of the curve on \\([t,1]\\).',
             ),
             formulaIds: ['sd-reparameterization'],
-            frames: [frame('sd-choose-t-explanation', 'explanation'), frame('sd-choose-t-observation', 'observation')],
-            observationPrompt: text('Premakni drsnik \\(t\\) in spremljaj, kako se premika točka reza in kako se spreminja oranžni del.', 'Move the \\(t\\) slider and watch how the cut point moves and how the orange part changes.'),
+            frames: [frame('sd-choose-t-explanation', 'explanation'), frame('sd-choose-t-observation', 'observation', subdivisionFrame({uses: ['subdivision-t']}))],
+            observationPrompt: text('S krmilnikom Parameter reza premakni \\(t\\) in spremljaj, kako se premika točka reza in kako se spreminja oranžni del.', 'With the Cut parameter control move \\(t\\) and watch how the cut point moves and how the orange part changes.'),
             expectedObservations: [text('Točka reza je pri \\(t=\\tfrac{3}{10}\\) bliže začetku krivulje; oranžni del je daljši od modrega.', 'At \\(t=\\tfrac{3}{10}\\) the cut point is nearer the start of the curve; the orange part is longer than the blue one.')],
             scene: {
                 id: 'sd-t-third', basedOn: 'demonstration-default',
@@ -164,13 +168,13 @@ const subdivision: GuidedLesson = {
             title: text('Neenak rez in omejitve', 'An uneven cut and its limits'),
             purpose: text('Pokazati, da \\(t\\) določa velikost delov, in opozoriti na stanje po rezu.', 'Showing that \\(t\\) decides the size of the parts, and pointing out the state after a cut.'),
             explanation: text(
-                'Pri \\(t=\\tfrac{3}{10}\\) je levi del \\(B(\\tfrac{3u}{10})\\), krajši interval parametra, desni pa \\(B(\\tfrac{3}{10}+\\tfrac{7u}{10})\\). Po rezu se parameter \\(t\\) postavi na 1 in shema se skrije; za nov rez najprej izberi nov \\(t\\). Drsnik sega le od 0,01 do 0,99, ker se pri \\(t=0\\) ali \\(t=1\\) del skrči v točko.',
-                'At \\(t=\\tfrac{3}{10}\\) the left part is \\(B(\\tfrac{3u}{10})\\), a shorter parameter interval, and the right part is \\(B(\\tfrac{3}{10}+\\tfrac{7u}{10})\\). After a cut the parameter \\(t\\) is set to 1 and the scheme is hidden; choose a new \\(t\\) before another cut. The slider only spans 0.01 to 0.99 because at \\(t=0\\) or \\(t=1\\) one part collapses to a point.',
+                'Pri \\(t=\\tfrac{3}{10}\\) je levi del \\(B(\\tfrac{3u}{10})\\), krajši interval parametra, desni pa \\(B(\\tfrac{3}{10}+\\tfrac{7u}{10})\\). Po rezu se parameter \\(t\\) postavi na 1 in shema se skrije; za nov rez najprej izberi nov \\(t\\). Krmilnik Parameter reza sega le od 0,01 do 0,99, ker se pri \\(t=0\\) ali \\(t=1\\) del skrči v točko.',
+                'At \\(t=\\tfrac{3}{10}\\) the left part is \\(B(\\tfrac{3u}{10})\\), a shorter parameter interval, and the right part is \\(B(\\tfrac{3}{10}+\\tfrac{7u}{10})\\). After a cut the parameter \\(t\\) is set to 1 and the scheme is hidden; choose a new \\(t\\) before another cut. The Cut parameter control only spans 0.01 to 0.99 because at \\(t=0\\) or \\(t=1\\) one part collapses to a point.',
             ),
             formulaIds: ['sd-reparameterization'],
             frames: [frame('sd-split-uneven-explanation', 'explanation'), frame('sd-split-uneven-observation', 'observation')],
             observationPrompt: text('Primerjaj velikost obeh delov in preveri, da ima njuna skupna točka koordinate \\(B(\\tfrac{3}{10})\\).', 'Compare the size of the two parts and check that their shared point is \\(B(\\tfrac{3}{10})\\).'),
-            expectedObservations: [text('Levi del je krajši od desnega; skupna točka je približno \\((-2{,}02;\\ 0{,}78)\\), shema je skrita, drsnik pa je na 1.', 'The left part is shorter than the right one; the shared point is about \\((-2.02,\\ 0.78)\\), the scheme is hidden, and the slider is at 1.')],
+            expectedObservations: [text('Levi del je krajši od desnega; skupna točka je približno \\((-2{,}02;\\ 0{,}78)\\), shema je skrita, parameter \\(t\\) pa je 1.', 'The left part is shorter than the right one; the shared point is about \\((-2.02,\\ 0.78)\\), the scheme is hidden, and \\(t\\) is 1.')],
             scene: {
                 id: 'sd-after-third', basedOn: 'demonstration-default',
                 actions: [{kind: 'subdivision-parameter', value: 0.3}, {kind: 'subdivide'}],

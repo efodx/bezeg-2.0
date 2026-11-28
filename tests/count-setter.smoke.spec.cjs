@@ -117,7 +117,8 @@ test('Shift+Arrow, PageUp and PageDown take the big step on a slider and its fie
     await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
-    await page.goto('/bezeg-2.0/bezier/subdivision-2');
+    // Task 08 lane L41 made the bezier subdivision t a board puck; rational-subdivision keeps the same Orodja slider until its own conversion (then pick another slider route).
+    await page.goto('/bezeg-2.0/rational/rational-subdivision');
     const slider = page.getByRole('slider', {name: 'Subdivision parameter t', exact: true});
     const field = page.getByRole('spinbutton', {name: /Subdivision parameter t/});
     await expect(slider).toBeVisible();

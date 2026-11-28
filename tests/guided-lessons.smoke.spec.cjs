@@ -172,7 +172,8 @@ const subdivision = {
     },
     stepProbe: async (page, ctx, step, label) => {
         const tByStep = [0.5, 0.3, 0.5, 1, 1];
-        await expectT(page, tByStep[step - 1], `t slider at ${label}`);
+        // The cut parameter t is a board puck (task 08 lane L41); rational-subdivision still reads the Orodja slider.
+        await expect.poll(async () => Number(await page.locator('.puck-strip [data-puck-key="subdivision-t"] [role="slider"]').getAttribute('aria-valuenow')), {message: `cut parameter puck at ${label}`}).toBeCloseTo(tByStep[step - 1], 1);
         if (step <= 3) {
             await expect.poll(async () => (await boardStats(page)).points, {message: `scheme + control points at ${label}`}).toBe(10);
             expect((await boardStats(page)).drawnCurves, `blue part + orange remainder at ${label}`).toBe(2);

@@ -9,6 +9,11 @@ import ExtrapolationGraph from '../../curves/bezier/ExtrapolationGraph';
 import SubdivisionGraph, {MAX_SUBDIVISION_STEPS} from '../../curves/bezier/SubdivisionGraph';
 import SubdivisionGraph1 from '../../curves/bezier/SubdivisionGraph1';
 import RationalElevationGraph from '../../curves/rational/RationalElevationGraph';
+
+/** Task 08 lane L41 declared the subdivision graph, so its t slider is a board puck; this stands in for the undeclared graph whose operation tool owns the slider. Keep it as the undeclared case once rational-subdivision is declared as well. */
+class UndeclaredSubdivisionGraph extends SubdivisionGraph1 {
+    protected override declaresSubdivisionWorkspace(): boolean { return false; }
+}
 import {GraphHost} from '../GraphHost';
 import {CurveOperation, BezierAdapter} from './BezierCurveControls';
 
@@ -170,7 +175,7 @@ describe('the operation graphs use the shared operation tool', () => {
     });
 
     test('the Subdivision graph with a slider subdivides at the slider value', () => {
-        const graph = new SubdivisionGraph1();
+        const graph = new UndeclaredSubdivisionGraph();
         const view = mount(graph);
         fireEvent.change(view.getByLabelText(t('subdivision_parameter_t')), {target: {value: '0.25'}});
         const at = evalAt(graph, 0.25);

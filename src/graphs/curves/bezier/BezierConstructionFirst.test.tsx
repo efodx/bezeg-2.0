@@ -8,6 +8,7 @@ import BaseGraph, {BaseGraphState} from '../../base/BaseGraph';
 import {appStorage} from '../../../storage/appStorage';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
 import {t} from '../../../localization';
+import {runAs} from '../../base/writes/writeSource';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -40,7 +41,8 @@ const inSlider = (r: HTMLElement, name: string) => within(r).getByRole('slider',
 const firstTask: Record<string, Array<(root: HTMLElement) => HTMLElement>> = {
     'affine': [r => inButton(r, new RegExp(t('rotate_left'))), r => inButton(r, new RegExp(t('rotate_right')))],
     'repeated-subdivision': [r => inButton(r, t('subdivide'))],
-    'subdivision': [r => inSlider(r, t('subdivision_parameter_t')), r => inButton(r, t('subdivide'))],
+    // The cut parameter t is a declared board puck (task 08 lane L41): off the Edit list, on the puck strip (checked below); Subdivide leads.
+    'subdivision': [r => inButton(r, t('subdivide'))],
     'extrapolation': [r => inSlider(r, t('extrapolation_parameter_t')), r => inButton(r, t('extrapolate'))],
     'elevation': [r => inButton(r, t('elevate_degree'))],
 };
@@ -71,6 +73,14 @@ describe.each(Object.keys(firstTask) as Array<'affine' | 'repeated-subdivision' 
         check();
         select(graph);
         check();
+    });
+
+    test.runIf(key === 'subdivision')('the cut parameter is a puck on the strip, not a slider in Edit', () => {
+        mount(key);
+        const strip = document.querySelector('[data-puck-strip]');
+        expect(strip, 'puck strip').not.toBeNull();
+        expect(strip!.textContent).toContain(t('subdivision_t_name'));
+        expect(screen.queryByRole('slider', {name: t('subdivision_parameter_t')})).toBeNull();
     });
 
     test.runIf(key === 'affine')('the rotation leads the other transformation groups', () => {
@@ -118,7 +128,8 @@ describe('route acceptance', () => {
         const sampled = new Map<number, number[]>();
         for (let i = 0; i <= 1000; i++) sampled.set(i / 1000, xy(graph.jxgCurves[0].getCurve().eval(i / 1000)));
         const at = (u: number) => sampled.get(Math.round(u * 1000) / 1000)!;
-        act(() => { fireEvent.change(slider(t('subdivision_parameter_t')), {target: {value: '0.3'}}); });
+        // The cut parameter is a board puck; its write is the declared binding, as a learner.
+        act(() => runAs('learner', () => (graph as unknown as {parameterBindings(): Record<string, {apply(value: number): void}>}).parameterBindings()['subdivision-t'].apply(0.3)));
         press(t('subdivide'));
         expect(graph.jxgCurves.length).toBe(2);
         const [first, second] = graph.jxgCurves.map(curve => curve.getCurve());

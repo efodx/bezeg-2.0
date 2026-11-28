@@ -3,6 +3,8 @@ import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {rationalSubdivisionPresetCollection} from "./collections";
 
 class Graph extends SubdivisionGraph1 {
+    /** Task 08 lane L41: rational-subdivision is converted in its own session; until then it keeps the undeclared panels. */
+    protected override declaresSubdivisionWorkspace(): boolean { return false; }
 
 
     override defaultPreset(): CurveCollectionPresetData {
