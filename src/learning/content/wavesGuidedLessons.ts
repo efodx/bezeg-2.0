@@ -6,42 +6,10 @@
  * action the text asks for, or a value of a formula shown in the same step; the numbers are listed per step in docs/reviews/feature-streams/families-prep/notes/f3-waves-a.md.
  */
 import type {LessonAction} from '../model';
-import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
-import type {WavesIds} from '../../graphs/functions/WavesGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
-const wavesFrame = frameDeclarer<WavesIds>();
-type Declared = Partial<Record<GuidedLessonFrame['kind'], FrameDeclaration>>;
-/** The rows a step's text names and the controls it asks the learner to use, per frame (the calculation frame only highlights). */
-const frameDeclarations = (highlight: readonly WavesIds['row'][], uses: readonly (WavesIds['param'] | WavesIds['action'])[] = []): Declared => ({
-    explanation: wavesFrame({highlight, ...(uses.length ? {uses} : {})}),
-    calculation: wavesFrame({highlight}),
-    observation: wavesFrame({highlight, ...(uses.length ? {uses} : {})}),
-});
-
-const DECLARED: Record<string, Declared> = {
-    'wv1-one-wave': frameDeclarations(['sum-amplitude']),
-    'wv1-phase': frameDeclarations(['sum-amplitude', 'sum-phase'], ['waves-p2']),
-    'wv1-extremes': frameDeclarations(['sum-amplitude'], ['waves-p2']),
-    'wv1-same-frequency': frameDeclarations(['sum-amplitude', 'sum-phase', 'sum']),
-    'wv1-arrows': frameDeclarations(['wave1', 'wave2', 'sum']),
-    'wv1-amplitudes': frameDeclarations(['sum-amplitude', 'sum-phase', 'amplitude-range'], ['waves-p2']),
-    'wv1-explore': frameDeclarations(['sum-amplitude', 'phase-difference'], ['waves-p2']),
-    'wv2-close': frameDeclarations(['sum']),
-    'wv2-swell': frameDeclarations(['sum']),
-    'wv2-envelope': frameDeclarations(['envelope']),
-    'wv2-difference': frameDeclarations(['beat-frequency', 'mean-frequency', 'beat-period'], ['waves-f2']),
-    'wv2-predict': frameDeclarations(['beat-period', 'envelope']),
-    'wv2-identity': frameDeclarations(['sum', 'envelope']),
-    'wv2-explore': frameDeclarations(['beat-frequency'], ['waves-f1', 'waves-f2']),
-    'wv3-two-waves': frameDeclarations(['antinode-amplitude', 'wavelength']),
-    'wv3-nodes': frameDeclarations(['nodes', 'antinodes']),
-    'wv3-half-waves': frameDeclarations(['nodes', 'antinodes', 'wavelength'], ['waves-half-waves']),
-    'wv3-explore': frameDeclarations(['wavelength', 'antinode-amplitude'], ['waves-half-waves', 'waves-a1']),
-};
-
+const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
 
 interface StepContent {
     readonly id: string;
@@ -59,9 +27,9 @@ interface StepContent {
 const step = (content: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation', DECLARED[content.id]?.explanation),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation', DECLARED[content.id]?.calculation)] : []),
-        frame(`${content.id}-observation`, 'observation', DECLARED[content.id]?.observation),
+        frame(`${content.id}-explanation`, 'explanation'),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
+        frame(`${content.id}-observation`, 'observation'),
     ],
 });
 
@@ -153,8 +121,8 @@ const wv1Steps: readonly GuidedLessonStep[] = [
         title: text('Premakni fazo drugega vala', 'Drag the phase of the second wave'),
         purpose: text('Videti, kako amplituda vsote sledi razliki faz.', 'Seeing how the amplitude of the sum follows the phase difference.'),
         explanation: text(
-            'Drugi val ima zdaj enako amplitudo \\(1\\) in enako frekvenco, njegova faza je \\(60^\\circ\\). Vsota ima amplitudo približno \\(1{,}732\\) in fazo \\(30^\\circ\\): ni \\(2\\), ker vrhova nista hkrati. S krmilnikom Faza vala 2 nastavi \\(0\\), \\(60\\) in \\(120\\) in vsakič preberi Amplitudo vsote: \\(2\\), približno \\(1{,}732\\) in \\(1\\). Pri enakih amplitudah je \\(A=2\\left|\\cos\\tfrac{\\Delta\\varphi}{2}\\right|\\); to velja za vsako razliko faz, ne le za te tri vrednosti.',
-            'The second wave now has the same amplitude \\(1\\) and the same frequency, its phase is \\(60^\\circ\\). The sum has amplitude approximately \\(1.732\\) and phase \\(30^\\circ\\): it is not \\(2\\), because the peaks do not coincide. Set the control Wave 2 phase to \\(0\\), \\(60\\) and \\(120\\) and each time read the Sum amplitude: \\(2\\), approximately \\(1.732\\) and \\(1\\). For equal amplitudes \\(A=2\\left|\\cos\\tfrac{\\Delta\\varphi}{2}\\right|\\); this holds for every phase difference, not only for these three values.',
+            'Drugi val ima zdaj enako amplitudo \\(1\\) in enako frekvenco, njegova faza je \\(60^\\circ\\). Vsota ima amplitudo približno \\(1{,}732\\) in fazo \\(30^\\circ\\): ni \\(2\\), ker vrhova nista hkrati. Na drsniku Faza 2. vala v stopinjah nastavi \\(0\\), \\(60\\) in \\(120\\) in vsakič preberi Amplitudo vsote: \\(2\\), približno \\(1{,}732\\) in \\(1\\). Pri enakih amplitudah je \\(A=2\\left|\\cos\\tfrac{\\Delta\\varphi}{2}\\right|\\); to velja za vsako razliko faz, ne le za te tri vrednosti.',
+            'The second wave now has the same amplitude \\(1\\) and the same frequency, its phase is \\(60^\\circ\\). The sum has amplitude approximately \\(1.732\\) and phase \\(30^\\circ\\): it is not \\(2\\), because the peaks do not coincide. Set the slider Phase of wave 2 in degrees to \\(0\\), \\(60\\) and \\(120\\) and each time read the Sum amplitude: \\(2\\), approximately \\(1.732\\) and \\(1\\). For equal amplitudes \\(A=2\\left|\\cos\\tfrac{\\Delta\\varphi}{2}\\right|\\); this holds for every phase difference, not only for these three values.',
         ),
         formulaIds: ['same-frequency-sum'],
         observationPrompt: text('Nastavi faze \\(0\\), \\(60\\) in \\(120\\) in preberi Amplitudo vsote ter Fazo vsote.', 'Set the phases \\(0\\), \\(60\\) and \\(120\\) and read the Sum amplitude and the Sum phase.'),
@@ -331,8 +299,8 @@ const wv2Steps: readonly GuidedLessonStep[] = [
         title: text('Spremeni drugo frekvenco', 'Change the second frequency'),
         purpose: text('Odčitati, kako frekvenca utripanja sledi razliki frekvenc.', 'Reading how the beat frequency follows the frequency difference.'),
         explanation: text(
-            'Drugi val ima zdaj \\(13\\ \\mathrm{Hz}\\), prvi ostane pri \\(10\\ \\mathrm{Hz}\\). Frekvenca utripanja je \\(|f_1-f_2|=3\\ \\mathrm{Hz}\\), povprečna frekvenca \\(\\tfrac{f_1+f_2}{2}=11{,}5\\ \\mathrm{Hz}\\) in perioda utripanja \\(\\tfrac13\\ \\mathrm{s}\\), približno \\(0{,}333\\ \\mathrm{s}\\). S krmilnikom Frekvenca vala 2 nastavi \\(14\\): frekvenca utripanja \\(4\\ \\mathrm{Hz}\\), povprečna \\(12\\ \\mathrm{Hz}\\), perioda \\(0{,}25\\ \\mathrm{s}\\). Večja razlika frekvenc pomeni pogostejše utripanje; povprečna frekvenca je sredina obeh frekvenc.',
-            'The second wave now has \\(13\\ \\mathrm{Hz}\\), the first stays at \\(10\\ \\mathrm{Hz}\\). The beat frequency is \\(|f_1-f_2|=3\\ \\mathrm{Hz}\\), the mean frequency \\(\\tfrac{f_1+f_2}{2}=11.5\\ \\mathrm{Hz}\\) and the beat period \\(\\tfrac13\\ \\mathrm{s}\\), approximately \\(0.333\\ \\mathrm{s}\\). Set the control Wave 2 frequency to \\(14\\): beat frequency \\(4\\ \\mathrm{Hz}\\), mean \\(12\\ \\mathrm{Hz}\\), period \\(0.25\\ \\mathrm{s}\\). A larger frequency difference means more frequent beats; the mean frequency is the middle of the two frequencies.',
+            'Drugi val ima zdaj \\(13\\ \\mathrm{Hz}\\), prvi ostane pri \\(10\\ \\mathrm{Hz}\\). Frekvenca utripanja je \\(|f_1-f_2|=3\\ \\mathrm{Hz}\\), povprečna frekvenca \\(\\tfrac{f_1+f_2}{2}=11{,}5\\ \\mathrm{Hz}\\) in perioda utripanja \\(\\tfrac13\\ \\mathrm{s}\\), približno \\(0{,}333\\ \\mathrm{s}\\). Na drsniku Frekvenca 2. vala v Hz nastavi \\(14\\): frekvenca utripanja \\(4\\ \\mathrm{Hz}\\), povprečna \\(12\\ \\mathrm{Hz}\\), perioda \\(0{,}25\\ \\mathrm{s}\\). Večja razlika frekvenc pomeni pogostejše utripanje; povprečna frekvenca je sredina obeh frekvenc.',
+            'The second wave now has \\(13\\ \\mathrm{Hz}\\), the first stays at \\(10\\ \\mathrm{Hz}\\). The beat frequency is \\(|f_1-f_2|=3\\ \\mathrm{Hz}\\), the mean frequency \\(\\tfrac{f_1+f_2}{2}=11.5\\ \\mathrm{Hz}\\) and the beat period \\(\\tfrac13\\ \\mathrm{s}\\), approximately \\(0.333\\ \\mathrm{s}\\). Set the slider Frequency of wave 2 in Hz to \\(14\\): beat frequency \\(4\\ \\mathrm{Hz}\\), mean \\(12\\ \\mathrm{Hz}\\), period \\(0.25\\ \\mathrm{s}\\). A larger frequency difference means more frequent beats; the mean frequency is the middle of the two frequencies.',
         ),
         formulaIds: ['beat-identity'],
         observationPrompt: text('Preberi Frekvenco utripanja, Povprečno frekvenco in Periodo utripanja pri \\(13\\ \\mathrm{Hz}\\) in pri \\(14\\ \\mathrm{Hz}\\).', 'Read the Beat frequency, the Mean frequency and the Beat period at \\(13\\ \\mathrm{Hz}\\) and at \\(14\\ \\mathrm{Hz}\\).'),
@@ -508,8 +476,8 @@ const wv3Steps: readonly GuidedLessonStep[] = [
         title: text('Spremeni število polvalov', 'Change the number of half waves'),
         purpose: text('Napovedati število in lege vozlov ter valovno dolžino za tri polvale.', 'Predicting the number and positions of the nodes and the wavelength for three half waves.'),
         explanation: text(
-            'Polval je del krivulje med dvema sosednjima vozloma. S krmilnikom Število polvalov nastavi \\(3\\) (dovoljena cela števila so od \\(1\\) do \\(6\\)); dolžina ostane \\(2\\). Napoved: koliko vozlov bo vključno z obema krajiščema, kje bodo in kolikšna bo valovna dolžina? Namig: valovna dolžina obsega dva polvala. Zapiši napoved, nato preberi odčitke.',
-            'A half wave is the part of the curve between two neighbouring nodes. Set the control Half waves to \\(3\\) (allowed are the whole numbers from \\(1\\) to \\(6\\)); the length stays \\(2\\). Prediction: how many nodes will there be including both ends, where will they be, and what will the wavelength be? Hint: the wavelength contains two half waves. Write down the prediction, then read the readouts.',
+            'Polval je del krivulje med dvema sosednjima vozloma. Na drsniku Število polvalov nastavi \\(3\\) (dovoljena cela števila so od \\(1\\) do \\(6\\)); dolžina ostane \\(2\\). Napoved: koliko vozlov bo vključno z obema krajiščema, kje bodo in kolikšna bo valovna dolžina? Namig: valovna dolžina obsega dva polvala. Zapiši napoved, nato preberi odčitke.',
+            'A half wave is the part of the curve between two neighbouring nodes. Set the slider Number of half waves to \\(3\\) (allowed are the whole numbers from \\(1\\) to \\(6\\)); the length stays \\(2\\). Prediction: how many nodes will there be including both ends, where will they be, and what will the wavelength be? Hint: the wavelength contains two half waves. Write down the prediction, then read the readouts.',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato preberi Vozle valovanja, Hrbte in Valovno dolžino.', 'Write down the prediction, then read the Nodes, the Antinodes and the Wavelength.'),

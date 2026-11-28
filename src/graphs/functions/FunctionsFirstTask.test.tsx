@@ -45,7 +45,7 @@ const plan: Record<string, {first: Label; later: Label[]}> = {
     'rational-functions': {first: () => t('rational_function_numerator'), later: [() => t('rational_function_k_label'), () => t('rational_function_example_label')]},
     'geometric-series': {first: () => t('series_terms_label'), later: [() => t('series_a_label'), () => t('series_example_label')]},
     conics: {first: () => t('conic_phi_label'), later: [() => t('conic_ell_label'), () => t('conic_example_label')]},
-    waves: {first: () => 'action:play-pause', later: [() => t('waves_graph_mode_label')]},
+    waves: {first: () => 'action:play-pause', later: [() => t('waves_graph_mode_label'), () => t('waves_graph_a1_sum_label'), () => t('waves_graph_p1_label')]},
     'function-inverse': {first: () => t('function_inverse_x0_label'), later: [() => 'action:toggle-inverse', () => 'action:toggle-tangent', () => t('function_inverse_restriction_label')]},
     'polynomial-zeros': {first: () => t('zero_list_position_label', {value0: 1}), later: [() => t('zero_list_multiplicity_label', {value0: 1}), () => 'action:add-zero', () => t('polynomial_zeros_example_label'), () => t('polynomial_zeros_k_label')]},
 };
@@ -125,16 +125,6 @@ describe.each(Object.keys(routes))('%s', key => {
             await waitForPucks('conic-epsilon');
             expect(puckOrder(), puckOrder().join(' | ')).toContain('conic-epsilon');
             expect(editControls().some(name => name.startsWith(t('conic_epsilon_label')))).toBe(false);
-        }
-        if (key === 'waves') {
-            // the amplitudes, phases and frequency and the phasor switch are board pucks leading the strip; play, pause and the mode stay in Edit
-            const params = ['waves-a1', 'waves-p1', 'waves-a2', 'waves-p2', 'waves-f1', 'show-phasors'];
-            await waitForPucks(params[0]);
-            expect(puckOrder().slice(0, params.length), puckOrder().join(' | ')).toEqual(params);
-            const edit = editControls();
-            for (const label of [t('waves_graph_a1_sum_label'), t('waves_graph_p1_label'), t('waves_graph_a2_label'), t('waves_graph_p2_label'), t('waves_graph_f_both_label'), t('waves_graph_show_phasors')]) {
-                expect(edit.some(name => name.startsWith(label)), edit.join(' | ')).toBe(false);
-            }
         }
         if (key === 'polynomial-zeros') {
             // the derivative switch is a board puck: on the strip, not in Edit; the zero list leads Edit, then k and the example

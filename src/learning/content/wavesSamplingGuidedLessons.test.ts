@@ -15,7 +15,6 @@ import {WavesGraph} from '../../graphs/functions/WavesGraph';
 import {setLanguage} from '../../localization';
 import {sl} from '../../localization/sl';
 import {en} from '../../localization/en';
-import {waves} from '../../localization/fragments/waves';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -220,9 +219,9 @@ describe('WV4', () => {
 
     test('every control and readout a prompt names exists in the graph strings, in both languages, and the readouts carry those labels', () => {
         const names: Record<Lang, string[]> = {
-            sl: [sl.waves_graph_time_label, waves.sl.waves_f_tone_name, waves.sl.waves_fs_name, sl.waves_graph_show_alias, sl.waves_graph_r_alias, sl.waves_graph_r_alias_frequency,
+            sl: [sl.waves_graph_time_label, sl.waves_graph_f_tone_label, sl.waves_graph_fs_label, sl.waves_graph_show_alias, sl.waves_graph_r_alias, sl.waves_graph_r_alias_frequency,
                 sl.waves_graph_r_frame],
-            en: [en.waves_graph_time_label, waves.en.waves_f_tone_name, waves.en.waves_fs_name, en.waves_graph_show_alias, en.waves_graph_r_alias, en.waves_graph_r_alias_frequency,
+            en: [en.waves_graph_time_label, en.waves_graph_f_tone_label, en.waves_graph_fs_label, en.waves_graph_show_alias, en.waves_graph_r_alias, en.waves_graph_r_alias_frequency,
                 en.waves_graph_r_frame],
         };
         const prompts = (lang: Lang) => wavesAliasingLesson.steps.map(step => step.observationPrompt[lang]).join(' ');
@@ -573,11 +572,11 @@ describe('WV5', () => {
         for (const lang of LANGUAGES) {
             const c = lang === 'sl' ? sl : en;
             const named: Record<string, string[]> = {
-                'wv5-dots': [waves[lang].waves_f_tone_name, c.waves_graph_r_samples_per_period, c.waves_graph_r_alias_frequency],
-                'wv5-join': [c.waves_graph_show_join, c.waves_graph_r_join_error, c.waves_graph_show_sinc, c.waves_graph_r_sinc_error, waves[lang].waves_extra_name],
-                'wv5-rate': [waves[lang].waves_fs_name, c.waves_graph_r_nyquist, c.waves_graph_r_alias, c.waves_graph_r_alias_frequency],
-                'wv5-edge': [waves[lang].waves_p_tone_name, c.waves_graph_r_ambiguous_samples],
-                'wv5-alias': [waves[lang].waves_f_tone_name, c.waves_graph_r_alias_frequency, c.waves_graph_show_alias],
+                'wv5-dots': [c.waves_graph_f_tone_label, c.waves_graph_r_samples_per_period, c.waves_graph_r_alias_frequency],
+                'wv5-join': [c.waves_graph_show_join, c.waves_graph_r_join_error, c.waves_graph_show_sinc, c.waves_graph_r_sinc_error, c.waves_graph_extra_label],
+                'wv5-rate': [c.waves_graph_fs_label, c.waves_graph_r_nyquist, c.waves_graph_r_alias, c.waves_graph_r_alias_frequency],
+                'wv5-edge': [c.waves_graph_p1_tone_label, c.waves_graph_r_ambiguous_samples],
+                'wv5-alias': [c.waves_graph_f_tone_label, c.waves_graph_r_alias_frequency, c.waves_graph_show_alias],
                 'wv5-explore': [c.waves_graph_r_nyquist, c.waves_graph_r_join_error, c.waves_graph_r_sinc_error],
             };
             for (const [id, names] of Object.entries(named)) {
@@ -585,10 +584,10 @@ describe('WV5', () => {
                 const shown = [s.explanation[lang], s.observationPrompt[lang]].join(' ');
                 for (const name of names) expect({id, lang, name, named: shown.includes(name)}).toEqual({id, lang, name, named: true});
             }
-            // step 5 quotes the legend entry of the exact alias wave
-            const quotedLegend = waves[lang].waves_legend_alias_exact;
-            expect({lang, legend: quotedLegend}).toEqual({lang, legend: lang === 'sl' ? 'Ton skozi pike' : 'Tone through the dots'});
-            expect({lang, quoted: stepText5('wv5-alias', lang).includes(`${lang === 'sl' ? 'v legendi' : 'in the legend'} ${quotedLegend}`)}).toEqual({lang, quoted: true});
+            // step 5 quotes the caption of the exact alias wave, written in the sentence with a comma for its parentheses
+            const quotedCaption = lang === 'sl' ? 'Črtkano: ton skozi pike, natančna rekonstrukcija' : 'Dashed: the tone through the dots, exact reconstruction';
+            expect({lang, catalog: c.waves_graph_cap_alias_exact.replace(' (', ', ').replace(')', '')}).toEqual({lang, catalog: quotedCaption});
+            expect({lang, quoted: stepText5('wv5-alias', lang).includes(quotedCaption)}).toEqual({lang, quoted: true});
         }
         for (const lang of LANGUAGES) {
             setLanguage(lang);

@@ -5,12 +5,11 @@ import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, settle} from '../base/realGraphTestHarness';
 import {setLanguage, t} from '../../localization';
+import {enterNumber} from '../../inputs/testEntry';
 import type {TransientState} from '../base/BaseGraph';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {POINTS_PER_SECOND, WAVES_FIELD_RANGES, WAVES_MODES, type WavesMode, type WavesState} from '../../waves/wavesModel';
-import {runAs} from '../base/writes/writeSource';
-import {renderMessage} from '../../localization';
-import {MAX_FRAME_MS, TIME_STEP, WavesGraph} from './WavesGraph';
+import {MAX_FRAME_MS, TIME_STEP, WavesGraph, captionLines} from './WavesGraph';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -51,6 +50,7 @@ const rangeOf = (label: string) => screen.getByRole('slider', {name: label}) as 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const labelOf = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
+const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
 const slider = () => rangeOf('Čas t');
 const status = () => document.querySelector('[data-waves-status]')!.textContent!;
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
@@ -62,20 +62,12 @@ const probes = (graph: ObservedGraph) => graph.liveBoard().objectsList as unknow
 const ofType = (graph: ObservedGraph, type: string) => probes(graph).filter(o => o.elType === type);
 const visible = (o: Probe) => Boolean(o.evalVisProp('visible'));
 const curves = (graph: ObservedGraph) => ofType(graph, 'curve').filter(o => (o.dataX?.length ?? 0) > 2);
-const boardTexts = (graph: ObservedGraph) => ofType(graph, 'text').filter(visible).map(o => o.plaintext ?? '');
-/** The declared legend: one entry per drawn object, its label as shown and whether its object is on the board now. */
-const legend = (graph: ObservedGraph) => (graph.getDeclaration()?.legend ?? []).map(entry => ({id: entry.id as string, label: renderMessage(entry.label), shown: Boolean(graph.drawnObject(entry.object as string)?.visible)}));
-const legendLabels = (graph: ObservedGraph) => legend(graph).map(entry => entry.label);
-const shownLegend = (graph: ObservedGraph) => legend(graph).filter(entry => entry.shown).map(entry => entry.id);
-/** A learner's switch of a declared action (the puck's click) and a learner's write of a declared parameter. */
-const flip = (graph: ObservedGraph, id: string) => act(() => { runAs('learner', () => graph.performAction(id)); });
-const declaredParameter = (graph: ObservedGraph, key: string) => graph.getDeclaration()!.parameters!.find(parameter => parameter.key === key)!;
-const declaredAction = (graph: ObservedGraph, id: string) => graph.getDeclaration()!.actions!.find(action => action.id === id)!;
+const captionTexts = (graph: ObservedGraph) => ofType(graph, 'text').filter(visible).map(o => o.plaintext ?? '');
 const near = (a: number | undefined, b: number, digits = 9) => a !== undefined && Math.abs(a - b) < 10 ** -digits;
 /** Curves of a given length whose value at the index is the given one. */
 const withValue = (graph: ObservedGraph, length: number, index: number, value: number) =>
     curves(graph).filter(o => o.dataY?.length === length && near(o.dataY[index], value));
-const set = (graph: ObservedGraph, patch: Partial<WavesState>) => act(() => { runAs('learner', () => graph.setState(patch)); });
+const set = (graph: ObservedGraph, patch: Partial<WavesState>) => act(() => { graph.setState(patch); });
 const choose = (mode: WavesMode) => act(() => { fireEvent.change(field(t('waves_graph_mode_label')), {target: {value: mode}}); });
 function go(graph: ObservedGraph, time: number): boolean {
     let accepted = false;
@@ -96,7 +88,7 @@ describe('the sum of two waves', () => {
     test('the default scene draws the two waves and their sum on 2048 points per second, with hand values at t = 0,25 s', () => {
         const {graph} = mountGraph();
         expect(graph.state).toMatchObject({mode: 'sum', a1: 1, p1: 0, a2: 1, p2: 120, f1: 3});
-        expect(document.querySelector(`[aria-label="${t('waves_board_label')}"]`)).not.toBeNull();
+        expect(document.querySelector(`[aria-label="${t('waves_graph_board_label')}"]`)).not.toBeNull();
         const length = POINTS_PER_SECOND + 1;
         // cos(2 pi 3 0,25) = cos(270 deg) = 0 and cos(270 + 120 deg) = cos 30 deg = 0,8660254: wave 1, wave 2 and the sum.
         expect(withValue(graph, length, 512, 0)).toHaveLength(1);
@@ -147,17 +139,18 @@ describe('the sum of two waves', () => {
         noBadText();
     });
 
-    test('every element a readout names has a legend entry; the phasor entry follows its switch; the arrows are named on the board', () => {
+    test('every element a readout names has a caption; the phasor caption follows its switch', () => {
         const {graph} = mountGraph();
-        expect(legendLabels(graph)).toEqual([t('waves_graph_r_wave1'), t('waves_graph_r_wave2'), t('waves_graph_r_sum'), t('waves_legend_phasors')]);
-        expect(shownLegend(graph)).toEqual(['wave1', 'wave2', 'sum', 'phasors']);
-        expect(boardTexts(graph)).toEqual(expect.arrayContaining([t('waves_graph_tip_1'), t('waves_graph_tip_2'), t('waves_graph_tip_sum')]));
-        expect(declaredAction(graph, 'show-phasors')).toMatchObject({pressed: true, puck: true});
-        flip(graph, 'show-phasors');
+        const texts = captionTexts(graph);
+        for (const key of ['waves_graph_cap_axes_time', 'waves_graph_cap_wave1', 'waves_graph_cap_wave2', 'waves_graph_cap_sum', 'waves_graph_cap_phasors'] as const) {
+            expect(texts, key).toContain(t(key));
+        }
+        expect(texts).toContain(t('waves_graph_cap_resolution', {value0: POINTS_PER_SECOND}));
+        expect(texts).toEqual(expect.arrayContaining([t('waves_graph_tip_1'), t('waves_graph_tip_2'), t('waves_graph_tip_sum')]));
+        act(() => { fireEvent.click(field(t('waves_graph_show_phasors'))); });
         expect(graph.state.showPhasors).toBe(false);
-        expect(declaredAction(graph, 'show-phasors').pressed).toBe(false);
-        expect(shownLegend(graph)).toEqual(['wave1', 'wave2', 'sum']);
-        expect(boardTexts(graph)).not.toContain(t('waves_graph_tip_sum'));
+        expect(captionTexts(graph)).not.toContain(t('waves_graph_cap_phasors'));
+        expect(captionTexts(graph)).not.toContain(t('waves_graph_tip_sum'));
     });
 
     test('three phasor arrows are drawn; the sum arrow ends where the second one does, and its tip is the sum of the waves', () => {
@@ -165,7 +158,7 @@ describe('the sum of two waves', () => {
         const arrows = ofType(graph, 'arrow');
         expect(arrows).toHaveLength(3);
         expect(arrows.every(visible)).toBe(true);
-        flip(graph, 'show-phasors');
+        act(() => { fireEvent.click(field(t('waves_graph_show_phasors'))); });
         expect(ofType(graph, 'arrow').some(visible)).toBe(false);
     });
 });
@@ -198,14 +191,12 @@ describe('beats', () => {
         expect(status()).toContain(t('waves_graph_status_no_beats', {value0: '2'}));
     });
 
-    test('the envelope curves and legend entry follow their switch; the window and the slider are 2 s', () => {
+    test('the envelope curves and caption follow their switch; the window and the slider are 2 s', () => {
         const {graph} = mountGraph();
         choose('beats');
-        expect(legendLabels(graph)).toContain(t('waves_graph_r_envelope'));
-        expect(shownLegend(graph)).toContain('envelope');
-        flip(graph, 'show-envelope');
-        expect(shownLegend(graph)).not.toContain('envelope');
-        expect(declaredAction(graph, 'show-envelope').pressed).toBe(false);
+        expect(captionTexts(graph)).toContain(t('waves_graph_cap_envelope'));
+        act(() => { fireEvent.click(field(t('waves_graph_show_envelope'))); });
+        expect(captionTexts(graph)).not.toContain(t('waves_graph_cap_envelope'));
         expect(Number(slider().max)).toBe(2);
         expect(go(graph, 2)).toBe(true);
         expect(go(graph, 2.1)).toBe(false);
@@ -229,8 +220,10 @@ describe('the standing wave', () => {
         // x = 0,5 is index 512 of 2048: the sum is 2 sin(pi / 2) = 2 at t = 0, and the two travelling waves are 1 each.
         expect(withValue(graph, POINTS_PER_SECOND + 1, 512, 2)).toHaveLength(1);
         expect(withValue(graph, POINTS_PER_SECOND + 1, 512, 1)).toHaveLength(2);
-        expect(legendLabels(graph)).toEqual([t('waves_legend_right'), t('waves_legend_left'), t('waves_graph_mode_standing'), t('waves_legend_nodes'), t('waves_legend_antinodes')]);
-        expect(shownLegend(graph)).toEqual(['right', 'left', 'standing', 'nodes', 'antinodes']);
+        expect(captionTexts(graph)).toEqual(expect.arrayContaining([
+            t('waves_graph_cap_axes_space'), t('waves_graph_cap_right'), t('waves_graph_cap_left'), t('waves_graph_cap_standing'),
+            t('waves_graph_cap_nodes'), t('waves_graph_cap_antinodes'), t('waves_graph_cap_resolution_space', {value0: POINTS_PER_SECOND}),
+        ]));
     });
 
     test('the waves move with the time: a quarter period later the standing sum is 0 everywhere and the travelling waves are shifted', () => {
@@ -269,16 +262,17 @@ describe('sampling', () => {
 
     const wheel = (graph: ObservedGraph) => ofType(graph, 'point').filter(o => visible(o) && o.evalVisProp('size') === 6);
 
-    test('the samples at the instants n / 12 of a 3 Hz tone are cos(n pi / 2); the wheel and the strip are in the legend', () => {
+    test('the samples at the instants n / 12 of a 3 Hz tone are cos(n pi / 2); the wheel and the strip are captioned', () => {
         const {graph} = mountGraph();
         choose('sampling');
         const join = curves(graph).filter(o => o.dataX?.length === 13 && o.dataY?.length === 13);
         expect(join).toHaveLength(1);
         expect(join[0].dataX!.every((x, n) => near(x, n / 12))).toBe(true);
         expect([0, 1, 2, 3, 4].map(n => Math.round(join[0].dataY![n] * 1e9) / 1e9 + 0)).toEqual([1, 0, -1, 0, 1]);
-        expect(legendLabels(graph)).toEqual(expect.arrayContaining([t('waves_legend_tone'), t('waves_legend_dots'), t('waves_legend_strip'), t('waves_legend_true'), t('waves_legend_film')]));
-        expect(shownLegend(graph)).toEqual(expect.arrayContaining(['tone', 'dots', 'strip', 'true', 'film']));
-        expect(boardTexts(graph)).toEqual(expect.arrayContaining([t('waves_graph_tip_true'), t('waves_graph_tip_film')]));
+        expect(captionTexts(graph)).toEqual(expect.arrayContaining([
+            t('waves_graph_cap_axes_time'), t('waves_graph_cap_wave'), t('waves_graph_cap_dots'), t('waves_graph_cap_strip'), t('waves_graph_cap_wheel'),
+            t('waves_graph_tip_true'), t('waves_graph_tip_film'),
+        ]));
         expect(readout('rate')).toBe('12 Hz');
         expect(readout('samples-per-period')).toBe('4');
         expect(readout('nyquist')).toBe('2f = 6 Hz; fs = 12 Hz je nad njo');
@@ -293,7 +287,7 @@ describe('sampling', () => {
         expect(readout('alias-frequency')).toBe(`${MINUS}1 ${t('waves_graph_unit_rev')}`);
         expect(readout('nyquist')).toBe('2f = 46 Hz; fs = 24 Hz je pod njo (pojav lažne frekvence)');
         expect(status()).toContain(t('waves_graph_alias_backward', {value0: '1'}));
-        expect(legendLabels(graph)).toContain(t('waves_legend_alias', {value0: `${MINUS}1`}));
+        expect(captionTexts(graph)).toContain(t('waves_graph_cap_alias', {value0: `${MINUS}1`}));
         const length = POINTS_PER_SECOND + 1;
         // The alias is cos(2 pi (-1) t); at index 150 (t = 150 / 2048) the true 23 Hz tone is a different number.
         const alias = Math.cos((2 * Math.PI * 150) / POINTS_PER_SECOND);
@@ -337,10 +331,10 @@ describe('sampling', () => {
         const {graph} = mountGraph();
         choose('sampling');
         set(graph, {showAlias: true});
-        expect(legendLabels(graph)).toContain(t('waves_legend_alias_exact'));
+        expect(captionTexts(graph)).toContain(t('waves_graph_cap_alias_exact'));
         set(graph, {f1: 23, fs: 24});
-        expect(legendLabels(graph)).not.toContain(t('waves_legend_alias_exact'));
-        expect(legendLabels(graph)).toContain(t('waves_legend_alias', {value0: `${MINUS}1`}));
+        expect(captionTexts(graph)).not.toContain(t('waves_graph_cap_alias_exact'));
+        expect(captionTexts(graph)).toContain(t('waves_graph_cap_alias', {value0: `${MINUS}1`}));
     });
 
     test('6 Hz sampled at 12 Hz is ambiguous (no alias tone drawn), 12 Hz at 12 Hz stands still, 5 Hz at 12 Hz turns forwards', () => {
@@ -350,7 +344,7 @@ describe('sampling', () => {
         expect(readout('alias')).toBe(t('waves_graph_alias_ambiguous'));
         expect(readout('alias-frequency')).toBe(t('waves_graph_not_defined'));
         expect(readout('nyquist')).toBe('2f = 12 Hz; fs = 12 Hz je enaka njej');
-        expect(shownLegend(graph)).not.toContain('alias');
+        expect(captionTexts(graph).some(text => text.startsWith('Črtkano: ton z navidezno'))).toBe(false);
         set(graph, {f1: 12, fs: 12});
         expect(readout('alias')).toBe(t('waves_graph_alias_rest'));
         set(graph, {f1: 5, fs: 12});
@@ -396,26 +390,25 @@ describe('sampling', () => {
         choose('sampling');
         expect(readout('join-error')).toBeUndefined();
         expect(readout('sinc-error')).toBeUndefined();
-        expect(shownLegend(graph)).not.toEqual(expect.arrayContaining(['join']));
-        flip(graph, 'show-join');
+        act(() => { fireEvent.click(field(t('waves_graph_show_join'))); });
         expect(Number(readout('join-error')?.split(' ')[0].replace(',', '.'))).toBeGreaterThan(0);
-        expect(shownLegend(graph)).toContain('join');
-        expect(legendLabels(graph)).toContain(t('waves_graph_show_join'));
-        flip(graph, 'show-sinc');
+        expect(captionTexts(graph)).toContain(t('waves_graph_cap_join'));
+        act(() => { fireEvent.click(field(t('waves_graph_show_sinc'))); });
         expect(readout('sinc-error')).toMatch(/ \(na 0,4 do 0,6 s\)$/);
         expect(readout('sinc-error')).toMatch(/^[0-9],[0-9]{4} /);
-        expect(shownLegend(graph)).toContain('sinc');
-        expect(legendLabels(graph)).toContain('Rekonstrukcija s funkcijo sinc');
+        expect(captionTexts(graph)).toContain('Črtkano: rekonstrukcija s funkcijo sinc (okrnjena, približna)');
         expect(t('waves_graph_show_sinc_help')).toContain('na 0,4 do 0,6 s');
         const sinc = graph.derived().facts.kind === 'sampling' ? graph.derived().facts : undefined;
         const values = sinc && sinc.kind === 'sampling' ? sinc.sinc!.values : [];
         expect(values).toHaveLength(POINTS_PER_SECOND + 1);
         expect(curves(graph).some(o => o.dataY?.length === values.length && o.dataY.every((y, i) => y === values[i]))).toBe(true);
-        expect(declaredParameter(graph, 'waves-extra')).toMatchObject({kind: 'range', min: WAVES_FIELD_RANGES.extra.min, max: WAVES_FIELD_RANGES.extra.max});
+        expect(field(t('waves_graph_extra_label'))).toBeTruthy();
     });
 });
 
-describe('the "y" title on a narrow board (390 x 480 px)', () => {
+describe('the captions on a narrow board (390 x 480 px)', () => {
+    const CHAR = 7.5;
+    const lines = (text: string) => Math.max(1, Math.ceil((text.length * CHAR) / (390 - 20)));
     type Board = {unitX: number; unitY: number; canvasWidth: number; canvasHeight: number; getBoundingBox(): number[]};
 
     // The shims give every element 600 x 400 px; this board is 390 x 480 px from its creation on.
@@ -442,18 +435,29 @@ describe('the "y" title on a narrow board (390 x 480 px)', () => {
 
     for (const language of ['sl', 'en'] as const) {
         for (const mode of WAVES_MODES) {
-            test(`the "y" title stands clear of the top number and the board holds no caption sentence (${mode}, ${language})`, () => {
+            test(`the captions do not overlap, clear the plot and the "y" title stands clear of the top number (${mode}, ${language})`, () => {
                 setLanguage(language);
                 const {graph} = mountGraph();
                 const board = graph.liveBoard() as unknown as Board;
                 expect([board.canvasWidth, board.canvasHeight]).toEqual([390, 480]);
                 choose(mode === 'beats' ? 'standing' : 'beats');
                 choose(mode);
+                const [left, top] = board.getBoundingBox();
+                const captions = ofType(graph, 'text').filter(o => visible(o) && o.evalVisProp('fixed') !== false && Math.abs(o.X() - (left + 10 / board.unitX)) < 1e-6)
+                    .sort((a, b) => b.Y() - a.Y());
+                expect(captions.length).toBeGreaterThanOrEqual(4);
+                captions.slice(1).forEach((caption, index) => {
+                    const above = captions[index];
+                    expect((above.Y() - caption.Y()) * board.unitY, above.plaintext).toBeGreaterThanOrEqual(lines(above.plaintext ?? '') * 20 - 0.01);
+                });
+                const last = captions[captions.length - 1];
+                const blockBottom = (top - last.Y()) * board.unitY + lines(last.plaintext ?? '') * 20;
                 const yTitle = ofType(graph, 'text').find(o => o.plaintext === t('waves_graph_axis_y'))!;
                 const titleBottom = (yTitle.evalVisProp('anchory') === 'top' ? yTitle.Y() - 16 / board.unitY : yTitle.Y());
-                expect(boardTexts(graph).some(text => text.length > 40), 'no sentence is drawn on the board').toBe(false);
+                const titleTop = (top - titleBottom) * board.unitY - 16;
+                expect(blockBottom).toBeLessThanOrEqual(titleTop);
                 // the top number is 12 px high, centred on the peak; the title stands 14 px or more above its centre
-                const peakLabel = ofType(graph, 'text').find(o => visible(o) && o.plaintext === (o.plaintext ?? '') && o.evalVisProp('anchorx') === 'right' && o.Y() > 0 && o.X() < 0 && o !== yTitle)!;
+                const peakLabel = ofType(graph, 'text').find(o => visible(o) && o.plaintext === (o.plaintext ?? '') && o.evalVisProp('anchorx') === 'right' && o.Y() > 0 && o.X() < 0 && !captions.includes(o))!;
                 expect((titleBottom - peakLabel.Y()) * board.unitY).toBeGreaterThanOrEqual(14);
             });
         }
@@ -461,59 +465,59 @@ describe('the "y" title on a narrow board (390 x 480 px)', () => {
 });
 
 describe('controls', () => {
-    test('every numeric field is a puck over its own range and step; switches and the mode choice are described, the time slider is not (its bounds are its own)', () => {
+    test('every numeric field is a slider over its own range and step; switches and the mode choice are described, the time slider is not (its bounds are its own)', () => {
         const {graph} = mountGraph();
         const ranges = WAVES_FIELD_RANGES;
-        const puckOf = (key: string, name: keyof typeof ranges) => {
-            const r = ranges[name], parameter = declaredParameter(graph, key);
-            if (parameter.kind !== 'range' && parameter.kind !== 'count') throw new Error(`${key} is not a numeric puck`);
-            expect([parameter.min, parameter.max], key).toEqual([r.min, r.max]);
-            if (parameter.kind === 'range') expect(parameter.step, key).toBe(r.step);
+        const sliderOf = (label: string, name: keyof typeof ranges) => {
+            const r = ranges[name], range = rangeOf(label);
+            expect([Number(range.min), Number(range.max), Number(range.step)], label).toEqual([r.min, r.max, r.step]);
         };
-        puckOf('waves-a1', 'a1');
-        puckOf('waves-p1', 'p1');
-        puckOf('waves-a2', 'a2');
-        puckOf('waves-p2', 'p2');
-        puckOf('waves-f1', 'f1');
-        expect(renderMessage(declaredAction(graph, 'show-phasors').help!).length).toBeGreaterThan(10);
+        sliderOf(t('waves_graph_a1_sum_label'), 'a1');
+        sliderOf(t('waves_graph_p1_label'), 'p1');
+        sliderOf(t('waves_graph_a2_label'), 'a2');
+        sliderOf(t('waves_graph_p2_label'), 'p2');
+        sliderOf(t('waves_graph_f_both_label'), 'f1');
+        expect(describedText(field(t('waves_graph_show_phasors'))).length).toBeGreaterThan(10);
         expect(describedText(field(t('waves_graph_mode_label'))).length).toBeGreaterThan(10);
         expect(describedText(slider())).toBe(''); // the slider shows its own bounds; no help restates them (S5)
         choose('beats');
-        puckOf('waves-a1', 'a1');
-        puckOf('waves-f1', 'f1');
-        puckOf('waves-f2', 'f2');
-        expect(renderMessage(declaredAction(graph, 'show-envelope').help!).length).toBeGreaterThan(10);
+        sliderOf(t('waves_graph_a1_each_label'), 'a1');
+        sliderOf(t('waves_graph_f1_beats_label'), 'f1');
+        sliderOf(t('waves_graph_f2_beats_label'), 'f2');
+        expect(describedText(field(t('waves_graph_show_envelope'))).length).toBeGreaterThan(10);
         expect(describedText(slider())).toBe(''); // the slider shows its own bounds; no help restates them (S5)
         choose('standing');
-        puckOf('waves-half-waves', 'halfWaves');
+        sliderOf(t('waves_graph_half_waves_label'), 'halfWaves');
         choose('sampling');
-        puckOf('waves-p1', 'p1');
-        puckOf('waves-f1', 'f1');
-        puckOf('waves-fs', 'fs');
-        for (const id of ['show-alias', 'show-join', 'show-sinc']) expect(renderMessage(declaredAction(graph, id).help!).length, id).toBeGreaterThan(10);
-        flip(graph, 'show-sinc');
+        sliderOf(t('waves_graph_a1_tone_label'), 'a1');
+        sliderOf(t('waves_graph_p1_tone_label'), 'p1');
+        sliderOf(t('waves_graph_f_tone_label'), 'f1');
+        sliderOf(t('waves_graph_fs_label'), 'fs');
+        for (const key of ['waves_graph_show_alias', 'waves_graph_show_join', 'waves_graph_show_sinc'] as const) {
+            expect(describedText(field(t(key))).length, key).toBeGreaterThan(10);
+        }
+        act(() => { fireEvent.click(field(t('waves_graph_show_sinc'))); });
         expect(graph.state.showSinc).toBe(true);
-        puckOf('waves-extra', 'extra');
-        // Nothing the pucks own is left as a second control in Orodja.
-        expect(screen.queryByRole('slider', {name: t('waves_graph_f_tone_label')})).toBeNull();
+        sliderOf(t('waves_graph_extra_label'), 'extra');
     });
 
-    test('a value outside the range is refused (never clamped) with the range stated; an off-grid one is rounded and announced', () => {
+    test('a typed number outside the range is refused (never clamped) with the range stated; an off-grid one is rounded and announced', () => {
         const {graph} = mountGraph();
-        let result: unknown;
-        const write = (key: string, value: number) => act(() => { result = graph.parameters!.write(key, value, 'learner'); });
-        write('waves-a1', 5);
+        enter(t('waves_graph_a1_sum_label'), '5');
         expect(graph.state.a1).toBe(1);
-        expect(JSON.stringify(result)).toContain('waves_value_rejected');
-        write('waves-a1', 1.3);
+        expect(field(t('waves_graph_a1_sum_label')).getAttribute('aria-invalid')).toBe('true');
+        expect(describedText(field(t('waves_graph_a1_sum_label')))).toContain(t('number_range_hint', {value0: '0', value1: '4'}));
+        enter(t('waves_graph_a1_sum_label'), '1,3');
         expect(graph.state.a1).toBe(1.25);
-        // A value handed to the graph directly (a lesson action) is rounded and announced in the status text.
-        act(() => { expect(runAs('lesson', () => graph.editNumber('a2', 1.3))).toBe(true); });
+        expect(describedText(field(t('waves_graph_a1_sum_label')))).toContain(t('number_snapped_hint', {value0: '1,25'}));
+        // The field already rounds what is typed; a value handed to the graph directly (a lesson action) is rounded and announced in the status text.
+        act(() => { expect(graph.editNumber('a2', 1.3)).toBe(true); });
         expect(graph.state.a2).toBe(1.25);
         expect(status()).toContain(t('waves_graph_notice_rounded', {value0: '1,25'}));
-        write('waves-p1', 47);
+        enter(t('waves_graph_p1_label'), '47');
         expect(graph.state.p1).toBe(45);
-        act(() => { expect(runAs('lesson', () => graph.editNumber('p1', 200))).toBe(false); expect(runAs('lesson', () => graph.editNumber('f1', 0))).toBe(false); });
+        expect(graph.editNumber('p1', 200)).toBe(false);
+        expect(graph.editNumber('f1', 0)).toBe(false);
         expect(graph.state.p1).toBe(45);
         expect(graph.state.f1).toBe(3);
     });
@@ -617,7 +621,7 @@ describe('playback', () => {
     test('every edit pauses the playback first, including a direct setState of a stored field (a lesson action or a restore)', () => {
         const {graph} = mountGraph();
         press(t('play'));
-        flip(graph, 'show-phasors');
+        act(() => { fireEvent.click(field(t('waves_graph_show_phasors'))); });
         expect(graph.playing).toBe(false);
         expect(graph.frames.pending()).toBe(false);
         press(t('play'));
@@ -683,8 +687,7 @@ describe('ownership and disposal', () => {
         const plainDelta = vi.getTimerCount() - before;
         const afterPlain = vi.getTimerCount();
         const {graph, view} = mountGraph();
-        // The play button's click leaves a timer of the input tagging itself; the call is what the button makes.
-        act(() => { graph.play(); });
+        press(t('play'));
         graph.frames.tick(0);
         graph.frames.tick(16);
         expect(graph.frames.pending()).toBe(true);
@@ -693,15 +696,15 @@ describe('ownership and disposal', () => {
         expect(graph.playing).toBe(false);
         expect(vi.getTimerCount() - afterPlain).toBe(plainDelta);
         expect(graph.ownedObjectCount()).toBe(0);
-        expect(document.querySelector(`[aria-label="${t('waves_board_label')}"]`)).toBeNull();
+        expect(document.querySelector(`[aria-label="${t('waves_graph_board_label')}"]`)).toBeNull();
         expect(() => setLanguage('en')).not.toThrow();
     });
 
     test('a replaced scene keeps the view the board has, also when the mode of the scene changes (a restore brings its own)', () => {
         const {graph} = mountGraph();
         const stored: [number, number, number, number] = [-1, 3, 2, -3];
-        act(() => { runAs('learner', () => graph.setState({mode: 'standing'})); });
-        act(() => { runAs('learner', () => graph.liveBoard().setBoundingBox(stored, false)); });
+        act(() => { graph.setState({mode: 'standing'}); });
+        act(() => { graph.liveBoard().setBoundingBox(stored, false); });
         graph.disposeNow();
         act(() => { graph.rebuildNow(); });
         expect(graph.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)))).toEqual(stored);
@@ -726,7 +729,7 @@ describe('ownership and disposal', () => {
         expect(graph.liveBoard().objectsList.length).toBe(total - owned);
         expect(graph.frames.pending()).toBe(false);
         expect(graph.playing).toBe(false);
-        flip(graph, 'show-phasors');
+        act(() => { fireEvent.click(field(t('waves_graph_show_phasors'))); });
         expect(graph.ownedObjectCount()).toBe(owned);
         expect(graph.liveBoard().objectsList.length).toBe(total);
     });
@@ -744,7 +747,7 @@ describe('ownership and disposal', () => {
                 graph.disposeNow();
                 expect(graph.ownedObjectCount()).toBe(0);
                 expect(count(), mode).toBe(pre);
-                act(() => { runAs('learner', () => graph.setState({})); });
+                act(() => { graph.setState({}); });
                 act(() => { fireEvent.change(field(t('waves_graph_mode_label')), {target: {value: mode}}); });
             }
         }
@@ -752,14 +755,13 @@ describe('ownership and disposal', () => {
 });
 
 describe('language and the derived data', () => {
-    test('switching the language renames the board, the labels, the legend and the status', () => {
+    test('switching the language renames the board, the labels, the captions and the status', () => {
         const {graph} = mountGraph();
         go(graph, 0.5);
         act(() => setLanguage('en'));
-        expect(document.querySelector(`[aria-label="${t('waves_board_label')}"]`)).not.toBeNull();
+        expect(document.querySelector(`[aria-label="${t('waves_graph_board_label')}"]`)).not.toBeNull();
         expect(screen.getByLabelText(t('waves_graph_mode_label'))).toBeTruthy();
-        expect(legendLabels(graph)).toContain(t('waves_graph_r_wave1'));
-        expect(legendLabels(graph)[0]).toBe('Wave 1');
+        expect(captionTexts(graph)).toContain(t('waves_graph_cap_wave1'));
         expect(status()).toMatch(/^Time 0\.5 s\./);
         expect(readout('time')).toBe('0.5 s');
         // t = 0,5 s: wave 1 is cos(3 pi) = -1 and wave 2 is cos(3 pi + 120 deg) = 0,5.
@@ -773,11 +775,11 @@ describe('language and the derived data', () => {
         const before = graph.derived();
         const count = graph.derivationCount();
         go(graph, 0.3);
-        flip(graph, 'show-phasors');
+        act(() => { fireEvent.click(field(t('waves_graph_show_phasors'))); });
         act(() => setLanguage('en'));
         expect(graph.derived()).toBe(before);
         expect(graph.derivationCount()).toBe(count);
-        act(() => { graph.parameters!.write('waves-f1', 4, 'learner'); });
+        enter(t('waves_graph_f_both_label'), '4');
         expect(graph.derivationCount()).toBe(count + 1);
         expect(JSON.stringify(graph.derived().facts)).not.toMatch(/Hz|waves_graph/);
     });
@@ -864,7 +866,7 @@ describe('board texts clear of the drawing (tick numbers, axis titles, phasor na
     });
 });
 
-describe('a short board (420 x 320 px): the "y" title and the tick numbers', () => {
+describe('a short board (420 x 320 px): the caption stack, the "y" title and the tick numbers', () => {
     const W = 420, H = 320;
     beforeEach(() => {
         for (const [name, size] of Object.entries({clientWidth: W, offsetWidth: W, clientHeight: H, offsetHeight: H})) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
@@ -876,15 +878,18 @@ describe('a short board (420 x 320 px): the "y" title and the tick numbers', () 
     });
 
     for (const mode of ['sum', 'beats', 'standing'] as const) {
-        test(`the "y" title stands below the board top and every tick number lies inside the board (${mode})`, () => {
+        test(`the "y" title has 8 px or more under the last caption row and every tick number lies inside the board (${mode})`, () => {
             setLanguage('sl');
             const {graph} = mountGraph();
             choose(mode);
             const board = graph.liveBoard() as unknown as {unitX: number; unitY: number; canvasWidth: number; canvasHeight: number; getBoundingBox(): number[]};
             expect([board.canvasWidth, board.canvasHeight]).toEqual([W, H]);
+            const [left, top] = board.getBoundingBox();
+            const captions = ofType(graph, 'text').filter(o => visible(o) && Math.abs(o.X() - (left + 10 / board.unitX)) < 1e-6);
+            const stackBottom = Math.max(...captions.map(o => (top - o.Y()) * board.unitY + captionLines(o.plaintext ?? '', W) * 20));
             const boxes = textBoxes(graph);
             const title = boxes.find(b => b.text === t('waves_graph_axis_y'))!;
-            expect(title.y0, `title top ${title.y0}`).toBeGreaterThanOrEqual(8);
+            expect(title.y0 - stackBottom, `stack bottom ${stackBottom}, title top ${title.y0}`).toBeGreaterThanOrEqual(8);
             for (const box of boxes) {
                 expect(box.x0, `"${box.text}" left`).toBeGreaterThanOrEqual(0);
                 expect(box.x1, `"${box.text}" right`).toBeLessThanOrEqual(W);
