@@ -49,6 +49,7 @@ class ObservedSeriesGraph extends GeometricSeriesGraph {
     objects(): BoardObject[] { return this.board.objectsList as BoardObject[]; }
     importLearner(data: Parameters<GeometricSeriesGraph['importPresetData']>[0]) { runAs('learner', () => this.importPresetData(data)); }
     editQ(value: number) { runAs('learner', () => this.setQ(value)); }
+    morphQ(value: number) { this.setQ(value); }
     editA(value: number) { runAs('learner', () => this.setA(value)); }
     editTolerance(value: number) { runAs('learner', () => this.setTolerance(value)); }
 }
@@ -191,6 +192,13 @@ test('the q puck (an arbiter write): -1 oscillates and 1 is constant, both witho
     expect(graph.modelNow().q).toBe(1);
     expect(statusIds()).toEqual(['constant']);
     expect(visibleLimitLines(graph)).toBe(0);
+});
+
+test('a lesson morph of q (an animation write that leases only q) does not refit the view inside its write', () => {
+    const {graph} = mountGraph();
+    // The arbiter refuses an untagged view change inside an animation scope that leases only q (UntaggedWriteError); the declared followView carries the view instead.
+    expect(() => act(() => { runAs('animation', () => graph.morphQ(0.25), {keys: new Set(['series-q']), active: true}); })).not.toThrow();
+    expect(graph.modelNow().q).toBe(0.25);
 });
 
 test('an accumulated slider value -0.9999999999999991 is stored as -1: oscillating, no limit', () => {

@@ -18,7 +18,7 @@ const targets = {
     affine: ['Original curve and polygon; supported rotations are shown in motion', [polygon], [-4.2, 3.8, 4.2, -3.8]],
     subdivision: ['Pre-Subdivide construction at the split parameter, with both coloured portions and supporting polygon', [polygon]],
     'repeated-subdivision': ['The curve after the first Subdiviziraj: two halves in alternating colours with their polygons, before further exact refinement', [button('Subdiviziraj')], [-5, 4.5, 4.5, -4]],
-    extrapolation: ['Polynomial curve extended to t=1.3: the original arc and the blue extension beyond t=1, with its control polygon', [field('Parameter ekstrapolacije t', 1.3), polygon], [-5, 4.5, 4.5, -6.4]],
+    extrapolation: ['Polynomial curve extended to t=1.3: the original arc and the blue extension beyond t=1, with its control polygon', [field('Ekstrapolacija t', 1.3), polygon], [-5, 4.5, 4.5, -6.4]],
     elevation: ['Original cubic polygon; exact one-degree elevation is shown in motion', [toggle('Pokaži nove točke na kontrolnem poligonu', false), polygon], [-5, 4.3, 5, -3.5]],
     reduction: ['Default elevated quadratic with its reduced curve (dashed blue) over the cubic and the own polygon of the reduced curve, without the status sentences', []],
     'arc-length-param': ['Default cubic with equal-t and equal-arc points on the curve', []],

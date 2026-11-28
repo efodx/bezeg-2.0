@@ -28,8 +28,9 @@ async function openEditTools(): Promise<void> {
         await openTools();
         const tab = document.querySelector<HTMLElement>('#board-card-tools .tools-head-button[aria-controls="inspector-edit"]');
         if (tab && tab.getAttribute('aria-pressed') !== 'true') act(() => { fireEvent.click(tab); });
-        // The board lays its cards out after the first paint and remounts their bodies: let that settle before a control is used.
-        await act(async () => { await new Promise(resolve => setTimeout(resolve, 200)); });
+        // The board lays its cards out after the first paint and remounts their bodies: wait for the Uredi tab and its panel before a control is used.
+        await waitUntil(() => document.querySelector('#board-card-tools .tools-head-button[aria-controls="inspector-edit"]')?.getAttribute('aria-pressed') === 'true'
+            && document.querySelector('#board-card-tools #inspector-edit') !== null);
     }
 }
 
