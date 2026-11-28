@@ -94,6 +94,9 @@ Rewritten by handler 3 (2026-11-28) after L47. Present state only.
   L45 landed on `board-workspace-2`: `BaseRationalCurveGraph.declaresRationalWorkspace()` opt-in (only `rational` opts in); merge before rational-extrapolation and opt in from its subclass.
 - Merging `board-workspace-2`: in `fragments/index.ts` keep exactly one import line per fragment (A has `subdivision`
   further down; drop lane-b's top-of-file copy), then tsc.
+- A renamed control named by a guided-example recipe (`src/learning/chapter/guidedExampleHighlights.ts` set-control
+  labels): update it there and in `guidedExampleHighlightExpectations.test.ts`, run
+  `node scripts/generate-guided-example-inventory.cjs`, tell A (it recaptures).
 - Narrow view marks on `kind`, never cast (strict readonly `ViewMark` on board-workspace-2).
 - Puck rule (A, 2026-11-28): a range/choice/switch becomes a puck only if a lesson step asks the learner to set it;
   multi-value data editors and setup choosers stay in Orodja.

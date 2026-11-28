@@ -460,8 +460,8 @@ const rationalSubdivision: GuidedLesson = {
                 'Each point is written as \\((w_iP_i,\\ w_i)\\) and the same scheme as for an ordinary curve is run in that form. Only afterward do we divide by \\(w\\). This is how the scheme gives the new weights as well. With equal weights all last coordinates equal 1 and the scheme is ordinary subdivision; the weights of the parts change only when the original weights differ.',
             ),
             formulaIds: ['rsd-homogeneous-scheme'],
-            frames: [frame('rsd-homogeneous-rule-explanation', 'explanation'), frame('rsd-homogeneous-rule-observation', 'observation')],
-            observationPrompt: text('Premakni drsnik \\(t\\) in opazuj, kako shema sledi uteženim točkam.', 'Move the \\(t\\) slider and watch how the scheme follows the weighted points.'),
+            frames: [frame('rsd-homogeneous-rule-explanation', 'explanation'), frame('rsd-homogeneous-rule-observation', 'observation', subdivisionFrame({uses: ['subdivision-t']}))],
+            observationPrompt: text('S krmilnikom Parameter reza premikaj \\(t\\) in opazuj, kako shema sledi uteženim točkam.', 'With the Cut parameter control move \\(t\\) and watch how the scheme follows the weighted points.'),
             expectedObservations: [text('Točke sheme ležijo bližje točki \\(P_1\\), kot bi ležale pri enakih utežeh.', 'The scheme points lie nearer to the point \\(P_1\\) than they would with equal weights.')],
             scene: {
                 id: 'rsd-t-half', basedOn: 'demonstration-default',

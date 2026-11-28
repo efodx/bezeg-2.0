@@ -29,6 +29,7 @@ const mount = async (key: Key) => {
     const graph = mountGraph(graphFactories[key]()).graph as Run;
     if (key === 'rational-decasteljau') await waitForPucks('decasteljau-t');
     if (key === 'rational-extrapolation') await waitForPucks('extrapolation-t');
+    if (key === 'rational-subdivision') await waitForPucks('subdivision-t');
     return graph;
 };
 const inEdit = (text: string) => screen.queryAllByText(text).filter(element => element.closest('#inspector-edit'));
@@ -42,14 +43,14 @@ const slider = (name: string) => screen.getByRole('slider', {name});
 const xy = (p: Pt) => [p.X(), p.Y()];
 
 const inButton = (r: HTMLElement, name: string | RegExp) => within(r).getByRole('button', {name});
-const inSlider = (r: HTMLElement, name: string) => within(r).getByRole('slider', {name});
 const firstTask: Record<Key, Array<(root: HTMLElement) => HTMLElement>> = {
     // Its parameter is a puck on the board: once there, and not in the group (checked below).
     'rational-decasteljau': [],
     'rational-elevation': [r => inButton(r, t('elevate_degree'))],
     // Its parameter is a puck on the board (task 08 lane L41): off the Edit list, on the strip (checked below); Extrapolate leads.
     'rational-extrapolation': [r => inButton(r, t('extrapolate'))],
-    'rational-subdivision': [r => inSlider(r, t('subdivision_parameter_t')), r => inButton(r, t('subdivide'))],
+    // Its cut parameter is a puck on the board (task 08 lane L41): off the Edit list, on the strip (checked below); Subdivide leads.
+    'rational-subdivision': [r => inButton(r, t('subdivide'))],
 };
 
 describe.each(Object.keys(firstTask) as Key[])('%s construction first', key => {
@@ -68,6 +69,10 @@ describe.each(Object.keys(firstTask) as Key[])('%s construction first', key => {
             if (key === 'rational-extrapolation') {
                 expect(document.querySelector('[data-puck-strip]')!.textContent).toContain(t('extrapolation_t_name'));
                 expect(screen.queryByRole('slider', {name: t('extrapolation_parameter_t')})).toBeNull();
+            }
+            if (key === 'rational-subdivision') {
+                expect(document.querySelector('[data-puck-strip]')!.textContent).toContain(t('subdivision_t_name'));
+                expect(screen.queryByRole('slider', {name: t('subdivision_parameter_t')})).toBeNull();
             }
             for (const heading of inEdit(t('curve_selection'))) if (!card.contains(heading)) follows(card, heading);
             for (const typed of screen.queryAllByRole('spinbutton')) if (!card.contains(typed)) follows(card, typed);
@@ -139,7 +144,7 @@ describe('route acceptance', () => {
         const wanted = new Map<number, number[]>();
         for (const u of [0.3, 0.3 * 0.25, 0.3 * 0.5, 0.3 + 0.7 * 0.25, 0.3 + 0.7 * 0.5]) wanted.set(u, xy(graph.jxgCurves[0].getCurve().eval(u)));
         const at = (u: number) => wanted.get(u)!;
-        act(() => { fireEvent.change(slider(t('subdivision_parameter_t')), {target: {value: '0.3'}}); });
+        act(() => runAs('learner', () => (graph as unknown as {parameterBindings(): Record<string, {apply(value: number): void}>}).parameterBindings()['subdivision-t'].apply(0.3)));
         press(t('subdivide'));
         expect(graph.jxgCurves.length).toBe(2);
         const [first, second] = graph.jxgCurves.map(curve => curve.pointControlledCurve);

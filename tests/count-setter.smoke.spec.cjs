@@ -113,75 +113,63 @@ test('a typed degree reaches the graph only on blur or Enter, and Escape drops i
     expect(await boardSignature(page)).toBe(degree4);
 });
 
-test('Shift+Arrow, PageUp and PageDown take the big step on a slider and its field and stop at the limits', async ({page}) => {
-    await page.addInitScript(() => localStorage.setItem('bezeg-2.0:bezeg-language', 'en'));
+// The Parameter reza puck (symbol t, id subdivision-t) of /bezier/subdivision-2: range 0.01..0.99, step 0.01, big step 0.1.
+// Plain arrows take the small step, Shift+Arrow, PageUp and PageDown the big step, and the value stops at the limits.
+test('Shift+Arrow, PageUp and PageDown take the big step on the Parameter reza puck and stop at the limits', async ({page}) => {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
-    // Task 08 lane L41 made the bezier subdivision t a board puck; rational-subdivision keeps the same Orodja slider until its own conversion (then pick another slider route).
-    await page.goto('/bezeg-2.0/rational/rational-subdivision');
-    const slider = page.getByRole('slider', {name: 'Subdivision parameter t', exact: true});
-    const field = page.getByRole('spinbutton', {name: /Subdivision parameter t/});
-    await expect(slider).toBeVisible();
-    await expect(field).toHaveCount(1);
-    const range = await slider.evaluate(el => ({min: Number(el.min), max: Number(el.max), step: Number(el.step), value: Number(el.value)}));
-    const big = range.step * 10;
-    expect(range.step, 'the slider has a step').toBeGreaterThan(0);
+    await page.goto('/bezeg-2.0/bezier/subdivision-2');
+    const puck = page.getByRole('slider', {name: /Parameter reza/});
+    await expect(puck).toBeVisible();
+    const range = await puck.evaluate(el => ({min: Number(el.getAttribute('aria-valuemin')), max: Number(el.getAttribute('aria-valuemax')), value: Number(el.getAttribute('aria-valuenow'))}));
+    const step = 0.01;
+    const big = 0.1;
+    expect(range.min).toBeCloseTo(0.01, 6);
+    expect(range.max).toBeCloseTo(0.99, 6);
     expect(range.value).toBeCloseTo(0.5, 6);
     const start = await boardSignature(page);
     expect(start.length, 'the board has drawn objects').toBeGreaterThan(0);
 
-    const sliderValue = async () => Number(await slider.inputValue());
-    await slider.focus();
-    await slider.press('ArrowRight');
-    await expect.poll(sliderValue).toBeCloseTo(range.value + range.step, 6);
-    await slider.press('Shift+ArrowRight');
-    await expect.poll(sliderValue).toBeCloseTo(range.value + range.step + big, 6);
-    await slider.press('PageUp');
-    await expect.poll(sliderValue).toBeCloseTo(range.value + range.step + 2 * big, 6);
-    await slider.press('PageDown');
-    await slider.press('Shift+ArrowLeft');
-    await expect.poll(sliderValue).toBeCloseTo(range.value + range.step, 6);
-    await expect.poll(() => modelValue(field), 'the field follows the slider').toBeCloseTo(range.value + range.step, 6);
-    expect(await boardSignature(page), 'the graph follows the slider').not.toBe(start);
+    const value = () => modelValue(puck);
+    await puck.focus();
+    await puck.press('ArrowRight');
+    await expect.poll(value).toBeCloseTo(range.value + step, 6);
+    await puck.press('Shift+ArrowRight');
+    await expect.poll(value).toBeCloseTo(range.value + step + big, 6);
+    await puck.press('PageUp');
+    await expect.poll(value).toBeCloseTo(range.value + step + 2 * big, 6);
+    await puck.press('PageDown');
+    await puck.press('Shift+ArrowLeft');
+    await expect.poll(value).toBeCloseTo(range.value + step, 6);
+    await puck.press('ArrowUp');
+    await expect.poll(value).toBeCloseTo(range.value + 2 * step, 6);
+    await puck.press('Shift+ArrowDown');
+    await expect.poll(value).toBeCloseTo(range.value + 2 * step - big, 6);
+    await puck.press('ArrowLeft');
+    await puck.press('ArrowDown');
+    await expect.poll(value).toBeCloseTo(range.value - big, 6);
+    expect(await boardSignature(page), 'the graph follows the puck').not.toBe(start);
 
-    for (let i = 0; i < 12; i++) await slider.press('PageUp');
-    await expect.poll(sliderValue).toBeCloseTo(range.max, 6);
-    await slider.press('PageUp');
-    await slider.press('Shift+ArrowRight');
+    for (let i = 0; i < 12; i++) await puck.press('PageUp');
+    await expect.poll(value).toBeCloseTo(range.max, 6);
+    await puck.press('PageUp');
+    await puck.press('Shift+ArrowRight');
     await settleFrames(page);
-    expect(await sliderValue(), 'the slider stops at its maximum').toBeCloseTo(range.max, 6);
+    expect(await value(), 'the puck stops at its maximum').toBeCloseTo(range.max, 6);
     const atMax = await boardSignature(page);
-    for (let i = 0; i < 12; i++) await slider.press('PageDown');
-    await expect.poll(sliderValue).toBeCloseTo(range.min, 6);
-    await slider.press('PageDown');
-    await slider.press('Shift+ArrowLeft');
+    for (let i = 0; i < 12; i++) await puck.press('PageDown');
+    await expect.poll(value).toBeCloseTo(range.min, 6);
+    await puck.press('PageDown');
+    await puck.press('Shift+ArrowLeft');
     await settleFrames(page);
-    expect(await sliderValue(), 'the slider stops at its minimum').toBeCloseTo(range.min, 6);
-    expect(await boardSignature(page), 'the graph moved with the slider').not.toBe(atMax);
+    expect(await value(), 'the puck stops at its minimum').toBeCloseTo(range.min, 6);
+    expect(await boardSignature(page), 'the graph moved with the puck').not.toBe(atMax);
 
-    // The numeric field takes the same keys; it commits each key at once and clamps at the limits.
-    await field.focus();
-    await field.press('PageUp');
-    await expect.poll(() => modelValue(field)).toBeCloseTo(range.min + big, 6);
-    await field.press('Shift+ArrowUp');
-    await expect.poll(() => modelValue(field)).toBeCloseTo(range.min + 2 * big, 6);
-    expect(await sliderValue(), 'the slider follows the field').toBeCloseTo(range.min + 2 * big, 6);
-    await field.press('ArrowUp');
-    await expect.poll(() => modelValue(field)).toBeCloseTo(range.min + 2 * big + range.step, 6);
-    await field.press('Shift+ArrowDown');
-    await expect.poll(() => modelValue(field)).toBeCloseTo(range.min + range.step + big, 6);
-    const midSignature = await boardSignature(page);
-    for (let i = 0; i < 12; i++) await field.press('PageUp');
-    await expect.poll(() => modelValue(field)).toBeCloseTo(range.max, 6);
-    await field.press('Shift+ArrowUp');
-    await settleFrames(page);
-    expect(await modelValue(field), 'the field stops at its maximum').toBeCloseTo(range.max, 6);
-    expect(await boardSignature(page), 'the graph follows the field').not.toBe(midSignature);
-    for (let i = 0; i < 12; i++) await field.press('PageDown');
-    await expect.poll(() => modelValue(field)).toBeCloseTo(range.min, 6);
-    await field.press('Shift+ArrowDown');
-    await settleFrames(page);
-    expect(await modelValue(field), 'the field stops at its minimum').toBeCloseTo(range.min, 6);
-    expect(await sliderValue()).toBeCloseTo(range.min, 6);
+    // Enter opens the typed-value field; it commits on Enter and refuses a value outside the range.
+    await puck.press('Enter');
+    const field = page.getByRole('textbox', {name: /Vnesi vrednost/});
+    await field.fill('0,7');
+    await field.press('Enter');
+    await expect.poll(value).toBeCloseTo(0.7, 6);
     expect(errors, 'no page error at the limits').toEqual([]);
 });

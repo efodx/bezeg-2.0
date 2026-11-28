@@ -1,7 +1,6 @@
 import {act} from '@testing-library/react';
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import SubdivisionGraph1 from './SubdivisionGraph1';
-import RationalSubdivisionGraph2 from '../rational/RationalSubdivisionGraph2';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
 import {checkDeclaration, type GraphDeclaration} from '../../base/declare/graphDeclaration';
 import {runAs} from '../../base/writes/writeSource';
@@ -85,9 +84,4 @@ describe('Subdivision declares through the curve workspace', () => {
         expect(declared(graph).followView!.map(value => Math.round(value * 100) / 100)).toEqual([-5.6, 4.7, 5.6, -4.6]);
     });
 
-    test('rational-subdivision shares the class and stays undeclared until its own lane', () => {
-        const graph = new RationalSubdivisionGraph2();
-        mountGraph(graph);
-        expect(graph.getDeclaration()).toBeUndefined();
-    });
 });

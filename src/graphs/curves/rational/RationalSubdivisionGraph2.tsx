@@ -3,10 +3,7 @@ import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {rationalSubdivisionPresetCollection} from "./collections";
 
 class Graph extends SubdivisionGraph1 {
-    /** Task 08 lane L41: rational-subdivision is converted in its own session; until then it keeps the undeclared panels. */
-    protected override declaresSubdivisionWorkspace(): boolean { return false; }
-
-
+    /** Task 08 lane L41: inherits the subdivision workspace of `SubdivisionGraph1` (cut-parameter puck, scheme switch, legend, follow box). */
     override defaultPreset(): CurveCollectionPresetData {
         return [["JSXRationalBezierCurve", {
             "points": [[-4, -3], [-3, 3], [3, 3], [4, -3]], "weights": [1, 2, 1, 1], "state": {

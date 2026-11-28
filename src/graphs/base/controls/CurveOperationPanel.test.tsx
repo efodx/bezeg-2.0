@@ -10,7 +10,7 @@ import SubdivisionGraph, {MAX_SUBDIVISION_STEPS} from '../../curves/bezier/Subdi
 import SubdivisionGraph1 from '../../curves/bezier/SubdivisionGraph1';
 import RationalElevationGraph from '../../curves/rational/RationalElevationGraph';
 
-/** Task 08 lane L41 declared the subdivision graph, so its t slider is a board puck; this stands in for the undeclared graph whose operation tool owns the slider. Keep it as the undeclared case once rational-subdivision is declared as well. */
+/** Task 08 lane L41 declared the subdivision graph, so its t slider is a board puck; this stands in for the undeclared graph whose operation tool owns the slider. rational-subdivision is declared as well (lane L41), so this stays the undeclared case. */
 /** Task 08 lane L41 also declared the extrapolation graph, so its t slider is a board puck; the same stand-in for the undeclared case (no declaration, no puck). */
 class UndeclaredExtrapolationGraph extends ExtrapolationGraph {
     protected override declaresCurveWorkspace(): boolean { return false; }

@@ -157,8 +157,8 @@ const uniformPh = parameterizationRow({
 });
 
 // ---------------------------------------------------------------- Construction lessons (Cohort D)
-const tSlider = page => rangeSlider(page, '0.99');
-const expectT = (page, expected, message) => expect.poll(async () => Number(await tSlider(page).inputValue()), {message}).toBeCloseTo(expected, 1);
+// The cut parameter t is a board puck (task 08 lane L41), on both subdivision routes.
+const expectT = (page, expected, message) => expect.poll(async () => Number(await page.locator('.puck-strip [data-puck-key="subdivision-t"] [role="slider"]').getAttribute('aria-valuenow')), {message}).toBeCloseTo(expected, 1);
 
 // Default subdivision route draws two curves (blue [0,t] and orange remainder [t,1]) and 4 + 6 scheme points.
 const subdivision = {
@@ -172,8 +172,7 @@ const subdivision = {
     },
     stepProbe: async (page, ctx, step, label) => {
         const tByStep = [0.5, 0.3, 0.5, 1, 1];
-        // The cut parameter t is a board puck (task 08 lane L41); rational-subdivision still reads the Orodja slider.
-        await expect.poll(async () => Number(await page.locator('.puck-strip [data-puck-key="subdivision-t"] [role="slider"]').getAttribute('aria-valuenow')), {message: `cut parameter puck at ${label}`}).toBeCloseTo(tByStep[step - 1], 1);
+        await expectT(page, tByStep[step - 1], `cut parameter puck at ${label}`);
         if (step <= 3) {
             await expect.poll(async () => (await boardStats(page)).points, {message: `scheme + control points at ${label}`}).toBe(10);
             expect((await boardStats(page)).drawnCurves, `blue part + orange remainder at ${label}`).toBe(2);
