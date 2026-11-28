@@ -5309,8 +5309,6 @@ export const en: Record<keyof typeof sl, string> = {
     "prob_density_example_iq": "N(100, 15)",
     "prob_density_example_custom": "Custom",
     "prob_density_example_help": "An example sets μ, σ, a and b and the view.",
-    "prob_density_board_title": "X ∼ N({value0}, {value1}²)",
-    "prob_density_board_area": "Area under the density between a and b: {value0} %",
     "prob_density_status_reversed": "Bound a is larger than bound b: the interval is empty, the area is 0 % and nothing is drawn.",
     "prob_density_status_point": "a = b: over a single point the area under the density is 0. For a continuous variable a single value has probability 0.",
     "prob_density_status_thin": "The interval is very thin (under {value0} % of the standard deviation), so the area is very small.",

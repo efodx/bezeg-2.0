@@ -1,11 +1,11 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import {FunctionStatus} from "./FunctionStatus";
-import Slider from "../../inputs/Slider";
-import {NumberInput} from "../../inputs/NumberInput";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, renderMessage, t} from "../../localization";
+import type {GraphDeclaration, ParameterDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import {normalPdf} from "../../analysis/distributions";
 import {
     DEFAULT_DENSITY_AREA_MODEL, DENSITY_BOUND_LIMIT, DENSITY_DRAG_STEP, DENSITY_MU_LIMIT, DENSITY_SIGMA_MAX, DENSITY_SIGMA_MIN,
@@ -13,12 +13,18 @@ import {
     setDensityBound, setDensityMu, setDensitySigma,
 } from "../../analysis/densityAreaModel";
 import {
-    densityAreaEditMessage, densityFraction, densityNumber, densityPercent, densityStatus, densityZ,
+    densityAreaEditMessage, densityFraction, densityPercent, densityStatusMessage, densityZ,
 } from "./densityAreaMessages";
 import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 
 const AREA_COLOR = GraphPalette.comparisonCurve;
+
+/** The ids of the density declaration: the mean, the deviation and the two ends are board pucks; the legend names the curve and the area. */
+export type DensityAreaIds = {
+    param: "density-mu" | "density-sigma" | "density-a" | "density-b";
+    row: "mu" | "sigma" | "a" | "b" | "area-percent" | "area" | "za" | "zb"; note: "density"; legend: "curve" | "area"; section: never; action: never;
+};
 
 /**
  * Density and probability as area (lesson P1): the density of X ~ N(mu, sigma^2) with the area between two draggable ends a and b
@@ -33,6 +39,8 @@ const AREA_COLOR = GraphPalette.comparisonCurve;
 export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
     protected pointA?: JXG.Point;
     protected pointB?: JXG.Point;
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
     private readonly fillOf = this.modelCache((model: DensityAreaModel) => densityAreaFill(model));
 
     override presetCollection() {
@@ -116,21 +124,20 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
     protected createScene(): void {
         const board = this.board;
         const model = () => this.model;
-        const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
 
         // Layers, lowest first: the area, the density, then the two ends on the axis.
         // The area is the subject: its own hue (blue, as the normal area of the binomial graph), with a visible boundary at a and b.
-        this.signedFill(AREA_COLOR, () => this.fillOf(this.model));
+        this.drawn.set("area", this.signedFill(AREA_COLOR, () => this.fillOf(this.model)) as unknown as JXG.GeometryElement);
         for (const which of ["a", "b"] as const) {
             const height = () => normalPdf(model()[which], model().mu, model().sigma);
             this.own(board.create("curve", [() => model()[which], (t: number) => t * height(), 0, 1], {
                 strokeColor: AREA_COLOR, strokeWidth: this.displayThinWidth(0.9), highlight: false, fixed: true, visible: () => model().a <= model().b,
             }));
         }
-        this.own(board.create("functiongraph", [(x: number) => normalPdf(x, model().mu, model().sigma)], {
+        this.drawn.set("curve", this.own(board.create("functiongraph", [(x: number) => normalPdf(x, model().mu, model().sigma)], {
             strokeColor: GraphPalette.primaryCurve, highlight: false, fixed: true, strokeWidth,
-        }));
+        })));
 
         // The ends slide along the x-axis: a drag keeps y = 0 and writes x rounded to 0.01. a may pass b (an empty interval).
         const end = (which: "a" | "b") => this.slidingPoint({
@@ -140,12 +147,6 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
         });
         this.pointA = end("a");
         this.pointB = end("b");
-
-        this.caption("top-left", [
-            {text: () => t("prob_density_board_title", {value0: densityNumber(model().mu, language()), value1: densityNumber(model().sigma, language())}), scale: 1.2},
-            {text: () => t("prob_density_board_area", {value0: densityPercent(this.viewOf(model()).probability, language())})},
-            {text: () => densityStatus(this.viewOf(model()).kind, language()), color: GraphPalette.warningText},
-        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -157,6 +158,7 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
     protected override onSceneRemoved(): void {
         this.pointA = undefined;
         this.pointB = undefined;
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -169,22 +171,10 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
             {value: "iq", text: t("prob_density_example_iq")},
             ...(example === undefined ? [{value: "custom", text: t("prob_density_example_custom")}] : []),
         ];
-        const muRejected = t("prob_density_mu_rejected", {value0: DENSITY_MU_LIMIT});
-        const sigmaRejected = t("prob_density_sigma_rejected");
         return <>
-            <div className="inspector-group">
-                <NumberInput label={t("prob_density_a_label")} value={state.a} min={-DENSITY_BOUND_LIMIT} max={DENSITY_BOUND_LIMIT} step={DENSITY_DRAG_STEP}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("a", next))}/>
-                <NumberInput label={t("prob_density_b_label")} value={state.b} min={-DENSITY_BOUND_LIMIT} max={DENSITY_BOUND_LIMIT} step={DENSITY_DRAG_STEP}
-                             onChange={next => this.ignoreOutOfDomain(() => this.setBound("b", next))}/>
+            <PuckOwnedGroup params={["density-a", "density-b", "density-mu", "density-sigma"]} className="inspector-group">
                 <p className="inspector-help">{t("prob_density_bounds_help")}</p>
-            </div>
-            <div className="inspector-group">
-                <Slider customText={t("prob_density_mu_label")} min={-DENSITY_MU_LIMIT} max={DENSITY_MU_LIMIT} step={0.1} value={state.mu}
-                        rejectedHint={muRejected} onChange={next => this.ignoreOutOfDomain(() => this.setMu(next))}/>
-                <Slider customText={t("prob_density_sigma_label")} min={DENSITY_SIGMA_MIN} max={DENSITY_SIGMA_MAX} step={0.1} value={state.sigma}
-                        rejectedHint={sigmaRejected} onChange={next => this.ignoreOutOfDomain(() => this.setSigma(next))}/>
-            </div>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <ChoiceSelect label={t("prob_density_example_label")} value={example ?? "custom"} help={t("prob_density_example_help")} options={options}
                               onChange={next => { if (next === "standard" || next === "iq") this.setExample(next); }}/>
@@ -192,28 +182,78 @@ export class DensityAreaGraph extends BaseFunctionGraph<DensityAreaModel> {
         </>;
     }
 
-    protected renderReadout(): React.ReactNode {
-        const model = this.model;
-        const view = this.viewOf(model);
-        const language = currentLanguage();
-        const rows = [
-            {id: "area-percent", label: t("prob_density_readout_area_percent"), value: densityPercent(view.probability, language)},
-            {id: "area", label: t("prob_density_readout_area"), value: densityFraction(view.probability, language)},
-            {id: "za", label: t("prob_density_readout_za"), value: densityZ(view.za, language)},
-            {id: "zb", label: t("prob_density_readout_zb"), value: densityZ(view.zb, language)},
-        ];
-        const status = densityStatus(view.kind, language);
-        return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_density_note")}/>
-            <FunctionStatus dataAttribute="prob-density" lines={status ? [{id: "status", text: status}] : []}/>
-        </>;
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "density-mu": {read: () => this.model.mu, apply: (value: number) => this.setMu(value)},
+            "density-sigma": {read: () => this.model.sigma, apply: (value: number) => this.setSigma(value)},
+            "density-a": {read: () => this.model.a, apply: (value: number) => this.setBound("a", value)},
+            "density-b": {read: () => this.model.b, apply: (value: number) => this.setBound("b", value)},
+        };
     }
 
-    protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "curve", color: GraphPalette.primaryCurve, label: t("prob_density_legend_curve"), kind: "line"},
-            {id: "area", color: AREA_COLOR, label: t("prob_density_legend_area"), kind: "area"},
-        ]}/>;
+    /** The common declaration (rows, note, status, view marks) plus the ends, the mean and the deviation as board pucks and the legend. */
+    protected override declaration(): GraphDeclaration {
+        const bound = (which: "a" | "b"): ParameterDeclaration => ({
+            key: `density-${which}`, kind: "range", label: message(which === "a" ? "prob_density_a_name" : "prob_density_b_name"), symbol: which,
+            ...(which === "a" ? {help: message("prob_density_bounds_help")} : {}),
+            placement: "board", min: -DENSITY_BOUND_LIMIT, max: DENSITY_BOUND_LIMIT, step: DENSITY_DRAG_STEP, maxDecimals: 2,
+        });
+        return {
+            ...this.commonDeclaration(),
+            parameters: [
+                bound("a"),
+                bound("b"),
+                {key: "density-mu", kind: "range", label: message("prob_density_mu_name"), symbol: "μ", placement: "board", min: -DENSITY_MU_LIMIT, max: DENSITY_MU_LIMIT, step: 0.1, maxDecimals: 2},
+                {key: "density-sigma", kind: "range", label: message("prob_density_sigma_name"), symbol: "σ", placement: "board", min: DENSITY_SIGMA_MIN, max: DENSITY_SIGMA_MAX, step: 0.1, maxDecimals: 2},
+            ],
+            legend: [
+                {id: "curve", label: message("prob_density_legend_curve"), kind: "line", object: "curve"},
+                {id: "area", label: message("prob_density_legend_area"), kind: "area", object: "area"},
+            ],
+        };
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp(id === "area" ? "fillcolor" : "strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /** Declared by the base: the readout rows, the note, the status and the plotted density; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
+        const {mu, sigma, a, b} = this.model;
+        const view = this.viewOf(this.model);
+        const language = currentLanguage();
+        const formatted = (text: string) => ({kind: "formatted" as const, text});
+        const status = densityStatusMessage(view.kind);
+        return {
+            rows: [
+                {id: "mu", symbol: "μ", value: messageNumber(mu, 2)},
+                {id: "sigma", symbol: "σ", value: messageNumber(sigma, 2)},
+                {id: "a", symbol: "a", value: messageNumber(a, 2)},
+                {id: "b", symbol: "b", value: messageNumber(b, 2)},
+                {id: "area-percent", name: message("prob_density_readout_area_percent"), value: formatted(densityPercent(view.probability, language))},
+                {id: "area", name: message("prob_density_readout_area"), value: formatted(densityFraction(view.probability, language))},
+                {id: "za", name: message("prob_density_readout_za"), value: formatted(densityZ(view.za, language))},
+                {id: "zb", name: message("prob_density_readout_zb"), value: formatted(densityZ(view.zb, language))},
+            ],
+            notes: [{id: "density", text: message("prob_density_note")}],
+            ...(status ? {status: [{id: "status", text: status, tone: "warning" as const}]} : {}),
+            plotted: x => normalPdf(x, mu, sigma),
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
+        const status = this.functionPanel().status ?? [];
+        return <>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus dataAttribute="prob-density" lines={status.map(line => ({id: line.id, text: renderMessage(line.text)}))}/>
+        </>;
     }
 }
 

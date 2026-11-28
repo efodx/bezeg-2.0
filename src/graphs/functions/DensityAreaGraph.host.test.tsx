@@ -12,6 +12,7 @@ import {fitDensityView, DEFAULT_DENSITY_AREA_MODEL, DENSITY_EXAMPLES, DENSITY_FI
 import {normalPdf} from '../../analysis/distributions';
 import {GraphPalette} from '../styles/GraphPalette';
 import {functionPresetCollections} from './functionPresetCollections';
+import {runAs} from '../base/writes/writeSource';
 
 // jsdom has no canvas, no matchMedia and no layout: the shared harness gives the board a size, so its view can be read.
 beforeAll(installBoardShims);
@@ -33,25 +34,20 @@ class ObservedDensityAreaGraph extends DensityAreaGraph {
     fills() { return this.objects().filter(object => object.elType === 'curve' && object.dataX?.length === DENSITY_FILL_STRIPS + 4); }
     drag(which: 'a' | 'b', x: number) {
         const handle = this.handle(which);
-        act(() => { handle.moveTo([x, 0]); handle.triggerEventHandlers(['drag'], []); });
+        act(() => { runAs('learner', () => { handle.moveTo([x, 0]); handle.triggerEventHandlers(['drag'], []); }); });
     }
-    set(name: 'mu' | 'sigma', value: unknown) { act(() => { if (name === 'mu') this.setMu(value); else this.setSigma(value); }); }
+    set(name: 'mu' | 'sigma', value: unknown) { act(() => { runAs('learner', () => { if (name === 'mu') this.setMu(value); else this.setSigma(value); }); }); }
     lesson(action: LessonAction) { act(() => { this.applyLessonAction(action); }); }
-    /** The host Fit button. */
-    fit() { act(() => { this.fitToVisiblePoints(); }); }
-    callSetSigma(value: unknown) { this.setSigma(value); }
-    callSetBound(which: 'a' | 'b', value: unknown) { this.setBound(which, value); }
+    /** The graph's own host Fit; with declared marks the workspace's view director owns Fit (it needs layout geometry, absent in jsdom), so it is detached. */
+    fit() { act(() => { runAs('learner', () => { this.setViewDirector(undefined); this.fitToVisiblePoints(); }); }); }
+    callSetSigma(value: unknown) { runAs('learner', () => this.setSigma(value)); }
+    callSetBound(which: 'a' | 'b', value: unknown) { runAs('learner', () => this.setBound(which, value)); }
 }
 
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
-const field = (label: RegExp) => screen.getByLabelText(label, {selector: 'input:not([type="range"])'}) as HTMLInputElement;
-const typeIn = (label: RegExp, value: number) => act(() => {
-    fireEvent.change(field(label), {target: {value: String(value)}});
-    fireEvent.keyDown(field(label), {key: 'Enter'});
-});
-const typeA = (value: number) => typeIn(/^Leva meja a$|^Left end a$/, value);
-const typeB = (value: number) => typeIn(/^Desna meja b$|^Right end b$/, value);
-const slider = (label: RegExp) => screen.getByLabelText(label, {selector: 'input[type="range"]'}) as HTMLInputElement;
+// The ends, mu and sigma are pucks on the board (task 08): the host tests write through the arbiter as a learner.
+type Key = 'density-mu' | 'density-sigma' | 'density-a' | 'density-b';
+const write = (graph: ObservedDensityAreaGraph, key: Key, value: number) => act(() => { graph.parameters!.write(key, value, 'learner'); });
 const exampleSelect = () => screen.getByLabelText(/^Primer$|^Example$/) as HTMLSelectElement;
 const status = () => document.querySelector('[data-prob-density="status"]')?.textContent;
 const mount = () => {
@@ -73,9 +69,8 @@ test('defaults: N(0, 1) with a = -1, b = 1 reads 68,27 %, z from -1 to 1, with t
     expect(graph.fills()).toHaveLength(1);
     expect(status()).toBeUndefined();
     expect(document.querySelector('[role="status"][aria-live="polite"]')).not.toBeNull();
-    const caption = graph.captionPlainLines().join('\n');
-    expect(caption).toMatch(/N\(0; 1²\)/);
-    expect(caption).toMatch(/Ploščina pod gostoto med a in b: 68,27 %/);
+    // The title and the area line repeated the mean, the deviation and the area readout: the board holds no caption now.
+    expect(graph.captionPlainLines()).toEqual([]);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 });
 
@@ -83,8 +78,8 @@ test('the spec value for N(100, 15): typing mu, sigma, a and b reads 81,86 % (0,
     const {graph} = mount();
     graph.set('mu', 100);
     graph.set('sigma', 15);
-    typeA(85);
-    typeB(130);
+    write(graph, 'density-a', 85);
+    write(graph, 'density-b', 130);
     expect(graph.modelNow()).toEqual(DENSITY_EXAMPLES.iq);
     expect(readout('area-percent')).toBe('81,86');
     expect(readout('area')).toBe('0,81859');
@@ -93,16 +88,16 @@ test('the spec value for N(100, 15): typing mu, sigma, a and b reads 81,86 % (0,
     expect(graph.handle('b').X()).toBe(130);
     act(() => { setLanguage('en'); });
     expect(readout('area')).toBe('0.81859');
-    expect(graph.captionPlainLines().join('\n')).toMatch(/Area under the density between a and b: 81\.86 %/);
+    expect(readout('area-percent')).toBe('81.86');
 });
 
-test('the area within mu +- sigma stays 68,27 % while the sliders change mu and sigma', () => {
+test('the area within mu +- sigma stays 68,27 % while the pucks change mu and sigma', () => {
     const {graph} = mount();
     for (const [mu, sigma] of [[0, 2.5], [40, 0.7], [-120, 18], [100, 15]]) {
-        act(() => { fireEvent.change(slider(/^Povprečje μ$/), {target: {value: String(mu)}}); });
-        act(() => { fireEvent.change(slider(/^Standardni odklon σ$/), {target: {value: String(sigma)}}); });
-        typeA(mu - sigma);
-        typeB(mu + sigma);
+        write(graph, 'density-mu', mu);
+        write(graph, 'density-sigma', sigma);
+        write(graph, 'density-a', mu - sigma);
+        write(graph, 'density-b', mu + sigma);
         expect(graph.modelNow()).toEqual({mu, sigma, a: mu - sigma, b: mu + sigma});
         expect(readout('area-percent'), `${mu},${sigma}`).toBe('68,27');
         expect(readout('za')).toBe('−1');
@@ -110,7 +105,7 @@ test('the area within mu +- sigma stays 68,27 % while the sliders change mu and 
     }
 });
 
-test('the sliders refuse nothing inside the range and the model refuses sigma <= 0, non-finite and out-of-range values with a message', () => {
+test('the pucks refuse nothing inside the range and the model refuses sigma <= 0, non-finite and out-of-range values with a message', () => {
     const {graph} = mount();
     const before = graph.modelNow();
     for (const bad of [0, -1, NaN, Infinity, 'x', 0.05, 25]) {
@@ -160,7 +155,7 @@ test('a > b: probability 0, a status text, nothing filled and nothing broken', (
     expect(document.querySelector('.function-status [data-prob-density="status"]')).not.toBeNull();
     expect(document.querySelector('[data-readout-live]')?.textContent).toMatch(/interval je prazen/);
     expect(graph.fills()).toHaveLength(0);
-    expect(graph.captionPlainLines().join('\n')).toMatch(/interval je prazen/);
+    expect(graph.captionPlainLines()).toEqual([]);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
     graph.drag('a', -1);
     expect(status()).toBeUndefined();
@@ -169,8 +164,8 @@ test('a > b: probability 0, a status text, nothing filled and nothing broken', (
 
 test('a = b: probability 0 and the status says a single value has probability 0 for a continuous variable', () => {
     const {graph} = mount();
-    typeA(0.5);
-    typeB(0.5);
+    write(graph, 'density-a', 0.5);
+    write(graph, 'density-b', 0.5);
     expect(readout('area-percent')).toBe('0');
     expect(status()).toMatch(/a = b: nad eno samo točko je ploščina pod gostoto 0\. Pri zvezni spremenljivki ima posamezna vrednost verjetnost 0/);
     expect(graph.fills()).toHaveLength(0);
@@ -179,9 +174,9 @@ test('a = b: probability 0 and the status says a single value has probability 0 
 });
 
 test('a very thin interval gets a note and its tiny area', () => {
-    mount();
-    typeA(0);
-    typeB(0.01);
+    const {graph} = mount();
+    write(graph, 'density-a', 0);
+    write(graph, 'density-b', 0.01);
     expect(status()).toMatch(/zelo ozek \(manj kot 2 % standardnega odklona\)/);
     expect(readout('area-percent')).toBe('0,3989');
 });
@@ -189,13 +184,13 @@ test('a very thin interval gets a note and its tiny area', () => {
 test('a very wide interval reads 100 %, and the far tail P(Z > 6) is not rounded to 0', () => {
     const {graph} = mount();
     const objects = graph.ownedObjects();
-    typeA(-400);
-    typeB(400);
+    write(graph, 'density-a', -400);
+    write(graph, 'density-b', 400);
     expect(readout('area-percent')).toBe('100');
     expect(readout('area')).toBe('1');
     expect(graph.fills()).toHaveLength(1);
     expect(graph.ownedObjects()).toBe(objects);
-    typeA(6);
+    write(graph, 'density-a', 6);
     expect(readout('area-percent')).toBe('9,866·10⁻⁸');
     expect(readout('area')).toBe('9,8659·10⁻¹⁰');
     expect(readout('za')).toBe('6');
@@ -238,8 +233,8 @@ test('Reset restores the defaults, the fields, the readouts, the view and the bo
     graph.drag('b', 140);
     await settle(() => graph.reset());
     expect(graph.modelNow()).toEqual(DEFAULT_DENSITY_AREA_MODEL);
-    expect(field(/^Leva meja a$/).value).toBe('−1');
-    expect(field(/^Desna meja b$/).value).toBe('1');
+    expect(graph.parameters!.read('density-a')).toBe(-1);
+    expect(graph.parameters!.read('density-b')).toBe(1);
     expect(readout('area-percent')).toBe('68,27');
     expect(graph.handle('b').X()).toBe(1);
     expect(graph.liveBoard().getBoundingBox()[0]).toBeCloseTo(-4, 6);
@@ -310,11 +305,10 @@ test('a live language switch updates the board text, the labels and the readouts
     const update = vi.spyOn(graph as unknown as { boardUpdate: () => void }, 'boardUpdate');
     act(() => { setLanguage('en'); });
     expect(update).toHaveBeenCalled();
-    expect(graph.captionPlainLines().join('\n')).toMatch(/X ∼ N\(0, 1²\)/);
-    expect(screen.getByLabelText(/^Left end a$/, {selector: 'input:not([type="range"])'})).toBeTruthy();
+    expect(document.body.textContent).toMatch(/Area under the density between a and b \(in %\)/);
     expect(graph.modelNow().b).toBe(2);
     act(() => { setLanguage('sl'); });
-    expect(graph.captionPlainLines().join('\n')).toMatch(/N\(0; 1²\)/);
+    expect(document.body.textContent).toMatch(/Ploščina pod gostoto med a in b \(v %\)/);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 });
 

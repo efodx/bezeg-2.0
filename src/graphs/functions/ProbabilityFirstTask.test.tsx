@@ -2,7 +2,8 @@
  * Probability routes, first task first (graph-control first use, batch 2): each route's own first task is the first control of the
  * Edit panel on a fresh visit; the controls the plan places after it follow, the example chooser among them.
  */
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {within} from '@testing-library/react';
+import {installBoardShims, mountGraph, openTools, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import DensityAreaGraph from './DensityAreaGraph';
@@ -12,6 +13,8 @@ import SummaryStatisticsGraph from './SummaryStatisticsGraph';
 import CorrelationGraph from './CorrelationGraph';
 import BaseGraph, {BaseGraphState} from '../base/BaseGraph';
 
+// The cards hold formulas; jsdom never loads MathJax, so the layout would wait for it forever and the pucks stay hidden.
+vi.mock('../../mathjax/loadMathJax', () => ({typesetMath: () => Promise.resolve(), loadMathJax: () => Promise.resolve({})}));
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
 beforeEach(() => { appStorage.clear(); setLanguage('sl'); });
@@ -43,8 +46,8 @@ const checkOrder = (graph: BaseGraph<BaseGraphState>, first: Label, later: Label
 };
 
 const plan: Record<string, {make: () => BaseGraph<BaseGraphState>; first: Label; later: Label[]}> = {
-    density: {make: () => new DensityAreaGraph(), first: () => t('prob_density_a_label'),
-        later: [() => t('prob_density_b_label'), () => t('prob_density_mu_label'), () => t('prob_density_sigma_label'), () => t('prob_density_example_label')]},
+    // The ends, the mean and the deviation are board pucks (task 08 lane L47): Edit holds the example chooser alone.
+    density: {make: () => new DensityAreaGraph(), first: () => t('prob_density_example_label'), later: []},
     'binomial-normal': {make: () => new BinomialNormalGraph(), first: () => t('prob_binomial_n_label'),
         later: [() => t('prob_binomial_p_label'), () => t('prob_binomial_k_label'), () => t('prob_binomial_correction_label'), () => t('prob_binomial_example_label')]},
     // The first control is the "Add another copy" action of the playback group.
@@ -60,5 +63,20 @@ const plan: Record<string, {make: () => BaseGraph<BaseGraphState>; first: Label;
 describe.each(Object.keys(plan))('%s', key => {
     test('the first task leads the Edit panel', () => {
         checkOrder(plan[key].make(), plan[key].first, plan[key].later);
+    });
+});
+
+describe('density pucks', () => {
+    // The ends a and b, the mean and the deviation are pucks on the board: there once, and not in Orodja, which keeps the example chooser.
+    test('a, b, mu and sigma are pucks and Orodja holds no second copy', async () => {
+        mountGraph(new DensityAreaGraph());
+        await waitForPucks('density-a');
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const key of ['density-a', 'density-b', 'density-mu', 'density-sigma']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of [t('prob_density_a_label'), t('prob_density_b_label'), t('prob_density_mu_label'), t('prob_density_sigma_label')]) {
+            expect(within(root).queryAllByLabelText(label), label).toEqual([]);
+        }
     });
 });

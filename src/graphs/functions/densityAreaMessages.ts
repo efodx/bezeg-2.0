@@ -1,4 +1,4 @@
-import {message, Message, t} from "../../localization";
+import {message, Message, messageNumber} from "../../localization";
 import {formatNumber, formatSignificant, NumberLanguage} from "../../analysis/format";
 import {choiceRejected} from "./functionSetterMessages";
 import {DensityAreaIssue, DensityIntervalKind, DENSITY_THIN_FRACTION} from "../../analysis/densityAreaModel";
@@ -30,18 +30,15 @@ export const densityPercent = (probability: number, language: NumberLanguage): s
 /** A probability as a fraction of the total area, five significant digits (0,68269). */
 export const densityFraction = (probability: number, language: NumberLanguage): string => formatSignificant(probability, language, 5);
 
-/** A parameter or a bound, at most two decimals. */
-export const densityNumber = (value: number, language: NumberLanguage): string => formatNumber(value, language, 2);
-
 /** A standardized bound, at most three decimals (z = 2,333). */
 export const densityZ = (value: number, language: NumberLanguage): string => formatNumber(value, language, 3);
 
-/** The status sentence of an interval that is empty, a single value or very thin; "" for an ordinary interval. */
-export function densityStatus(kind: DensityIntervalKind, language: NumberLanguage): string {
+/** The status sentence of an interval that is empty, a single value or very thin; undefined for an ordinary interval. */
+export function densityStatusMessage(kind: DensityIntervalKind): Message | undefined {
     switch (kind) {
-        case "reversed": return t("prob_density_status_reversed");
-        case "point": return t("prob_density_status_point");
-        case "thin": return t("prob_density_status_thin", {value0: formatNumber(DENSITY_THIN_FRACTION * 100, language, 0)});
-        case "interval": return "";
+        case "reversed": return message("prob_density_status_reversed");
+        case "point": return message("prob_density_status_point");
+        case "thin": return message("prob_density_status_thin", {value0: messageNumber(DENSITY_THIN_FRACTION * 100, 0)});
+        case "interval": return undefined;
     }
 }

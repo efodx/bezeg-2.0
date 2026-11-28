@@ -41,6 +41,10 @@ interface Sample {
 const continuityAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'row a', reason: 'the parameter is a board puck now, so its slider output "a = 1,5" is a readout row; the panel showed the value only on the slider'},
 ];
+const probDensityAccepted: readonly AcceptedDifference[] = ['mu', 'sigma', 'a', 'b'].map(key => ({
+    kind: 'extra', where: `row ${key}`,
+    reason: 'the board caption "X ∼ N(μ; σ²)" is removed and the values are rows of the declaration; the panel showed them only on its sliders and fields',
+}) as const);
 const meanValueAccepted: readonly AcceptedDifference[] = [
     {kind: 'missing', where: 'note', reason: 'the note named the reveal "gumb" (button); the reveal is a switch puck now, so the note says "krmilnik" (control)'},
     {kind: 'extra', where: 'note', reason: 'the same note with "gumb" reworded to "krmilnik" (the reveal is a switch puck on the board)'},
@@ -1169,6 +1173,20 @@ const SAMPLES: readonly Sample[] = [
             {name: 'a 0.5, b 1.5', apply: run(g => { g.setBound('a', 0.5); g.setBound('b', 1.5); })},
             {name: 'sin 0..2pi', apply: run(g => { g.setFunction('sin'); g.setBound('a', 0); g.setBound('b', 6.28); g.setCount(8); })},
             {name: 'exp reversed a > b', apply: run(g => { g.setFunction('exp'); g.setBound('a', 2); g.setBound('b', 0); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/prob-density.json', demonstration: 'prob-density', accepted: probDensityAccepted, states: (() => {
+        type DensitySetters = {setMu(value: number): void; setSigma(value: number): void; setBound(which: 'a' | 'b', value: number): void; setExample(id: string): void};
+        const run = (edit: (graph: DensitySetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as DensitySetters)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'bounds -1.5, 0.5', apply: run(g => { g.setBound('a', -1.5); g.setBound('b', 0.5); })},
+            {name: 'mu 1, sigma 1.5', apply: run(g => { g.setMu(1); g.setSigma(1.5); g.setBound('a', -0.5); g.setBound('b', 2.5); })},
+            {name: 'iq example', apply: run(g => g.setExample('iq'))},
+            {name: 'far tail', apply: run(g => { g.setExample('standard'); g.setBound('a', 4.5); g.setBound('b', 7); })},
+            {name: 'reversed a > b', apply: run(g => { g.setExample('standard'); g.setBound('a', 1); g.setBound('b', -1); })},
+            {name: 'a = b', apply: run(g => { g.setExample('standard'); g.setBound('a', 0.5); g.setBound('b', 0.5); })},
+            {name: 'thin interval', apply: run(g => { g.setExample('standard'); g.setSigma(2); g.setBound('a', 0); g.setBound('b', 0.02); })},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/derivative.json', demonstration: 'derivative', states: (() => {

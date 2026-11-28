@@ -5308,8 +5308,6 @@ export const sl = {
     "prob_density_example_iq": "N(100; 15)",
     "prob_density_example_custom": "Po meri",
     "prob_density_example_help": "Primer nastavi μ, σ, a in b ter pogled.",
-    "prob_density_board_title": "X ∼ N({value0}; {value1}²)",
-    "prob_density_board_area": "Ploščina pod gostoto med a in b: {value0} %",
     "prob_density_status_reversed": "Meja a je večja od meje b: interval je prazen, ploščina je 0 % in nič ni narisano.",
     "prob_density_status_point": "a = b: nad eno samo točko je ploščina pod gostoto 0. Pri zvezni spremenljivki ima posamezna vrednost verjetnost 0.",
     "prob_density_status_thin": "Interval je zelo ozek (manj kot {value0} % standardnega odklona), zato je ploščina zelo majhna.",

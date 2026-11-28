@@ -9,9 +9,12 @@
  */
 import type {FunctionParameterName, LessonAction} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {DensityAreaIds} from '../../graphs/functions/DensityAreaGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const densityFrame = frameDeclarer<DensityAreaIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name, value});
 
 interface DensityScene {
@@ -79,7 +82,10 @@ const densityArea: GuidedLesson = {
                 'The graph shows the density of the standard normal distribution \\(N(0;1)\\) and the area under it between \\(a=-4\\) and \\(b=4\\). This area is \\(99.99\\ \\%\\), so almost all of it: the area under the whole curve is \\(1\\) (\\(100\\ \\%\\)), all possible values together have probability \\(1\\). Predict: what percentage of the area lies between \\(-1\\) and \\(1\\), that is within one standard deviation of the mean?',
             ),
             formulaIds: ['normal-density-area'],
-            frames: [frame('density-total-explanation', 'explanation'), frame('density-total-observation', 'observation')],
+            frames: [
+                frame('density-total-explanation', 'explanation', densityFrame({highlight: ['a', 'b', 'area-percent']})),
+                frame('density-total-observation', 'observation', densityFrame({highlight: ['a', 'b']})),
+            ],
             observationPrompt: text('Pred naslednjim korakom se odloči: je znotraj enega standardnega odklona manj kot polovica, okoli dve tretjini ali skoraj vsa ploščina?', 'Before the next step decide: is less than half, about two thirds or almost all of the area within one standard deviation?'),
             expectedObservations: [text('Ploščina med \\(-4\\) in \\(4\\) je \\(99{,}99\\ \\%\\); krivulja je pri \\(\\pm4\\) praktično na osi, zunaj je le še zanemarljiv rep.', 'The area between \\(-4\\) and \\(4\\) is \\(99.99\\ \\%\\); the curve is practically on the axis at \\(\\pm4\\), only a negligible tail lies outside.')],
             scene: densityScene('density-total-start', {example: 'standard', a: -4, b: 4},
@@ -91,11 +97,14 @@ const densityArea: GuidedLesson = {
             title: text('Meji in odstotek ploščine', 'The bounds and the percentage of the area'),
             purpose: text('Z vlečenjem mej \\(a\\) in \\(b\\) brati ploščino kot odstotek.', 'Dragging the bounds \\(a\\) and \\(b\\) to read the area as a percentage.'),
             explanation: text(
-                'Meji sta zdaj \\(a=-1{,}5\\) in \\(b=0{,}5\\); pobarvana ploščina je \\(62{,}47\\ \\%\\), kar je verjetnost \\(P(-1{,}5\\le X\\le0{,}5)=0{,}62466\\). Povleci meji po osi ali ju nastavi z drsnikoma in opazuj odstotek. Ko postaneta meji enaki, je ploščina \\(0\\): pod eno samo vrednostjo ni ploščine.',
-                'The bounds are now \\(a=-1.5\\) and \\(b=0.5\\); the shaded area is \\(62.47\\ \\%\\), which is the probability \\(P(-1.5\\le X\\le0.5)=0.62466\\). Drag the bounds along the axis or type them and watch the percentage. When the bounds become equal the area is \\(0\\): there is no area under a single value.',
+                'Meji sta zdaj \\(a=-1{,}5\\) in \\(b=0{,}5\\); pobarvana ploščina je \\(62{,}47\\ \\%\\), kar je verjetnost \\(P(-1{,}5\\le X\\le0{,}5)=0{,}62466\\). Povleci meji po osi ali ju nastavi s krmilnikoma Leva meja in Desna meja ter opazuj odstotek. Ko postaneta meji enaki, je ploščina \\(0\\): pod eno samo vrednostjo ni ploščine.',
+                'The bounds are now \\(a=-1.5\\) and \\(b=0.5\\); the shaded area is \\(62.47\\ \\%\\), which is the probability \\(P(-1.5\\le X\\le0.5)=0.62466\\). Drag the bounds along the axis or set them with the Left end and Right end controls and watch the percentage. When the bounds become equal the area is \\(0\\): there is no area under a single value.',
             ),
             formulaIds: ['normal-density-area'],
-            frames: [frame('density-bounds-explanation', 'explanation'), frame('density-bounds-observation', 'observation')],
+            frames: [
+                frame('density-bounds-explanation', 'explanation', densityFrame({highlight: ['a', 'b', 'area-percent']})),
+                frame('density-bounds-observation', 'observation', densityFrame({highlight: ['area-percent'], uses: ['density-a', 'density-b']})),
+            ],
             observationPrompt: text('Poskusi meji nastaviti tako, da je ploščina natanko polovica. Kje sta meji?', 'Try to set the bounds so that the area is exactly one half. Where are the bounds?'),
             expectedObservations: [text('Ploščina je \\(50\\ \\%\\), na primer med \\(-6\\) in \\(0\\); pri enakih mejah je ploščina \\(0\\).', 'The area is \\(50\\ \\%\\), for example between \\(-6\\) and \\(0\\); at equal bounds the area is \\(0\\).')],
             scene: densityScene('density-bounds-start', {example: 'standard', a: -1.5, b: 0.5},
@@ -111,7 +120,10 @@ const densityArea: GuidedLesson = {
                 'The bounds are set to \\(a=\\mu-\\sigma=-1\\) and \\(b=\\mu+\\sigma=1\\); the standardized bounds are \\(z_a=-1\\) and \\(z_b=1\\). The area is \\(68.27\\ \\%\\), about two thirds. This is a property of the normal distribution: \\(P(\\mu-\\sigma\\le X\\le\\mu+\\sigma)=\\Phi(1)-\\Phi(-1)=0.68269\\). Likewise \\(95.45\\ \\%\\) lies between \\(\\mu\\pm2\\sigma\\) and \\(99.73\\ \\%\\) between \\(\\mu\\pm3\\sigma\\); try the bounds \\(\\pm2\\) and \\(\\pm3\\).',
             ),
             formulaIds: ['normal-density-area'],
-            frames: [frame('density-one-sigma-explanation', 'explanation'), frame('density-one-sigma-observation', 'observation')],
+            frames: [
+                frame('density-one-sigma-explanation', 'explanation', densityFrame({highlight: ['za', 'zb', 'area-percent']})),
+                frame('density-one-sigma-observation', 'observation', densityFrame({highlight: ['area-percent'], uses: ['density-a', 'density-b']})),
+            ],
             observationPrompt: text('Primerjaj z napovedjo. Koliko ploščine ostane zunaj mej \\(\\pm1\\) in koliko zunaj \\(\\pm3\\)?', 'Compare with your prediction. How much area is left outside the bounds \\(\\pm1\\), and how much outside \\(\\pm3\\)?'),
             expectedObservations: [text('Znotraj \\(\\pm1\\) je \\(68{,}27\\ \\%\\), znotraj \\(\\pm2\\) je \\(95{,}45\\ \\%\\), znotraj \\(\\pm3\\) je \\(99{,}73\\ \\%\\); zunaj \\(\\pm1\\) ostane \\(31{,}73\\ \\%\\).', 'Within \\(\\pm1\\) there is \\(68.27\\ \\%\\), within \\(\\pm2\\) \\(95.45\\ \\%\\), within \\(\\pm3\\) \\(99.73\\ \\%\\); \\(31.73\\ \\%\\) is left outside \\(\\pm1\\).')],
             scene: densityScene('density-one-sigma-start', {example: 'standard', a: -1, b: 1},
@@ -123,11 +135,14 @@ const densityArea: GuidedLesson = {
             title: text('Povprečje in standardni odklon', 'The mean and the standard deviation'),
             purpose: text('Opaziti, da se krivulja premakne in splošči, delež med \\(\\mu\\pm\\sigma\\) pa ostane.', 'Noticing that the curve moves and flattens while the share between \\(\\mu\\pm\\sigma\\) stays.'),
             explanation: text(
-                'Nastavljena sta \\(\\mu=1\\) in \\(\\sigma=1{,}5\\), meji pa \\(a=-0{,}5\\) in \\(b=2{,}5\\), to je \\(\\mu\\mp\\sigma\\). Krivulja je pomaknjena in nižja, ploščina med mejama pa je še vedno \\(68{,}27\\ \\%\\) (\\(z_a=-1\\), \\(z_b=1\\)). Z drsnikoma spremeni \\(\\mu\\) in \\(\\sigma\\), na primer \\(\\mu=-1\\), \\(\\sigma=0{,}85\\) z mejama \\(-1{,}85\\) in \\(-0{,}15\\): krivulja je ožja in višja, delež je spet \\(68{,}27\\ \\%\\). Po spremembi moraš meji sam postaviti na \\(\\mu\\mp\\sigma\\); ne premakneta se sami.',
-                'The settings are \\(\\mu=1\\) and \\(\\sigma=1.5\\), and the bounds are \\(a=-0.5\\) and \\(b=2.5\\), that is \\(\\mu\\mp\\sigma\\). The curve is shifted and lower, yet the area between the bounds is still \\(68.27\\ \\%\\) (\\(z_a=-1\\), \\(z_b=1\\)). Change \\(\\mu\\) and \\(\\sigma\\) with the sliders, for example \\(\\mu=-1\\), \\(\\sigma=0.85\\) with the bounds \\(-1.85\\) and \\(-0.15\\): the curve is narrower and taller, and the share is again \\(68.27\\ \\%\\). After a change you must set the bounds to \\(\\mu\\mp\\sigma\\) yourself; they do not move on their own.',
+                'Nastavljena sta \\(\\mu=1\\) in \\(\\sigma=1{,}5\\), meji pa \\(a=-0{,}5\\) in \\(b=2{,}5\\), to je \\(\\mu\\mp\\sigma\\). Krivulja je pomaknjena in nižja, ploščina med mejama pa je še vedno \\(68{,}27\\ \\%\\) (\\(z_a=-1\\), \\(z_b=1\\)). S krmilnikoma Povprečje in Odklon spremeni \\(\\mu\\) in \\(\\sigma\\), na primer \\(\\mu=-1\\), \\(\\sigma=0{,}85\\) z mejama \\(-1{,}85\\) in \\(-0{,}15\\): krivulja je ožja in višja, delež je spet \\(68{,}27\\ \\%\\). Po spremembi moraš meji sam postaviti na \\(\\mu\\mp\\sigma\\); ne premakneta se sami.',
+                'The settings are \\(\\mu=1\\) and \\(\\sigma=1.5\\), and the bounds are \\(a=-0.5\\) and \\(b=2.5\\), that is \\(\\mu\\mp\\sigma\\). The curve is shifted and lower, yet the area between the bounds is still \\(68.27\\ \\%\\) (\\(z_a=-1\\), \\(z_b=1\\)). Change \\(\\mu\\) and \\(\\sigma\\) with the Mean and Deviation controls, for example \\(\\mu=-1\\), \\(\\sigma=0.85\\) with the bounds \\(-1.85\\) and \\(-0.15\\): the curve is narrower and taller, and the share is again \\(68.27\\ \\%\\). After a change you must set the bounds to \\(\\mu\\mp\\sigma\\) yourself; they do not move on their own.',
             ),
             formulaIds: ['normal-density-area'],
-            frames: [frame('density-shape-explanation', 'explanation'), frame('density-shape-observation', 'observation')],
+            frames: [
+                frame('density-shape-explanation', 'explanation', densityFrame({highlight: ['mu', 'sigma', 'area-percent']})),
+                frame('density-shape-observation', 'observation', densityFrame({highlight: ['mu', 'sigma'], uses: ['density-mu', 'density-sigma']})),
+            ],
             observationPrompt: text('Pred spremembo se odloči: ali se bo pri ožji krivulji delež med \\(\\mu\\pm\\sigma\\) povečal, zmanjšal ali ostal enak?', 'Before changing decide: for a narrower curve, will the share between \\(\\mu\\pm\\sigma\\) grow, shrink or stay the same?'),
             expectedObservations: [text('Delež ostane \\(68{,}27\\ \\%\\); spremenita se le lega in višina krivulje, standardizirani meji sta vedno \\(\\pm1\\).', 'The share stays \\(68.27\\ \\%\\); only the position and height of the curve change, and the standardized bounds are always \\(\\pm1\\).')],
             scene: densityScene('density-shape-start', {example: 'standard', mu: 1, sigma: 1.5, a: -0.5, b: 2.5},
@@ -143,7 +158,10 @@ const densityArea: GuidedLesson = {
                 'The example \\(N(100;15^2)\\) is chosen, say a test score with mean \\(100\\) and deviation \\(15\\), with bounds \\(a=85\\) and \\(b=130\\). The standardized bounds are \\(z_a=-1\\) and \\(z_b=2\\) and the area is \\(81.86\\ \\%\\): \\(P(85\\le X\\le130)=\\Phi(2)-\\Phi(-1)=0.81859\\). Predict: is this share larger or smaller than the share between \\(\\mu\\pm\\sigma\\)? Then read it.',
             ),
             formulaIds: ['normal-density-area'],
-            frames: [frame('density-iq-explanation', 'explanation'), frame('density-iq-observation', 'observation')],
+            frames: [
+                frame('density-iq-explanation', 'explanation', densityFrame({highlight: ['za', 'zb']})),
+                frame('density-iq-observation', 'observation', densityFrame({highlight: ['area-percent'], uses: ['density-a']})),
+            ],
             observationPrompt: text('Pomakni \\(a\\) na \\(70\\): kolikšna je zdaj ploščina in kateri \\(k\\) ji ustreza?', 'Move \\(a\\) to \\(70\\): what is the area now and which \\(k\\) does it match?'),
             expectedObservations: [text('Ploščina med \\(85\\) in \\(130\\) je \\(81{,}86\\ \\%\\); med \\(70\\) in \\(130\\) je \\(\\mu-2\\sigma\\) do \\(\\mu+2\\sigma\\), torej \\(95{,}45\\ \\%\\).', 'The area between \\(85\\) and \\(130\\) is \\(81.86\\ \\%\\); between \\(70\\) and \\(130\\) it is \\(\\mu-2\\sigma\\) to \\(\\mu+2\\sigma\\), so \\(95.45\\ \\%\\).')],
             scene: densityScene('density-iq-start', {example: 'iq', a: 85, b: 130},
@@ -155,11 +173,14 @@ const densityArea: GuidedLesson = {
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno raziskovati enostranske verjetnosti in repe.', 'Exploring one-sided probabilities and the tails on your own.'),
             explanation: text(
-                'Graf je spet pri \\(N(0;1)\\) z mejama \\(-1\\) in \\(1\\). Premikaj \\(\\mu\\) in \\(\\sigma\\) (\\(\\sigma\\) je med \\(0{,}1\\) in \\(20\\)) ter meji. Poskusi enostransko verjetnost: eno mejo postavi daleč stran in preberi ploščino do druge. Poglej tudi repa: kolikšna ploščina leži zunaj \\(\\mu\\pm3\\sigma\\)? Pri \\(a>b\\) je ploščina \\(0\\) in graf to izpiše.',
-                'The graph is back at \\(N(0;1)\\) with bounds \\(-1\\) and \\(1\\). Move \\(\\mu\\) and \\(\\sigma\\) (\\(\\sigma\\) is between \\(0.1\\) and \\(20\\)) and the bounds. Try a one-sided probability: put one bound far away and read the area up to the other. Look at the tails too: how much area lies outside \\(\\mu\\pm3\\sigma\\)? For \\(a>b\\) the area is \\(0\\) and the graph says so.',
+                'Graf je spet pri \\(N(0;1)\\) z mejama \\(-1\\) in \\(1\\). Premikaj \\(\\mu\\) in \\(\\sigma\\) (\\(\\sigma\\) je med \\(0{,}1\\) in \\(20\\)) ter meji. Poskusi enostransko verjetnost: eno mejo postavi daleč stran in preberi ploščino do druge. Poglej tudi repa: kolikšna ploščina leži zunaj \\(\\mu\\pm3\\sigma\\)? Pri \\(a>b\\) je ploščina \\(0\\) in kartica Odčitki to izpiše.',
+                'The graph is back at \\(N(0;1)\\) with bounds \\(-1\\) and \\(1\\). Move \\(\\mu\\) and \\(\\sigma\\) (\\(\\sigma\\) is between \\(0.1\\) and \\(20\\)) and the bounds. Try a one-sided probability: put one bound far away and read the area up to the other. Look at the tails too: how much area lies outside \\(\\mu\\pm3\\sigma\\)? For \\(a>b\\) the area is \\(0\\) and the Readouts card says so.',
             ),
             formulaIds: ['normal-density-area'],
-            frames: [frame('density-explore-explanation', 'explanation'), frame('density-explore-observation', 'observation')],
+            frames: [
+                frame('density-explore-explanation', 'explanation', densityFrame({highlight: ['mu', 'sigma']})),
+                frame('density-explore-observation', 'observation', densityFrame({uses: ['density-mu', 'density-sigma', 'density-a', 'density-b']})),
+            ],
             observationPrompt: text('Kolikšna je verjetnost \\(P(X\\le\\mu)\\) in kolikšna \\(P(X\\ge\\mu+2\\sigma)\\)?', 'What is the probability \\(P(X\\le\\mu)\\), and what is \\(P(X\\ge\\mu+2\\sigma)\\)?'),
             expectedObservations: [text('Do povprečja je ploščina \\(50\\ \\%\\) zaradi simetrije; desni rep od \\(\\mu+2\\sigma\\) naprej je okoli \\(2{,}3\\ \\%\\).', 'Up to the mean the area is \\(50\\ \\%\\) by symmetry; the right tail beyond \\(\\mu+2\\sigma\\) is about \\(2.3\\ \\%\\).')],
             scene: densityScene('density-explore-default', {example: 'standard', a: -1, b: 1},
@@ -177,7 +198,7 @@ const densityArea: GuidedLesson = {
     ],
     edgeCases: [
         text('Standardni odklon \\(\\sigma\\) mora biti med \\(0{,}1\\) in \\(20\\); drugačna vrednost je zavrnjena z izpisanim sporočilom.', 'The standard deviation \\(\\sigma\\) must be between \\(0.1\\) and \\(20\\); another value is rejected with a message.'),
-        text('Pri \\(a=b\\) je ploščina \\(0\\); pri \\(a>b\\) je prazna in graf izpiše stanje.', 'For \\(a=b\\) the area is \\(0\\); for \\(a>b\\) it is empty and the graph states the situation.'),
+        text('Pri \\(a=b\\) je ploščina \\(0\\); pri \\(a>b\\) je prazna in kartica Odčitki izpiše stanje.', 'For \\(a=b\\) the area is \\(0\\); for \\(a>b\\) it is empty and the Readouts card states the situation.'),
         text('Odstotki \\(68{,}27\\), \\(95{,}45\\) in \\(99{,}73\\) veljajo za normalno porazdelitev; za druge porazdelitve so drugačni.', 'The percentages \\(68.27\\), \\(95.45\\) and \\(99.73\\) hold for the normal distribution; other distributions give other shares.'),
     ],
     unresolvedQuestions: [],

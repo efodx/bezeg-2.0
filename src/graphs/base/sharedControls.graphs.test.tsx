@@ -9,15 +9,14 @@ import {appStorage} from '../../storage/appStorage';
 import {installBoardShims, mountGraph, openTools, REAL_GRAPH_TEST_TIMEOUT, settle, waitUntil} from './realGraphTestHarness';
 import {createGraph} from './createTestGraph';
 import type {DemonstrationId} from '../../demonstrations';
-import {countSetterBehaviour, numericFieldBehaviour, pointCollectionBehaviour, pointListBehaviour, sliderBehaviour} from '../../inputs/sharedControlBehaviour';
+import {countSetterBehaviour, pointCollectionBehaviour, pointListBehaviour, sliderBehaviour} from '../../inputs/sharedControlBehaviour';
 import {SERIES_A_MAX, SERIES_A_MIN} from '../../analysis/geometricSeriesModel';
 import {curveAccess} from './curveGraphTestAccess';
 import {INTERPOLATION_COORDINATE_LIMIT} from '../curves/interpolation/interpolationModel';
 import {INTERPOLATION_POINTS_MAX, INTERPOLATION_POINTS_MIN} from '../../analysis/interpolation';
-import {DENSITY_BOUND_LIMIT, DENSITY_DRAG_STEP} from '../../analysis/densityAreaModel';
 
 /** Catalog keys without placeholders (a union of keys would not type check against `t`). */
-type PlainKey = 'prob_density_a_label' | 'prob_density_b_label' | 'series_a_label' | 'interp_slider_position' | 'bsd_point_count' | 'interp_point_count' | 'increase_count' | 'decrease_count';
+type PlainKey = 'series_a_label' | 'interp_slider_position' | 'bsd_point_count' | 'interp_point_count' | 'increase_count' | 'decrease_count';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -45,16 +44,6 @@ async function mountWith(id: DemonstrationId, labelKey: PlainKey, fieldLabel = f
 
 const reading = (field: () => HTMLElement) => () => Number(field().getAttribute('aria-valuenow'));
 
-const numeric = (id: DemonstrationId, labelKey: PlainKey, bounds: {min: number; max: number; step: number; valid: number; outOfRange: number; bigStep?: number; integer?: boolean}) =>
-    numericFieldBehaviour(`${id} ${labelKey}`, {
-        ...bounds, section: 'edit',
-        mount: async () => {
-            const {graph, label} = await mountWith(id, labelKey);
-            const field = () => screen.getByLabelText(label());
-            return {get field() { return field(); }, read: reading(field), reset: () => settle(() => graph.reset())};
-        },
-    });
-
 const slider = (id: DemonstrationId, labelKey: PlainKey, bounds: {min: number; max: number; step: number; valid: number; outOfRange: number}) =>
     sliderBehaviour(`${id} ${labelKey}`, {
         ...bounds, section: 'edit',
@@ -79,10 +68,7 @@ const count = (id: DemonstrationId, labelKey: PlainKey, bounds: {min: number; ma
         },
     });
 
-// Plain typed fields are rare since the control-choice migration: the two ends of the density interval keep one because their range is a
-// validity limit (docs/tasks/control-choice/decisions.json). They are independent of each other (a > b is an empty interval, not a refusal).
-numeric('prob-density', 'prob_density_a_label', {min: -DENSITY_BOUND_LIMIT, max: DENSITY_BOUND_LIMIT, step: DENSITY_DRAG_STEP, valid: 0.5, outOfRange: DENSITY_BOUND_LIMIT + 1});
-numeric('prob-density', 'prob_density_b_label', {min: -DENSITY_BOUND_LIMIT, max: DENSITY_BOUND_LIMIT, step: DENSITY_DRAG_STEP, valid: 2.5, outOfRange: DENSITY_BOUND_LIMIT + 1});
+// Density interval ends a, b (and mu, sigma) are board pucks now: bounds, refusals and drag are covered in DensityAreaGraph.declaration.test.tsx and DensityAreaGraph.host.test.tsx.
 
 slider('geometric-series', 'series_a_label', {min: SERIES_A_MIN, max: SERIES_A_MAX, step: 0.1, valid: 2, outOfRange: SERIES_A_MAX + 1});
 // Interpolation's position s is a board puck now (no Orodja slider remains): bounds and refusals are covered in InterpolationGraph.declaration.test.tsx.
