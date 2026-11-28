@@ -7,18 +7,7 @@
       "rows": [],
       "notes": [],
       "outputs": [],
-      "captions": [
-        "Dolžina loka: 9,233"
-      ]
-    },
-    {
-      "name": "ph-quintic-guided/ph-quintic-degree",
-      "rows": [],
-      "notes": [],
-      "outputs": [],
-      "captions": [
-        "Dolžina loka: 3,400"
-      ]
+      "captions": []
     },
     {
       "name": "ph-quintic-guided/ph-quintic-offset-positive",
@@ -27,9 +16,7 @@
       "outputs": [
         "1"
       ],
-      "captions": [
-        "Dolžina loka: 3,400"
-      ]
+      "captions": []
     }
   ]
 }
