@@ -33,14 +33,15 @@ export function DerivativesCornerSelect({u, v, onCorner}: {u: number; v: number;
     </div>;
 }
 
-const REASON_KEYS = {
+export const REASON_KEYS = {
     "parallel": "patch_derivatives_degenerate_parallel",
     "zero-su": "patch_derivatives_degenerate_zero_su",
     "zero-sv": "patch_derivatives_degenerate_zero_sv",
     "both-zero": "patch_derivatives_degenerate_both_zero",
 } as const satisfies Record<NormalDegeneracy, string>;
 
-function vectorText(vector: Xyz, language: NumberLanguage): string {
+/** A vector as the readout writes it: three significant decimals, `;`-separated in Slovenian. */
+export function vectorText(vector: Xyz, language: NumberLanguage): string {
     const parts = vector.map(value => formatNumber(value, language, 3));
     return language === "sl" ? `(${parts.join("; ")})` : `(${parts.join(", ")})`;
 }

@@ -2,6 +2,7 @@ import type {LessonAction, LessonDefinition, LessonFrame, LessonPatchFixture, Le
 import {frameDeclarer} from '../../graphs/base/declare/graphDeclaration';
 import type {TensorPatchIds} from '../../graphs/patches/TensorPatchGraph';
 import type {DeCasteljauIds} from '../../graphs/patches/TensorDeCasteljauGraph';
+import type {DerivativesIds} from '../../graphs/patches/TensorDerivativesGraph';
 
 export type PatchEvaluationExampleSectionId = 'tensor-decasteljau' | 'properties' | 'tensor-derivatives';
 
@@ -19,6 +20,7 @@ const frame = (id: string, kind: LessonFrame['kind'], title: LessonFrame['title'
 });
 const tensorFrame = frameDeclarer<TensorPatchIds>();
 const deCasteljauFrame = frameDeclarer<DeCasteljauIds>();
+const derivativesFrame = frameDeclarer<DerivativesIds>();
 const tensor = (m: number, n: number, height: (i: number, j: number) => number): LessonPatchFixture => ({
     kind: 'tensor', m, n,
     net: Array.from({length: (m + 1) * (n + 1)}, (_, k) => {
@@ -86,8 +88,10 @@ const derivatives: LessonDefinition = {
     summary: words('Izračunaj tangentna vektorja, normalo in mešani odvod krpe \\(S(u,v)=(u,v,uv)\\).', 'Compute the tangent vectors, normal and mixed derivative of \\(S(u,v)=(u,v,uv)\\).'),
     steps: [{...scene('saddle-derivatives', {kind: 'tensor', m: 1, n: 1, net: [point(0, 0, 0), point(0, 1, 0), point(1, 0, 0), point(1, 1, 1)]}, 0.5, 0.5,
         [visibility('tangent-plane'), visibility('normal'), visibility('twist')]), frames: [
-        frame('partials', 'calculation', words('Parcialna odvoda', 'Partial derivatives'), words('Za \\(S(u,v)=(u,v,uv)\\) sta \\(S_u=(1,0,v)\\) in \\(S_v=(0,1,u)\\). V središču sta \\((1,0,\\tfrac12)\\) in \\((0,1,\\tfrac12)\\); oba sta tangentna na svoji izoparametrični krivulji.', 'For \\(S(u,v)=(u,v,uv)\\), \\(S_u=(1,0,v)\\) and \\(S_v=(0,1,u)\\). At the midpoint they are \\((1,0,\\tfrac12)\\) and \\((0,1,\\tfrac12)\\); each is tangent to its iso-curve.')),
-        frame('normal-twist', 'observation', words('Nagnjena normala in zasuk', 'Tilted normal and twist'), words('V središču je \\(S_u\\times S_v=(-\\tfrac12,-\\tfrac12,1)\\), zato tangentna ravnina ni vodoravna. Mešani odvod je \\(S_{uv}=(0,0,1)\\), vektor zasuka. Primerjaj smeri prikazanih puščic in ravnine.', 'At the midpoint, \\(S_u\\times S_v=(-\\tfrac12,-\\tfrac12,1)\\), so the tangent plane is not horizontal. The mixed derivative is \\(S_{uv}=(0,0,1)\\), the twist vector. Compare the displayed arrows with the plane.'), words('Zavrti pogled in primerjaj tangentna vektorja, normalo ter zasuk.', 'Rotate the view and compare the tangent vectors, normal and twist.')),
+        frame('partials', 'calculation', words('Parcialna odvoda', 'Partial derivatives'), words('Za \\(S(u,v)=(u,v,uv)\\) sta \\(S_u=(1,0,v)\\) in \\(S_v=(0,1,u)\\). V središču sta \\((1,0,\\tfrac12)\\) in \\((0,1,\\tfrac12)\\); oba sta tangentna na svoji izoparametrični krivulji.', 'For \\(S(u,v)=(u,v,uv)\\), \\(S_u=(1,0,v)\\) and \\(S_v=(0,1,u)\\). At the midpoint they are \\((1,0,\\tfrac12)\\) and \\((0,1,\\tfrac12)\\); each is tangent to its iso-curve.'), undefined,
+            derivativesFrame({highlight: ['Su', 'Sv']})),
+        frame('normal-twist', 'observation', words('Nagnjena normala in zasuk', 'Tilted normal and twist'), words('V središču je \\(S_u\\times S_v=(-\\tfrac12,-\\tfrac12,1)\\), zato tangentna ravnina ni vodoravna. Mešani odvod je \\(S_{uv}=(0,0,1)\\), vektor zasuka. Primerjaj smeri prikazanih puščic in ravnine.', 'At the midpoint, \\(S_u\\times S_v=(-\\tfrac12,-\\tfrac12,1)\\), so the tangent plane is not horizontal. The mixed derivative is \\(S_{uv}=(0,0,1)\\), the twist vector. Compare the displayed arrows with the plane.'), words('Zavrti pogled in primerjaj tangentna vektorja, normalo ter zasuk.', 'Rotate the view and compare the tangent vectors, normal and twist.'),
+            derivativesFrame({highlight: ['Suv', 'normal']})),
     ]}],
 };
 

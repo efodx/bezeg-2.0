@@ -98,3 +98,33 @@ Next:
 Not started: patch-derivatives (plan step 4 above unchanged; parity file already recorded). Not verified: lesson-step shots
 for either graph (route shots only); `tests/*.spec.cjs` other than the guided-lesson rows (unified-learning only checks a
 preview image name).
+
+## Session 3 (patch-derivatives)
+
+- `TensorDerivativesGraph.tsx`: `declaresTensorWorkspace` true (u, v pucks from the base); `DerivativesIds`; rows `Su`/`Sv`/`Suv`
+  (symbols `S_u`, `S_v`, `S_{uv}`) and `normal` (name `patch_derivatives_normal_name`, symbol `n`; value or muted
+  `patch_derivatives_normal_undefined`), each with its legend swatch; note `legend` (`patch_derivatives_legend`, muted); status
+  `normal` (warning, `REASON_KEYS[reason]`) only while degenerate; legend su/sv/twist/normal/plane (object = id; visible = the
+  built derivative scene holds the role / a plane); switches as Orodja actions `show-tangent-plane`/`show-normal`/`show-twist`.
+  Corner select stays in Edit (it leads Edit now); `DerivativesReadout` wrapped in `data-declared-panel`; `puckKeys` passed.
+- `TensorDerivativesPanels.tsx`: `REASON_KEYS`, `vectorText` exported (no behaviour change).
+- Frames: `partials` highlight `Su`, `Sv`; `normal-twist` highlight `Suv`, `normal` (patchGuidedExamplesEvaluation.ts). No new keys.
+- New `TensorDerivativesGraph.declaration.test.tsx` (6 states, arbiter write, actions). Red once: plane `visible` forced true ->
+  4 failed, "expected true to be false" (degenerate states, switches off).
+- `TensorDerivativesGraph.test.tsx`: async mount + `waitForPucks`, parameter writes under learner / through the arbiter, option
+  queries `hidden: true` (the Edit card is not the open card once a readouts card exists), legend text `getAllByText` (the note is
+  now also in the readouts card). PatchFirstTask derivatives plan: corners lead, u, v on the strip and absent from Edit.
+- First graph-check failed on the contract: `contractProblems` calls `drawnObject(entry.object)`, so legend `object` must be what
+  `drawnObject` accepts (fixed: object = id).
+- Checks: tsc 0 (`.command-logs/l55-s3-tsc.log`); eslint 0 (`l55-s3-lint.log`); graph-check patch-derivatives PASS (contract,
+  parity 2 with no accepted differences, golden, declaration 8, shared 137; `l55-s3-gc.log`); golden check pass, every state
+  unchanged (`l55-s3-golden.log`); patches+base+learning/content+localization pass (`l55-s3-unit-broad.log`, 1042 s);
+  FirstTask pass; round trip `-t patch-derivatives` 1 pass; patch-coons parity + contract pass (its declaration-test row fails
+  only because `CoonsPatchGraph.declaration.test.tsx` does not exist, unchanged by this lane; no coons golden file); `just build` pass.
+- Shots: `just shot` on the dev server returned white pages (page body has content after 8 s), so shots were taken with
+  `.command-logs/l55-s3-console.cjs` (playwright, 8 s settle, clicks Naprej): `.command-logs/l55-s3-shots/lesson-{1440,1280}{,-next}.png`.
+  Both frames at both sizes: patch, S_u/S_v/S_uv/n arrows and the plane in the clear between Lekcija and Odčitki; pucks u, v
+  bottom left; frame 1 highlights S_u, S_v rows, frame 2 S_uv and the normal.
+- smoke-lesson patch-derivatives pass (`l55-s3-smoke.log`, build of the final source). **patch-derivatives ready; lane L55 done.**
+- Session 3 stop (budget HANDOFF at 175k), after all checks. Unverified: English shots; the route shot without a lesson
+  (1280 seen via the console probe only); `just shot` blank-page cause (tool issue, not investigated).

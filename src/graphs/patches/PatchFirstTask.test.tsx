@@ -39,8 +39,10 @@ const plan: Record<string, Plan> = {
     'patch-decasteljau': {mount: () => mountGraph(new TensorDeCasteljauGraph(options)), first: () => t('patch_starting_heading'),
         later: [() => t('patch_degree_u')], pucks: [PATCH_PARAMETER_KEYS.u, PATCH_PARAMETER_KEYS.v, DECASTELJAU_ORDER_KEY],
         absent: [() => t('patch_parameter_u'), () => t('patch_parameter_v'), () => t('patch_decasteljau_order')]},
-    'patch-derivatives': {mount: () => mountGraph(new TensorDerivativesGraph(options)), first: () => t('patch_parameter_u'),
-        later: [() => t('patch_parameter_v'), () => t('patch_starting_heading'), () => t('patch_degree_u')]},
+    // u and v are board pucks; the corner shortcuts (the lesson's "compare the four corners") lead what stays in Edit.
+    'patch-derivatives': {mount: () => mountGraph(new TensorDerivativesGraph(options)), first: () => t('patch_derivatives_corners'),
+        later: [() => t('patch_starting_heading'), () => t('patch_degree_u')], pucks: [PATCH_PARAMETER_KEYS.u, PATCH_PARAMETER_KEYS.v],
+        absent: [() => t('patch_parameter_u'), () => t('patch_parameter_v')]},
     'patch-subdivision': {mount: () => mountGraph(new TensorSubdivisionGraph(options)), first: () => t('patch_split_direction'), later: [() => t('patch_starting_heading')]},
     'patch-joins': {mount: () => mountGraph(new TensorJoinGraph(options)), first: () => t('patch_join_mode'),
         later: [() => t('patch_join_scenes_heading'), () => t('patch_starting_heading')]},
