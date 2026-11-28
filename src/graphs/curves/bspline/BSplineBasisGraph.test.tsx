@@ -9,6 +9,7 @@ import {basisAll} from '../../../bezeg/impl/curve/bspline';
 import {PolynomialBezierCurve} from '../../../bezeg/impl/curve/polynomial-bezier-curve';
 import {PointImpl} from '../../../bezeg/impl/point/point-impl';
 import {renderMessage, setLanguage} from '../../../localization';
+import {runAs} from '../../base/writes/writeSource';
 import type {Preset} from '../../base/presets/Presets';
 
 /** Counts live language subscriptions, so a leaked listener shows even though the scene also guards its callback. */
@@ -79,7 +80,7 @@ describe('basis values through the graph (defaults: degree 2, knots 0,0,0,1,2,2,
         [1.5, [0, 0.125, 0.625, 0.25]],
     ])('at t = %s the dots and the sum match the lesson numbers', (t, expected) => {
         const {graph, view} = mount();
-        act(() => graph.setDisplayedT(t));
+        act(() => runAs('learner', () => graph.setDisplayedT(t)));
         const values = activeValues(graph, graph.state.t);
         expected.forEach((value, i) => expect(Math.abs(values[i] - value)).toBeLessThanOrEqual(TOL));
         expect(Math.abs(values.reduce((a, b) => a + b, 0) - 1)).toBeLessThanOrEqual(TOL);
@@ -110,7 +111,7 @@ describe('basis values through the graph (defaults: degree 2, knots 0,0,0,1,2,2,
     test('the support of N_{i,k} is exactly [u_i, u_{i+k+1}) when sampled', () => {
         const {graph, view} = mount();
         // Clamped ends and distinct interior knots 1, 3.
-        act(() => graph.importPresetData(basisPresetData(2, [0, 0, 0, 1, 3, 4, 4, 4])));
+        act(() => runAs('learner', () => graph.importPresetData(basisPresetData(2, [0, 0, 0, 1, 3, 4, 4, 4]))));
         const {knots, degree} = graph.state;
         for (let i = 0; i < graph.functionCount; i++) {
             const {x, y} = graph.plotted(i);
@@ -126,7 +127,7 @@ describe('basis values through the graph (defaults: degree 2, knots 0,0,0,1,2,2,
 
     test('with knots (0,0,0,1,1,1) the plotted functions equal the Bernstein polynomials B_i^2', () => {
         const {graph, view} = mount();
-        act(() => graph.importPresetData(basisPresetData(2, [0, 0, 0, 1, 1, 1])));
+        act(() => runAs('learner', () => graph.importPresetData(basisPresetData(2, [0, 0, 0, 1, 1, 1]))));
         expect(graph.functionCount).toBe(3);
         for (let i = 0; i < 3; i++) {
             const points = Array(2).fill([0, 0]);
@@ -140,8 +141,8 @@ describe('basis values through the graph (defaults: degree 2, knots 0,0,0,1,2,2,
 
     test('a uniform cubic gives 1/6, 4/6, 1/6 at a knot', () => {
         const {graph, view} = mount();
-        act(() => graph.importPresetData(basisPresetData(3, [0, 1, 2, 3, 4, 5, 6, 7, 8])));
-        act(() => graph.setDisplayedT(4));
+        act(() => runAs('learner', () => graph.importPresetData(basisPresetData(3, [0, 1, 2, 3, 4, 5, 6, 7, 8]))));
+        act(() => runAs('learner', () => graph.setDisplayedT(4)));
         const nonzero = activeValues(graph, 4).filter(value => value !== 0);
         [1 / 6, 4 / 6, 1 / 6].forEach((value, i) => expect(Math.abs(nonzero[i] - value)).toBeLessThanOrEqual(TOL));
         const lines = graph.sceneOf().readoutText().split('\n');
@@ -155,19 +156,19 @@ describe('degree, clamped toggle and the display toggle', () => {
     test('degree 1-3 rebuilds a valid clamped vector for the current n; the uniform quadratic unclamped case is reachable', () => {
         const {graph, view} = mount();
         expect(graph.functionCount).toBe(4);
-        act(() => graph.setDegree(3));
+        act(() => runAs('learner', () => graph.setDegree(3)));
         expect(graph.state.knots).toEqual([0, 0, 0, 0, 1, 1, 1, 1]);
-        act(() => graph.setDegree(1));
+        act(() => runAs('learner', () => graph.setDegree(1)));
         expect(graph.state.knots).toEqual([0, 0, 1, 2, 3, 3]);
-        act(() => graph.setDegree(0));
-        act(() => graph.setDegree(4));
+        act(() => runAs('learner', () => graph.setDegree(0)));
+        act(() => runAs('learner', () => graph.setDegree(4)));
         expect(graph.state.degree).toBe(1);
-        act(() => graph.setDegree(2));
-        act(() => graph.setClamped(false));
+        act(() => runAs('learner', () => graph.setDegree(2)));
+        act(() => runAs('learner', () => graph.setClamped(false)));
         expect(graph.state.knots).toEqual([0, 1, 2, 3, 4, 5, 6]);
         expect(graph.functionCount).toBe(4);
         // An unclamped vector stays unclamped when the degree changes.
-        act(() => graph.setDegree(3));
+        act(() => runAs('learner', () => graph.setDegree(3)));
         expect(graph.state.knots).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
         expect(graph.functionCount).toBe(4);
         view.unmount();
@@ -175,13 +176,13 @@ describe('degree, clamped toggle and the display toggle', () => {
 
     test('the display toggle rescales the domain to [0, 1] and leaves the values and stored knots raw', () => {
         const {graph, view} = mount();
-        act(() => graph.setNormalized(true));
+        act(() => runAs('learner', () => graph.setNormalized(true)));
         const {x, y} = graph.plotted(1);
         expect([x[0], x[x.length - 1]]).toEqual([0, 1]);
         const raw = basisAll(graph.state.knots, graph.state.degree, 1);
         expect(y[x.indexOf(0.5)]).toBe(raw[1]);
         expect(graph.state.knots).toEqual([0, 0, 0, 1, 2, 2, 2]);
-        act(() => graph.setDisplayedT(0.25));
+        act(() => runAs('learner', () => graph.setDisplayedT(0.25)));
         expect(graph.state.t).toBe(0.5);
         expect(graph.sceneOf().readoutText()).toContain('t = 0,25');
         expect(graph.sceneOf().domainText()).toContain('prikazano na [0, 1]');
@@ -195,7 +196,7 @@ describe('knot dragging', () => {
 
     test('a drag snaps to 0.01 and clamps between the neighbours, never reordering', () => {
         const {graph, view} = mount();
-        act(() => graph.importPresetData(six()));
+        act(() => runAs('learner', () => graph.importPresetData(six())));
         dragMarker(graph, 4, 1.2345);
         expect(graph.state.knots).toEqual([0, 0, 0, 1, 1.23, 3, 4, 4, 4]);
         dragMarker(graph, 4, 9);
@@ -214,7 +215,7 @@ describe('knot dragging', () => {
 
     test('equal values are a repeated knot and a drag that would make an invalid vector is ignored', () => {
         const {graph, view} = mount();
-        act(() => graph.importPresetData(six()));
+        act(() => runAs('learner', () => graph.importPresetData(six())));
         dragMarker(graph, 4, 1);
         expect(graph.state.knots).toEqual([0, 0, 0, 1, 1, 3, 4, 4, 4]);
         // Stacked markers of one repeated knot have distinct heights, so each stays reachable.
@@ -232,7 +233,7 @@ describe('knot dragging', () => {
         const {graph, view} = mount();
         const notice = () => document.querySelectorAll('[data-refusal-notice]');
         const noticeText = () => notice()[0]?.textContent;
-        act(() => graph.importPresetData(six()));
+        act(() => runAs('learner', () => graph.importPresetData(six())));
         expect(notice()).toHaveLength(1);
         act(() => dragMarker(graph, 4, 2)); // no change: silent
         expect(noticeText()).toBe('');
@@ -247,7 +248,7 @@ describe('knot dragging', () => {
         expect(noticeText()).toBe('');
         act(() => dragMarker(graph, 3, 0)); // refused again
         expect(noticeText()).toContain('največ 3-krat');
-        act(() => { graph.editKnot(5, 3.5); });
+        act(() => { runAs('learner', () => graph.editKnot(5, 3.5)); });
         expect(noticeText()).toBe('');
         act(() => dragMarker(graph, 4, 9)); // clamped between the neighbours: silent
         expect(noticeText()).toBe('');
@@ -268,9 +269,9 @@ describe('knot dragging', () => {
 
     test('markers are locked while the domain is shown on [0, 1] and stay in step with the state afterwards', () => {
         const {graph, view} = mount();
-        act(() => graph.setNormalized(true));
+        act(() => runAs('learner', () => graph.setNormalized(true)));
         expect(graph.sceneOf().markerElements().every(m => m.getAttribute('fixed') === true)).toBe(true);
-        act(() => graph.setNormalized(false));
+        act(() => runAs('learner', () => graph.setNormalized(false)));
         expect(graph.sceneOf().markerElements().every(m => m.getAttribute('fixed') === false)).toBe(true);
         view.unmount();
     });
@@ -317,7 +318,7 @@ describe('knot editor', () => {
         // So does an outside change of the vector.
         typeAndEnter(field(3), '-1');
         expect(document.querySelector('.number-input-hint')?.textContent).toBe('knots must not decrease: knot 4 is smaller than the one before it');
-        act(() => graph.setDegree(3));
+        act(() => runAs('learner', () => graph.setDegree(3)));
         expect(document.querySelector('.number-input-hint')).toBeNull();
         view.unmount();
     });
@@ -328,7 +329,7 @@ describe('knot editor', () => {
         expect(graph.editKnot(3, 0)).toContain('največ 3-krat');
         expect(graph.editKnot(3, Number.NaN)).toBe('vsi vozli morajo biti končna števila');
         expect(graph.editKnot(6, KNOT_LIMIT + 1)).toBe('vsi vozli morajo biti končna števila');
-        act(() => graph.importPresetData(basisPresetData(2, [0, 0, 0, 1, 1, 1])));
+        act(() => runAs('learner', () => graph.importPresetData(basisPresetData(2, [0, 0, 0, 1, 1, 1]))));
         expect(graph.editKnot(3, 0)).toContain('največ 3-krat');
         view.unmount();
     });
@@ -373,22 +374,22 @@ describe('Presets, scenes and reset', () => {
         expect(graph.state.knots).toEqual([0, 0, 0, 1, 2, 2, 2]);
         // Checkpoint restore, including a scene replaced in between.
         const capabilities = graph.getLessonCapabilities();
-        act(() => graph.importPresetData(cubic));
+        act(() => runAs('learner', () => graph.importPresetData(cubic)));
         const checkpoint = capabilities.captureState();
-        act(() => graph.setDegree(1));
+        act(() => runAs('learner', () => graph.setDegree(1)));
         act(() => capabilities.restoreState(checkpoint));
         expect(graph.state.degree).toBe(3);
         expect(graph.state.knots).toEqual(cubic.knots);
         expect(graph.sceneOf().functionCount).toBe(5);
         // Figure batch entry: data wins over a graph state that still holds the default scene.
-        act(() => graph.figureImport({id: 'bspline-curve', data: cubic, graphState: {initialized: true, degree: 2, knots: [0, 0, 0, 1, 2, 2, 2]}} as unknown as Preset));
+        act(() => runAs('learner', () => graph.figureImport({id: 'bspline-curve', data: cubic, graphState: {initialized: true, degree: 2, knots: [0, 0, 0, 1, 2, 2, 2]}} as unknown as Preset)));
         expect(graph.state.knots).toEqual(cubic.knots);
         // The state that replaces the scene keeps the imported vector, with or without a stored graph state.
-        act(() => graph.setDegree(1));
+        act(() => runAs('learner', () => graph.setDegree(1)));
         let next: BSplineBasisGraphState | undefined;
-        act(() => { next = graph.figureScene({id: 'bspline-curve', data: cubic} as unknown as Preset); });
+        act(() => { next = runAs('learner', () => graph.figureScene({id: 'bspline-curve', data: cubic} as unknown as Preset)); });
         expect([next?.degree, next?.knots]).toEqual([3, cubic.knots]);
-        act(() => { next = graph.figureScene({id: 'bspline-curve', data: cubic, graphState: {initialized: true, degree: 2, knots: [0, 0, 0, 1, 2, 2, 2]}} as unknown as Preset); });
+        act(() => { next = runAs('learner', () => graph.figureScene({id: 'bspline-curve', data: cubic, graphState: {initialized: true, degree: 2, knots: [0, 0, 0, 1, 2, 2, 2]}} as unknown as Preset)); });
         expect([next?.degree, next?.knots]).toEqual([3, cubic.knots]);
         // Import with a stored view: the view applies before the data.
         const box = [-2, 3, 8, -1] as [number, number, number, number];
@@ -400,9 +401,9 @@ describe('Presets, scenes and reset', () => {
 
     test('saved Presets restore the vector and the display toggle; an invalid or unsupported Preset is refused with the reason', () => {
         const {graph, view} = mount();
-        act(() => { graph.importPresetData(cubic); graph.setNormalized(true); });
+        act(() => { runAs('learner', () => graph.importPresetData(cubic)); runAs('learner', () => graph.setNormalized(true)); });
         const saved = graph.exportPreset();
-        act(() => { graph.setDegree(1); graph.setNormalized(false); });
+        act(() => { runAs('learner', () => graph.setDegree(1)); runAs('learner', () => graph.setNormalized(false)); });
         act(() => graph.importPreset(saved));
         expect(graph.state.degree).toBe(3);
         expect(graph.state.normalized).toBe(true);
@@ -421,9 +422,9 @@ describe('Presets, scenes and reset', () => {
         const short = basisPresetData(2, [0, 0, 0, 1e-10, 2, 2, 2]);
         const checked = graph['presetCollection']().check(JSON.parse(JSON.stringify(short)));
         expect('data' in checked).toBe(true);
-        act(() => graph.importPresetData(short));
+        act(() => runAs('learner', () => graph.importPresetData(short)));
         for (const normalized of [false, true]) {
-            act(() => graph.setNormalized(normalized));
+            act(() => runAs('learner', () => graph.setNormalized(normalized)));
             for (let i = 0; i < 4; i++) {
                 const {x, y} = graph.plotted(i);
                 expect(x.length).toBeGreaterThan(400);
@@ -435,7 +436,7 @@ describe('Presets, scenes and reset', () => {
             expect(x.some(v => v > 0 && v < (normalized ? 5e-11 : 1e-10))).toBe(true);
         }
         const saved = graph.exportPreset();
-        act(() => graph.setNormalized(false));
+        act(() => runAs('learner', () => graph.setNormalized(false)));
         act(() => graph.importPreset(saved));
         expect(graph.state.knots).toEqual(short.knots);
         expect(graph.state.normalized).toBe(true);
@@ -447,7 +448,7 @@ describe('Presets, scenes and reset', () => {
 
     test('reset restores the defaults, including the display toggle and the slider', async () => {
         const {graph, view} = mount();
-        act(() => { graph.importPresetData(cubic); graph.setNormalized(true); graph.setDisplayedT(0.9); graph.dragKnot(5, 1.5); });
+        act(() => { runAs('learner', () => graph.importPresetData(cubic)); runAs('learner', () => graph.setNormalized(true)); runAs('learner', () => graph.setDisplayedT(0.9)); runAs('learner', () => graph.dragKnot(5, 1.5)); });
         // `await act(async () => graph.reset())` never settles under jsdom, so poll for the reloaded scene.
         act(() => { void graph.reset(); });
         await waitFor(() => expect(graph.state.knots).toEqual([0, 0, 0, 1, 2, 2, 2]));
@@ -459,21 +460,17 @@ describe('Presets, scenes and reset', () => {
 });
 
 describe('language and disposal', () => {
-    test('a live language switch updates every board text', () => {
+    test('a live language switch updates the declared readout notes and every board text', () => {
         const {graph, view} = mount();
-        const texts = graph.ownedElements().filter(e => (e as {elType?: string}).elType === 'text') as unknown as {plaintext: string}[];
-        const [readout, domain] = texts.slice(-2);
-        expect(readout.plaintext).toContain('neničelne bazne funkcije');
-        // Board text is HTML: each readout line ends in a <br>, never a collapsed "\n".
-        expect(readout.plaintext).toContain('<br>');
-        expect(readout.plaintext).not.toContain('\n');
-        expect(domain.plaintext).toBe('definicijsko območje [0, 2]');
+        const notes = () => Object.fromEntries((graph.getDeclaration()?.notes ?? []).map(note => [note.id, renderMessage(note.text)]));
+        expect(notes().head).toContain('neničelne bazne funkcije');
+        expect(notes().domain).toBe('definicijsko območje [0, 2]');
         act(() => setLanguage('en'));
-        expect(readout.plaintext).toContain('nonzero basis functions');
-        expect(readout.plaintext).toContain('sum = 1');
-        expect(domain.plaintext).toBe('domain [0, 2]');
+        expect(notes().head).toContain('nonzero basis functions');
+        expect((graph.getDeclaration()?.readouts ?? []).flatMap(group => group.rows).map(row => renderMessage(row.name!))).toEqual(['N0,2', 'N1,2', 'N2,2', 'Sum']);
+        expect(notes().domain).toBe('domain [0, 2]');
         // The knot labels use the language's decimal separator.
-        act(() => graph.importPresetData(basisPresetData(2, [0, 0, 0, 1.5, 2, 2, 2])));
+        act(() => runAs('learner', () => graph.importPresetData(basisPresetData(2, [0, 0, 0, 1.5, 2, 2, 2]))));
         act(() => setLanguage('sl'));
         const labels = (graph.ownedElements().filter(e => (e as {elType?: string}).elType === 'text') as unknown as {plaintext: string}[]).map(l => l.plaintext);
         expect(labels).toContain('1,5');
@@ -485,7 +482,7 @@ describe('language and disposal', () => {
         const {graph, view, board} = mount();
         const first = graph.ownedElements();
         expect(first.length).toBeGreaterThan(10);
-        act(() => graph.setDegree(3));
+        act(() => runAs('learner', () => graph.setDegree(3)));
         expect(first.some(element => board.objectsList.includes(element))).toBe(false);
         const second = graph.ownedElements();
         expect(graph.ownedOnBoard()).toBe(second.length);
@@ -504,7 +501,7 @@ describe('drawing cost (jsdom, real JSXGraph board)', () => {
         for (let i = 0; i < drags; i++) dragMarker(graph, 4, 1.2 + 0.6 * ((i % 40) / 40));
         const dragMs = (performance.now() - start) / drags;
         const sweepStart = performance.now();
-        for (let i = 0; i < drags; i++) act(() => graph.setDisplayedT(2 * (i / drags)));
+        for (let i = 0; i < drags; i++) act(() => runAs('learner', () => graph.setDisplayedT(2 * (i / drags))));
         const sweepMs = (performance.now() - sweepStart) / drags;
         console.info(`BSPLINE_BASIS_MEASURE drag ${dragMs.toFixed(2)} ms/event, t sweep ${sweepMs.toFixed(2)} ms/step (jsdom, 4 functions, 400 samples)`);
         expect(dragMs).toBeLessThan(100);
@@ -514,9 +511,9 @@ describe('drawing cost (jsdom, real JSXGraph board)', () => {
 });
 
 describe('degree stepper and the one live readout', () => {
-    test('the degree stepper reaches the model and the readout is announced once, not twice', () => {
+    test('the degree (a puck bound to the arbiter) reaches the model and the readout is announced once, not twice', () => {
         const {graph, view} = mount();
-        fireEvent.click(screen.getByRole('button', {name: 'Povečaj število'}));
+        act(() => { graph.parameters?.write('basis-degree', 3, 'learner'); });
         expect(graph.state.degree).toBe(3);
         expect(document.querySelectorAll('[data-readout-live]')).toHaveLength(1);
         view.unmount();

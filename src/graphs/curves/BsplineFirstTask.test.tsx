@@ -28,7 +28,7 @@ const routes: Record<string, () => BaseGraph<BaseGraphState>> = {
 
 /** `first` is a label prefix of the first control; `later` are label prefixes of controls the plan places after it. */
 const plan: Record<string, {first: Label; later: Label[]}> = {
-    basis: {first: () => t('bsb_slider_t'), later: [() => t('decrease_count'), () => t('bsb_clamped')]},
+    basis: {first: () => t('bsb_normalize'), later: [() => t('bsb_knot_name', {value0: 0})]},
     deboor: {first: () => 'action:next', later: [() => t('decrease_count')]},
     insertion: {first: () => t('bsi_insert_value'), later: [() => t('bsi_example')]},
     blossom: {first: () => t('bsl_arg', {value0: 'a'}), later: [() => t('bsl_segment'), () => t('decrease_count')]},
@@ -63,6 +63,12 @@ describe.each(Object.keys(routes))('%s', key => {
             return;
         }
         const names = editControls();
+        if (key === 'basis') {
+            // t, the degree and the clamped switch are board pucks: they live on the puck strip, not in Edit; the display toggle leads Edit
+            await waitForPucks('basis-t');
+            expect(puckOrder(), puckOrder().join(' | ')).toEqual(expect.arrayContaining(['basis-t', 'basis-degree', 'clamped']));
+            for (const label of [() => t('bsb_slider_t'), () => t('decrease_count'), () => t('bsb_clamped')]) expect(names.findIndex(name => name.startsWith(label())), names.join(' | ')).toBe(-1);
+        }
         if (key === 'deboor') {
             // the parameter t is a board puck: it lives on the puck strip, not in Edit; the playback buttons still lead Edit
             await waitForPucks('deboor-t');

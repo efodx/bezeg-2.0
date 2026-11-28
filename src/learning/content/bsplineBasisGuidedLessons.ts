@@ -6,10 +6,14 @@
  * points are placeholders, one per basis function) followed by the `parameter` action `t`.
  */
 import type {LessonAction, LessonCurveFixture, LessonViewBox} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {BSplineBasisIds} from '../../graphs/curves/bspline/BSplineBasisGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** Frame declarations typed by the graph's ids: what the step's text asks the learner to read or use (the knot list and the display toggle are in Orodja). */
+const declared = frameDeclarer<BSplineBasisIds>();
 
 /** The default lesson vector of L1: quadratic, four basis functions. */
 export const BASIS_LESSON_KNOTS: readonly number[] = [0, 0, 0, 1, 2, 2, 2];
@@ -79,7 +83,7 @@ const basisLesson: GuidedLesson = {
                 'The degree \\(1\\) basis functions with knots \\((0,0,1,2,2)\\) are shown. Predict the shape of \\(N_{1,1}\\), which has the knots \\(0\\), \\(1\\), \\(2\\): a triangle (hat) with peak \\(1\\) at \\(t=1\\) and support \\([0,2]\\). Degree \\(0\\) would be a step on one span; when you pick degree \\(2\\) and \\(3\\) in the panel, the bump widens over more spans and becomes smoother.',
             ),
             formulaIds: ['bspline-cox-de-boor'],
-            frames: [frame('bspline-basis-hat-explanation', 'explanation'), frame('bspline-basis-hat-observation', 'observation')],
+            frames: [frame('bspline-basis-hat-explanation', 'explanation'), frame('bspline-basis-hat-observation', 'observation', declared({highlight: ['head'], uses: ['basis-degree'], open: ['readouts']}))],
             observationPrompt: text('Izberi stopnjo \\(2\\) in \\(3\\) in opazuj, na koliko odsekih je ena grbina različna od nič.', 'Pick degree \\(2\\) and \\(3\\) and watch how many spans one bump is nonzero on.'),
             expectedObservations: [text('Bazna funkcija stopnje \\(k\\) je različna od nič na \\(k+1\\) odsekih: pri stopnji \\(1\\) na dveh, pri \\(2\\) na treh, pri \\(3\\) na štirih.', 'A basis function of degree \\(k\\) is nonzero on \\(k+1\\) spans: two for degree \\(1\\), three for \\(2\\), four for \\(3\\).')],
             scene: basisScene('bspline-basis-hat-degree-1', 1, [0, 0, 1, 2, 2], 1,
@@ -95,7 +99,7 @@ const basisLesson: GuidedLesson = {
                 'Now the degree is \\(2\\) with knots \\((0,0,0,1,2,2,2)\\) and four basis functions. Predict: how many of the four values are nonzero at \\(t=\\tfrac12\\) and what is their sum? It is \\(k+1=3\\) and the sum is \\(1\\): the values are \\(0.25\\), \\(0.625\\), \\(0.125\\) and \\(0\\). Move the slider \\(t\\) and watch the values flow into each other.',
             ),
             formulaIds: ['bspline-cox-de-boor'], workedExampleId: 'bspline-basis-half-example',
-            frames: [frame('bspline-basis-slide-explanation', 'explanation'), frame('bspline-basis-slide-calculation', 'calculation'), frame('bspline-basis-slide-observation', 'observation')],
+            frames: [frame('bspline-basis-slide-explanation', 'explanation'), frame('bspline-basis-slide-calculation', 'calculation'), frame('bspline-basis-slide-observation', 'observation', declared({highlight: ['sum'], uses: ['basis-t'], open: ['readouts']}))],
             observationPrompt: text('Premakni \\(t\\) in preveri, da je vsota vseh vrednosti vedno \\(1\\).', 'Move \\(t\\) and check that the sum of all values is always \\(1\\).'),
             expectedObservations: [text('Pri \\(t=\\tfrac12\\) so aktivne tri funkcije z vrednostmi \\(0{,}25\\), \\(0{,}625\\), \\(0{,}125\\), vsota je \\(1\\); pri \\(t=1\\) sta \\(0{,}5\\) in \\(0{,}5\\).', 'At \\(t=\\tfrac12\\) three functions are active with the values \\(0.25\\), \\(0.625\\), \\(0.125\\) and the sum is \\(1\\); at \\(t=1\\) they are \\(0.5\\) and \\(0.5\\).')],
             scene: basisScene('bspline-basis-slide-half', 2, BASIS_LESSON_KNOTS, 0.5,
@@ -111,7 +115,7 @@ const basisLesson: GuidedLesson = {
                 'The knots are symmetric about \\(t=1\\). Predict: which of \\(N_{0,2}\\), \\(N_{1,2}\\), \\(N_{2,2}\\), \\(N_{3,2}\\) are nonzero at \\(t=\\tfrac32\\)? The point lies on the span \\([1,2)\\), so \\(N_{1,2}\\), \\(N_{2,2}\\), \\(N_{3,2}\\); \\(N_{0,2}\\) is \\(0\\). The values are \\(0\\), \\(0.125\\), \\(0.625\\), \\(0.25\\), the mirror image of the values at \\(t=\\tfrac12\\).',
             ),
             formulaIds: ['bspline-cox-de-boor'],
-            frames: [frame('bspline-basis-mirror-explanation', 'explanation'), frame('bspline-basis-mirror-observation', 'observation')],
+            frames: [frame('bspline-basis-mirror-explanation', 'explanation'), frame('bspline-basis-mirror-observation', 'observation', declared({highlight: ['fn1', 'fn2', 'fn3'], uses: ['basis-t'], open: ['readouts']}))],
             observationPrompt: text('Premakni \\(t\\) čez vozel \\(1\\) in opazuj, kako ena funkcija izgine in druga se pojavi.', 'Move \\(t\\) across the knot \\(1\\) and watch one function leave and another enter.'),
             expectedObservations: [text('Pri \\(t=1\\) sta aktivni \\(N_{1,2}\\) in \\(N_{2,2}\\) z vrednostma \\(0{,}5\\) in \\(0{,}5\\); pri \\(t=\\tfrac32\\) so \\(0;\\ 0{,}125;\\ 0{,}625;\\ 0{,}25\\).', 'At \\(t=1\\) the functions \\(N_{1,2}\\) and \\(N_{2,2}\\) are active with the values \\(0.5\\) and \\(0.5\\); at \\(t=\\tfrac32\\) they are \\(0;\\ 0.125;\\ 0.625;\\ 0.25\\).')],
             scene: basisScene('bspline-basis-mirror-three-halves', 2, BASIS_LESSON_KNOTS, 1.5,
@@ -127,7 +131,7 @@ const basisLesson: GuidedLesson = {
                 'The knots \\((0,0,0,1,2,3,4,4,4)\\) give six functions of degree \\(2\\); the vector shown has the knot \\(u_5=3\\) moved to \\(3.5\\). Predict: which functions change because of it? Only those whose support \\([u_i,u_{i+3}]\\) contains \\(u_5\\), that is \\(N_{2,2}\\) to \\(N_{5,2}\\); \\(N_{0,2}\\) and \\(N_{1,2}\\) stay the same. At \\(t=\\tfrac52\\) the values \\(0.125;\\ 0.75;\\ 0.125\\) change to \\(\\tfrac4{15}\\approx0.267;\\ 0.65;\\ \\tfrac1{12}\\approx0.083\\), and the sum stays \\(1\\).',
             ),
             formulaIds: ['bspline-cox-de-boor'],
-            frames: [frame('bspline-basis-locality-explanation', 'explanation'), frame('bspline-basis-locality-observation', 'observation')],
+            frames: [frame('bspline-basis-locality-explanation', 'explanation'), frame('bspline-basis-locality-observation', 'observation', declared({highlight: ['fn2', 'fn3', 'fn4'], open: ['readouts', 'tools']}))],
             observationPrompt: text('Povleci ali vpiši drug notranji vozel in preveri, da se levi funkciji ne premakneta.', 'Drag or type another interior knot and check that the left-hand functions do not move.'),
             expectedObservations: [text('Spremenijo se le funkcije, katerih nosilec vsebuje premaknjeni vozel; vsota ostane \\(1\\).', 'Only the functions whose support contains the moved knot change; the sum stays \\(1\\).')],
             scene: basisScene('bspline-basis-locality-moved', 2, [0, 0, 0, 1, 2, 3.5, 4, 4, 4], 2.5,
@@ -143,7 +147,7 @@ const basisLesson: GuidedLesson = {
                 'The knot vector \\((0,0,0,1,1,1)\\) has no interior knots and three basis functions of degree \\(2\\). Predict: which familiar functions are these? The Bernstein functions \\(B_0^2=(1-t)^2\\), \\(B_1^2=2t(1-t)\\), \\(B_2^2=t^2\\). At \\(t=\\tfrac12\\) the values are \\(0.25;\\ 0.5;\\ 0.25\\). A B-spline without interior knots is therefore a Bézier curve.',
             ),
             formulaIds: ['bspline-cox-de-boor'],
-            frames: [frame('bspline-basis-bernstein-explanation', 'explanation'), frame('bspline-basis-bernstein-observation', 'observation')],
+            frames: [frame('bspline-basis-bernstein-explanation', 'explanation'), frame('bspline-basis-bernstein-observation', 'observation', declared({highlight: ['fn0', 'fn1', 'fn2'], open: ['readouts']}))],
             observationPrompt: text('Primerjaj tri grbine z Bernsteinovimi baznimi funkcijami stopnje \\(2\\).', 'Compare the three bumps with the Bernstein basis functions of degree \\(2\\).'),
             expectedObservations: [text('Grafi se ujemajo z \\(B_0^2\\), \\(B_1^2\\), \\(B_2^2\\); vsota je povsod \\(1\\).', 'The graphs agree with \\(B_0^2\\), \\(B_1^2\\), \\(B_2^2\\); the sum is \\(1\\) everywhere.')],
             scene: basisScene('bspline-basis-bernstein-bezier', 2, [0, 0, 0, 1, 1, 1], 0.5,
@@ -159,7 +163,7 @@ const basisLesson: GuidedLesson = {
                 'The degree is \\(2\\) again with knots \\((0,0,0,1,2,2,2)\\). Change the degree, type or drag the knots, toggle the clamped knot vector and move \\(t\\). Try repeated knots: a knot of multiplicity \\(m\\) lowers the smoothness of the functions there. For a uniform vector the cubic functions at a knot give the values \\(\\tfrac16;\\ \\tfrac46;\\ \\tfrac16\\).',
             ),
             formulaIds: ['bspline-cox-de-boor'],
-            frames: [frame('bspline-basis-explore-explanation', 'explanation'), frame('bspline-basis-explore-observation', 'observation')],
+            frames: [frame('bspline-basis-explore-explanation', 'explanation'), frame('bspline-basis-explore-observation', 'observation', declared({uses: ['basis-degree', 'basis-t', 'clamped'], open: ['readouts', 'tools']}))],
             observationPrompt: text('Preklopi na nepritrjen enakomeren vektor in poišči vrednosti pri vozlu.', 'Switch to the unclamped uniform vector and find the values at a knot.'),
             expectedObservations: [text('Vsota ostane \\(1\\) znotraj definicijskega območja; ob večkratnem vozlu se ena grbina na tem mestu zoži.', 'The sum stays \\(1\\) inside the domain; at a repeated knot one bump narrows there.')],
             scene: basisScene('bspline-basis-explore-start', 2, BASIS_LESSON_KNOTS, 0.5,

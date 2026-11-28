@@ -45,6 +45,10 @@ const eulerLineAccepted: readonly AcceptedDifference[] = [
 const simsonLineAccepted: readonly AcceptedDifference[] = [
     {kind: 'missing', where: 'output', reason: 'the offset slider output ("0", "0,2") was the only read-off of epsilon; epsilon is a board puck now, which shows its own value (the far-vertex "zunaj pogleda" note did not differ)'},
 ];
+const bsplineBasisAccepted: readonly AcceptedDifference[] = [
+    {kind: 'missing', where: 'note', reason: 'the sentence of the active values and the sum are declared rows now (one row per N_{i,k} and the sum), so a lesson step reads them without unfolding the notes'},
+    ...[...Array.from({length: 12}, (_, i) => `fn${i}`), 'sum'].map((id): AcceptedDifference => ({kind: 'extra', where: `row ${id}`, reason: 'the value rows that replace the recorded sentence and sum note'})),
+];
 const continuityAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'row a', reason: 'the parameter is a board puck now, so its slider output "a = 1,5" is a readout row; the panel showed the value only on the slider'},
 ];
@@ -947,6 +951,22 @@ const SAMPLES: readonly Sample[] = [
             {name: 'a fifth point', apply: run(g => g.changePointCount(true))},
             {name: 'a point moved, t = 1', apply: run(g => { g.editPoint(1, [1, 3]); g.setT(1); })},
             {name: 'degree 1, levels reset', apply: run(g => { g.setDegree(1); g.resetLevels(); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/bspline/__parity__/bspline-basis.json', demonstration: 'bspline-basis', accepted: bsplineBasisAccepted, states: (() => {
+        type Basis = {setDisplayedT(t: number): void; setDegree(degree: number): void; setClamped(clamped: boolean): void;
+            setNormalized(normalized: boolean): void; editKnot(index: number, value: number): string | undefined};
+        const run = (edit: (graph: Basis) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Basis)); };
+        return [
+            {name: 'default (degree 2, t = 0,5)', apply: () => undefined},
+            {name: 't = 1', apply: run(g => g.setDisplayedT(1))},
+            {name: 't = 1,5', apply: run(g => g.setDisplayedT(1.5))},
+            {name: 'degree 3', apply: run(g => g.setDegree(3))},
+            {name: 'degree 1, t = 0,25', apply: run(g => { g.setDegree(1); g.setDisplayedT(0.25); })},
+            {name: 'unclamped uniform, degree 2, t = 2,5', apply: run(g => { g.setDegree(2); g.setClamped(false); g.setDisplayedT(2.5); })},
+            {name: 'clamped, an interior knot moved to 0,5', apply: run(g => { g.setClamped(true); g.editKnot(3, 0.5); g.setDisplayedT(0.75); })},
+            {name: 'normalized domain, t = 0,3', apply: run(g => { g.setNormalized(true); g.setDisplayedT(0.3); })},
+            {name: 'a refused knot value', apply: run(g => { g.setNormalized(false); g.editKnot(3, 5); })},
         ] satisfies ParityState[];
     })()},
     {file: 'curves/arclength/__parity__/arc-length-param.json', demonstration: 'arc-length-param', accepted: arcAccepted, states: (() => {

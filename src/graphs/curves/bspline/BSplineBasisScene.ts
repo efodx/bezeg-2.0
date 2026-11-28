@@ -2,7 +2,7 @@ import type {Board, GeometryElement, Point, Text} from "jsxgraph";
 import {currentLanguage, onLanguageChange} from "../../../localization";
 import {formatNumber} from "../../../analysis/format";
 import {multiplicity, validateKnotVector} from "../../../bezeg/impl/curve/bspline";
-import {basisCurveColor, GraphPalette} from "../../styles/GraphPalette";
+import {basisCurveColor, basisCurveDash, GraphPalette} from "../../styles/GraphPalette";
 import {allValuesAt, BasisSamples, clampToDomain, domainNote, lastIndexOf, parameterView, readoutLines, sampleBasis} from "./bsplineBasisModel";
 import {bindMovablePointCursor} from "../../base/bindMovablePointCursor";
 
@@ -24,7 +24,7 @@ const MARKER_STEP = -0.07;
 
 /**
  * The owned elements of the B-spline basis plot: one curve per basis function, a marker and a vertical rule at the slider
- * parameter, one draggable marker and one value label per knot, the readout text and the domain text. A scene is built for one
+ * parameter, one draggable marker and one value label per knot. The readout lines and the domain are declared notes, not board texts; `readoutText` and `domainText` give their text to the tests. A scene is built for one
  * basis-function count and knot count; a change of either builds a new scene. Equal knots stack their markers downwards, so every
  * repeated knot stays reachable. {@link dispose} removes every element and releases the language subscription.
  */
@@ -106,7 +106,7 @@ export class BSplineBasisScene {
         // Layers, lowest first: functions, slider rule and dots, knot markers and labels, texts.
         for (let i = 0; i < this.functionCount; i++) {
             const curve = this.create<GeometryElement & {dataX: number[]; dataY: number[]; updateDataArray: () => void}>('curve', [[], []],
-                {...quiet, strokeColor: basisCurveColor(i), strokeWidth: 2.5});
+                {...quiet, strokeColor: basisCurveColor(i), strokeWidth: 2.5, dash: basisCurveDash(i)});
             curve.updateDataArray = () => {
                 const samples = this.valid() ? this.samples() : {t: [], columns: []};
                 const view = this.view();
@@ -158,19 +158,7 @@ export class BSplineBasisScene {
             });
         }
 
-        const box = () => this.board.getBoundingBox();
-        this.create<Text>('text', [
-            () => box()[0] + 0.02 * (box()[2] - box()[0]),
-            () => box()[1] - 0.02 * (box()[1] - box()[3]),
-            () => this.readoutText().split("\n").join("<br>"),
-        ], {anchorX: 'left', anchorY: 'top', fixed: true, highlight: false, useMathJax: false, fontSize: () => this.settings.fontSize(),
-            strokeColor: GraphPalette.label});
-        this.create<Text>('text', [
-            () => box()[2] - 0.02 * (box()[2] - box()[0]),
-            () => box()[3] + 0.04 * (box()[1] - box()[3]),
-            () => this.domainText(),
-        ], {anchorX: 'right', anchorY: 'bottom', fixed: true, highlight: false, useMathJax: false, fontSize: () => this.settings.fontSize() - 2,
-            strokeColor: GraphPalette.label});
+        // The readout lines and the domain are declared notes (Odčitki), so no board caption repeats them (owner decision 2026-11-27).
 
         // Board text is recomputed only on board update, which a language change does not trigger.
         this.stopLanguageUpdates = onLanguageChange(() => {
