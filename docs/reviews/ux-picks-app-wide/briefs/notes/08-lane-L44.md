@@ -62,3 +62,16 @@
 - Captions (`.command-logs/l44-g1-cap/`, 1280x720 only, clicks 2, 5, 8, 11, last; all 5 viewed): curve about 350 px wide, not squeezed, clear of the Lekcija, Orodja, Legenda cards and the puck strip; no board text under a card. Existing: at the last step the label p2(1)=p0(2) and p1(2) overlap; the b=2.5 step's derived point sits low but visible; no clipping.
 - Not verified: 1440x900 images; `just shot` crop at 310 px.
 - Stale script rows (stream A): `scripts/demonstration-preview-recipes.cjs:35` spline-g1 row uses `polygon` (now a puck; its `field('Parameter b 1', ...)` still a slider/number field in the Construction card). `scripts/demonstration-preview-motion.cjs:909` spline-g1 sweep drives b (unchanged control).
+
+## spline-g1-symmetric (worker, 2026-11-28)
+
+### Done (observed)
+- Fixture grep (`src/workspace`, `src/graphs/base`, `src/graphs/curves`, `src/learning`): no shared test uses spline-g1-symmetric as an undeclared fixture (`C1SplineGraph.declaration.test.tsx` already has no undeclared list left). Mentions in `typedPointPaths` (groups), `G1SplineGraph.test.ts:134` (spline-beta action), `SplineConstructionFirst` (b sliders in the Construction card), `registrationComposition` pass unchanged.
+- Parity: old golden `spline-g1-symmetric.golden.json` is empty; graph-check `parity n/a (no shown values)`; no recording, no `Accepted`. No board captions in the graph, none removed.
+- Conversion: `G1SymmetricSplineGraph` overrides `declaresSplineWorkspace()` to true (3 lines, as G1). The Parameter b sliders stay in the Construction card (construction-first); polygon and hull are board pucks; Orodja keeps labels, Hide fixed points, control points, typed list. No playback writes a puck, no lease.
+- Lesson: no prose changed. Steps 1-3 get the polygon from the scene (no prompt tells the learner to toggle it, so no `uses`); the prompts naming "drsnik" refer to the b sliders, which did not move.
+- Tests: new `G1SymmetricSplineGraph.declaration.test.tsx` (6, copy of the g1 one with the symmetric curve; four-point lesson spline and six-point default). Red observed before the hook: 6 of 6 failed; green after.
+- Checks observed: tsc 0 lines; `just lint` passed; `just unit` brief list passed (632 s); `just unit FirstTask` passed; round trip `-t spline-g1-symmetric` passed; `just graph-check spline-g1-symmetric --route /spline/g1-sym-spline` PASS (contract, parity n/a, golden, declaration 6, shared 8); `just build` passed; `just smoke-lesson spline-g1-symmetric --port 4395 --workers=1` passed.
+- Captions (`.command-logs/l44-g1sym-cap/`, 1280x720, clicks 2, 5, 8, 10, last; all 5 viewed): curve about 350 px wide (step 4, six points: tall, spans the card-free strip), clear of the Lekcija, Orodja, Legenda cards and puck strip; no board text under a card; no clipping. Existing: labels overlap at joins (p2(1)=p0(2) with p1(2)) in steps 2-3, 5 and step 4.
+- Not verified: 1440x900 images; `just shot` crop at 310 px.
+- Stale script rows (stream A): `scripts/demonstration-preview-recipes.cjs:36` spline-g1-symmetric row uses `polygon` (now a puck; `field('Parameter b N', ...)` stays a Construction card field); `scripts/demonstration-preview-curve-motion.cjs:423` spline-g1-symmetric motion entry (not read for a polygon control).

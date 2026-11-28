@@ -20,6 +20,9 @@ class Graph extends BaseSplineCurveGraph<G1SymmetricSplineGraphStates> {
 
     protected override workspaceConstructionFirst() { return true; }
 
+    /** Task 08: converted spline graph (legend, control polygon and hull pucks, view marks with the computed junctions, followView). The b sliders stay in the Construction card. */
+    protected override declaresSplineWorkspace(): boolean { return true; }
+
     override getGraphCommands(): JSX.Element[] {
         return this.state.initialized ? super.getGraphCommands().concat(this.getBiSetters()
         ) : [];
