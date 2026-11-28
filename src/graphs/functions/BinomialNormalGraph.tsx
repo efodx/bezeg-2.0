@@ -254,6 +254,8 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
         const {n, correction, poisson} = this.model;
         return {
             ...this.commonDeclaration(),
+            // The bars and the curve are what the learner watches: the frame follows n, p and the Poisson bars, not the lesson scene's stored box.
+            followView: fitBinomialNormalView(this.model),
             parameters: [
                 {key: "binomial-n", kind: "range", label: message("prob_binomial_n_name"), symbol: "n", placement: "board", min: 1, max: BINOMIAL_NORMAL_N_MAX, step: 1, maxDecimals: 0},
                 {key: "binomial-p", kind: "range", label: message("prob_binomial_p_name"), symbol: "p", help: message("prob_binomial_p_help"), placement: "board", min: 0, max: 1, step: 0.01, maxDecimals: 4},
@@ -313,6 +315,9 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
             ],
             notes: [{id: "binomial", text: message("prob_binomial_note")}],
             ...(tail > POISSON_TAIL_NOTE_MIN ? {status: [{id: "poisson-tail", text: message("prob_binomial_poisson_tail", {value0: binomialProbability(tail, language)}), tone: "muted" as const}]} : {}),
+            // The first bar (k = 0 for a rare event) and the baseline at the left edge of the fitted view must stay clear of the cards:
+            // as nice marks alone they sat under the Lekcija card at B(100; 0,02).
+            must: this.leftMust(model),
             // The marks: the normal curve, the bars (as a step envelope) and, while shown, the Poisson bars, over the example view.
             plotted: [
                 (x: number) => binomialNormalDensity(model)(x),
@@ -320,6 +325,21 @@ export class BinomialNormalGraph extends BaseFunctionGraph<BinomialNormalModel> 
                 ...(model.poisson ? [(x: number) => Math.round(x) >= 0 && Math.round(x) <= model.n ? poissonPmf(lambda, Math.round(x)) : 0] : []),
             ],
         };
+    }
+
+    /**
+     * What must stay clear of the cards: the baseline at the left edge of the fitted view, the top of the first bar inside it (never
+     * left of k = 0), the top of the mean bar or normal peak and the bar at mean + 2σ. A right-edge baseline point pushed the right
+     * bars under the Odčitki card in step 2, so the far right tail (near-zero bars) is only `nice`.
+     */
+    private leftMust(model: BinomialNormalModel): {x: number; y: number}[] {
+        const [left] = fitBinomialNormalView(model);
+        const first = Math.max(0, Math.ceil(left + 0.5));
+        const mean = model.n * model.p;
+        const sigma = Math.sqrt(mean * (1 - model.p));
+        const peak = Math.max(binomialPmf(model.n, model.p, Math.round(mean)), binomialNormalDensity(model)(mean));
+        const upper = Math.min(model.n, Math.round(mean + 2 * sigma));
+        return [{x: left, y: 0}, {x: first, y: binomialPmf(model.n, model.p, first)}, {x: mean, y: peak}, {x: upper, y: binomialPmf(model.n, model.p, upper)}];
     }
 
     /** The Poisson mass above n (zero while the Poisson bars are off). */

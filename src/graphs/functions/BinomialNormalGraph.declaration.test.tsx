@@ -97,6 +97,28 @@ describe('Binomial-normal declares its panel, three range pucks, two switch puck
         expect(Math.max(...bars.map(([, y]) => y))).toBeCloseTo(0.176, 2);
     });
 
+    test('the marks name the left bars as must, so a card cannot cover them (lesson step 5: B(100; 0,02), Poisson on)', () => {
+        const graph = new DrivenBinomialNormalGraph();
+        mountGraph(graph);
+        act(() => {
+            graph.applyLessonAction(example('fair100'));
+            graph.applyLessonAction(parameter('binomial-p', 0.02));
+            graph.applyLessonAction(parameter('binomial-k', 2));
+            graph.applyLessonAction(poisson(true));
+        });
+        const must = graph.getDeclaration()!.marks!.must;
+        // the k = 0 bar, mass (1 - 0.02)^100 = 0.1326, is the tallest thing at the left edge
+        const bar0 = must.find(mark => mark.kind === 'point' && Math.abs(mark.x) < 0.5 && Math.abs(mark.y - 0.1326) < 0.002);
+        expect(bar0).toBeDefined();
+        // and the baseline at the view's left edge, where the normal curve starts
+        expect(must.some(mark => mark.kind === 'point' && mark.x <= -0.5 && mark.y === 0)).toBe(true);
+        // the frame follows the fitted bars (left of the k = 0 bar), so the lesson scene's stored box cannot decide the view
+        const follow = graph.getDeclaration()!.followView!;
+        expect(follow).toBeDefined();
+        expect(follow[0]).toBeLessThanOrEqual(-0.5);
+        expect(follow[1]).toBeGreaterThan(0.27);
+    });
+
     test('the switches are actions: pressed follows the model and performAction flips it', () => {
         const graph = new DrivenBinomialNormalGraph();
         mountGraph(graph);
