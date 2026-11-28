@@ -114,16 +114,16 @@ const ROWS: Row[] = [
         defaultModel: ORIGIN, otherModel: model([[3, 3]]),
         source: {
             model: model([[2, -1]]), fields: INVERSION_SOURCE_FIELDS, overlays: {grid: true, rays: false},
-            load: g => {
+            load: g => runAs('learner', () => {
                 const i = g as Inversion;
                 i.loadModel(model([[2, -1]]));
                 i.setState(patch(wire(INVERSION_SOURCE_FIELDS)));
                 i.setOverlay('grid', true); i.setOverlay('rays', false);
-            },
+            }),
         },
         preceding: [
-            g => { const i = g as Inversion; i.loadExample('power'); i.setX({x: 1, y: 1}); i.setOverlay('image', false); },
-            g => { const i = g as Inversion; i.loadModel(model([[-6, 4]])); i.setState(patch({exampleId: 'point', focus: 'source', radius: 8, x: {x: 9, y: 9}})); },
+            g => runAs('learner', () => { const i = g as Inversion; i.loadExample('power'); i.setX({x: 1, y: 1}); i.setOverlay('image', false); }),
+            g => runAs('learner', () => { const i = g as Inversion; i.loadModel(model([[-6, 4]])); i.setState(patch({exampleId: 'point', focus: 'source', radius: 8, x: {x: 9, y: 9}})); }),
         ],
         fresh: {
             exampleId: 'point', focus: 'point', radius: 2, x: {x: 3, y: 1}, source: {kind: 'circle', centre: {x: 1, y: 0}, radius: 1},

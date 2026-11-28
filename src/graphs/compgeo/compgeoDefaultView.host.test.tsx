@@ -20,6 +20,7 @@ import {FORTUNE_EXAMPLE_1} from './fortunePresetCollection';
 import {NotablePointsGraph} from './NotablePointsGraph';
 import {SimsonLineGraph} from './SimsonLineGraph';
 import {InscribedAngleGraph} from './InscribedAngleGraph';
+import {InversionGraph} from './InversionGraph';
 import {EAR_CLIPPING_EXAMPLE_1} from './earClippingPresetCollection';
 import {INTERVAL_SWEEP_EXAMPLE_1} from './intervalSweepPresetCollection';
 import {BENTLEY_OTTMANN_EXAMPLE_1} from './bentleyOttmannPresetCollection';
@@ -91,6 +92,24 @@ describe.each([
         const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
         const [left, top, right, bottom] = graph.liveBoard().getBoundingBox();
         for (const [x, y] of triangleExtent) {
+            expect(x - left).toBeGreaterThanOrEqual(0.5);
+            expect(right - x).toBeGreaterThanOrEqual(0.5);
+            expect(top - y).toBeGreaterThanOrEqual(0.5);
+            expect(y - bottom).toBeGreaterThanOrEqual(0.5);
+        }
+        view.unmount();
+    });
+});
+
+class ObservedInversion extends InversionGraph { liveBoard(): Board { return this.board; } }
+
+describe('inversion default view', () => {
+    test('the first view holds the circle of inversion, X and its image with a margin', () => {
+        const graph = new ObservedInversion();
+        const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
+        const [left, top, right, bottom] = graph.liveBoard().getBoundingBox();
+        // C = (0,0), r = 2, X = (3,1), X' = (6/5, 2/5)
+        for (const [x, y] of [[-2, 0], [2, 0], [0, 2], [0, -2], [3, 1], [1.2, 0.4]]) {
             expect(x - left).toBeGreaterThanOrEqual(0.5);
             expect(right - x).toBeGreaterThanOrEqual(0.5);
             expect(top - y).toBeGreaterThanOrEqual(0.5);

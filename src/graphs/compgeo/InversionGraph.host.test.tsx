@@ -1,12 +1,15 @@
 import React from 'react';
-import {enterNumber} from '../../inputs/testEntry';
 import {InversionGraph} from './InversionGraph';
 import {writeFileSync} from 'node:fs';
-import {act, fireEvent, render} from '@testing-library/react';
+import {act as rtlAct, fireEvent, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
+import {runAs} from '../base/writes/writeSource';
+
+/** Tests drive the graph through its setters, as the learner (strict mode refuses an untagged write). */
+const act = ((work: Parameters<typeof rtlAct>[0]) => rtlAct(typeof work === 'function' ? (() => runAs('learner', work as () => never)) as typeof work : work)) as typeof rtlAct;
 
 const languageListeners = vi.hoisted(() => ({live: 0}));
 vi.mock('../../localization', async importOriginal => {
@@ -51,7 +54,6 @@ const text = (selector: string) => (document.querySelector(selector)?.textConten
 const readout = (id: string) => text(`[data-inversion-readout="${id}"]`) || (id === 'image' ? text('[data-inversion-chip]') : '');
 const field = (selector: string) => document.querySelector(selector) as HTMLInputElement;
 const select = (selector: string) => field(`${selector} select`);
-const numberIn = (selector: string) => field(`${selector} input[type="text"]`);
 const stateOf = () => document.querySelector('[data-inversion-state]')?.getAttribute('data-inversion-state');
 const pick = (graph: Observed, id: Parameters<Observed['loadExample']>[0]) => act(() => { graph.loadExample(id); });
 const ids = ['inversion-circle', 'rays', 'image', 'secant', 'tangent', 'angle-tangents'] as const;
@@ -325,15 +327,17 @@ test('X = C shows the centre message and draws no image; an image beyond the dra
     expect(exact(graph, 'X′')).toHaveLength(1);
 });
 
-test('the radius field and the radius handle change r; out-of-range values are refused', () => {
+test('the radius puck and the radius handle change r; out-of-range values are refused', async () => {
     const graph = new Observed();
     mount(graph);
-    enterNumber(numberIn('[data-inversion-field="radius"]'), '5');
+    await waitForPucks('inversion-radius');
+    expect(document.querySelector('#inspector-edit [data-inversion-field="radius"]')).toBeNull();
+    typePuck('inversion-radius', '5');
     expect(graph.fields.radius).toBe(5);
     expect(exact(graph, 'inversion-circle')[0].Radius!()).toBe(5);
-    enterNumber(numberIn('[data-inversion-field="radius"]'), '9');
-    expect(graph.fields.radius).toBe(5);
-    enterNumber(numberIn('[data-inversion-field="radius"]'), '0');
+    // the setter refuses a value outside the whole numbers 1 to 8 (a puck entry stays inside its range)
+    expect(graph.setRadius(9)).toBe(false);
+    expect(graph.setRadius(0)).toBe(false);
     expect(graph.fields.radius).toBe(5);
     dragTo(exact(graph, 'r')[0], 3.4, 0.2);
     expect(graph.fields.radius).toBe(3);
@@ -368,20 +372,22 @@ test('a source line handle dropped on the other handle is refused and reverts', 
     expect(graph.fields.source).toEqual({kind: 'line', p: {x: -1, y: 2}, q: {x: 3, y: 3}});
 });
 
-test('the theta field, the range and the handle move the secant', () => {
+test('the theta puck and the handle move the secant', async () => {
     const graph = new Observed();
     mount(graph);
     pick(graph, 'power');
-    enterNumber(numberIn('[data-inversion-theta]'), '10');
+    await waitForPucks('inversion-theta');
+    expect(document.querySelector('#inspector-edit [data-inversion-theta]')).toBeNull();
+    typePuck('inversion-theta', '10');
     expect(graph.fields.power.thetaDeg).toBe(10);
-    fireEvent.change(field('[data-inversion-theta] input[type="range"]'), {target: {value: '11'}});
+    act(() => { fireEvent.keyDown(puckControl('inversion-theta'), {key: 'ArrowRight'}); });
     expect(graph.fields.power.thetaDeg).toBe(11);
-    // A value outside 0 to 360 wraps (a cyclic angle): -30 is 330, 370 is 10.
-    enterNumber(numberIn('[data-inversion-theta]'), '-30');
+    // The setter wraps a value outside 0 to 360 (a cyclic angle): -30 is 330, 370 is 10.
+    act(() => { graph.setTheta(-30); });
     expect(graph.fields.power.thetaDeg).toBe(330);
-    enterNumber(numberIn('[data-inversion-theta]'), '370');
+    act(() => { graph.setTheta(370); });
     expect(graph.fields.power.thetaDeg).toBe(10);
-    enterNumber(numberIn('[data-inversion-theta]'), '20');
+    typePuck('inversion-theta', '20');
     const before = readout('secant');
     expect(exact(graph, 'secant')).toHaveLength(1);
     expect(exact(graph, 'θ')[0].X!()).toBeCloseTo(3 * Math.cos(Math.PI / 9), 9);

@@ -10,6 +10,7 @@ import {
 } from "../../compgeo/inversionModel";
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import {INVERSION_FOCI, InversionFocus, isInversionFocus} from "./inversionPresetCollection";
 import {inversionTexts} from "./inversionText";
 import {InversionPlaceId, InversionView} from "./inversionView";
@@ -52,6 +53,36 @@ export interface InversionPanelProps extends InversionPanelActions {
  * colour alone.
  */
 export function InversionPanel(props: InversionPanelProps) {
+    return <>
+        <InversionReadouts {...props}/>
+        <InversionControls {...props}/>
+    </>;
+}
+
+/** The arbiter keys of the inversion radius and the secant direction (range pucks on the board). */
+export const INVERSION_RADIUS_KEY = "inversion-radius";
+export const INVERSION_THETA_KEY = "inversion-theta";
+
+/**
+ * The controls of the inversion graph: the inversion radius and the fields of the current focus (the board's pucks own the radius
+ * and the secant direction once the workspace declares them), then the example and focus choice. Never hidden.
+ */
+export function InversionControls(props: InversionPanelProps) {
+    const t = useT();
+    const {fields} = props;
+    return <>
+        {fields.hasCentre && <>
+            {fields.focus !== "power" && <PuckOwned param={INVERSION_RADIUS_KEY}>
+                <RadiusSlider label={t("inversion_radius_label")} field="radius" value={fields.radius} onValue={props.onRadius}/>
+            </PuckOwned>}
+            <FocusFields {...props}/>
+        </>}
+        <ExampleAndFocus {...props}/>
+    </>;
+}
+
+/** The status sentence and the readouts as words, the status paragraph kept mounted (live region). */
+export function InversionReadouts(props: InversionPanelProps) {
     const t = useT();
     const {language} = useLanguage();
     const {fields} = props;
@@ -61,11 +92,6 @@ export function InversionPanel(props: InversionPanelProps) {
     const rows = texts.rows.filter(row => row.text !== texts.chip);
     return <div className="inspector-group inversion-panel" data-inversion-state={texts.state} data-inversion-focus-now={fields.focus}>
         <p data-readout-note className="inspector-help pointset-status" data-inversion-chip>{texts.chip}</p>
-        {fields.hasCentre && <>
-            {fields.focus !== "power" && <RadiusSlider label={t("inversion_radius_label")} field="radius" value={fields.radius} onValue={props.onRadius}/>}
-            <FocusFields {...props}/>
-        </>}
-        <ExampleAndFocus {...props}/>
         {fields.hasCentre && rows.length > 0 && <ul className="pointset-list inversion-readouts">
             {rows.map(row => <li data-readout-note key={row.id} data-inversion-readout={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
         </ul>}
@@ -167,7 +193,9 @@ function RadiusSlider(props: {label: string; field: string; value: number; onVal
 
 function ThetaFields(props: {degrees: number; onTheta(degrees: number): void}) {
     const t = useT();
-    return <div className="inversion-theta" data-inversion-theta>
-        <AngleSlider customText={t("inversion_theta_label")} value={props.degrees} onChange={degrees => props.onTheta(degrees)}/>
-    </div>;
+    return <PuckOwned param={INVERSION_THETA_KEY}>
+        <div className="inversion-theta" data-inversion-theta>
+            <AngleSlider customText={t("inversion_theta_label")} value={props.degrees} onChange={degrees => props.onTheta(degrees)}/>
+        </div>
+    </PuckOwned>;
 }

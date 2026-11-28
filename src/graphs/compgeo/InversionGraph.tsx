@@ -5,7 +5,11 @@ import {PointSetExtension, PointSetFieldValue} from "./pointSetPersistence";
 import {GraphSession} from "../base/GraphSession";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import type {LessonAction} from "../../learning/model";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, type Message, onLanguageChange, t} from "../../localization";
+import type {GraphDeclaration, ParameterDeclaration, ViewMark, ViewMarks} from "../base/declare/graphDeclaration";
+import type {ViewBox} from "../base/writes/viewAdapter";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
 import {GridPoint} from "../../compgeo/grid";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -22,8 +26,8 @@ import {
 import {
     buildInversionView, edgeMarker, InversionInputs, InversionPlace, InversionPlaceId, inversionPlaces, InversionView, matchesExample, outsidePlaces,
 } from "./inversionView";
-import {inversionTexts} from "./inversionText";
-import {InversionFields, InversionPanel} from "./InversionPanel";
+import {inversionNotes, inversionTexts, type InversionNoteId} from "./inversionText";
+import {INVERSION_RADIUS_KEY, INVERSION_THETA_KEY, InversionControls, InversionFields, InversionReadouts} from "./InversionPanel";
 
 /**
  * Inversion graph (spec triangle-geometry-lessons T5, task triangle-geometry/08 F2a): a `PointSetGraph` limited to one vertex,
@@ -44,6 +48,15 @@ import {InversionFields, InversionPanel} from "./InversionPanel";
  * at the view boundary on the ray from C). The view is never rescaled silently.
  */
 export type InversionOverlayId = Exclude<typeof INVERSION_OVERLAY_IDS[number], "grid">;
+
+/**
+ * The ids of the declaration (frames name them): the inversion radius (focuses with the inversion circle) and the secant direction
+ * (focus power) are range pucks; the sentences of the inspector are notes; the legend names the overlays; the switches are actions.
+ */
+export type InversionIds = {
+    param: typeof INVERSION_RADIUS_KEY | typeof INVERSION_THETA_KEY; row: never; note: InversionNoteId; legend: "points" | InversionOverlayId;
+    section: never; action: "grid" | InversionOverlayId;
+};
 
 export interface InversionState extends PointSetGraphState {
     exampleId: InversionExampleId | undefined;
@@ -499,7 +512,7 @@ export class InversionGraph extends PointSetGraph<InversionOverlayId> {
             if (this.inSnap || this.graphInteractionLocked) return;
             const entry = this.handleObjects.find(h => h.object === point);
             if (!entry) return;
-            entry.handle.apply(point.X(), point.Y());
+            runAs("learner", () => entry.handle.apply(point.X(), point.Y()));
             this.ensureScene();
         });
         return point;
@@ -570,12 +583,21 @@ export class InversionGraph extends PointSetGraph<InversionOverlayId> {
         return inversionTexts(view, t, currentLanguage(), this.outsideView(view), this.fields.radius).chip;
     }
 
+    /**
+     * The top-left of the framed box, a little inside it: the director maps that box into the card-free area, so the chip stays
+     * clear of every card (the top-left of the canvas lies under the lesson card). Without a declared box: the view corner.
+     */
+    private chipCorner(): readonly [number, number] {
+        const [left, top, right, bottom] = inversionFollowBox(this.inversionMarks()) ?? this.board.getBoundingBox();
+        return [left + 0.02 * (right - left), top - 0.04 * (top - bottom)];
+    }
+
     private ensureChip(): void {
         if (!this.hasBoard) return;
         if (this.chip && (this.board.objectsList as unknown[]).includes(this.chip)) return;
         this.chip = this.board.create("text", [
-            () => this.board.getBoundingBox()[0] + 0.02 * (this.board.getBoundingBox()[2] - this.board.getBoundingBox()[0]),
-            () => this.board.getBoundingBox()[1] - 0.04 * (this.board.getBoundingBox()[1] - this.board.getBoundingBox()[3]),
+            () => this.chipCorner()[0],
+            () => this.chipCorner()[1],
             () => this.chipText(),
         ], {
             anchorX: "left", anchorY: "top", fontSize: 14, strokeColor: GraphPalette.label, highlight: false, fixed: true,
@@ -782,17 +804,144 @@ export class InversionGraph extends PointSetGraph<InversionOverlayId> {
 
     protected override workspaceEdit(): React.ReactNode {
         const view = this.view();
-        const outside = this.outsideView(view);
-        const fields = this.fields;
+        const props = {
+            view, outside: this.outsideView(view), fields: this.fields, exampleId: this.exampleId,
+            onExample: (id: InversionExampleId) => this.loadExample(id), onFocus: (focus: InversionFocus) => this.setFocus(focus),
+            onRadius: (radius: number) => { this.setRadius(radius); }, onX: (point: GridPoint) => { this.setX(point); },
+            onSourceKind: (kind: InversionSource["kind"]) => this.setSourceKind(kind), onSource: (source: InversionSource) => { this.setSource(source); },
+            onPowerCircle: (circle: CircleSpec) => { this.setPowerCircle(circle); }, onTheta: (degrees: number) => this.setTheta(degrees),
+            onAngleCircle: (which: 0 | 1, circle: CircleSpec) => { this.setAngleCircle(which, circle); }, onWhich: (which: 0 | 1) => this.setWhich(which),
+        };
         return <>
-            <InversionPanel view={view} outside={outside} fields={fields} exampleId={this.exampleId}
-                            onExample={id => this.loadExample(id)} onFocus={focus => this.setFocus(focus)}
-                            onRadius={radius => { this.setRadius(radius); }} onX={point => { this.setX(point); }}
-                            onSourceKind={kind => this.setSourceKind(kind)} onSource={source => { this.setSource(source); }}
-                            onPowerCircle={circle => { this.setPowerCircle(circle); }} onTheta={degrees => this.setTheta(degrees)}
-                            onAngleCircle={(which, circle) => { this.setAngleCircle(which, circle); }}
-                            onWhich={which => this.setWhich(which)}/>
+            <InversionControls {...props}/>
+            <div data-declared-panel=""><InversionReadouts {...props}/></div>
             {super.workspaceEdit()}
         </>;
     }
+
+    // ---- Declaration (task 08) -----------------------------------------------------------------------------------
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: "grid" | InversionOverlayId): Message {
+        switch (id) {
+            case "inversion-circle": return message("inversion_overlay_circle");
+            case "rays": return message("inversion_overlay_rays");
+            case "image": return message("inversion_overlay_image");
+            case "secant": return message("inversion_overlay_secant");
+            case "tangent": return message("inversion_overlay_tangent");
+            case "angle-tangents": return message("inversion_overlay_angle_tangents");
+            default: return super.overlayMessage(id);
+        }
+    }
+
+    /** One legend entry per overlay; the colour is the swatch's. Switches stay in Orodja: each step sets them in its scene. */
+    protected override overlaySwatch(id: "grid" | InversionOverlayId) {
+        switch (id) {
+            case "inversion-circle": return {kind: "dashed" as const, color: COLOUR.circle};
+            case "rays": return {kind: "dashed" as const, color: COLOUR.ray};
+            case "image": return {kind: "line" as const, color: COLOUR.image};
+            case "secant": return {kind: "line" as const, color: COLOUR.secant};
+            case "tangent": return {kind: "dashed" as const, color: COLOUR.tangent};
+            case "angle-tangents": return {kind: "line" as const, color: COLOUR.angle};
+            default: return undefined;
+        }
+    }
+
+    protected override pointSetNotes() { return inversionNotes(this.view(), currentLanguage()); }
+
+    /** The inversion radius (a whole number) and the secant direction, through the setters the panel's sliders call. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            [INVERSION_RADIUS_KEY]: {read: () => this.fields.radius, apply: (value: number) => { this.setRadius(Math.round(value)); }},
+            [INVERSION_THETA_KEY]: {read: () => this.fields.power.thetaDeg, apply: (value: number) => { this.setTheta(value); }},
+        };
+    }
+
+    private marksCache: {base: ViewMarks; key: string; marks: ViewMarks} | undefined;
+
+    /**
+     * The vertex and what the figure is made of: the circle of inversion, X and its image (the circle or line of the focus and its
+     * image, Q and Q-prime). An image far from C is left out: it has an edge marker, and the view is never rescaled for it.
+     */
+    private inversionMarks(): ViewMarks {
+        const base = this.pointSetViewMarks();
+        const view = this.view();
+        if (view.kind !== "scene") return base;
+        const fields = this.fields;
+        const near = (at: XY | undefined): at is XY => at !== undefined && finite(at.x, at.y) && Math.hypot(at.x - view.centre.x, at.y - view.centre.y) <= 2 * INVERSION_COORDINATE_MAX;
+        const extra: ViewMark[] = [];
+        const circle = (centre: XY, radius: number) => {
+            if (finite(centre.x, centre.y, radius) && radius > 0) extra.push({kind: "box", left: centre.x - radius, top: centre.y + radius, right: centre.x + radius, bottom: centre.y - radius});
+        };
+        const point = (at: XY | undefined) => { if (near(at)) extra.push({kind: "point", x: at.x, y: at.y}); };
+        const shape = (drawn: GeneralizedCircleShape | undefined) => {
+            if (!drawn) return;
+            if (drawn.kind === "circle") { if (near({x: drawn.centre.re, y: drawn.centre.im})) circle({x: drawn.centre.re, y: drawn.centre.im}, drawn.radius); } else point({x: drawn.point.re, y: drawn.point.im});
+        };
+        if (view.focus !== "power") circle(view.centre, fields.radius);
+        if (view.focus === "point") {
+            point(fields.x);
+            if (view.point?.kind === "image") point(view.point.board);
+        } else if (view.focus === "source") {
+            if (fields.source.kind === "circle") circle(fields.source.centre, fields.source.radius);
+            else { point(fields.source.p); point(fields.source.q); }
+            if (view.source?.kind === "image") shape(view.source.board);
+        } else if (view.focus === "power") {
+            circle(fields.power.circle.centre, fields.power.circle.radius);
+        } else {
+            circle(fields.angle.first.centre, fields.angle.first.radius);
+            circle(fields.angle.second.centre, fields.angle.second.radius);
+            if (view.angle?.kind === "angle") { point(view.angle.point); point(view.angle.imageBoard); }
+            view.angleImages?.forEach(image => { if (image.kind === "image") shape(image.board); });
+        }
+        if (extra.length === 0) return base;
+        const key = JSON.stringify(extra);
+        if (this.marksCache?.base === base && this.marksCache.key === key) return this.marksCache.marks;
+        const marks: ViewMarks = {must: [...base.must, ...extra]};
+        this.marksCache = {base, key, marks};
+        return marks;
+    }
+
+    protected override declaration(): GraphDeclaration | undefined {
+        const common = super.declaration();
+        if (!common) return undefined;
+        const view = this.view();
+        const parameters: ParameterDeclaration[] = [];
+        if (view.kind === "scene" && view.focus !== "power") {
+            parameters.push({
+                key: INVERSION_RADIUS_KEY, kind: "range", label: message("inversion_decl_radius_name"), symbol: "r", placement: "board",
+                min: 1, max: INVERSION_RADIUS_MAX, step: 1, bigStep: 1, maxDecimals: 0, morph: false,
+            });
+        }
+        if (view.kind === "scene" && view.focus === "power") {
+            parameters.push({
+                key: INVERSION_THETA_KEY, kind: "range", label: message("inversion_decl_theta_name"), symbol: "\\theta", placement: "board",
+                min: 0, max: 360, step: 1, bigStep: 10, maxDecimals: 1, unit: message("curvature_unit_degrees"),
+            });
+        }
+        const marks = this.inversionMarks();
+        return {...common, parameters, marks, followView: inversionFollowBox(marks)};
+    }
+}
+
+/**
+ * The box the view frames: the marks with a quarter of room around them (the labels and the chip are drawn inside it), at least
+ * six units across, its edges rounded out to even numbers so that dragging X glides the view only when the figure outgrows it.
+ * The default view is far wider than the figure, and the director never zooms in on marks by itself.
+ */
+function inversionFollowBox(marks: ViewMarks): ViewBox | undefined {
+    let left = Infinity, right = -Infinity, bottom = Infinity, top = -Infinity;
+    const take = (x: number, y: number) => { left = Math.min(left, x); right = Math.max(right, x); bottom = Math.min(bottom, y); top = Math.max(top, y); };
+    for (const mark of marks.must) {
+        if (mark.kind === "point") take(mark.x, mark.y);
+        else if (mark.kind === "box") { take(mark.left, mark.bottom); take(mark.right, mark.top); }
+    }
+    if (![left, right, bottom, top].every(Number.isFinite)) return undefined;
+    const half = (low: number, high: number): [number, number] => {
+        const middle = (low + high) / 2, reach = Math.max(3, ((high - low) / 2) * 1.25);
+        return [Math.floor((middle - reach) / 2) * 2, Math.ceil((middle + reach) / 2) * 2];
+    };
+    const [x0, x1] = half(left, right), [y0, y1] = half(bottom, top);
+    return [x0, y1, x1, y0];
 }

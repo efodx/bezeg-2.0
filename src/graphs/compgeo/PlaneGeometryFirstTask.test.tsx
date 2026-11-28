@@ -7,6 +7,7 @@ import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import {InscribedAngleGraph} from './InscribedAngleGraph';
 import {SimsonLineGraph} from './SimsonLineGraph';
+import {InversionGraph} from './InversionGraph';
 import BaseGraph, {BaseGraphState} from '../base/BaseGraph';
 import {allGraphFactories} from '../allGraphFactories';
 
@@ -67,12 +68,22 @@ describe('simson-line glider', () => {
     });
 });
 
+describe('inversion radius', () => {
+    test('the radius is a puck on the board strip, not a control of the Edit panel', async () => {
+        mountGraph(new InversionGraph());
+        await waitForPucks('inversion-radius');
+        expect(puckControl('inversion-radius').getAttribute('aria-label')).toMatch(/^Polmer inverzije/);
+        expect(document.querySelector('#inspector-edit [data-inversion-field="radius"]')).toBeNull();
+    });
+});
+
 /**
  * Exact point entry follows the first task (graph-control first use, batch 4): the first-task group, then the route's exact entry,
  * then the choosers and the rest. Each entry lists label prefixes in the order they must appear.
  */
 const exactEntryOrder: Record<string, Label[]> = {
-    inversion: [() => t('inversion_radius_label'), () => 'X, x', () => t('inversion_example_label'), () => t('inversion_focus_label')],
+    // The inversion radius is a board puck, so the exact point entry leads.
+    inversion: [() => 'X, x', () => t('inversion_example_label'), () => t('inversion_focus_label')],
 };
 
 /**

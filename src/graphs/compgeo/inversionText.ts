@@ -1,4 +1,4 @@
-import {t} from "../../localization";
+import {message, type Message, t} from "../../localization";
 import {formatNumber, MINUS_SIGN, NumberLanguage} from "../../analysis/format";
 import {ExactImage} from "../../compgeo/inversionModel";
 import {Rational, RationalPoint} from "../../compgeo/rational";
@@ -144,4 +144,88 @@ export function inversionTexts(view: InversionView, translate: typeof t, languag
         chip: translate("inversion_chip_angle", {value0: num(angle.before.unsigned), value1: num(angle.after.unsigned)}),
         rows,
     };
+}
+
+/** The ids of the sentences the inspector shows (the declaration's notes, in the panel's order). */
+export type InversionNoteId =
+    | "chip" | "image" | "position" | "product" | "kind" | "power" | "secant" | "tangent" | "angle-right" | "angle-before" | "angle-after" | "angle-flip";
+
+export interface InversionNote {readonly id: InversionNoteId; readonly text: Message}
+
+/**
+ * The same sentences as {@link inversionTexts} as catalog messages, for the declaration: pure data from the figure, in the panel's
+ * order, the status sentence first and a row that repeats it left out (as the panel does). An image merely outside the current view
+ * is not marked (that needs the board's view); one beyond the draw cap is, as it is a fact of the figure.
+ */
+export function inversionNotes(view: InversionView, language: NumberLanguage): readonly InversionNote[] {
+    const num = (value: number) => formatNumber(value, language, 3);
+    const capped = (text: Message, beyondCap: boolean): Message => beyondCap
+        ? message("inversion_decl_beyond", {value0: text, value1: message("inversion_beyond_cap")}) : text;
+    const note = (id: InversionNoteId, text: Message): InversionNote => ({id, text});
+    const only = (text: Message): readonly InversionNote[] => [note("chip", text)];
+    /** The status sentence, then the rows that differ from it. */
+    const withRows = (chip: Message, rows: readonly InversionNote[]): readonly InversionNote[] =>
+        [note("chip", chip), ...rows.filter(row => JSON.stringify(row.text) !== JSON.stringify(chip))];
+    if (view.kind === "no-centre") return only(message("inversion_no_centre"));
+    const invalid = () => only(message("inversion_invalid"));
+    if (view.focus === "point") {
+        const point = view.point;
+        if (!point || point.kind === "invalid") return invalid();
+        if (point.kind === "centre") return only(message("inversion_centre_no_image"));
+        const image = capped(message("inversion_point_image", {value0: pointText(point.exact)}), point.board === undefined);
+        const position = message(point.position === "inside" ? "inversion_pos_inside" : point.position === "on" ? "inversion_pos_on" : "inversion_pos_outside", {value0: "X"});
+        const radius = view.inversion.radius;
+        return withRows(image, [note("image", image), note("position", position), note("product", message("inversion_point_product", {value0: radius * radius}))]);
+    }
+    if (view.focus === "source") {
+        const source = view.source;
+        if (!source || source.kind === "invalid") return invalid();
+        const isCircle = view.sourceKind === "circle";
+        const kind = message(isCircle
+            ? (source.throughCentre ? "inversion_kind_circle_to_line" : "inversion_kind_circle_to_circle")
+            : (source.throughCentre ? "inversion_kind_line_to_self" : "inversion_kind_line_to_circle"));
+        const exact = source.exact;
+        const image = capped(exact.kind === "line"
+            ? message("inversion_image_line", {value0: lineText(exact)})
+            : message("inversion_image_circle", {value0: pointText(exact.centre), value1: exactText(exact.r2)}), source.shape === "circle" && source.board === undefined);
+        return withRows(kind, [note("kind", kind), note("image", image)]);
+    }
+    if (view.focus === "power") {
+        const power = view.power;
+        if (!power || power.kind === "invalid") return invalid();
+        const rows: InversionNote[] = [
+            note("power", message("inversion_power_value", {value0: exactText(power.power)})),
+            note("position", message(power.position === "inside" ? "inversion_power_inside" : power.position === "on" ? "inversion_power_on" : "inversion_power_outside")),
+        ];
+        const secant = power.secant;
+        if (secant.kind === "two") {
+            const rad = (power.thetaDeg * Math.PI) / 180;
+            const dx = Math.cos(rad);
+            const dy = Math.sin(rad);
+            const along = (p: {x: number; y: number}) => (p.x - view.centre.x) * dx + (p.y - view.centre.y) * dy;
+            rows.push(note("secant", message("inversion_secant_two", {value0: num(along(secant.A)), value1: num(along(secant.B)), value2: num(secant.product)})));
+        } else {
+            rows.push(note("secant", message(secant.kind === "miss" ? "inversion_secant_miss" : "inversion_secant_tangent")));
+        }
+        rows.push(note("tangent", power.tangent
+            ? message("inversion_tangent_length", {value0: num(power.tangent.length)})
+            : message("inversion_tangent_none")));
+        return withRows(message("inversion_chip_power", {value0: exactText(power.power)}), rows);
+    }
+    const angle = view.angle;
+    if (!angle || angle.kind === "invalid") return invalid();
+    if (angle.kind !== "angle") {
+        return only(message(angle.kind === "no-intersection" ? "inversion_angle_none" : angle.kind === "tangent" ? "inversion_angle_tangent"
+            : angle.kind === "coincident" ? "inversion_angle_coincident" : "inversion_angle_centre"));
+    }
+    const beyond = angle.imageBoard === undefined;
+    const right = Math.abs(angle.before.unsigned - 90) < 1e-9 && Math.abs(angle.after.unsigned - 90) < 1e-9;
+    const rows: InversionNote[] = right
+        ? [note("angle-right", capped(message("inversion_angle_right", {value0: 90}), beyond))]
+        : [
+            note("angle-before", message("inversion_angle_before", {value0: num(angle.before.unsigned), value1: num(angle.before.signed)})),
+            note("angle-after", capped(message("inversion_angle_after", {value0: num(angle.after.unsigned), value1: num(angle.after.signed)}), beyond)),
+            note("angle-flip", message("inversion_angle_flip")),
+        ];
+    return withRows(message("inversion_chip_angle", {value0: num(angle.before.unsigned), value1: num(angle.after.unsigned)}), rows);
 }
