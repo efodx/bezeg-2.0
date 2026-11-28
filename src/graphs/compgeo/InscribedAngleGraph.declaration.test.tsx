@@ -104,4 +104,3 @@ describe('inscribed angle declaration', () => {
         expect(graph.drawnObject('nothing')).toBeUndefined();
     });
 });
-
