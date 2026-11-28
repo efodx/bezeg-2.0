@@ -165,6 +165,13 @@ const phCubicAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'row arc-length', reason: 'the board text "Dolžina loka: ..", recorded as a caption, only repeated a value, so it is removed and the value is the declared row of the Odčitki card (owner, 2026-11-27)'},
 ];
 
+const AFFINE_ROW_REASON = 'the second comparison row is named by the typeset symbol B_T(t) (the recording holds its text "BT(t)", the T was a subscript); the note is the help sentence of the old tools readout, now declared';
+const affineAccepted: readonly AcceptedDifference[] = [
+    ...['0,5', '0,25', '0,75'].map((t): AcceptedDifference => ({kind: 'missing', where: `row BT(${t})#0`, reason: AFFINE_ROW_REASON})),
+    {kind: 'extra', where: 'row affine-moved-points', reason: AFFINE_ROW_REASON},
+    {kind: 'extra', where: 'note', reason: AFFINE_ROW_REASON},
+];
+
 const PARAMETRIC_CAPTION_REASON = 'the board caption lines "Hitrost r′ = (x, y), velikost s", "Hitrost je 0 (ost): ...", "Polmer ρ = ..", "Dolžina loka: ..", "Ploščina: .." were board text (the recording holds them as captions); the lines only repeated the values, so they are removed and the values are the declared rows and the note of the Odčitki card (owner, 2026-11-27)';
 const parametricAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'row velocity', reason: PARAMETRIC_CAPTION_REASON},
@@ -1110,6 +1117,46 @@ const SAMPLES: readonly Sample[] = [
             {name: 'w1 raised, arc length shown', apply: run(g => { g.setState({showArcLength: true}); g.getFirstCurveAsPHBezierCurve().w[1].setY(g.getFirstCurveAsPHBezierCurve().w[1].Y() + 1); })},
             {name: 'offset at d = 1, w1 lowered', apply: run(g => { g.getFirstJxgCurveAsPHCurve().setShowOffsetCurve(true); g.getFirstJxgCurveAsPHCurve().setOffsetCurveDistance(1); g.getFirstCurveAsPHBezierCurve().w[1].setY(g.getFirstCurveAsPHBezierCurve().w[1].Y() - 2); })},
             {name: 'offset at d = -1.5, w0 moved', apply: run(g => { g.getFirstJxgCurveAsPHCurve().setOffsetCurveDistance(-1.5); g.getFirstCurveAsPHBezierCurve().w[0].setX(-1); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/bezier/__parity__/affine.json', demonstration: 'affine', accepted: affineAccepted, states: (() => {
+        const act = (...actions: unknown[]): ParityState['apply'] => graph => {
+            for (const action of actions) (graph as unknown as {applyLessonAction(action: unknown): void}).applyLessonAction(action);
+        };
+        const at = (parameter: number) => ({kind: 'curve-evaluation', parameter});
+        const op = (operation: string, value: number) => ({kind: 'affine-transform', operation, value});
+        return [
+            {name: 'default (nothing to compare)', apply: act(at(0.5))},
+            {name: 'translated by (-2, -1), t = 0.5', apply: act(at(0.5), op('translate-x', -2), op('translate-y', -1))},
+            {name: 'quarter turn, t = 0.5', apply: act(at(0.5), op('rotate', Math.PI / 2))},
+            {name: 'scaled by 2, t = 0.25', apply: act(at(0.25), op('scale', 2))},
+            {name: 'reflected across x, t = 0.75', apply: act(at(0.75), op('reflect-x', 1))},
+            {name: 'translated, turned and scaled, t = 0.5', apply: act(at(0.5), op('translate-x', -2), op('rotate', Math.PI / 2), op('scale', 2))},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/rational/__parity__/rational.json', demonstration: 'rational', accepted: [], states: (() => {
+        type Rat = {getFirstJxgCurve(): {getCurve(): {setWeights(weights: number[]): void}; showwWeights(show: boolean): void}; boardUpdate(): void};
+        const run = (edit: (graph: Rat) => void): ParityState['apply'] => graph => { runAs('learner', () => { edit(graph as unknown as Rat); (graph as unknown as Rat).boardUpdate(); }); };
+        const weights = (values: number[]): ParityState['apply'] => run(g => g.getFirstJxgCurve().getCurve().setWeights(values));
+        return [
+            {name: 'default (weights 1, 2, 1, 1)', apply: () => undefined},
+            {name: 'weights 1, 1, 1, 1', apply: weights([1, 1, 1, 1])},
+            {name: 'weights 1, 4, 1, 1', apply: weights([1, 4, 1, 1])},
+            {name: 'weights 2, 0.5, 3, 1.25', apply: weights([2, 0.5, 3, 1.25])},
+            {name: 'weights hidden', apply: run(g => g.getFirstJxgCurve().showwWeights(false))},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/ph/__parity__/ph-quintic.json', demonstration: 'ph-quintic', accepted: phCubicAccepted, states: (() => {
+        type Ph = {getFirstCurveAsPHBezierCurve(): {w: {setY(y: number): void; setX(x: number): void; Y(): number}[]};
+            getFirstJxgCurveAsPHCurve(): {setShowOffsetCurve(show: boolean): void; setOffsetCurveDistance(d: number): void};
+            setState(patch: {showArcLength: boolean}): void; boardUpdate(): void};
+        const run = (edit: (graph: Ph) => void): ParityState['apply'] => graph => { runAs('learner', () => { edit(graph as unknown as Ph); (graph as unknown as Ph).boardUpdate(); }); };
+        return [
+            {name: 'default (arc length shown)', apply: () => undefined},
+            {name: 'arc length hidden', apply: run(g => g.setState({showArcLength: false}))},
+            {name: 'w1 raised, arc length shown', apply: run(g => { g.setState({showArcLength: true}); g.getFirstCurveAsPHBezierCurve().w[1].setY(g.getFirstCurveAsPHBezierCurve().w[1].Y() + 1); })},
+            {name: 'offset at d = 1, w1 lowered', apply: run(g => { g.getFirstJxgCurveAsPHCurve().setShowOffsetCurve(true); g.getFirstJxgCurveAsPHCurve().setOffsetCurveDistance(1); g.getFirstCurveAsPHBezierCurve().w[1].setY(g.getFirstCurveAsPHBezierCurve().w[1].Y() - 2); })},
+            {name: 'offset at d = -1.5, w2 moved', apply: run(g => { g.getFirstJxgCurveAsPHCurve().setOffsetCurveDistance(-1.5); g.getFirstCurveAsPHBezierCurve().w[2].setX(-1); })},
         ] satisfies ParityState[];
     })()},
     {file: 'curves/parametrisations/__parity__/uniform-parameterization.json', demonstration: 'uniform-parameterization', accepted: phCubicAccepted, states: (() => {

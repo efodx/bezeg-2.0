@@ -4,6 +4,9 @@ import {quinticPhPresetCollection} from "./collections";
 
 class QuinticPhBezierCurve extends BasePhBezierCurveGraph<BasePhBezierCurveGraphStates> {
 
+    /** Same PH workspace as the cubic: offset distance d puck while offsets are drawn (lesson steps `ph-quintic-offset-positive`, `-offset-sign`), arc length row. */
+    protected override declaresPhWorkspace() { return true; }
+
     defaultPreset(): CurveCollectionPresetData {
         return [["JSXPHBezierCurve", {
             "points": [[1, -1]], "hodographs": [[-3.3, 0], [0.2, -4], [2, -3.2]], "state": {

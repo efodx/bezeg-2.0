@@ -1,0 +1,49 @@
+{
+  "graph": "ph-quintic",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (arc length shown)",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 9,233"
+      ]
+    },
+    {
+      "name": "arc length hidden",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "w1 raised, arc length shown",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 7,659"
+      ]
+    },
+    {
+      "name": "offset at d = 1, w1 lowered",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 11,073"
+      ]
+    },
+    {
+      "name": "offset at d = -1.5, w2 moved",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 11,013"
+      ]
+    }
+  ]
+}

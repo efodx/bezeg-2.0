@@ -60,11 +60,14 @@ test('the reference outline appears after a transformation, vanishes after Reset
 test('the readouts follow the shown curve point and the ring sits on T(B(t))', async () => {
     const {graph} = await mounted();
     act(() => { graph.shown().showEvaluationPoint(0.75); });
-    expect(screen.queryByText(t('affine_compare_title'))).toBeNull();
+    // The two computations are declared rows of the Odčitki card (they were a section of the tools column).
+    const declaredRows = () => (graph.getDeclaration()?.readouts ?? []).flatMap(group => group.rows);
+    expect(declaredRows()).toHaveLength(0);
     press(t('rotate_left'));
     press(t('scale_up'));
-    await waitUntil(() => screen.queryByText(t('affine_compare_title')) !== null);
-    const rows = Array.from(document.querySelectorAll('[data-readout^="affine-"] dd')).map(n => n.textContent);
+    await waitUntil(() => declaredRows().length === 2);
+    expect(document.querySelector('[data-affine-compare]')).toBeNull();
+    const rows = declaredRows().map(row => (row.value as {text: string}).text);
     expect(rows).toHaveLength(2);
     expect(rows[0]).toBe(rows[1]);
     const marks = graph.marksOf()!;

@@ -1,4 +1,4 @@
-import {currentLanguage, t} from "../../../localization";
+import {currentLanguage, message, messageNumber, t} from "../../../localization";
 import React from 'react';
 import type JXG from "jsxgraph";
 
@@ -10,7 +10,7 @@ import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
 import {affinePresetCollection} from "./collections";
 import {formatNumber} from "../../../analysis/format";
-import {ReadoutHeading, ReadoutHelp, ReadoutList} from "../../base/controls/ReadoutParts";
+import type {GraphDeclaration, ReadoutRow, ViewMarks} from "../../base/declare/graphDeclaration";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {nameBox, PlacedLabels, pxFrame} from "../../legend/pointNamePlacement";
 import {controlNameBox, evaluationNameBox} from "../object/AbstractJXGPointControlledCurve";
@@ -128,7 +128,6 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
     }
 
     override getGraphCommands(): JSX.Element[] {
-        const comparison = this.comparisonReadout();
         return super.getGraphCommands().concat([
             <AffineActionGroup key="rotation" title={t("affine_rotation")}>
                 <AffineActionButton label={t("rotate_left")} detail="18°" symbol="↺" onClick={() => this.rotate(-0.10 * Math.PI)}/>
@@ -148,7 +147,6 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
                 <AffineActionButton label={t("reflect_across_y")} detail={t("affine_axis_y")} symbol="↔" onClick={() => this.flip(true, false)}/>
                 <AffineActionButton label={t("reflect_across_x")} detail={t("affine_axis_x")} symbol="↕" onClick={() => this.flip(false, true)}/>
             </AffineActionGroup>,
-            ...(comparison ? [comparison] : []),
         ]);
     }
 
@@ -382,25 +380,67 @@ export default class AffineTransformBezierCurveGraph extends BaseBezierCurveGrap
         return this.markLabels.offset(boxes[id], id === 'c' ? mean : box, fallback);
     }
 
-    /** The tools-column readout of the two computations of the shown curve point, or nothing while there is nothing to compare. */
-    private comparisonReadout(): JSX.Element | null {
+    /**
+     * The common curve declaration (legend, marks, display switches: the polygon and hull are pucks). The ten transformation buttons
+     * stay in Orodja: they are more than 4 choices and the last lesson step ("Samostojna analiza") lets the learner pick any.
+     */
+    protected override declaresCurveWorkspace(): boolean { return true; }
+
+    private marksCache: {base: ViewMarks; key: string; marks: ViewMarks} | undefined;
+
+    /** The curve's marks plus 25 samples of the dashed original curve while it is drawn (the learner compares it with the transformed one). */
+    protected override curveViewMarks(): ViewMarks {
+        const base = super.curveViewMarks();
+        const reference = this.referencePoints;
+        if (!reference || reference.length < 2 || !this.differsFromReference()) return base;
+        const key = reference.join(';');
+        if (this.marksCache && this.marksCache.base === base && this.marksCache.key === key) return this.marksCache.marks;
+        const samples = Array.from({length: 25}, (_, i) => bezierPoint(reference, i / 24) as [number, number]);
+        const marks: ViewMarks = {...base, nice: [...(base.nice ?? []), {kind: 'polyline', points: samples}]};
+        this.marksCache = {base, key, marks};
+        return marks;
+    }
+
+    /**
+     * The box around the control points and the curve samples (also the dashed original), grown by a fifth with room above for the
+     * labels. Without it the view director frames the lesson scene's box widened to the canvas aspect, and the curve shrinks to a speck.
+     */
+    private watchedBox(marks: ViewMarks): [number, number, number, number] | undefined {
+        const points = [...marks.must, ...(marks.nice ?? [])].flatMap(mark => mark.kind === 'point' ? [[mark.x, mark.y]] : mark.kind === 'polyline' ? mark.points.map(p => [p[0], p[1]]) : []);
+        if (points.length === 0) return undefined;
+        const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
+        const left = Math.min(...xs), right = Math.max(...xs), bottom = Math.min(...ys), top = Math.max(...ys);
+        const pad = Math.max(0.2 * Math.max(right - left, top - bottom), 0.5);
+        return [left - pad, top + 2 * pad, right + pad, bottom - pad];
+    }
+
+    /**
+     * The two computations of the shown curve point as rows of the Odčitki card (they were a readout in the tools column) while
+     * there is something to compare; the help sentence about the dashed original curve is a note.
+     */
+    protected override declaration(): GraphDeclaration | undefined {
+        const common = this.commonCurveDeclaration();
         const curve = this.getFirstCurve();
         const reference = this.referencePoints;
         const parameter = this.evaluationT();
-        if (!curve || !reference || parameter === undefined || !this.differsFromReference()) return null;
-        const language = currentLanguage();
-        const number = (v: number) => formatNumber(v, language, 2);
-        const pair = (p: Pt) => language === 'sl' ? `(${number(p[0])}; ${number(p[1])})` : `(${number(p[0])}, ${number(p[1])})`;
-        const mapped = mappedReferencePoint(reference, this.track, parameter);
-        const own = curve.eval(parameter);
-        const at = number(parameter);
-        return <section key="compare" className="affine-transform-group affine-compare" data-affine-compare="true">
-            <ReadoutHeading>{t("affine_compare_title")}</ReadoutHeading>
-            <ReadoutList label={t("affine_compare_title")} rows={[
-                {id: 'affine-mapped-reference', label: `T(B(${at}))`, value: pair(mapped)},
-                {id: 'affine-moved-points', label: <>B<sub>T</sub>({at})</>, value: pair([own.X(), own.Y()])},
-            ]}/>
-            <ReadoutHelp>{t("affine_compare_help")}</ReadoutHelp>
-        </section>;
+        const rows: ReadoutRow[] = [];
+        if (curve && reference && parameter !== undefined && this.differsFromReference()) {
+            const language = currentLanguage();
+            const number = (v: number) => formatNumber(v, language, 2);
+            const pair = (p: Pt) => language === 'sl' ? `(${number(p[0])}; ${number(p[1])})` : `(${number(p[0])}, ${number(p[1])})`;
+            const at = number(parameter).replace(',', '{,}');
+            const mapped = mappedReferencePoint(reference, this.track, parameter);
+            const own = curve.eval(parameter);
+            rows.push({id: 'affine-mapped-reference', name: message('affine_mapped_name', {value0: messageNumber(parameter, 2)}), value: {kind: 'formatted', text: pair(mapped)}},
+                {id: 'affine-moved-points', symbol: `B_T(${at})`, value: {kind: 'formatted', text: pair([own.X(), own.Y()])}});
+        }
+        const marks = this.curveViewMarks();
+        return {
+            ...common,
+            readouts: [{id: 'affine-compare', title: message('affine_compare_title'), rows}],
+            notes: rows.length ? [{id: 'affine-compare-help', text: message('affine_compare_help')}] : [],
+            marks,
+            followView: this.watchedBox(marks),
+        };
     }
 }

@@ -185,7 +185,7 @@ const phQuintic: GuidedLesson = {
         id: 'ph-quintic-speed-midpoint', title: text('Hitrost in dolžina loka', 'Speed and arc length'),
         calculationLatex: 'w(t)=(2-t^2)+i(2t-t^2),\\;\\;w(\\tfrac12)=\\tfrac14\\cdot2+\\tfrac12(2+i)+\\tfrac14(1+i)=\\tfrac74+\\tfrac34i,\\;\\;\\|r\'(\\tfrac12)\\|=\\tfrac{49}{16}+\\tfrac{9}{16}=\\tfrac{29}{8},\\;\\;L=\\int_0^1\\left(4-4t^3+2t^4\\right)dt',
         resultLatex: '\\text{speed}(t)=4-4t^3+2t^4,\\quad \\text{speed}(\\tfrac12)=\\tfrac{29}{8},\\quad L=4-1+\\tfrac25=\\tfrac{17}{5}=3.4',
-        check: text('Dolžina loka \\(\\tfrac{17}{5}\\) se ujema z odčitkom na grafu; primerjaj jo s hodografom in ne z vizualno dolžino odseka.', 'The arc length \\(\\tfrac{17}{5}\\) matches the readout on the graph; compare it with the hodograph, not with the visual length of a segment.'),
+        check: text('Dolžina loka \\(\\tfrac{17}{5}\\) se ujema z odčitkom v kartici Odčitki; primerjaj jo s hodografom in ne z vizualno dolžino odseka.', 'The arc length \\(\\tfrac{17}{5}\\) matches the readout in the Readouts card; compare it with the hodograph, not with the visual length of a segment.'),
     }],
     steps: [
         {
@@ -203,7 +203,7 @@ const phQuintic: GuidedLesson = {
             explanation: text('Pri \\(t=\\tfrac{1}{2}\\) se trije generatorji zmešajo z Bernsteinovimi faktorji stopnje 2; nato kvadrat norme določi hitrost.', 'At \\(t=\\tfrac{1}{2}\\) the three generators mix with degree-two Bernstein factors; the squared norm then gives speed.'),
             formulaIds: ['ph-quintic-hodograph', 'ph-quintic-speed'], frames: [frame('ph-quintic-speed-explanation', 'explanation'), frame('ph-quintic-speed-calculation', 'calculation'), frame('ph-quintic-speed-observation', 'observation')], workedExampleId: 'ph-quintic-speed-midpoint',
             observationPrompt: text('Preveri hitrost \\(\\tfrac{29}{8}\\) z izračunom srednjega hodografa in primerjaj njen potek: pri \\(t=0\\) je \\(4\\), pri \\(t=1\\) pa \\(2\\).', 'Check the speed \\(\\tfrac{29}{8}\\) by calculating the midpoint hodograph and compare its course: it is \\(4\\) at \\(t=0\\) and \\(2\\) at \\(t=1\\).'),
-            expectedObservations: [text('Hitrost \\(4-4t^3+2t^4\\) je kvadrat dolžine hodografa, ne dolžina osnovne krivulje; njen integral da dolžino loka \\(\\tfrac{17}{5}=3{,}4\\), kar kaže tudi odčitek na grafu.', 'The speed \\(4-4t^3+2t^4\\) is the squared length of the hodograph, not the length of the base curve; its integral gives the arc length \\(\\tfrac{17}{5}=3.4\\), which the readout on the graph also shows.')],
+            expectedObservations: [text('Hitrost \\(4-4t^3+2t^4\\) je kvadrat dolžine hodografa, ne dolžina osnovne krivulje; njen integral da dolžino loka \\(\\tfrac{17}{5}=3{,}4\\), kar kaže tudi odčitek v kartici Odčitki.', 'The speed \\(4-4t^3+2t^4\\) is the squared length of the hodograph, not the length of the base curve; its integral gives the arc length \\(\\tfrac{17}{5}=3.4\\), which the readout in the Readouts card also shows.')],
             scene: phQuinticScene('ph-quintic-speed-scene', [{kind: 'curve-evaluation', parameter: 0.5}], 'Označena je srednja točka osnovne krivulje, kjer je \\(w(\\tfrac12)=\\tfrac74+\\tfrac34i\\).', 'The midpoint of the base curve is marked, where \\(w(\\tfrac12)=\\tfrac74+\\tfrac34i\\).'),
         },
         {

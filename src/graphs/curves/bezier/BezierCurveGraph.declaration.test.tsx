@@ -1,7 +1,7 @@
 import {act} from '@testing-library/react';
 import {beforeAll, beforeEach, describe, expect, test, vi} from 'vitest';
 import BezierCurveGraph from './BezierCurveGraph';
-import AffineTransformsBezierCurveGraph from './AffineTransformsBezierCurveGraph';
+import RationalElevationGraph from '../rational/RationalElevationGraph';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
 import {checkDeclaration, type GraphDeclaration} from '../../base/declare/graphDeclaration';
 import {setLanguage} from '../../../localization';
@@ -64,7 +64,7 @@ describe('Bezier curve declares through BaseCurveGraph', () => {
     });
 
     test('a curve graph that has not opted in stays undeclared', () => {
-        const graph = new AffineTransformsBezierCurveGraph();
+        const graph = new RationalElevationGraph();
         mountGraph(graph);
         expect(graph.getDeclaration()).toBeUndefined();
     });

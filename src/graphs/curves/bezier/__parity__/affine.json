@@ -1,0 +1,103 @@
+{
+  "graph": "affine",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (nothing to compare)",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "translated by (-2, -1), t = 0.5",
+      "rows": [
+        {
+          "key": "T(B(0,5))#0",
+          "label": "T(B(0,5))",
+          "value": "(-1,63; -1)"
+        },
+        {
+          "key": "BT(0,5)#0",
+          "label": "BT(0,5)",
+          "value": "(-1,63; -1)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "quarter turn, t = 0.5",
+      "rows": [
+        {
+          "key": "T(B(0,5))#0",
+          "label": "T(B(0,5))",
+          "value": "(-1,75; -0,88)"
+        },
+        {
+          "key": "BT(0,5)#0",
+          "label": "BT(0,5)",
+          "value": "(-1,75; -0,88)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "scaled by 2, t = 0.25",
+      "rows": [
+        {
+          "key": "T(B(0,25))#0",
+          "label": "T(B(0,25))",
+          "value": "(-2,25; -3,41)"
+        },
+        {
+          "key": "BT(0,25)#0",
+          "label": "BT(0,25)",
+          "value": "(-2,25; -3,41)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "reflected across x, t = 0.75",
+      "rows": [
+        {
+          "key": "T(B(0,75))#0",
+          "label": "T(B(0,75))",
+          "value": "(-1,25; -3,53)"
+        },
+        {
+          "key": "BT(0,75)#0",
+          "label": "BT(0,75)",
+          "value": "(-1,25; -3,53)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "translated, turned and scaled, t = 0.5",
+      "rows": [
+        {
+          "key": "T(B(0,5))#0",
+          "label": "T(B(0,5))",
+          "value": "(-2,75; -0,75)"
+        },
+        {
+          "key": "BT(0,5)#0",
+          "label": "BT(0,5)",
+          "value": "(-2,75; -0,75)"
+        }
+      ],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}
