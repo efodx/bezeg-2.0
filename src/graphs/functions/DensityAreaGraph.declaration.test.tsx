@@ -86,8 +86,9 @@ describe('Density declares its panel, four pucks and legend', () => {
         expect(marks.nice?.length).toBe(1);
         const curve = marks.nice![0];
         expect(curve.kind).toBe('polyline');
+        if (curve.kind !== 'polyline') return;
         // the peak of N(0; 1) is 1/sqrt(2 pi) at x = 0
-        const points = (curve as {points: [number, number][]}).points;
+        const points = curve.points;
         expect(Math.max(...points.map(([, y]) => y))).toBeCloseTo(0.3989, 2);
         act(() => { graph.applyLessonAction(parameter('density-b', 300)); });
         expect(graph.getDeclaration()!.marks).toEqual(marks);
