@@ -41,7 +41,8 @@ const plan: Record<string, {first: Label; later: Label[]}> = {
     evolute: {first: () => t('evolute_trace_label'), later: [() => t('evolute_normal_label')]},
     // The line count, the curve switch and t are pucks on the board (task 08): Orodja opens with the family switch.
     envelope: {first: () => t('envelope_lines_shown'), later: [() => t('envelope_touch_shown')]},
-    kinematics: {first: () => 'action:play-pause', later: [() => t('kinematics_graph_time_label'), () => t('kinematics_graph_motion_label')]},
+    // The time and the number fields are pucks on the board (task 08): Orodja keeps the playback buttons first and then the motion list.
+    kinematics: {first: () => 'action:play-pause', later: [() => t('kinematics_graph_motion_label')]},
     descent: {first: () => 'action:play-pause', later: [() => t('descent_graph_time_label'), () => t('descent_graph_mode_label')]},
 };
 

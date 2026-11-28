@@ -4,12 +4,13 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../base/GraphHost';
 import {installBoardShims} from '../../base/realGraphTestHarness';
-import {setLanguage, t} from '../../../localization';
-import {enterNumber} from '../../../inputs/testEntry';
+import {renderMessage, setLanguage, t, type Message} from '../../../localization';
+import {runAs} from '../../base/writes/writeSource';
 import type {TransientState} from '../../base/BaseGraph';
 import type {AnimationScheduler} from '../../../learning/runtime/animation';
-import {DEFAULT_KINEMATICS_STATE, deriveKinematics, FIELD_RANGES, MOTION_IDS, parseKinematicsState, serializeKinematicsState, withMotion, type MotionChoice} from '../../../kinematics/kinematicsModel';
-import {captionLines, captionMetrics, captionPlacement, frameFor, KinematicsGraph, MAX_FRAME_MS, tagSize, TIME_STEP} from './KinematicsGraph';
+import {DEFAULT_KINEMATICS_STATE, FIELD_RANGES, MOTION_IDS, parseKinematicsState, serializeKinematicsState, withMotion, type MotionChoice, type NumericField, type ToggleField} from '../../../kinematics/kinematicsModel';
+import type {GraphDeclaration} from '../../base/declare/graphDeclaration';
+import {KinematicsGraph, type KinematicsIds, MAX_FRAME_MS, tagSize, TIME_STEP} from './KinematicsGraph';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -38,20 +39,27 @@ class ObservedGraph extends KinematicsGraph {
 
 function mountGraph(strict = false) {
     const graph = new ObservedGraph();
+    current = graph;
     const tree = <MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>;
     const view = render(strict ? <React.StrictMode>{tree}</React.StrictMode> : tree);
     return {graph, view};
 }
 
-const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const labelOf = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
-const enter = (label: string, value: string) => act(() => { enterNumber(field(t('number_field_label', {value0: label})), value); });
-const choose = (motion: MotionChoice) => act(() => { fireEvent.change(field(t('kinematics_graph_motion_label')), {target: {value: motion}}); });
-const slider = () => screen.getByRole('slider', {name: t('kinematics_graph_time_label')}) as HTMLInputElement;
-const rangeSlider = (key: 'kinematics_graph_v0_label' | 'kinematics_graph_alpha_label' | 'kinematics_graph_radius_label' | 'kinematics_graph_omega_label' | 'kinematics_graph_b_label') =>
-    screen.getByRole('slider', {name: t(key)}) as HTMLInputElement;
+const learner = <T,>(work: () => T): T => { let result!: T; act(() => { result = runAs('learner', work); }); return result; };
+/** The graph mounted last: the motion list, the switches in Orodja and the typed fields are driven as the learner's edits of it. */
+let current!: ObservedGraph;
+const choose = (motion: MotionChoice) => learner(() => current.editMotion(motion));
+const flip = (field: ToggleField) => learner(() => current.editToggle(field, !current.state[field]));
+const FIELD_LABELS: Record<NumericField, 'kinematics_graph_v0_label' | 'kinematics_graph_alpha_label' | 'kinematics_graph_radius_label' | 'kinematics_graph_omega_label' | 'kinematics_graph_b_label'> = {
+    v0: 'kinematics_graph_v0_label', alpha: 'kinematics_graph_alpha_label', radius: 'kinematics_graph_radius_label', omega: 'kinematics_graph_omega_label', b: 'kinematics_graph_b_label'};
+/** A typed entry (comma or point) of the numeric field of the label, as the arbiter gets it; false when refused. */
+const enter = (label: string, value: string): boolean => {
+    const name = (Object.keys(FIELD_LABELS) as NumericField[]).find(candidate => t(FIELD_LABELS[candidate]) === label)!;
+    return learner(() => current.editNumber(name, Number(value.replace(',', '.'))));
+};
 const status = () => document.querySelector('[data-kinematics-status]')!.textContent!;
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
@@ -66,10 +74,20 @@ const [V, A, AT, AN] = [0, 1, 2, 3];
 /** Sets the time as the slider does, inside the act that lets React show it. */
 function go(graph: ObservedGraph, time: number): boolean {
     let accepted = false;
-    act(() => { accepted = graph.setTime(time); });
+    learner(() => { accepted = graph.setTime(time); });
     return accepted;
 }
-const captionTexts = (graph: ObservedGraph) => ofType(graph, 'text').filter(o => o.plaintext !== '0,0' && visible(o)).map(o => o.plaintext ?? '');
+/** The texts that stay on the board: the arrow tags. What the captions said is in the declared rows, notes and legend. */
+const boardTexts = (graph: ObservedGraph) => ofType(graph, 'text').filter(o => o.plaintext !== '0,0' && visible(o)).map(o => o.plaintext ?? '');
+const declared = (graph: ObservedGraph) => graph.getDeclaration() as GraphDeclaration<KinematicsIds>;
+const legendTexts = (graph: ObservedGraph) => (declared(graph).legend ?? []).map(entry => renderMessage(entry.label));
+const noteTexts = (graph: ObservedGraph) => (declared(graph).notes ?? []).map(note => renderMessage(note.text));
+/** A row as the panel words it: a message as it renders, a number with its unit (decimal comma in Slovenian). */
+const rowTexts = (graph: ObservedGraph) => Object.fromEntries(declared(graph).readouts![0].rows.map(row => {
+    const value = row.value as {key?: string; value?: number};
+    const text = value.key !== undefined ? renderMessage(row.value as Message) : `${String(value.value).replace('.', ',')}${row.unit ? ` ${renderMessage(row.unit)}` : ''}`;
+    return [row.id as string, text];
+}));
 
 /** Runs frames of 100 ms until the clock has nothing pending (at most `limit`). */
 function run(graph: ObservedGraph, limit = 400) {
@@ -88,7 +106,8 @@ describe('mount and the drawing', () => {
         expect(visible(arrows(graph)[V])).toBe(false);
         expect(visible(arrows(graph)[A])).toBe(true);
         expect(status()).toContain(t('kinematics_graph_status_cusp'));
-        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_cusp'));
+        expect(noteTexts(graph)).toContain(t('kinematics_graph_status_cusp'));
+        expect(legendTexts(graph)).not.toContain(t('kinematics_legend_velocity'));
         expect(readout('a-t')).toBe(t('kinematics_graph_not_defined'));
         expect(labelOf('a-t')).toBe(t('kinematics_graph_r_at'));
         noBadText();
@@ -99,7 +118,8 @@ describe('mount and the drawing', () => {
         expect(go(graph, 1)).toBe(true);
         expect(visible(arrows(graph)[V])).toBe(true);
         expect(status()).not.toContain(t('kinematics_graph_status_cusp'));
-        expect(captionTexts(graph)).not.toContain(t('kinematics_graph_cap_cusp'));
+        expect(noteTexts(graph)).not.toContain(t('kinematics_graph_status_cusp'));
+        expect(legendTexts(graph)).toContain(t('kinematics_legend_velocity'));
         expect(readout('a-t')).not.toBe(t('kinematics_graph_not_defined'));
         noBadText();
     });
@@ -126,16 +146,16 @@ describe('mount and the drawing', () => {
         expect(readout('flight')).toContain('s');
         expect(readout('range')).toContain('m');
         expect(readout('height')).toContain('m');
-        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_gravity', {value0: '9,81'}));
+        expect(rowTexts(graph).gravity).toBe('9,81 m/s²');
     });
 
     test('the circular motion with a varying speed draws the reference point and names it; at b = 0 it does not', () => {
         const {graph} = mountGraph();
         choose('circular');
-        expect(captionTexts(graph)).not.toContain(t('kinematics_graph_cap_reference'));
+        expect(legendTexts(graph)).not.toContain(t('kinematics_legend_reference'));
         enter(t('kinematics_graph_b_label'), '0,5');
         expect(graph.state.b).toBe(0.5);
-        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_reference'));
+        expect(legendTexts(graph)).toContain(t('kinematics_legend_reference'));
         expect(readout('period')).toBeDefined();
     });
 
@@ -143,11 +163,11 @@ describe('mount and the drawing', () => {
         const {graph} = mountGraph();
         go(graph, 1);
         expect(visible(arrows(graph)[AT])).toBe(false);
-        act(() => { fireEvent.click(field(t('kinematics_graph_split'))); });
+        flip('split');
         expect(graph.state.split).toBe(true);
         expect(visible(arrows(graph)[AT])).toBe(true);
         expect(visible(arrows(graph)[AN])).toBe(true);
-        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_components'));
+        expect(legendTexts(graph)).toEqual(expect.arrayContaining([t('kinematics_legend_tangential'), t('kinematics_legend_normal')]));
     });
 
     test('the arrow names are typeset as math at the compact named-label size, in both languages', () => {
@@ -155,8 +175,8 @@ describe('mount and the drawing', () => {
             setLanguage(language);
             const {graph, view} = mountGraph();
             go(graph, 1);
-            act(() => { fireEvent.click(field(t('kinematics_graph_split'))); });
-            expect(captionTexts(graph)).toEqual(expect.arrayContaining(['$$v$$', '$$a$$', '$$a_{t}$$', '$$a_{n}$$']));
+            flip('split');
+            expect(boardTexts(graph)).toEqual(expect.arrayContaining(['$$v$$', '$$a$$', '$$a_{t}$$', '$$a_{n}$$']));
             const names = ofType(graph, 'text').filter(o => (o.plaintext ?? '').startsWith('$$'));
             expect(names).toHaveLength(4);
             for (const name of names) expect(name.evalVisProp('fontsize')).toBeCloseTo(0.75 * graph.displaySettings.fontSize, 5);
@@ -166,12 +186,11 @@ describe('mount and the drawing', () => {
 });
 
 describe('the arrow scales are stated on the board and in the readout', () => {
-    test('both scale captions say how long an arrow is and what it stands for, with the decimal comma in Slovenian and a point in English', () => {
+    test('both scale rows say how long an arrow is and what it stands for, with the decimal comma in Slovenian and a point in English', () => {
         const {graph} = mountGraph();
         go(graph, 1);
-        const texts = captionTexts(graph);
-        const velocity = texts.find(text => text.startsWith('v (polna'))!;
-        const acceleration = texts.find(text => text.startsWith('a (črtkano'))!;
+        const velocity = rowTexts(graph)['scale-velocity'];
+        const acceleration = rowTexts(graph)['scale-acceleration'];
         expect(velocity).toMatch(/m na grafu pomeni .* m\/s$/);
         expect(acceleration).toMatch(/m na grafu pomeni .* m\/s²$/);
         const scales = graph.derived().scales;
@@ -179,12 +198,11 @@ describe('the arrow scales are stated on the board and in the readout', () => {
         expect(readout('scale-velocity')).toContain(String(scales.velocity.step).replace('.', ','));
         expect(labelOf('scale-acceleration')).toBe(t('kinematics_graph_r_scale_acceleration'));
         act(() => setLanguage('en'));
-        const english = captionTexts(graph);
-        expect(english.find(text => text.startsWith('v (solid'))).toMatch(/an arrow of [\d.]+ m on the board stands for [\d.]+ m\/s$/);
-        expect(english.join(' ')).not.toMatch(/\d,\d/);
+        expect(rowTexts(graph)['scale-velocity']).toMatch(/an arrow of [\d.]+ m on the board stands for [\d.]+ m\/s$/);
+        expect(Object.values(rowTexts(graph)).filter(text => /scale|arrow of/.test(text)).join(' ')).not.toMatch(/\d,\d/);
     });
 
-    test('a scale step with a decimal is written with a comma in Slovenian (board caption and readout) and a point in English', () => {
+    test('a scale step with a decimal is written with a comma in Slovenian (declared row and readout) and a point in English', () => {
         const {graph} = mountGraph();
         const decimals: string[] = [];
         choose('circular');
@@ -193,17 +211,16 @@ describe('the arrow scales are stated on the board and in the readout', () => {
         for (const motion of ['circular'] as const) {
             go(graph, 1);
             const scales = graph.derived().scales;
-            for (const [kind, prefix] of [['velocity', 'v (polna'], ['acceleration', 'a (črtkano']] as const) {
+            for (const kind of ['velocity', 'acceleration'] as const) {
                 const step = scales[kind].step;
                 if (Number.isInteger(step)) continue;
                 decimals.push(`${motion}:${kind}:${step}`);
                 const comma = String(step).replace('.', ',');
-                const caption = captionTexts(graph).find(text => text.startsWith(prefix))!;
-                expect(caption).toContain(` ${comma} `);
-                expect(caption).not.toContain(` ${step} `);
+                expect(rowTexts(graph)[`scale-${kind}`]).toContain(` ${comma} `);
+                expect(rowTexts(graph)[`scale-${kind}`]).not.toContain(` ${step} `);
                 expect(readout(`scale-${kind}`)).toContain(comma);
                 act(() => setLanguage('en'));
-                expect(captionTexts(graph).find(text => text.startsWith(prefix === 'v (polna' ? 'v (solid' : 'a (dashed'))).toContain(` ${step} `);
+                expect(rowTexts(graph)[`scale-${kind}`]).toContain(` ${step} `);
                 act(() => setLanguage('sl'));
             }
         }
@@ -269,7 +286,7 @@ describe('playback', () => {
         expect(graph.playing).toBe(false);
         expect(graph.clock.requests).toBe(0);
         expect(document.body.textContent).toContain(t('playback_block_reduced_motion_time'));
-        act(() => { fireEvent.change(slider(), {target: {value: '1.5'}}); });
+        go(graph, 1.5);
         expect(graph.time).toBe(1.5);
     });
 
@@ -288,7 +305,7 @@ describe('playback', () => {
     test('every edit pauses the playback first', () => {
         const {graph} = mountGraph();
         press(t('play'));
-        act(() => { fireEvent.click(field(t('kinematics_graph_trace'))); });
+        flip('trace');
         expect(graph.playing).toBe(false);
         expect(graph.clock.pending()).toBe(false);
         press(t('play'));
@@ -323,7 +340,7 @@ describe('rebuild and disposal', () => {
         expect(graph.liveBoard().objectsList.length).toBe(total - owned);
         expect(graph.clock.pending()).toBe(false);
         expect(graph.playing).toBe(false);
-        act(() => { fireEvent.click(field(t('kinematics_graph_trace'))); });
+        flip('trace');
         expect(graph.ownedObjectCount()).toBe(owned);
         expect(graph.liveBoard().objectsList.length).toBe(total);
     });
@@ -333,14 +350,14 @@ describe('rebuild and disposal', () => {
         // The axis ticks add and drop their own labels with the zoom; the graph's objects and every other kind stay.
         const count = () => probes(graph).filter(o => o.elType !== 'label').length;
         const total = count();
-        for (const motion of MOTION_IDS) { choose(motion); expect(count(), motion).toBe(total); expect(graph.ownedObjectCount(), motion).toBe(34); }
+        for (const motion of MOTION_IDS) { choose(motion); expect(count(), motion).toBe(total); expect(graph.ownedObjectCount(), motion).toBe(21); }
     });
 
     test('the path is resampled for another motion only; switches and the time reuse the derived data', () => {
         const {graph} = mountGraph();
         const before = graph.derived();
         const count = graph.derivationCount();
-        act(() => { fireEvent.click(field(t('kinematics_graph_split'))); });
+        flip('split');
         go(graph, 1);
         go(graph, 2);
         expect(graph.derived()).toBe(before);
@@ -354,54 +371,65 @@ describe('typed input and the time', () => {
     test('a typed number outside the range is refused (never clamped) with the range stated; an off-grid one is rounded to the grid', () => {
         const {graph} = mountGraph();
         choose('projectile');
-        enter(t('kinematics_graph_v0_label'), '40');
+        const write = (key: string, value: number) => { let result!: ReturnType<NonNullable<typeof graph.parameters>['write']>; learner(() => { result = graph.parameters!.write(key, value, 'learner'); }); return result; };
+        const refused = write('kinematics-v0', 40);
+        expect(refused.status).toBe('refused-domain');
+        expect(refused.status === 'refused-domain' && refused.error.message).toBe(t('kinematics_value_refused', {value0: '5', value1: '30'}));
         expect(graph.state.v0).toBe(20);
-        expect(document.body.textContent).toContain('med 5 in 30');
         enter(t('kinematics_graph_v0_label'), '12,4');
         expect(graph.state.v0).toBe(12);
         enter(t('kinematics_graph_alpha_label'), '50');
         expect(graph.state.alpha).toBe(50);
-        enter(t('kinematics_graph_alpha_label'), '90');
+        expect(write('kinematics-alpha', 90).status).toBe('refused-domain');
         expect(graph.state.alpha).toBe(50);
         expect(graph.editNumber('v0', 4)).toBe(false);
         expect(graph.state.v0).toBe(12);
     });
 
-    test('every numeric field and switch is described by help that states its range, and the slider by its range', () => {
-        mountGraph();
+    test('every numeric puck carries its range, unit and symbol; b carries its meaning as help; the switches and the motion list in Orodja are described', () => {
+        const {graph} = mountGraph();
         const describedText = (element: HTMLElement) => (element.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean)
             .map(id => document.getElementById(id)?.textContent ?? '').join(' ');
+        const parameter = (key: string) => declared(graph).parameters!.find(candidate => candidate.key === key) as {min: number; max: number; step: number; symbol?: string; unit?: Message; help?: Message};
         choose('projectile');
         const ranges = FIELD_RANGES;
-        // The range is the slider's own bounds; only the meaning of b is help text.
-        // The bounds are the range input's own `min` and `max` (shown at the ends of the track, control-choice S2).
-        const bounds = (key: Parameters<typeof rangeSlider>[0]) => { const input = rangeSlider(key) as HTMLInputElement; return [input.min, input.max]; };
-        expect(bounds('kinematics_graph_v0_label')).toEqual([`${ranges.v0.min}`, `${ranges.v0.max}`]);
-        expect(bounds('kinematics_graph_alpha_label')[1]).toBe(`${ranges.alpha.max}`);
-        choose('circular');
-        expect(bounds('kinematics_graph_radius_label')).toContain('0.5');
-        expect(bounds('kinematics_graph_omega_label')).toContain('0.5');
-        expect(bounds('kinematics_graph_b_label')).toContain('0.9');
-        expect(describedText(rangeSlider('kinematics_graph_b_label'))).toContain(t('kinematics_graph_b_help'));
-        for (const key of ['kinematics_graph_show_velocity', 'kinematics_graph_show_acceleration', 'kinematics_graph_split', 'kinematics_graph_trace'] as const) {
-            expect(describedText(field(t(key))).length, key).toBeGreaterThan(10);
+        for (const field of ['v0', 'alpha'] as const) {
+            expect(parameter(`kinematics-${field}`), field).toMatchObject({min: ranges[field].min, max: ranges[field].max, step: ranges[field].step});
+            expect(parameter(`kinematics-${field}`).unit, field).toBeDefined();
         }
-        expect(describedText(field(t('kinematics_graph_motion_label'))).length).toBeGreaterThan(10);
-        expect(describedText(slider())).toBe(''); // the time slider shows its own bounds; no help restates them (S5)
+        choose('circular');
+        for (const field of ['radius', 'omega', 'b'] as const) {
+            expect(parameter(`kinematics-${field}`), field).toMatchObject({min: ranges[field].min, max: ranges[field].max, step: ranges[field].step});
+        }
+        expect(parameter('kinematics-b').min).toBe(0);
+        expect(parameter('kinematics-b').max).toBe(0.9);
+        expect(renderMessage(parameter('kinematics-b').help!)).toBe(t('kinematics_graph_b_help'));
+        for (const key of ['kinematics_graph_show_velocity', 'kinematics_graph_show_acceleration', 'kinematics_graph_split', 'kinematics_graph_trace'] as const) {
+            expect(describedText(screen.getByLabelText(t(key)) as HTMLElement).length, key).toBeGreaterThan(10);
+        }
+        expect(describedText(screen.getByLabelText(t('kinematics_graph_motion_label')) as HTMLElement).length).toBeGreaterThan(10);
+        expect(parameter('kinematics-time').help).toBeUndefined(); // the time puck shows its own bounds; no help restates them (S5)
     });
 
-    test('the time slider reaches the end, refuses beyond it, has a grid, and gives a spoken value with its unit', () => {
+    test('the time puck reaches the end, refuses beyond it, has a grid, and gives its value with the unit s', () => {
         const {graph} = mountGraph();
         const end = graph.derived().tEnd;
-        expect(slider().min).toBe('0');
-        expect(Number(slider().max)).toBeCloseTo(end, 6);
-        expect(slider().step).toBe(String(TIME_STEP));
+        const time = declared(graph).parameters![0] as {key: string; min: number; max: number; step: number; unit: Message};
+        expect(time.key).toBe('kinematics-time');
+        expect(time.min).toBe(0);
+        expect(time.max).toBeCloseTo(end, 6);
+        expect(time.step).toBe(TIME_STEP);
+        expect(renderMessage(time.unit)).toBe('s');
         expect(go(graph, end)).toBe(true);
         expect(go(graph, end + 0.1)).toBe(false);
         expect(go(graph, -0.01)).toBe(false);
         expect(go(graph, Number.NaN)).toBe(false);
         expect(graph.time).toBe(end);
-        expect(slider().getAttribute('aria-valuetext')).toContain(' s');
+        expect(readout('time')).toContain(' s');
+        let result!: {status: string; error?: {message: string}};
+        learner(() => { result = graph.parameters!.write('kinematics-time', end + 0.1, 'learner') as typeof result; });
+        expect(result.status).toBe('refused-domain');
+        expect(result.error?.message).toBe(t('kinematics_graph_time_rejected', {value0: String(end.toFixed(2)).replace('.', ',')}));
     });
 
     test('changing the motion resets the time and says so; a parameter that shortens the motion shortens the time and says so', () => {
@@ -448,7 +476,7 @@ describe('language', () => {
         act(() => setLanguage('en'));
         expect(document.querySelector(`[aria-label="${t('kinematics_graph_board_label')}"]`)).not.toBeNull();
         expect(screen.getByLabelText(t('kinematics_graph_motion_label'))).toBeTruthy();
-        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_point'));
+        expect(legendTexts(graph)).toContain(t('kinematics_legend_point'));
         expect(status()).toMatch(/^Time 1 s\./);
         expect(readout('time')).toBe('1 s');
         noBadText();
@@ -485,14 +513,14 @@ describe('review repairs', () => {
         const {graph} = mountGraph();
         press(t('play'));
         expect(graph.playing).toBe(true);
-        act(() => { graph.setState({trace: false}); });
+        learner(() => { graph.setState({trace: false}); });
         expect(graph.playing).toBe(false);
         expect(graph.clock.pending()).toBe(false);
         press(t('play'));
-        act(() => { graph.setState({showAcceleration: false}); });
+        learner(() => { graph.setState({showAcceleration: false}); });
         expect(graph.playing).toBe(false);
         press(t('play'));
-        act(() => { graph.setState({trace: false}); });
+        learner(() => { graph.setState({trace: false}); });
         expect(graph.playing).toBe(true);
     });
 
@@ -505,7 +533,7 @@ describe('review repairs', () => {
         expect(graph.time).toBe(0);
         press(t('play'));
         expect(graph.playing).toBe(true);
-        act(() => graph.restore(saved));
+        learner(() => graph.restore(saved));
         expect(graph.time).toBe(2);
         expect(graph.playing).toBe(false);
         expect(graph.clock.pending()).toBe(false);
@@ -516,7 +544,7 @@ describe('review repairs', () => {
         (_name, bad) => {
             const {graph} = mountGraph();
             go(graph, 1);
-            act(() => graph.restore({kinematicsTime: bad} as unknown as TransientState));
+            learner(() => graph.restore({kinematicsTime: bad} as unknown as TransientState));
             expect(graph.time).toBe(0);
             expect(graph.playing).toBe(false);
             expect(graph.statusText()).toContain(t('kinematics_graph_notice_time_refused'));
@@ -525,7 +553,7 @@ describe('review repairs', () => {
     test('a checkpoint without a time lands at 0 without a notice', () => {
         const {graph} = mountGraph();
         go(graph, 1);
-        act(() => graph.restore(undefined));
+        learner(() => graph.restore(undefined));
         expect(graph.time).toBe(0);
         expect(graph.statusText()).not.toContain(t('kinematics_graph_notice_time_refused'));
     });
@@ -539,56 +567,60 @@ describe('review repairs', () => {
         if (!parsed.ok) return;
         const stored = parsed.value;
         choose('rose');
-        act(() => { graph.setState(stored); });
+        learner(() => { graph.setState(stored); });
         expect(graph.state).toMatchObject(stored);
         const bad = parseKinematicsState({...stored, radius: 99});
         expect(bad.ok).toBe(false);
         if (!bad.ok) expect(bad.error.message).toMatch(/radius.*outside/);
     });
 
-    test('near the cusp the velocity arrow is hidden as too short and the cusp caption and status appear with it', () => {
+    test('near the cusp the velocity arrow is hidden as too short and the cusp note, the status and the missing legend entry appear with it', () => {
         const {graph} = mountGraph();
         go(graph, 0.001);
         expect(graph.evaluation().kind).toBe('regular');
         expect(visible(arrows(graph)[V])).toBe(false);
-        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_cusp'));
+        expect(noteTexts(graph)).toContain(t('kinematics_graph_status_cusp'));
+        expect(legendTexts(graph)).not.toContain(t('kinematics_legend_velocity'));
+        expect(readout('velocity')).toBeDefined();
         expect(status()).toContain(t('kinematics_graph_status_cusp'));
         go(graph, 1);
-        expect(captionTexts(graph)).not.toContain(t('kinematics_graph_cap_cusp'));
-        act(() => { graph.setState({showVelocity: false}); });
+        expect(noteTexts(graph)).not.toContain(t('kinematics_graph_status_cusp'));
+        expect(legendTexts(graph)).toContain(t('kinematics_legend_velocity'));
+        learner(() => graph.editToggle('showVelocity', false));
         go(graph, 0.001);
-        expect(captionTexts(graph)).not.toContain(t('kinematics_graph_cap_cusp'));
+        expect(legendTexts(graph)).not.toContain(t('kinematics_legend_velocity'));
     });
 
-    test('the acceleration scale is on the board whenever an acceleration arrow shows (a, aT or aN)', () => {
+    test('the acceleration scale is a declared row whenever an acceleration arrow shows (a, aT or aN)', () => {
         const {graph} = mountGraph();
         go(graph, 1);
-        const scale = () => captionTexts(graph).some(text => text.startsWith('a (črtkano'));
+        const scale = () => 'scale-acceleration' in rowTexts(graph);
         expect(scale()).toBe(true);
-        act(() => { graph.setState({showAcceleration: false, split: true}); });
+        learner(() => { graph.setState({showAcceleration: false, split: true}); });
         expect(scale()).toBe(true);
-        act(() => { graph.setState({showAcceleration: false, split: false}); });
+        learner(() => { graph.setState({showAcceleration: false, split: false}); });
         expect(scale()).toBe(false);
     });
 
-    test('the dash styles have distinct words, and the sign of aN and kappa is stated on the board and beside the readout', () => {
+    test('the dash styles have distinct words and the three acceleration arrows are drawn with distinct dashes; the sign of aN and kappa is a declared note and stated beside the readout', () => {
         const {graph} = mountGraph();
         for (const language of ['sl', 'en'] as const) {
             act(() => setLanguage(language));
-            const accelerationWord = t('kinematics_graph_cap_scale_acceleration', {value0: '1', value1: '1', value2: 'u'}).split(':')[0];
             const long = language === 'sl' ? 'dolge črtice' : 'long dashes';
-            expect(t('kinematics_graph_cap_components')).toContain(long);
             expect(t('kinematics_graph_split_help')).toContain(long);
-            expect(accelerationWord).not.toContain(language === 'sl' ? 'dolge' : 'long');
+            expect(t('kinematics_graph_split_help')).toContain(language === 'sl' ? 'pikčasto' : 'dotted');
         }
         act(() => setLanguage('sl'));
         go(graph, 1);
-        expect(captionTexts(graph)).not.toContain(t('kinematics_graph_cap_sign'));
-        act(() => { fireEvent.click(field(t('kinematics_graph_split'))); });
-        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_sign'));
+        flip('split');
+        const dashes = [A, AT, AN].map(index => String(arrows(graph)[index].evalVisProp('dash')));
+        expect(new Set(dashes).size).toBe(3);
+        expect(legendTexts(graph)).toEqual(expect.arrayContaining([t('kinematics_legend_acceleration'), t('kinematics_legend_tangential'), t('kinematics_legend_normal')]));
+        expect(noteTexts(graph)).toContain(t('kinematics_graph_sign_hint'));
         expect(t('kinematics_graph_sign_hint')).toContain('negativno: tir zavija desno');
         expect(document.querySelector('[data-kinematics-sign]')?.textContent).toBe(t('kinematics_graph_sign_hint'));
         act(() => setLanguage('en'));
+        expect(noteTexts(graph)).toContain(t('kinematics_graph_sign_hint'));
         expect(document.querySelector('[data-kinematics-sign]')?.textContent).toContain('negative: the path turns right');
     });
 
@@ -652,7 +684,7 @@ describe('a scene replacement (families-prep F2b registration)', () => {
         const capabilities = graph.getLessonCapabilities();
         const checkpoint = capabilities.captureState();
         const shown = shownKinds(graph);
-        act(() => { graph.setState({trace: false, showVelocity: false, showAcceleration: false}); });
+        learner(() => { graph.setState({trace: false, showVelocity: false, showAcceleration: false}); });
         expect(shownKinds(graph)).not.toEqual(shown);
         // The test renderer re-evaluates `visible` on update(), JSXGraph's real one does not: the restore must call fullUpdate itself.
         const fullUpdate = vi.spyOn(graph.liveBoard(), 'fullUpdate');
@@ -669,7 +701,7 @@ describe('a scene replacement (families-prep F2b registration)', () => {
         go(graph, 0.5);
         go(graph, 0.6);
         expect(fullUpdate).not.toHaveBeenCalled();
-        act(() => { graph.setState({trace: false}); });
+        learner(() => { graph.setState({trace: false}); });
         // The trace caption leaves the stack, so the frame is reset as well: the switch may redraw more than once.
         expect(fullUpdate).toHaveBeenCalled();
     });
@@ -677,66 +709,27 @@ describe('a scene replacement (families-prep F2b registration)', () => {
     test('restoring a checkpoint keeps the stored view instead of refitting', () => {
         const {graph} = mountGraph();
         const capabilities = graph.getLessonCapabilities();
-        act(() => { graph.setState(withMotion(graph.state, 'projectile')); });
-        act(() => { graph.liveBoard().setBoundingBox([-9, 40, 90, -20], true); });
+        learner(() => { graph.setState(withMotion(graph.state, 'projectile')); });
+        learner(() => { graph.liveBoard().setBoundingBox([-9, 40, 90, -20], true); });
         const checkpoint = capabilities.captureState();
         const stored = graph.liveBoard().getBoundingBox();
-        act(() => { graph.setState(withMotion(graph.state, 'cardioid')); });
-        act(() => { capabilities.restoreState(checkpoint); });
+        learner(() => { graph.setState(withMotion(graph.state, 'cardioid')); });
+        learner(() => { capabilities.restoreState(checkpoint); });
         expect(graph.state.motion).toBe('projectile');
         expect(graph.liveBoard().getBoundingBox()).toEqual(stored);
     });
 
     test('importing a Preset without a stored view frames the scene of its motion as a switch does', () => {
         const {graph} = mountGraph();
-        act(() => { graph.setState(withMotion(graph.state, 'projectile')); });
+        learner(() => { graph.setState(withMotion(graph.state, 'projectile')); });
         const framed = graph.liveBoard().getBoundingBox();
-        act(() => { graph.setState(withMotion(graph.state, 'cycloid')); });
+        learner(() => { graph.setState(withMotion(graph.state, 'cycloid')); });
         const {boardState: _boardState, ...preset} = graph.exportPreset();
         act(() => { graph.importPreset({...preset, data: serializeKinematicsState(withMotion(graph.state, 'projectile'))}); });
         expect(graph.state.motion).toBe('projectile');
         expect(graph.liveBoard().getBoundingBox()).toEqual(framed);
     });
 });
-
-describe('opening view and caption rows (families-prep F2b fix pass)', () => {
-    /** The board of the narrowest and of the widest layout the graph is checked at, in pixels. */
-    const DESKTOP = {width: 850, height: 530};
-    const CAPTION_ROWS_PX = 10 + 5 * 20; // point, path, trace, v and a: the captions a mount shows
-
-    test.each([...MOTION_IDS])('%s: the figure fills the board on its limiting side, an arrow at its largest stays in view, and the captions have room', motion => {
-        const derived = deriveKinematics(withMotion(DEFAULT_KINEMATICS_STATE, motion));
-        const [left, top, right, bottom] = frameFor(derived);
-        const [minX, maxX, minY, maxY] = derived.box;
-        const scale = Math.min(DESKTOP.width / (right - left), DESKTOP.height / (top - bottom));
-        // An arrow of the full length `unit` at any point of the path ends inside the frame.
-        expect(minX - left).toBeGreaterThanOrEqual(derived.scales.unit);
-        expect(right - maxX).toBeGreaterThanOrEqual(derived.scales.unit);
-        expect(minY - bottom).toBeGreaterThanOrEqual(derived.scales.unit);
-        expect(top - maxY).toBeGreaterThanOrEqual(derived.scales.unit);
-        // The captions stand in the top left: the room above the path holds all five rows.
-        expect((top - maxY) * scale).toBeGreaterThanOrEqual(CAPTION_ROWS_PX);
-        // The figure takes nearly half of the limiting side of the board.
-        const fill = Math.max(((maxX - minX) * scale) / DESKTOP.width, ((maxY - minY) * scale) / DESKTOP.height);
-        expect(fill, motion).toBeGreaterThanOrEqual(0.45);
-    });
-
-    test('a caption wider than the board takes two rows: the row below it starts two row heights lower', () => {
-        const {graph} = mountGraph();
-        const board = graph.liveBoard();
-        board.canvasWidth = 340;
-        act(() => { board.update(); });
-        const texts = ofType(graph, 'text').filter(o => o.plaintext !== '0,0' && visible(o)) as unknown as Array<Probe & {Y(): number}>;
-        const scale = board.unitY;
-        const at = (prefix: string) => texts.findIndex(o => (o.plaintext ?? '').startsWith(prefix));
-        const [point, path, v, a] = [t('kinematics_graph_cap_point'), t('kinematics_graph_cap_path'), 'v (polna', 'a (črtkano'].map(at);
-        expect([point, path, v, a].every(i => i > -1)).toBe(true);
-        expect((texts[v].Y() - texts[a].Y()) * scale).toBeGreaterThanOrEqual(2 * captionMetrics(340).rowPx - 1e-6);
-        // A short caption keeps its single row.
-        expect((texts[point].Y() - texts[path].Y()) * scale).toBeCloseTo(captionMetrics(340).rowPx, 5);
-    });
-});
-
 describe('the osculating circle and the tangent and normal axes (KN5)', () => {
     /** The axes are the two dashed curves of width 1 (clipped under the captions, so not infinite lines). */
     const lines = (graph: ObservedGraph) => ofType(graph, 'curve').filter(o => o.evalVisProp('dash') === 3);
@@ -750,17 +743,17 @@ describe('the osculating circle and the tangent and normal axes (KN5)', () => {
         expect(parseKinematicsState(serializeKinematicsState({...DEFAULT_KINEMATICS_STATE, osculating: true}))).toMatchObject({ok: true, value: {osculating: true}});
     });
 
-    test('the switch draws the circle of radius 1/|kappa| on the side of the turn, with its caption', () => {
+    test('the switch draws the circle of radius 1/|kappa| on the side of the turn, with its legend entry', () => {
         const {graph} = mountGraph();
         go(graph, Math.PI);
         expect(graph.osculatingCircleNow()).toBeUndefined();
-        act(() => { fireEvent.click(field(t('kinematics_graph_osculating'))); });
+        flip('osculating');
         expect(graph.state.osculating).toBe(true);
         const circle = graph.osculatingCircleNow()!;
         expect(circle.radius).toBeCloseTo(4, 6);
         expect(circle.centre[0]).toBeCloseTo(Math.PI, 6);
         expect(circle.centre[1]).toBeCloseTo(-2, 6);
-        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_osculating'));
+        expect(legendTexts(graph)).toContain(t('kinematics_legend_osculating'));
         expect(circleCurve(graph) && visible(circleCurve(graph)!)).toBe(true);
     });
 
@@ -771,7 +764,7 @@ describe('the osculating circle and the tangent and normal axes (KN5)', () => {
         expect(centre() && visible(centre()!)).toBe(false);
         expect(radiusSegment() && visible(radiusSegment()!)).toBe(false);
         go(graph, Math.PI);
-        act(() => { fireEvent.click(field(t('kinematics_graph_osculating'))); });
+        flip('osculating');
         expect(visible(centre()!)).toBe(true);
         expect(centre()!.X()).toBeCloseTo(Math.PI, 9);
         expect(centre()!.Y()).toBeCloseTo(-2, 9);
@@ -785,13 +778,13 @@ describe('the osculating circle and the tangent and normal axes (KN5)', () => {
         expect(visible(radiusSegment()!)).toBe(false);
     });
 
-    test('the circle is not drawn at the cusp, and the caption says what is missing', () => {
+    test('the circle is not drawn at the cusp, and the status says what is missing', () => {
         const {graph} = mountGraph();
-        act(() => { fireEvent.click(field(t('kinematics_graph_osculating'))); });
+        flip('osculating');
         go(graph, 0);
         expect(graph.osculatingCircleNow()).toBeUndefined();
-        expect(captionTexts(graph)).not.toContain(t('kinematics_graph_cap_osculating'));
-        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_cusp'));
+        expect(legendTexts(graph)).not.toContain(t('kinematics_legend_osculating'));
+        expect(noteTexts(graph)).toContain(t('kinematics_graph_status_cusp'));
     });
 
     test('a nearly straight stretch (a fast flat throw) draws no huge circle, says so, and prints no bad number', () => {
@@ -800,8 +793,8 @@ describe('the osculating circle and the tangent and normal axes (KN5)', () => {
         act(() => { graph.getLessonCapabilities().apply({kind: 'kinematics', operation: 'set-params', v0: 30, alpha: 5, osculating: true}); });
         go(graph, 0.5);
         expect(graph.osculatingCircleNow()).toBeUndefined();
-        expect(captionTexts(graph)).not.toContain(t('kinematics_graph_cap_osculating'));
-        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_osculating_far'));
+        expect(legendTexts(graph)).not.toContain(t('kinematics_legend_osculating'));
+        expect(noteTexts(graph)).toContain(t('kinematics_note_osculating_far'));
         noBadText();
     });
 
@@ -810,18 +803,18 @@ describe('the osculating circle and the tangent and normal axes (KN5)', () => {
         go(graph, 1);
         expect(lines(graph)).toHaveLength(2);
         expect(lines(graph).some(visible)).toBe(false);
-        act(() => { fireEvent.click(field(t('kinematics_graph_split'))); });
+        flip('split');
         expect(lines(graph).every(visible)).toBe(true);
-        expect(captionTexts(graph)).toContain(t('kinematics_graph_cap_axes'));
+        expect(legendTexts(graph)).toContain(t('kinematics_legend_axes'));
         go(graph, 0);
         expect(lines(graph).some(visible)).toBe(false);
-        expect(captionTexts(graph)).not.toContain(t('kinematics_graph_cap_axes'));
+        expect(legendTexts(graph)).not.toContain(t('kinematics_legend_axes'));
     });
 
     test('stepping the time rebuilds nothing: the owned objects and the arrow markers stay the same', () => {
         const {graph} = mountGraph();
-        act(() => { fireEvent.click(field(t('kinematics_graph_osculating'))); });
-        act(() => { fireEvent.click(field(t('kinematics_graph_split'))); });
+        flip('osculating');
+        flip('split');
         go(graph, 1);
         const objects = graph.ownedObjectCount();
         const ids = () => probes(graph).filter(o => o.elType !== 'label').map(o => o.id).join(',');
@@ -831,88 +824,13 @@ describe('the osculating circle and the tangent and normal axes (KN5)', () => {
         expect(objects).toBeGreaterThan(0);
         expect(before).toBeGreaterThan(0);
         for (const time of [0.5, 2, Math.PI, 5, 6.2]) go(graph, time);
-        act(() => { fireEvent.click(field(t('kinematics_graph_osculating'))); });
+        flip('osculating');
         expect(graph.ownedObjectCount()).toBe(objects);
         // The very same objects (not equal replacements) draw the new time, and the arrow markers are the ones that were there.
         expect(ids()).toBe(idsBefore);
         expect(markers()).toBe(before);
     });
 });
-
-describe('the captions with every switch on keep clear of the figure and of the axes (families-prep KN5 layout fix)', () => {
-    // The shims give every element 600 x 400 px; these are the boards measured in the browser at 390 x 844 and at 1366 x 768 px.
-    const BOARDS = [{name: 'phone', width: 364, height: 473}, {name: 'desktop', width: 946, height: 507}] as const;
-    type Board = {unitX: number; unitY: number; canvasWidth: number; canvasHeight: number; getBoundingBox(): number[]};
-    type Shape = Probe & {X(): number; Y(): number; dataX?: number[]; dataY?: number[]; point2?: {X(): number; Y(): number}};
-    type Rect = {x0: number; y0: number; x1: number; y1: number; text: string};
-    const sizeOf = (width: number, height: number) => ({clientWidth: width, offsetWidth: width, clientHeight: height, offsetHeight: height});
-    const restore = () => {
-        for (const [name, size] of Object.entries(sizeOf(600, 400))) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
-        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
-    };
-    afterEach(restore);
-
-    function scene(width: number, height: number, motion: MotionChoice, time: number) {
-        for (const [name, size] of Object.entries(sizeOf(width, height))) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
-        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: width, bottom: height, width, height, toJSON: () => ({})}) as DOMRect;
-        const {graph} = mountGraph();
-        const board = graph.liveBoard() as unknown as Board;
-        expect([board.canvasWidth, board.canvasHeight]).toEqual([width, height]);
-        act(() => { graph.setState({...withMotion(DEFAULT_KINEMATICS_STATE, motion), split: true, osculating: true, trace: true, showVelocity: true, showAcceleration: true}); });
-        go(graph, time);
-        const [left, top] = board.getBoundingBox();
-        const px = (x: number, y: number): [number, number] => [(x - left) * board.unitX, (top - y) * board.unitY];
-        // The caption rows in pixels: a row is 16 px high on the phone board and 20 on the desktop one and wraps at the room beside the y axis (the browser wraps the text at that edge).
-        const placement = captionPlacement((0 - left) * board.unitX, width);
-        const type = captionMetrics(width);
-        const captions: Rect[] = (ofType(graph, 'text') as unknown as Shape[]).filter(o => o.plaintext !== '0,0' && visible(o) && o.evalVisProp('fixed') !== false
-            && Math.abs((o.X() - left) * board.unitX - placement.indent) < 1e-6).map(o => {
-            const [x0, y0] = px(o.X(), o.Y());
-            const text = o.plaintext ?? '';
-            return {x0, y0, x1: x0 + Math.min(text.length * type.charPx, placement.room), y1: y0 + captionLines(text, placement.room, type.charPx) * type.rowPx, text};
-        });
-        return {graph, board, captions, px};
-    }
-
-    const inside = (rect: Rect, [x, y]: [number, number], pad = 0) => x >= rect.x0 - pad && x <= rect.x1 + pad && y >= rect.y0 - pad && y <= rect.y1 + pad;
-    const CASES: readonly [MotionChoice, number][] = [['cycloid', Math.PI / 2], ['cycloid', 3.14], ['cycloid', 1], ['circular', 1], ['projectile', 1]];
-
-    for (const board of BOARDS) {
-        for (const [motion, time] of CASES) {
-            test(`${board.name} ${board.width} x ${board.height}, ${motion} at t = ${time}: no caption covers the path, the point, an arrow or the centre, and none covers another`, () => {
-                const {graph, captions, px} = scene(board.width, board.height, motion, time);
-                expect(captions.length).toBeGreaterThanOrEqual(8);
-                captions.slice(1).forEach((caption, index) => expect(caption.y0, caption.text).toBeGreaterThanOrEqual(captions[index].y1 - 1e-6));
-                const derived = deriveKinematics(graph.state);
-                const obstacles: [number, number][] = derived.pathX.map((x, i) => px(x, derived.pathY[i]));
-                const e = graph.evaluation();
-                obstacles.push(px(e.point[0], e.point[1]));
-                for (const arrow of arrows(graph) as unknown as Shape[]) if (visible(arrow)) obstacles.push(px(arrow.point2!.X(), arrow.point2!.Y()));
-                const circle = graph.osculatingCircleNow();
-                if (circle) obstacles.push(px(circle.centre[0], circle.centre[1]));
-                const onBoard = obstacles.filter(([x, y]) => x >= 0 && x <= board.width && y >= 0 && y <= board.height);
-                for (const caption of captions) {
-                    const hit = onBoard.find(point => inside(caption, point, 2));
-                    expect(hit, `${caption.text} covers ${hit}`).toBeUndefined();
-                }
-            });
-
-            test(`${board.name} ${board.width} x ${board.height}, ${motion} at t = ${time}: the tangent and normal axes do not run through caption text`, () => {
-                const {graph, captions, px} = scene(board.width, board.height, motion, time);
-                const axes = (ofType(graph, 'curve') as unknown as Shape[]).filter(o => o.evalVisProp('dash') === 3 && visible(o));
-                expect(axes).toHaveLength(2);
-                for (const axis of axes) {
-                    const [xs, ys] = [axis.dataX!, axis.dataY!];
-                    for (let i = 0; i + 1 < xs.length; i++) for (let k = 0; k <= 50; k++) {
-                        const p = px(xs[i] + ((xs[i + 1] - xs[i]) * k) / 50, ys[i] + ((ys[i + 1] - ys[i]) * k) / 50);
-                        for (const caption of captions) expect(inside(caption, p), caption.text).toBe(false);
-                    }
-                }
-            });
-        }
-    }
-});
-
 describe('the arrow tags keep clear of each other, of the arrowheads and of the point (families-prep kinematics arrow tags)', () => {
     const BOARDS = [{name: 'phone', width: 364, height: 473}, {name: 'desktop', width: 946, height: 507}] as const;
     type Board = {unitX: number; unitY: number; canvasWidth: number; canvasHeight: number; getBoundingBox(): number[]};
@@ -930,7 +848,7 @@ describe('the arrow tags keep clear of each other, of the arrowheads and of the 
         HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: width, bottom: height, width, height, toJSON: () => ({})}) as DOMRect;
         const {graph} = mountGraph();
         const board = graph.liveBoard() as unknown as Board;
-        act(() => { graph.setState({...withMotion(DEFAULT_KINEMATICS_STATE, motion), split: true, osculating: true, trace: true, showVelocity: true, showAcceleration: true}); });
+        learner(() => { graph.setState({...withMotion(DEFAULT_KINEMATICS_STATE, motion), split: true, osculating: true, trace: true, showVelocity: true, showAcceleration: true}); });
         go(graph, time);
         const [left, top] = board.getBoundingBox();
         const px = (x: number, y: number): [number, number] => [(x - left) * board.unitX, (top - y) * board.unitY];
@@ -1015,58 +933,4 @@ describe('the arrow tags keep clear of each other, of the arrowheads and of the 
             });
         }
     }
-});
-
-describe('the captions follow a resize of the board (families-prep kinematics resize)', () => {
-    type Board = {unitX: number; unitY: number; canvasWidth: number; canvasHeight: number; getBoundingBox(): number[]; resizeContainer(w: number, h: number, dontset?: boolean): void};
-    type Shape = Probe & {X(): number; Y(): number; point2?: {X(): number; Y(): number}};
-    const sizeOf = (width: number, height: number) => ({clientWidth: width, offsetWidth: width, clientHeight: height, offsetHeight: height});
-    afterEach(() => {
-        for (const [name, size] of Object.entries(sizeOf(600, 400))) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
-        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400, toJSON: () => ({})}) as DOMRect;
-    });
-
-    test('build at 946 x 507, resize to 364 x 473 and back: rows disjoint and clear of the figure, no object rebuilt', () => {
-        const [width, height] = [946, 507];
-        for (const [name, size] of Object.entries(sizeOf(width, height))) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
-        HTMLElement.prototype.getBoundingClientRect = () => ({x: 0, y: 0, left: 0, top: 0, right: width, bottom: height, width, height, toJSON: () => ({})}) as DOMRect;
-        const {graph} = mountGraph();
-        const board = graph.liveBoard() as unknown as Board;
-        act(() => { graph.setState({...withMotion(DEFAULT_KINEMATICS_STATE, 'cycloid'), split: true, osculating: true, trace: true, showVelocity: true, showAcceleration: true}); });
-        go(graph, 0.5);
-        const owned = graph.ownedObjectCount();
-        const check = (w: number, h: number) => {
-            expect([board.canvasWidth, board.canvasHeight]).toEqual([w, h]);
-            const [left, top] = board.getBoundingBox();
-            const px = (x: number, y: number): [number, number] => [(x - left) * board.unitX, (top - y) * board.unitY];
-            const placement = captionPlacement((0 - left) * board.unitX, w);
-            const type = captionMetrics(w);
-            const captions = (ofType(graph, 'text') as unknown as Shape[]).filter(o => o.plaintext !== '0,0' && visible(o) && o.evalVisProp('fixed') !== false
-                && Math.abs((o.X() - left) * board.unitX - placement.indent) < 1e-6).map(o => {
-                const [x0, y0] = px(o.X(), o.Y());
-                const text = o.plaintext ?? '';
-                return {x0, y0, x1: x0 + Math.min(text.length * type.charPx, placement.room), y1: y0 + captionLines(text, placement.room, type.charPx) * type.rowPx, text};
-            });
-            expect(captions.length).toBeGreaterThanOrEqual(8);
-            // The type size the rows are spaced for is the type size drawn.
-            for (const o of ofType(graph, 'text') as unknown as Shape[]) if (visible(o) && o.plaintext !== '0,0' && !(o.plaintext ?? '').startsWith('$$')) expect(o.evalVisProp('fontsize'), o.plaintext).toBe(type.fontSize);
-            expect(captions[0].y0).toBeGreaterThanOrEqual(0);
-            captions.slice(1).forEach((caption, index) => expect(caption.y0, caption.text).toBeGreaterThanOrEqual(captions[index].y1 - 1e-6));
-            const derived = deriveKinematics(graph.state);
-            const obstacles: [number, number][] = derived.pathX.map((x, i) => px(x, derived.pathY[i]));
-            obstacles.push(px(...graph.evaluation().point));
-            for (const arrow of arrows(graph) as unknown as Shape[]) if (visible(arrow)) obstacles.push(px(arrow.point2!.X(), arrow.point2!.Y()));
-            for (const [x, y] of obstacles.filter(([x, y]) => x >= 0 && x <= w && y >= 0 && y <= h)) {
-                for (const c of captions) expect(x >= c.x0 - 2 && x <= c.x1 + 2 && y >= c.y0 - 2 && y <= c.y1 + 2, `${c.text} covers ${x},${y}`).toBe(false);
-            }
-            expect(graph.ownedObjectCount()).toBe(owned);
-        };
-        check(946, 507);
-        for (const [w, h] of [[364, 473], [946, 507]] as const) {
-            // The container takes its new size (setBoundingBox reads it), then what the session's observer does.
-            for (const [name, size] of Object.entries(sizeOf(w, h))) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
-            act(() => { board.resizeContainer(w, h, true); });
-            check(w, h);
-        }
-    });
 });

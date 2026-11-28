@@ -7,10 +7,13 @@
  * the numbers are listed per step in docs/reviews/feature-streams/families-prep/notes/f3-kin-a.md.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {KinematicsIds} from '../../graphs/curves/kinematics/KinematicsGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const kinematicsFrame = frameDeclarer<KinematicsIds>();
 
 interface StepContent {
     readonly id: string;
@@ -23,14 +26,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the frames of the step declare about the graph: the controls the text names, the rows it reads, the Orodja card it needs. */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
+        frame(`${content.id}-explanation`, 'explanation', declare),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', declare),
     ],
 });
 
@@ -134,11 +139,12 @@ const kn1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn1-trace', order: 2,
+        declare: kinematicsFrame({uses: ['kinematics-time'], highlight: ['position']}),
         title: text('Pot, ki jo gradi čas', 'The path that time builds'),
         purpose: text('Videti, da čas samo vodi točko po isti poti.', 'Seeing that time only leads the point along the same path.'),
         explanation: text(
-            'Premakni drsnik časa ali pritisni Predvajaj: debela črta kaže pot od \\(t=0\\) do izbranega časa, bleda črta pa vso pot. Pri \\(t=\\pi/2\\), to je okoli \\(1{,}57\\ \\mathrm{s}\\), je točka v \\(r=(0{,}571;\\,1)\\ \\mathrm{m}\\). Pot je ista krivulja, kakor koli imenujemo parameter; ker ga imenujemo čas, se točka giblje in lahko vprašamo, kako hitro. Napovej, v katero smer kaže hitrost v tej točki, preden jo prikažemo.',
-            'Move the time slider or press Play: the thick line shows the path from \\(t=0\\) to the chosen time, and the faint line shows the whole path. At \\(t=\\pi/2\\), that is about \\(1.57\\ \\mathrm{s}\\), the point is at \\(r=(0.571;\\,1)\\ \\mathrm{m}\\). The path is the same curve whatever the parameter is called; because we call it time, the point moves and we can ask how fast. Predict in which direction the velocity points at this point before it is shown.',
+            'Premakni krmilnik Čas ali pritisni Predvajaj: debela črta kaže pot od \\(t=0\\) do izbranega časa, bleda črta pa vso pot. Pri \\(t=\\pi/2\\), to je okoli \\(1{,}57\\ \\mathrm{s}\\), je točka v \\(r=(0{,}571;\\,1)\\ \\mathrm{m}\\). Pot je ista krivulja, kakor koli imenujemo parameter; ker ga imenujemo čas, se točka giblje in lahko vprašamo, kako hitro. Napovej, v katero smer kaže hitrost v tej točki, preden jo prikažemo.',
+            'Move the Time control or press Play: the thick line shows the path from \\(t=0\\) to the chosen time, and the faint line shows the whole path. At \\(t=\\pi/2\\), that is about \\(1.57\\ \\mathrm{s}\\), the point is at \\(r=(0.571;\\,1)\\ \\mathrm{m}\\). The path is the same curve whatever the parameter is called; because we call it time, the point moves and we can ask how fast. Predict in which direction the velocity points at this point before it is shown.',
         ),
         formulaIds: [],
         observationPrompt: text('Preberi lego in čas v odčitku.', 'Read the position and the time in the readout.'),
@@ -195,6 +201,7 @@ const kn1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn1-explore', order: 6,
+        declare: kinematicsFrame({open: ['tools'], uses: ['kinematics-time']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Isti pogled uporabiti na drugih krivuljah.', 'Applying the same view to other curves.'),
         explanation: text(
@@ -285,11 +292,12 @@ const kn2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn2-speed', order: 3,
+        declare: kinematicsFrame({uses: ['kinematics-time'], highlight: ['speed']}),
         title: text('Hitrost se spreminja', 'The speed varies'),
         purpose: text('Brati hitrost polne točke ob različnih časih in jo primerjati z enakomerno.', 'Reading the speed of the solid point at different times and comparing it with the uniform one.'),
         explanation: text(
-            'Graf ne riše hitrosti v odvisnosti od časa; hitrost polne točke je \\(|v|=1+0{,}5\\cos t\\) in jo preberemo iz odčitka. Ob \\(t=0\\) je \\(v=(0;\\,1{,}5)\\ \\mathrm{m/s}\\), hitrost pa \\(1{,}5\\ \\mathrm{m/s}\\). Primerjalna točka ima ves čas hitrost \\(1\\ \\mathrm{m/s}\\) (polmer \\(1\\ \\mathrm{m}\\), kotna hitrost \\(1\\ \\mathrm{rad/s}\\)). Napovej hitrost polne točke ob \\(t=\\pi\\), nato postavi drsnik časa na \\(3{,}14\\), kar je le približno \\(\\pi\\), in preberi odčitek: pokaže približno \\(0{,}5\\ \\mathrm{m/s}\\). Poskusi tudi \\(1{,}57\\approx\\pi/2\\).',
-            'The graph does not draw the speed against time; the speed of the solid point is \\(|v|=1+0.5\\cos t\\) and is read from the readout. At \\(t=0\\) the velocity is \\(v=(0;\\,1.5)\\ \\mathrm{m/s}\\) and the speed \\(1.5\\ \\mathrm{m/s}\\). The reference point has speed \\(1\\ \\mathrm{m/s}\\) all the time (radius \\(1\\ \\mathrm{m}\\), angular velocity \\(1\\ \\mathrm{rad/s}\\)). Predict the speed of the solid point at \\(t=\\pi\\), then set the time slider to \\(3.14\\), which is only approximately \\(\\pi\\), and read the readout: it shows about \\(0.5\\ \\mathrm{m/s}\\). Also try \\(1.57\\approx\\pi/2\\).',
+            'Graf ne riše hitrosti v odvisnosti od časa; hitrost polne točke je \\(|v|=1+0{,}5\\cos t\\) in jo preberemo iz odčitka. Ob \\(t=0\\) je \\(v=(0;\\,1{,}5)\\ \\mathrm{m/s}\\), hitrost pa \\(1{,}5\\ \\mathrm{m/s}\\). Primerjalna točka ima ves čas hitrost \\(1\\ \\mathrm{m/s}\\) (polmer \\(1\\ \\mathrm{m}\\), kotna hitrost \\(1\\ \\mathrm{rad/s}\\)). Napovej hitrost polne točke ob \\(t=\\pi\\), nato nastavi krmilnik Čas na \\(3{,}14\\), kar je le približno \\(\\pi\\), in preberi odčitek: pokaže približno \\(0{,}5\\ \\mathrm{m/s}\\). Poskusi tudi \\(1{,}57\\approx\\pi/2\\).',
+            'The graph does not draw the speed against time; the speed of the solid point is \\(|v|=1+0.5\\cos t\\) and is read from the readout. At \\(t=0\\) the velocity is \\(v=(0;\\,1.5)\\ \\mathrm{m/s}\\) and the speed \\(1.5\\ \\mathrm{m/s}\\). The reference point has speed \\(1\\ \\mathrm{m/s}\\) all the time (radius \\(1\\ \\mathrm{m}\\), angular velocity \\(1\\ \\mathrm{rad/s}\\)). Predict the speed of the solid point at \\(t=\\pi\\), then set the Time control to \\(3.14\\), which is only approximately \\(\\pi\\), and read the readout: it shows about \\(0.5\\ \\mathrm{m/s}\\). Also try \\(1.57\\approx\\pi/2\\).',
         ),
         formulaIds: ['warped-circle'],
         observationPrompt: text('Preberi velikost hitrosti ob \\(0\\), \\(1{,}57\\) in \\(3{,}14\\).', 'Read the speed at \\(0\\), \\(1.57\\) and \\(3.14\\).'),
@@ -482,6 +490,7 @@ const kn3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn3-angles', order: 5,
+        declare: kinematicsFrame({uses: ['kinematics-alpha'], highlight: ['range', 'flight', 'height']}),
         title: text('Kota \\(30^\\circ\\) in \\(60^\\circ\\)', 'The angles \\(30^\\circ\\) and \\(60^\\circ\\)'),
         purpose: text('Napovedati, kako domet zavisi od izstrelnega kota.', 'Predicting how the range depends on the launch angle.'),
         explanation: text(
@@ -489,7 +498,7 @@ const kn3Steps: readonly GuidedLessonStep[] = [
             'Keep the speed \\(v_0=20\\ \\mathrm{m/s}\\) and change the launch angle (in steps of \\(5^\\circ\\)). The picture shows the throw at \\(30^\\circ\\). Predict: will the range at \\(60^\\circ\\) be larger, smaller or equal to the range at \\(30^\\circ\\), and which angle among \\(40^\\circ\\), \\(45^\\circ\\) and \\(50^\\circ\\) gives the largest range?',
         ),
         formulaIds: [],
-        observationPrompt: text('Zapiši napoved, nato nastavi \\(\\alpha=30^\\circ\\), \\(60^\\circ\\), \\(40^\\circ\\), \\(45^\\circ\\), \\(50^\\circ\\) in preberi domet, čas leta in največjo višino.', 'Write down your prediction, then set \\(\\alpha=30^\\circ\\), \\(60^\\circ\\), \\(40^\\circ\\), \\(45^\\circ\\), \\(50^\\circ\\) and read the range, the flight time and the maximum height.'),
+        observationPrompt: text('Zapiši napoved, nato s krmilnikom Izstrelni kot nastavi \\(\\alpha=30^\\circ\\), \\(60^\\circ\\), \\(40^\\circ\\), \\(45^\\circ\\), \\(50^\\circ\\) in preberi domet, čas leta in največjo višino.', 'Write down your prediction, then use the Launch angle control to set \\(\\alpha=30^\\circ\\), \\(60^\\circ\\), \\(40^\\circ\\), \\(45^\\circ\\), \\(50^\\circ\\) and read the range, the flight time and the maximum height.'),
         expectedObservations: [text(
             'Pri \\(30^\\circ\\) in pri \\(60^\\circ\\) je domet enak, \\(\\approx35{,}312\\ \\mathrm{m}\\); višini sta različni, \\(\\approx5{,}097\\ \\mathrm{m}\\) in \\(\\approx15{,}291\\ \\mathrm{m}\\), prav tako časa leta, \\(\\approx2{,}039\\ \\mathrm{s}\\) in \\(\\approx3{,}531\\ \\mathrm{s}\\). Pri \\(40^\\circ\\) in \\(50^\\circ\\) je domet enak, \\(\\approx40{,}155\\ \\mathrm{m}\\), pri \\(45^\\circ\\) pa največji med njimi, \\(\\approx40{,}775\\ \\mathrm{m}\\). V teh primerih se kota, ki se seštejeta v \\(90^\\circ\\), ujemata v dometu.',
             'At \\(30^\\circ\\) and at \\(60^\\circ\\) the range is the same, \\(\\approx35.312\\ \\mathrm{m}\\); the heights differ, \\(\\approx5.097\\ \\mathrm{m}\\) and \\(\\approx15.291\\ \\mathrm{m}\\), and so do the flight times, \\(\\approx2.039\\ \\mathrm{s}\\) and \\(\\approx3.531\\ \\mathrm{s}\\). At \\(40^\\circ\\) and \\(50^\\circ\\) the range is the same, \\(\\approx40.155\\ \\mathrm{m}\\), and at \\(45^\\circ\\) it is the largest of them, \\(\\approx40.775\\ \\mathrm{m}\\). In these cases the angles that add up to \\(90^\\circ\\) agree in the range.',
@@ -500,11 +509,12 @@ const kn3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn3-explore', order: 6,
+        declare: kinematicsFrame({uses: ['kinematics-v0', 'kinematics-alpha'], highlight: ['range']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Z lastnima \\(v_0\\) in \\(\\alpha\\) napovedati domet po formuli in ga preveriti.', 'Predicting the range for your own \\(v_0\\) and \\(\\alpha\\) with the formula and checking it.'),
         explanation: text(
-            'Formula spodaj povezuje \\(v_0\\), \\(\\alpha\\) in \\(g\\) s časom leta, dometom in višino; primer za \\(45^\\circ\\) je izračunan. Izberi svoj \\(v_0\\) (\\(5\\) do \\(30\\ \\mathrm{m/s}\\), korak \\(1\\)) in \\(\\alpha\\) (\\(5^\\circ\\) do \\(85^\\circ\\), korak \\(5^\\circ\\)), po formuli izračunaj domet in šele nato preberi odčitek. Kako močno se parabola ukrivlja na vrhu, pokaže lekcija Ukrivljenost in krivinska krožnica.',
-            'The formula below connects \\(v_0\\), \\(\\alpha\\) and \\(g\\) with the flight time, the range and the height; the example for \\(45^\\circ\\) is worked out. Choose your own \\(v_0\\) (\\(5\\) to \\(30\\ \\mathrm{m/s}\\), step \\(1\\)) and \\(\\alpha\\) (\\(5^\\circ\\) to \\(85^\\circ\\), step \\(5^\\circ\\)), compute the range with the formula and only then read the readout. How strongly the parabola bends at the top is shown by the lesson Curvature and the osculating circle.',
+            'Formula spodaj povezuje \\(v_0\\), \\(\\alpha\\) in \\(g\\) s časom leta, dometom in višino; primer za \\(45^\\circ\\) je izračunan. S krmilnikoma Začetna hitrost in Izstrelni kot izberi svoj \\(v_0\\) (\\(5\\) do \\(30\\ \\mathrm{m/s}\\), korak \\(1\\)) in \\(\\alpha\\) (\\(5^\\circ\\) do \\(85^\\circ\\), korak \\(5^\\circ\\)), po formuli izračunaj domet in šele nato preberi odčitek. Kako močno se parabola ukrivlja na vrhu, pokaže lekcija Ukrivljenost in krivinska krožnica.',
+            'The formula below connects \\(v_0\\), \\(\\alpha\\) and \\(g\\) with the flight time, the range and the height; the example for \\(45^\\circ\\) is worked out. With the Launch speed and Launch angle controls choose your own \\(v_0\\) (\\(5\\) to \\(30\\ \\mathrm{m/s}\\), step \\(1\\)) and \\(\\alpha\\) (\\(5^\\circ\\) to \\(85^\\circ\\), step \\(5^\\circ\\)), compute the range with the formula and only then read the readout. How strongly the parabola bends at the top is shown by the lesson Curvature and the osculating circle.',
         ),
         formulaIds: ['projectile-range'],
         workedExampleId: 'kn3-range-45',
@@ -578,11 +588,12 @@ const kn4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn4-velocity', order: 2,
+        declare: kinematicsFrame({uses: ['kinematics-time']}),
         title: text('Puščica hitrosti med krogom', 'The velocity arrow during the circle'),
         purpose: text('Napovedati, kaj se z vektorjem hitrosti zgodi med krogom.', 'Predicting what happens to the velocity vector during the circle.'),
         explanation: text(
-            'Hitrost \\(v\\) je vektor: ima dolžino (velikost hitrosti) in smer. Vklopljena je njena puščica. Premikaj čas ali pritisni Predvajaj. Napovej: kaj se med krogom spreminja, dolžina puščice, njena smer ali oboje?',
-            'The velocity \\(v\\) is a vector: it has a length (the speed) and a direction. Its arrow is switched on. Move the time or press Play. Predict: what changes during the circle, the length of the arrow, its direction or both?',
+            'Hitrost \\(v\\) je vektor: ima dolžino (velikost hitrosti) in smer. Vklopljena je njena puščica. Premikaj krmilnik Čas ali pritisni Predvajaj. Napovej: kaj se med krogom spreminja, dolžina puščice, njena smer ali oboje?',
+            'The velocity \\(v\\) is a vector: it has a length (the speed) and a direction. Its arrow is switched on. Move the Time control or press Play. Predict: what changes during the circle, the length of the arrow, its direction or both?',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved in preberi hitrost ob \\(t=0\\), \\(1{,}05\\) in \\(2{,}09\\ \\mathrm{s}\\) ter stanje.', 'Write down your prediction and read the velocity at \\(t=0\\), \\(1.05\\) and \\(2.09\\ \\mathrm{s}\\), and the status.'),
@@ -614,11 +625,12 @@ const kn4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn4-omega', order: 4,
+        declare: kinematicsFrame({uses: ['kinematics-omega'], highlight: ['speed', 'acceleration']}),
         title: text('Podvojimo kotno hitrost', 'Doubling the angular velocity'),
         purpose: text('Napovedati, kako se hitrost in pospešek spremenita ob dvakrat večji kotni hitrosti.', 'Predicting how the speed and the acceleration change when the angular velocity doubles.'),
         explanation: text(
-            'Polmer pustimo pri \\(R=2\\ \\mathrm{m}\\), kotno hitrost podvojimo z \\(1{,}5\\) na \\(3\\ \\mathrm{rad/s}\\) (drsnik Kotna hitrost). Napovej: kolikšni sta potem velikost hitrosti in velikost pospeška? Pri \\(\\omega=1{,}5\\) sta bili \\(3\\ \\mathrm{m/s}\\) in \\(4{,}5\\ \\mathrm{m/s^2}\\).',
-            'Keep the radius at \\(R=2\\ \\mathrm{m}\\) and double the angular velocity from \\(1.5\\) to \\(3\\ \\mathrm{rad/s}\\) (the Angular velocity slider). Predict: what are the speed and the size of the acceleration then? At \\(\\omega=1.5\\) they were \\(3\\ \\mathrm{m/s}\\) and \\(4.5\\ \\mathrm{m/s^2}\\).',
+            'Polmer pustimo pri \\(R=2\\ \\mathrm{m}\\), kotno hitrost podvojimo z \\(1{,}5\\) na \\(3\\ \\mathrm{rad/s}\\) (krmilnik Kotna hitrost). Napovej: kolikšni sta potem velikost hitrosti in velikost pospeška? Pri \\(\\omega=1{,}5\\) sta bili \\(3\\ \\mathrm{m/s}\\) in \\(4{,}5\\ \\mathrm{m/s^2}\\).',
+            'Keep the radius at \\(R=2\\ \\mathrm{m}\\) and double the angular velocity from \\(1.5\\) to \\(3\\ \\mathrm{rad/s}\\) (the Angular velocity control). Predict: what are the speed and the size of the acceleration then? At \\(\\omega=1.5\\) they were \\(3\\ \\mathrm{m/s}\\) and \\(4.5\\ \\mathrm{m/s^2}\\).',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato nastavi \\(\\omega=3\\) in preberi hitrost, pospešek in obhodni čas.', 'Write down your prediction, then set \\(\\omega=3\\) and read the speed, the acceleration and the period.'),
@@ -632,11 +644,12 @@ const kn4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn4-radius', order: 5,
+        declare: kinematicsFrame({uses: ['kinematics-radius'], highlight: ['speed', 'acceleration', 'period']}),
         title: text('Podvojimo polmer pri enaki kotni hitrosti', 'Doubling the radius at the same angular velocity'),
         purpose: text('Napovedati učinek dvakrat večjega polmera pri stalni kotni hitrosti.', 'Predicting the effect of a doubled radius at a constant angular velocity.'),
         explanation: text(
-            'Kotno hitrost vrnemo na \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\) in podvojimo polmer z \\(2\\) na \\(4\\ \\mathrm{m}\\) (drsnik Polmer). Napovej: kolikšni sta velikost hitrosti in velikost pospeška, in ali se obhodni čas spremeni?',
-            'Return the angular velocity to \\(\\omega=1.5\\ \\mathrm{rad/s}\\) and double the radius from \\(2\\) to \\(4\\ \\mathrm{m}\\) (the Radius slider). Predict: what are the speed and the size of the acceleration, and does the period change?',
+            'Kotno hitrost vrnemo na \\(\\omega=1{,}5\\ \\mathrm{rad/s}\\) in podvojimo polmer z \\(2\\) na \\(4\\ \\mathrm{m}\\) (krmilnik Polmer). Napovej: kolikšni sta velikost hitrosti in velikost pospeška, in ali se obhodni čas spremeni?',
+            'Return the angular velocity to \\(\\omega=1.5\\ \\mathrm{rad/s}\\) and double the radius from \\(2\\) to \\(4\\ \\mathrm{m}\\) (the Radius control). Predict: what are the speed and the size of the acceleration, and does the period change?',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved, nato nastavi \\(R=4\\) in preberi hitrost, pospešek in obhodni čas.', 'Write down your prediction, then set \\(R=4\\) and read the speed, the acceleration and the period.'),
@@ -650,6 +663,7 @@ const kn4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn4-speed', order: 6,
+        declare: kinematicsFrame({uses: ['kinematics-radius', 'kinematics-omega'], highlight: ['speed']}),
         title: text('Podvojimo polmer pri enaki hitrosti', 'Doubling the radius at the same speed'),
         purpose: text('Napovedati pospešek pri dvakrat večjem polmeru, ko je velikost hitrosti enaka.', 'Predicting the acceleration at a doubled radius when the speed stays the same.'),
         explanation: text(
@@ -739,7 +753,7 @@ const kn2: GuidedLesson = {
     steps: kn2Steps,
     sources,
     edgeCases: [
-        text('Za \\(b\\ge1\\) kot \\(\\theta\\) ni več strogo naraščajoč in točka bi se vračala; drsnik zato sega samo do \\(0{,}9\\).', 'For \\(b\\ge1\\) the angle \\(\\theta\\) is no longer strictly increasing and the point would turn back; the slider therefore stops at \\(0.9\\).'),
+        text('Za \\(b\\ge1\\) kot \\(\\theta\\) ni več strogo naraščajoč in točka bi se vračala; krmilnik Spreminjanje zato sega samo do \\(0{,}9\\).', 'For \\(b\\ge1\\) the angle \\(\\theta\\) is no longer strictly increasing and the point would turn back; the Speed change control therefore stops at \\(0.9\\).'),
         text('Ob \\(t=\\pi\\) je \\(a_T\\) približno \\(0\\): to je trenutek najmanjše hitrosti, ne stalna hitrost.', 'At \\(t=\\pi\\) the value \\(a_T\\) is approximately \\(0\\): this is the moment of smallest speed, not a constant speed.'),
     ],
     unresolvedQuestions: [],
@@ -765,7 +779,7 @@ const kn3: GuidedLesson = {
     edgeCases: [
         text('Na vrhu je navpični del hitrosti \\(0\\), hitrost pa ne, saj je vodoravni del \\(v_0\\cos\\alpha\\) pri vseh kotih lekcije (\\(\\alpha\\le85^\\circ\\)) večji od \\(0\\); pospešek je tudi na vrhu \\(g\\).', 'At the top the vertical part of the velocity is \\(0\\) but the velocity is not, because the horizontal part \\(v_0\\cos\\alpha\\) is larger than \\(0\\) for every angle of the lesson (\\(\\alpha\\le85^\\circ\\)); the acceleration at the top is also \\(g\\).'),
         text('Odčitki so zaokroženi na tri decimalke: ob \\(t=1{,}44\\ \\mathrm{s}\\) je navpični del hitrosti \\(0{,}016\\ \\mathrm{m/s}\\), ker je točen vrh ob \\(t\\approx1{,}4416\\ \\mathrm{s}\\).', 'The readouts are rounded to three decimals: at \\(t=1.44\\ \\mathrm{s}\\) the vertical part of the velocity is \\(0.016\\ \\mathrm{m/s}\\), because the exact top is at \\(t\\approx1.4416\\ \\mathrm{s}\\).'),
-        text('Drsnik časa sega do časa leta; gibanje po pristanku ni del modela.', 'The time slider ends at the flight time; the motion after the landing is not part of the model.'),
+        text('Krmilnik Čas sega do časa leta; gibanje po pristanku ni del modela.', 'The Time control ends at the flight time; the motion after the landing is not part of the model.'),
     ],
     unresolvedQuestions: [],
 };
@@ -789,7 +803,7 @@ const kn4: GuidedLesson = {
     sources,
     edgeCases: [
         text('Tangentni pospešek \\(a_T=0\\) pri enakomernem kroženju izhaja iz izbire gibanja; graf ga pokaže kot zaokroženo vrednost.', 'The tangential acceleration \\(a_T=0\\) in uniform circular motion follows from the choice of motion; the graph shows it as a rounded value.'),
-        text('Graf nima izbire, katero količino držimo stalno; pri spremembi polmera pri stalni velikosti hitrosti je treba kotno hitrost nastaviti sam (polje ima korake po \\(0{,}25\\ \\mathrm{rad/s}\\)).', 'The graph has no choice of which quantity to hold constant; to change the radius at a constant speed one must set the angular velocity oneself (the field has steps of \\(0.25\\ \\mathrm{rad/s}\\)).'),
+        text('Graf nima izbire, katero količino držimo stalno; pri spremembi polmera pri stalni velikosti hitrosti je treba kotno hitrost nastaviti sam (krmilnik Kotna hitrost ima korake po \\(0{,}25\\ \\mathrm{rad/s}\\)).', 'The graph has no choice of which quantity to hold constant; to change the radius at a constant speed one must set the angular velocity oneself (the Angular velocity control has steps of \\(0.25\\ \\mathrm{rad/s}\\)).'),
     ],
     unresolvedQuestions: [],
 };

@@ -3,15 +3,19 @@ import {PlaybackButtons} from "../base/controls/PlaybackButtons";
 import {prefersReducedMotion, useReducedMotion} from "../base/controls/reducedMotion";
 import {ReadoutHelp, ReadoutScrollTable} from "../base/controls/ReadoutParts";
 import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend} from "./FunctionReadout";
 import {TransientState} from "../base/BaseGraph";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {InspectorDisclosure} from "../../inputs/InspectorDisclosure";
 import {guard, guardField} from "../base/controls/guard";
-import {FunctionStatus, FunctionStatusLine} from "./FunctionStatus";
+import {FunctionStatusLine} from "./FunctionStatus";
+import {LiveReadout} from "../base/controls/LiveReadout";
+import {useStatusReadout} from "../base/controls/useStatusReadout";
 import {PointListInput} from "../../inputs/PointListInput";
 import Slider from "../../inputs/Slider";
-import {currentLanguage, message, renderMessage, t, useT} from "../../localization";
+import {currentLanguage, message, messageNumber, renderMessage, t, useT} from "../../localization";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import type {GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ReadoutRow, ViewMarks} from "../base/declare/graphDeclaration";
 import {formatNumber} from "../../analysis/format";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
 import {FourierComplex} from "../../analysis/fourier";
@@ -36,6 +40,19 @@ export const EPICYCLE_CIRCLE_SEGMENTS = 48;
 /** The most end points and arcs a model can have; the handle pool is this big, so the board object count never depends on the loop. */
 const MAX_VERTICES = 8;
 const COLORS = {chain: "#bd6047", circles: "#8a9aa8", trace: "#2468a2", loop: "#4c9a8a", polygon: "#8c7a9a", vertex: "#2468a2", control: "#bd6047"};
+
+/** The ids of the epicycle declaration: the trace detail N and the parametrization are the bound parameters; rows are the centre and the three largest circles. */
+export type EpicycleIds = {
+    param: "epicycle-n" | "epicycle-parametrization";
+    row: "centre" | "circle-1" | "circle-2" | "circle-3";
+    note: "n-cap" | "chord-fallback" | "status";
+    legend: "chain" | "circles" | "trace" | "loop" | "polygon" | "vertices" | "controls";
+    section: never;
+    action: never;
+};
+
+/** How many of the largest circles the readout names; the table in Orodja lists all of them. */
+const READOUT_CIRCLES = 3;
 
 /** What depends on the loop and the parametrization only, and what depends on N besides: kept until one of its inputs changes. */
 interface Cache {
@@ -68,6 +85,9 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
     private cache?: Cache;
     private vertexHandles: JXG.Point[] = [];
     private controlHandles: JXG.Point[] = [];
+    /** The drawn curves by legend object id, for `drawnObject`. */
+    private readonly named = new Map<string, JXG.GeometryElement>();
+    private marksCache?: {loop: NonNullable<Cache["loop"]>; marks: ViewMarks};
     // ---- Host state: not in the model, not in a Preset -----------------------------------------------------------------
     private timeValue = 0;
     private playingValue = false;
@@ -250,6 +270,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
     protected override onSceneRemoved(): void {
         this.vertexHandles = [];
         this.controlHandles = [];
+        this.named.clear();
         this.cache = undefined;
     }
 
@@ -339,21 +360,22 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         const board = this.board;
         const strokeWidth = this.displayStrokeWidth;
         const thin = this.displayThinWidth(0.6);
-        const curve = (attributes: object, data: () => { x: number[]; y: number[] }) => {
+        const curve = (id: string, attributes: object, data: () => { x: number[]; y: number[] }) => {
             const created = this.own(board.create("curve", [[], []], {highlight: false, fixed: true, ...attributes})) as unknown as FillCurve;
             created.updateDataArray = () => {
                 const samples = data();
                 created.dataX = samples.x;
                 created.dataY = samples.y;
             };
+            this.named.set(id, created as unknown as JXG.GeometryElement);
         };
 
         // Layers, lowest first: the control polygon, the original loop, the circles, the chain, the trace, the handles.
-        curve({strokeColor: COLORS.polygon, strokeWidth: thin, dash: 2}, () => this.polygonData(this.model));
-        curve({strokeColor: COLORS.loop, strokeWidth}, () => closed(this.loopOf(this.model)));
-        curve({strokeColor: COLORS.circles, strokeWidth: thin}, () => this.circlesData(this.model).circles);
-        curve({strokeColor: COLORS.chain, strokeWidth}, () => this.circlesData(this.model).chain);
-        curve({strokeColor: COLORS.trace, strokeWidth: () => this.displaySettings.strokeWidth * 1.4}, () => this.traceData(this.model));
+        curve("polygon", {strokeColor: COLORS.polygon, strokeWidth: thin, dash: 2}, () => this.polygonData(this.model));
+        curve("loop", {strokeColor: COLORS.loop, strokeWidth}, () => closed(this.loopOf(this.model)));
+        curve("circles", {strokeColor: COLORS.circles, strokeWidth: thin}, () => this.circlesData(this.model).circles);
+        curve("chain", {strokeColor: COLORS.chain, strokeWidth}, () => this.circlesData(this.model).chain);
+        curve("trace", {strokeColor: COLORS.trace, strokeWidth: () => this.displaySettings.strokeWidth * 1.4}, () => this.traceData(this.model));
 
         const markerSize = () => Math.max(4, this.displaySettings.pointSize * 0.9);
         const handle = (exists: () => boolean, face: string, color: string, size: () => number, drag: (point: JXG.Point) => void) => {
@@ -488,30 +510,32 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
                 <ChoiceSelect label={t("epicycle_example_label")} value={example ?? "custom"} options={options}
                               onChange={next => this.attempt(() => this.setExample(next))}/>
             </div>
-            <div className="inspector-group" data-control="epicycle-cutoff">
+            <PuckOwnedGroup params={["epicycle-n"]} className="inspector-group" data-control="epicycle-cutoff">
                 <Slider customText={t("epicycle_n_label")} min={0} max={EPICYCLE_MAX_N} step={1} value={state.N}
                         rejectedHint={renderMessage(epicycleIssueMessage({kind: "n", min: 0, max: EPICYCLE_MAX_N}))}
                         onChange={(next: number) => this.attempt(() => this.setN(next))}
                         onTypedChange={(next: number) => guardField(this.refusals, () => this.setN(next))}/>
                 <p className="inspector-help" data-testid="epicycle-term-count">
                     {t("epicycle_term_count", {value0: 2 * state.N + 1, value1: state.N})}</p>
-                {state.N >= EPICYCLE_MAX_N && <p className="inspector-help" data-testid="epicycle-n-cap">
+                {state.N >= EPICYCLE_MAX_N && <p className="inspector-help" data-testid="epicycle-n-cap" data-readout-note="">
                     {t("epicycle_n_cap", {value0: EPICYCLE_MAX_N, value1: 2 * EPICYCLE_MAX_N})}</p>}
-            </div>
+            </PuckOwnedGroup>
             {state.outline !== undefined
                 ? <p className="inspector-help" data-testid="epicycle-outline-fixed">{t("epicycle_outline_fixed_help")}</p>
                 : <InspectorDisclosure title={t("epicycle_handles_summary")}>
                     {this.renderHandleFields(state)}
                 </InspectorDisclosure>}
-            <InspectorDisclosure title={t("epicycle_param_summary")}>
-                <div className="inspector-group">
-                    <ChoiceSelect label={t("epicycle_param_label")} value={state.parametrization} help={t("epicycle_param_help")}
-                                  options={EPICYCLE_PARAMETRIZATIONS.map(id => ({value: id, text: parametrizationText[id]}))}
-                                  onChange={next => this.attempt(() => this.setParametrization(next))}/>
-                    {state.parametrization === "chord" && analysis.fellBack
-                        && <ReadoutHelp hooks={{"data-testid": "epicycle-chord-fallback"}}>{t("epicycle_chord_fallback")}</ReadoutHelp>}
-                </div>
-            </InspectorDisclosure>
+            <PuckOwned param="epicycle-parametrization">
+                <InspectorDisclosure title={t("epicycle_param_summary")}>
+                    <div className="inspector-group">
+                        <ChoiceSelect label={t("epicycle_param_label")} value={state.parametrization} help={t("epicycle_param_help")}
+                                      options={EPICYCLE_PARAMETRIZATIONS.map(id => ({value: id, text: parametrizationText[id]}))}
+                                      onChange={next => this.attempt(() => this.setParametrization(next))}/>
+                        {state.parametrization === "chord" && analysis.fellBack
+                            && <ReadoutHelp hooks={{"data-testid": "epicycle-chord-fallback", "data-readout-note": ""}}>{t("epicycle_chord_fallback")}</ReadoutHelp>}
+                    </div>
+                </InspectorDisclosure>
+            </PuckOwned>
         </>;
     }
 
@@ -522,7 +546,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
             ? [{span: i, which: 1 as const, point: [span.c1.x, span.c1.y] as const}, {span: i, which: 2 as const, point: [span.c2.x, span.c2.y] as const}]
             : []);
         const range = {min: EPICYCLE_COORDINATE_MIN, max: EPICYCLE_COORDINATE_MAX, step: EPICYCLE_VALUE_STEP, bigStep: EPICYCLE_VALUE_BIG_STEP, decimals: 2};
-        return <div className="epicycle-fields">
+        return <div className="epicycle-fields" data-parity-retained="">
             <div className="inspector-group">
                 <PointListInput title={t("epicycle_vertices_title")} points={state.vertices.map(vertex => [vertex.x, vertex.y] as const)}
                                 pointLabel={index => t("epicycle_vertex_name", {value0: index + 1})} {...range}
@@ -555,19 +579,104 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
         </>;
     }
 
+    /** The declared legend replaces this panel's own (the board's legend card shows it). */
     protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "chain", color: COLORS.chain, label: t("epicycle_legend_chain"), kind: "line"},
-            {id: "circles", color: COLORS.circles, label: t("epicycle_legend_circles"), kind: "line"},
-            {id: "trace", color: COLORS.trace, label: t("epicycle_legend_trace"), kind: "line"},
-            {id: "loop", color: COLORS.loop, label: t("epicycle_legend_loop"), kind: "line"},
+        return null;
+    }
+
+    // ---- Declaration ---------------------------------------------------------------------------------------------------
+
+    /**
+     * Parameter writes (ADR 0064). `epicycle-n` is the validated N setter and `epicycle-parametrization` the validated choice setter: a refusal is the model's `DomainError`.
+     * Time, playback, the example and the handle fields have no key and stay in Orodja.
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "epicycle-n": {read: () => this.model.N, apply: (value: unknown) => this.setN(value)},
+            "epicycle-parametrization": {read: () => this.model.parametrization, apply: (value: unknown) => this.setParametrization(value)},
+        };
+    }
+
+    /** The loop's bounding box with its end and control handles (the curve the learner compares the trace with) must stay clear of the cards; the circles move and are not marks. */
+    private viewMarks(): ViewMarks {
+        const loop = this.loopOf(this.model);
+        if (this.marksCache?.loop === loop) return this.marksCache.marks;
+        const handles = this.model.outline === undefined
+            ? [...this.model.vertices, ...this.model.spans.flatMap(span => (span.kind === "cubic" ? [span.c1, span.c2] : []))]
+            : [];
+        const xs = [...loop.x, ...handles.map(p => p.x)];
+        const ys = [...loop.y, ...handles.map(p => p.y)];
+        const marks: ViewMarks = {must: [{kind: "box", left: Math.min(...xs), top: Math.max(...ys), right: Math.max(...xs), bottom: Math.min(...ys)}]};
+        this.marksCache = {loop, marks};
+        return marks;
+    }
+
+    /**
+     * Pure data from the model. Pucks, by what a lesson step asks the learner to set or compare (epicyclesGuidedLessons): the trace detail N (epi-add, epi-trace,
+     * epi-diamond: "povečaj N"; epi-explore) and the parametrization (epi-uneven-chord, epi-explore: two options compared on the same curve). The example (six options), the
+     * time and the playback are setup and stay in Orodja. Rows are the centre and the largest circles; the sentence is the note; the table of all terms stays in Orodja.
+     */
+    protected override declaration(): GraphDeclaration<EpicycleIds> {
+        const state = this.model;
+        const analysis = this.analysisOf(state);
+        const {centre, terms} = epicycleTerms(analysis, state.N);
+        const largest = terms.length === 0 ? undefined : terms.reduce((best, term) => (term.modulus > best.modulus ? term : best));
+        const rows: ReadoutRow<EpicycleIds>[] = [
+            {id: "centre", name: message("epicycles_row_centre"), symbol: "|c_0|", value: messageNumber(centre, 4)},
+            ...terms.slice(0, READOUT_CIRCLES).map((term, i): ReadoutRow<EpicycleIds> => ({
+                id: (["circle-1", "circle-2", "circle-3"] as const)[i], name: message("epicycles_row_circle", {value0: messageNumber(i + 1, 0)}),
+                symbol: `|c_{${term.k}}|`, value: messageNumber(term.modulus, 4),
+            })),
+        ];
+        const error = messageNumber(this.errorOf(state), 5);
+        const notes: ReadoutNote<EpicycleIds>[] = [
+            ...(state.N >= EPICYCLE_MAX_N ? [{id: "n-cap" as const, text: message("epicycle_n_cap", {value0: messageNumber(EPICYCLE_MAX_N, 0), value1: messageNumber(2 * EPICYCLE_MAX_N, 0)})}] : []),
+            ...(state.parametrization === "chord" && analysis.fellBack ? [{id: "chord-fallback" as const, text: message("epicycle_chord_fallback")}] : []),
+            {id: "status", text: largest
+                ? message("epicycle_status", {
+                    value0: messageNumber(state.N, 0), value1: messageNumber(1 + terms.length, 0), value2: messageNumber(largest.k, 0),
+                    value3: messageNumber(largest.modulus, 4), value4: error,
+                })
+                : message("epicycle_status_no_rotating", {value0: messageNumber(state.N, 0), value1: messageNumber(1 + terms.length, 0), value2: error})},
+        ];
+        const parameters: ParameterDeclaration<EpicycleIds["param"]>[] = [
+            {key: "epicycle-n", kind: "count", label: message("epicycles_n_name"), symbol: "N", placement: "board", min: 0, max: EPICYCLE_MAX_N},
+            {key: "epicycle-parametrization", kind: "choice", label: message("epicycle_param_label"), help: message("epicycle_param_help"), placement: "board", puck: true,
+             options: [
+                 {value: "equal", label: message("epicycle_param_equal"), short: message("epicycles_param_equal_short")},
+                 {value: "chord", label: message("epicycle_param_chord"), short: message("epicycles_param_chord_short")},
+             ]},
+        ];
+        const legend: LegendEntry<EpicycleIds>[] = [
+            {id: "chain", label: message("epicycle_legend_chain"), kind: "line", object: "chain"},
+            {id: "circles", label: message("epicycle_legend_circles"), kind: "line", object: "circles"},
+            {id: "trace", label: message("epicycle_legend_trace"), kind: "line", object: "trace"},
+            {id: "loop", label: message("epicycle_legend_loop"), kind: "line", object: "loop"},
             // A fixed outline has no handles, so the legend does not list them.
-            ...(this.model.outline !== undefined ? [] : [
-                {id: "polygon", color: COLORS.polygon, label: t("epicycle_legend_polygon"), kind: "dashed-line"},
-                {id: "vertices", color: COLORS.vertex, label: t("epicycle_legend_vertices"), kind: "dot"},
-                {id: "controls", color: COLORS.control, label: t("epicycle_legend_controls"), kind: "diamond"},
-            ] as const),
-        ]}/>;
+            ...(state.outline !== undefined ? [] : [
+                {id: "polygon" as const, label: message("epicycle_legend_polygon"), kind: "dashed" as const, object: "polygon"},
+                {id: "vertices" as const, label: message("epicycle_legend_vertices"), kind: "point" as const, object: "vertices"},
+                {id: "controls" as const, label: message("epicycle_legend_controls"), kind: "point" as const, object: "controls"},
+            ]),
+        ];
+        return {
+            parameters,
+            readouts: [{id: "values", title: message("function_readouts"), rows}],
+            notes,
+            legend,
+            marks: this.viewMarks(),
+        };
+    }
+
+    /** The element a legend entry's `object` names; the end points and control points are the pools of handles, which show while the loop has them. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id === "vertices") return {color: COLORS.vertex, visible: this.model.outline === undefined && this.model.vertices.length > 0};
+        if (id === "controls") return {color: COLORS.control, visible: this.model.outline === undefined && this.model.spans.some(span => span.kind === "cubic")};
+        const element = this.named.get(id);
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp("strokecolor")), visible: Boolean(drawn.evalVisProp("visible"))};
     }
 }
 
@@ -575,7 +684,7 @@ export class EpicycleGraph extends BaseFunctionGraph<EpicycleModel> {
 function EpicycleTable(props: { rows: readonly { k: number; modulus: number }[] }) {
     const text = useT();
     const language = currentLanguage();
-    return <div className="inspector-group">
+    return <div className="inspector-group" data-parity-retained="">
         <div className="epicycle-table" data-testid="epicycle-table">
             <ReadoutScrollTable label={text("epicycle_table_summary")}>
             <table>
@@ -600,7 +709,7 @@ function EpicyclePlayback(props: { graph: EpicycleGraph }) {
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
     useReducedMotion(); // follows a system change; the graph's own reducedMotion() is read below
     const language = currentLanguage();
-    return <div className="inspector-group">
+    return <div className="inspector-group" data-parity-retained="">
         <p className="inspector-help" data-testid="epicycle-play-instruction">{text("epicycle_play_instruction")}</p>
         <PlaybackButtons reducedMotionReason={text("playback_block_reduced_motion_time")}
                          placement="graph" groupLabel={text("epicycle_playback_group")} playing={graph.playing}
@@ -618,7 +727,13 @@ function EpicyclePlayback(props: { graph: EpicycleGraph }) {
 function EpicycleStatus(props: { graph: EpicycleGraph; lines: readonly FunctionStatusLine[] }) {
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    return <FunctionStatus className="epicycle-status" lines={props.lines} dataAttribute="epicycle-status" muted={graph.playing}/>;
+    const readout = useStatusReadout(props.lines.map(line => line.text).join("\n"), true);
+    return <div data-declared-panel="">
+        <div className="inspector-group function-status epicycle-status">
+            {props.lines.map(line => <p key={line.id} className="inspector-help" data-epicycle-status={line.id} data-readout-note="">{line.text}</p>)}
+        </div>
+        <LiveReadout readout={readout} muted={graph.playing}/>
+    </div>;
 }
 
 export default EpicycleGraph;

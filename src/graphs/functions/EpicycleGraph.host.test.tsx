@@ -3,7 +3,7 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {EPICYCLE_CIRCLE_SEGMENTS, EPICYCLE_PERIOD_MS, EpicycleGraph} from './EpicycleGraph';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, REAL_GRAPH_TEST_TIMEOUT, settle, waitForPucks} from '../base/realGraphTestHarness';
 import {renderMessage, setLanguage} from '../../localization';
 import {LessonAction} from '../../learning/model';
 import {AnimationScheduler} from '../../learning/runtime/animation';
@@ -109,6 +109,10 @@ const act1 = (graph: ObservedEpicycleGraph, ...actions: LessonAction[]) => act((
 const setN = (N: number): LessonAction => ({kind: 'function-parameter', name: 'epicycle-n', value: N});
 const example = (value: string): LessonAction => ({kind: 'function-choice', name: 'epicycle-example', value});
 const param = (value: string): LessonAction => ({kind: 'function-choice', name: 'epicycle-parametrization', value});
+const note = (graph: ObservedEpicycleGraph, id: string): string | undefined => {
+    const text = graph.getDeclaration()!.notes?.find(entry => entry.id === id)?.text;
+    return text === undefined ? undefined : typeof text === 'string' ? text : JSON.stringify(text);
+};
 const status = () => document.querySelector('.epicycle-status')?.textContent;
 const refusal = () => document.querySelector('[data-refusal-notice]')?.textContent ?? '';
 const rows = () => document.querySelectorAll('[data-testid="epicycle-table"] tbody tr');
@@ -176,13 +180,13 @@ test('the object count is the same at N = 1 and N = 50, and at N = 50 the table 
     act1(graph, setN(1));
     const atOne = graph.ownedObjects();
     expect(rows()).toHaveLength(3);
-    expect(screen.queryByTestId('epicycle-n-cap')).toBeNull();
+    expect(note(graph, 'n-cap')).toBeUndefined();
     act1(graph, setN(50));
     expect(graph.ownedObjects()).toBe(atOne);
     expect(rows()).toHaveLength(101);
-    expect(screen.getByTestId('epicycle-n-cap').textContent).toContain('50');
+    expect(note(graph, 'n-cap')).toContain('50');
     act1(graph, setN(49));
-    expect(screen.queryByTestId('epicycle-n-cap')).toBeNull();
+    expect(note(graph, 'n-cap')).toBeUndefined();
     // N stays one Slider (0..50 is too long to step): the -1/+1 buttons are gone
     expect(screen.queryByLabelText('Povečaj N za 1')).toBeNull();
     expect(screen.queryByLabelText('Zmanjšaj N za 1')).toBeNull();
@@ -435,14 +439,14 @@ test('a multi-action lesson scene runs in one synchronous tick and reads back fr
 test('the chord fallback is a visible hint, and the hint goes with the cause', () => {
     const {graph} = mount();
     act1(graph, example('diamond'), param('chord'));
-    expect(screen.queryByTestId('epicycle-chord-fallback')).toBeNull();
+    expect(note(graph, 'chord-fallback')).toBeUndefined();
     act1(graph,
         {kind: 'function-parameter', name: 'epicycle-vertex-1-x', value: 1},
         {kind: 'function-parameter', name: 'epicycle-vertex-1-y', value: 0});
     expect(graph.analysis().fellBack).toBe(true);
-    expect(screen.getByTestId('epicycle-chord-fallback').textContent).toContain('enakomerna');
+    expect(note(graph, 'chord-fallback')).toContain('epicycle_chord_fallback');
     act1(graph, param('equal'));
-    expect(screen.queryByTestId('epicycle-chord-fallback')).toBeNull();
+    expect(note(graph, 'chord-fallback')).toBeUndefined();
 });
 
 test('the whole loop and the whole trace are drawn closed: the first sample is appended, the cached samples are not changed', () => {
@@ -672,11 +676,11 @@ describe('fixed outlines (G07)', () => {
 
 describe('first use: Play first, then shape and trace detail (graph-control-first-use)', () => {
     const before = (a: Element, b: Element) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
-    const cutoffRange = () => document.querySelector('[data-control="epicycle-cutoff"] input[type="range"]') as HTMLInputElement;
     const summaries = () => [...document.querySelectorAll('details.inspector-disclosure > summary')].map(node => node.textContent);
     const disclosure = (summary: string) => [...document.querySelectorAll('details.inspector-disclosure')].find(node => node.querySelector('summary')?.textContent === summary)!;
+    const cutoff = () => puckControl('epicycle-n');
 
-    test('Edit starts with the instruction, Play and the time slider, then the shape chooser, then the cutoff', () => {
+    test('Edit starts with the instruction, Play and the time slider, then the shape chooser, then the handle fields', () => {
         mount();
         const instruction = screen.getByTestId('epicycle-play-instruction');
         const time = screen.getByLabelText(/^Čas t/, {selector: 'input[type="range"]'});
@@ -685,8 +689,7 @@ describe('first use: Play first, then shape and trace detail (graph-control-firs
         expect(before(instruction, playButton())).toBe(true);
         expect(before(playButton(), time)).toBe(true);
         expect(before(time, shape)).toBe(true);
-        expect(before(shape, cutoffRange())).toBe(true);
-        expect(before(cutoffRange(), screen.getByText('Krajišča in kontrolne točke (tipkovnica)'))).toBe(true);
+        expect(before(shape, screen.getByText('Krajišča in kontrolne točke (tipkovnica)'))).toBe(true);
     });
 
     test('the time slider labelled in radians shows its value in radians', () => {
@@ -695,44 +698,40 @@ describe('first use: Play first, then shape and trace detail (graph-control-firs
         expect(screen.getByLabelText('Čas t (rad)', {selector: 'input[type="range"]'}).getAttribute('aria-valuetext')).toBe('3,14');
     });
 
-    test('the cutoff is named for trace detail and shows its term count 2N + 1 next to it, in both languages', () => {
+    test('the cutoff is a puck on the board; the status line carries its term count 2N + 1', async () => {
         const {graph} = mount();
-        expect(screen.getByLabelText('Podrobnost sledi (N)', {selector: 'input[type="range"]'})).toBe(cutoffRange());
-        expect(screen.getByLabelText('Podrobnost sledi (N), vrednost')).not.toBe(cutoffRange());
-        expect(screen.getByTestId('epicycle-term-count').textContent).toBe('Členov: 11 (frekvence od −5 do 5, vključno s konstanto)');
+        await waitForPucks('epicycle-n');
+        expect(cutoff().getAttribute('aria-valuenow')).toBe('5');
+        expect(document.querySelector('[data-control="epicycle-cutoff"]')).toBeNull();
+        expect(status()).toMatch(/^N = 5; členov: 11;/);
         act1(graph, setN(0));
-        expect(screen.getByTestId('epicycle-term-count').textContent).toContain('Členov: 1 ');
+        expect(cutoff().getAttribute('aria-valuenow')).toBe('0');
+        expect(screen.getByTestId('epicycle-play-instruction').textContent).toBe('Pritisni Predvajaj in sledi konici verige.');
         act(() => { setLanguage('en'); });
-        expect(screen.getByLabelText('Trace detail (N)', {selector: 'input[type="range"]'})).toBe(cutoffRange());
-        expect(screen.getByLabelText('Trace detail (N), value')).toBeInTheDocument();
-        act1(graph, setN(5));
-        expect(screen.getByTestId('epicycle-term-count').textContent).toBe('Terms: 11 (frequencies −5 to 5, including the constant)');
         expect(screen.getByTestId('epicycle-play-instruction').textContent).toBe('Press Play and follow the tip of the chain.');
     });
 
-    test('parametrization, the handle fields and the terms table sit in named disclosures; the status stays outside', () => {
+    test('the handle fields and the terms table sit in named disclosures; the status stays outside', () => {
         mount();
-        expect(summaries()).toEqual(expect.arrayContaining(['Krajišča in kontrolne točke (tipkovnica)', 'Parametrizacija in njena razlaga', 'Členi in napaka približka']));
-        expect(disclosure('Parametrizacija in njena razlaga').contains(screen.getByLabelText('Parametrizacija'))).toBe(true);
+        expect(summaries()).toEqual(expect.arrayContaining(['Krajišča in kontrolne točke (tipkovnica)', 'Členi in napaka približka']));
         expect(disclosure('Členi in napaka približka').contains(screen.getByTestId('epicycle-table'))).toBe(true);
         expect(document.querySelector('details .epicycle-status')).toBeNull();
         act(() => { setLanguage('en'); });
         expect(summaries()).toContain('Terms and approximation error');
     });
 
-    test('Reset and a language switch keep the board, the cutoff and the term count in step', async () => {
+    test('Reset and a language switch keep the board, the cutoff and the status in step', async () => {
         const {graph} = mount();
+        await waitForPucks('epicycle-n');
         act1(graph, setN(9));
-        expect(cutoffRange().value).toBe('9');
-        expect(screen.getByTestId('epicycle-term-count').textContent).toContain('Členov: 19 ');
+        expect(cutoff().getAttribute('aria-valuenow')).toBe('9');
+        expect(status()).toMatch(/^N = 9; členov: 19;/);
         act(() => { setLanguage('en'); });
         expect(graph.modelNow().N).toBe(9);
-        expect(cutoffRange().value).toBe('9');
-        expect(screen.getByTestId('epicycle-term-count').textContent).toContain('Terms: 19 ');
+        expect(cutoff().getAttribute('aria-valuenow')).toBe('9');
         await settle(() => graph.reset());
         expect(graph.modelNow().N).toBe(5);
-        expect(cutoffRange().value).toBe('5');
-        expect(screen.getByTestId('epicycle-term-count').textContent).toContain('Terms: 11 ');
+        expect(cutoff().getAttribute('aria-valuenow')).toBe('5');
         expect(status()).toMatch(/^N = 5; terms: 11;/);
     });
 });

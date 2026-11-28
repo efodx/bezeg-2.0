@@ -7,11 +7,14 @@
  * docs/reviews/feature-streams/families-prep/notes/f3-kin-c.md ("Slice 2").
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {KinematicsIds} from '../../graphs/curves/kinematics/KinematicsGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 import {kinematicsSceneActions, type KinematicsSceneSpec} from './kinematicsGuidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const kinematicsFrame = frameDeclarer<KinematicsIds>();
 
 interface StepContent {
     readonly id: string;
@@ -24,14 +27,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the frames of the step declare about the graph: the controls the text names, the rows it reads, the Orodja card it needs. */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
+        frame(`${content.id}-explanation`, 'explanation', declare),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', declare),
     ],
 });
 
@@ -89,16 +94,17 @@ const kn5Examples: readonly WorkedExample[] = [
 const kn5Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'kn5-along', order: 1,
+        declare: kinematicsFrame({uses: ['kinematics-time'], highlight: ['a-t']}),
         title: text('Del pospeška vzdolž poti', 'The part of the acceleration along the path'),
         purpose: text('Napovedati tangentno komponento pospeška na vrhu loka cikloide.', 'Predicting the tangential component of the acceleration at the top of the cycloid arch.'),
         explanation: text(
-            'Točka se giblje po cikloidi: kot točka na obodu kolesa s polmerom \\(1\\ \\mathrm{m}\\), ki se kotali. Pospešek točke razstavimo na dva dela. Tangentna komponenta pospeška \\(a_T\\) (odčitek Tangentni pospešek aₜ) je del vzdolž poti: ko je pozitivna, točka pospešuje, ko je negativna, zavira. Normalna komponenta \\(a_N\\) je del pravokotno na pot. Slika kaže točko ob \\(t=\\pi/2\\approx1{,}57\\ \\mathrm{s}\\): velikost hitrosti je približno \\(1{,}414\\ \\mathrm{m/s}\\) in \\(a_T\\approx0{,}707\\ \\mathrm{m/s^2}\\). Najvišja točka loka je ob \\(t\\approx\\pi\\); na drsniku Čas t (s) jo najdeš pri \\(3{,}14\\ \\mathrm{s}\\). Preden ga premakneš, napovej: kolikšna je tam \\(a_T\\)? Zapiši tudi razlog.',
-            'The point moves on a cycloid: like a point on the rim of a wheel of radius \\(1\\ \\mathrm{m}\\) that rolls. We split the acceleration of the point into two parts. The tangential component of the acceleration \\(a_T\\) (the readout Tangential acceleration aₜ) is the part along the path: when it is positive the point speeds up, when it is negative the point slows down. The normal component \\(a_N\\) is the part perpendicular to the path. The picture shows the point at \\(t=\\pi/2\\approx1.57\\ \\mathrm{s}\\): the speed is about \\(1.414\\ \\mathrm{m/s}\\) and \\(a_T\\approx0.707\\ \\mathrm{m/s^2}\\). The highest point of the arch is at \\(t\\approx\\pi\\); on the slider Time t (s) you find it at \\(3.14\\ \\mathrm{s}\\). Before you move it, predict: what is \\(a_T\\) there? Write down a reason too.',
+            'Točka se giblje po cikloidi: kot točka na obodu kolesa s polmerom \\(1\\ \\mathrm{m}\\), ki se kotali. Pospešek točke razstavimo na dva dela. Tangentna komponenta pospeška \\(a_T\\) (odčitek Tangentni pospešek aₜ) je del vzdolž poti: ko je pozitivna, točka pospešuje, ko je negativna, zavira. Normalna komponenta \\(a_N\\) je del pravokotno na pot. Slika kaže točko ob \\(t=\\pi/2\\approx1{,}57\\ \\mathrm{s}\\): velikost hitrosti je približno \\(1{,}414\\ \\mathrm{m/s}\\) in \\(a_T\\approx0{,}707\\ \\mathrm{m/s^2}\\). Najvišja točka loka je ob \\(t\\approx\\pi\\); na krmilniku Čas jo najdeš pri \\(3{,}14\\ \\mathrm{s}\\). Preden ga premakneš, napovej: kolikšna je tam \\(a_T\\)? Zapiši tudi razlog.',
+            'The point moves on a cycloid: like a point on the rim of a wheel of radius \\(1\\ \\mathrm{m}\\) that rolls. We split the acceleration of the point into two parts. The tangential component of the acceleration \\(a_T\\) (the readout Tangential acceleration aₜ) is the part along the path: when it is positive the point speeds up, when it is negative the point slows down. The normal component \\(a_N\\) is the part perpendicular to the path. The picture shows the point at \\(t=\\pi/2\\approx1.57\\ \\mathrm{s}\\): the speed is about \\(1.414\\ \\mathrm{m/s}\\) and \\(a_T\\approx0.707\\ \\mathrm{m/s^2}\\). The highest point of the arch is at \\(t\\approx\\pi\\); on the Time control you find it at \\(3.14\\ \\mathrm{s}\\). Before you move it, predict: what is \\(a_T\\) there? Write down a reason too.',
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved in razlog, nato nastavi Čas t (s) na \\(3{,}14\\) in preberi velikost hitrosti, \\(a_T\\) in stanje.',
-            'Write down your prediction and the reason, then set Time t (s) to \\(3.14\\) and read the speed, \\(a_T\\) and the status.',
+            'Zapiši napoved in razlog, nato nastavi krmilnik Čas na \\(3{,}14\\) in preberi velikost hitrosti, \\(a_T\\) in stanje.',
+            'Write down your prediction and the reason, then set the Time control to \\(3.14\\) and read the speed, \\(a_T\\) and the status.',
         ),
         expectedObservations: [text(
             'Ob \\(t=3{,}14\\ \\mathrm{s}\\) je velikost hitrosti \\(2\\ \\mathrm{m/s}\\), največja na loku, in \\(a_T=0{,}001\\ \\mathrm{m/s^2}\\), skoraj \\(0\\): hitrost tam doseže najvišjo vrednost in se za trenutek neha povečevati. Stanje še piše, da točka pospešuje, ker je \\(3{,}14\\) malo pred \\(\\pi\\approx3{,}1416\\) in je \\(a_T\\) še majhna pozitivna; ob \\(t=\\pi\\) bi bila \\(a_T=0\\).',
@@ -110,16 +116,17 @@ const kn5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn5-axes', order: 2,
+        declare: kinematicsFrame({uses: ['split'], highlight: ['a-t', 'a-n']}),
         title: text('Osi tangente in normale', 'The tangent and normal axes'),
         purpose: text('Napovedati, kateri del pospeška na vrhu loka izgine in kakšen predznak ima \\(a_N\\).', 'Predicting which part of the acceleration vanishes at the top of the arch and the sign of \\(a_N\\).'),
         explanation: text(
-            'Slika kaže vrh loka ob \\(t=3{,}14\\ \\mathrm{s}\\). Vklopil boš stikalo Razstavi pospešek na tangentni in normalni del: graf nariše dve tanki črti skozi točko, os tangente (vzdolž poti) in os normale (pravokotno nanjo), ter puščici \\(a_T\\) in \\(a_N\\) v merilu pospeška. Preden ga vklopiš, napovej: katera od puščic \\(a_T\\) in \\(a_N\\) bo na vrhu loka skoraj ali povsem nevidna, in ali bo \\(a_N\\) pozitiven ali negativen? Pomagaj si s tem, kar si videl v prejšnjem koraku, in s smerjo, v katero pot zavija.',
-            'The picture shows the top of the arch at \\(t=3.14\\ \\mathrm{s}\\). You will switch on Split acceleration into tangential and normal parts: the graph draws two thin lines through the point, the tangent axis (along the path) and the normal axis (perpendicular to it), and the arrows \\(a_T\\) and \\(a_N\\) in the acceleration scale. Before you switch it on, predict: which of the arrows \\(a_T\\) and \\(a_N\\) will be almost or entirely invisible at the top of the arch, and will \\(a_N\\) be positive or negative? Use what you saw in the previous step and the direction in which the path turns.',
+            'Slika kaže vrh loka ob \\(t=3{,}14\\ \\mathrm{s}\\). Pritisnil boš krmilnik Delitev pospeška: graf nariše dve tanki črti skozi točko, os tangente (vzdolž poti) in os normale (pravokotno nanjo), ter puščici \\(a_T\\) in \\(a_N\\) v merilu pospeška. Preden ga vklopiš, napovej: katera od puščic \\(a_T\\) in \\(a_N\\) bo na vrhu loka skoraj ali povsem nevidna, in ali bo \\(a_N\\) pozitiven ali negativen? Pomagaj si s tem, kar si videl v prejšnjem koraku, in s smerjo, v katero pot zavija.',
+            'The picture shows the top of the arch at \\(t=3.14\\ \\mathrm{s}\\). You will press the Accel. split control: the graph draws two thin lines through the point, the tangent axis (along the path) and the normal axis (perpendicular to it), and the arrows \\(a_T\\) and \\(a_N\\) in the acceleration scale. Before you switch it on, predict: which of the arrows \\(a_T\\) and \\(a_N\\) will be almost or entirely invisible at the top of the arch, and will \\(a_N\\) be positive or negative? Use what you saw in the previous step and the direction in which the path turns.',
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved, nato vklopi Razstavi pospešek na tangentni in normalni del in primerjaj osi s hitrostjo in pospeškom.',
-            'Write down your prediction, then switch on Split acceleration into tangential and normal parts and compare the axes with the velocity and the acceleration.',
+            'Zapiši napoved, nato pritisni krmilnik Delitev pospeška in primerjaj osi s hitrostjo in pospeškom.',
+            'Write down your prediction, then press the Accel. split control and compare the axes with the velocity and the acceleration.',
         ),
         expectedObservations: [text(
             'Puščice \\(a_T\\) ni videti: \\(a_T=0{,}001\\ \\mathrm{m/s^2}\\) je prekratka, da bi jo graf narisal. Puščica \\(a_N\\) kaže navzdol in pokriva puščico pospeška \\((0{,}002;\\,-1)\\ \\mathrm{m/s^2}\\), saj ta kaže skoraj natanko po normali: \\(a_N=-1\\ \\mathrm{m/s^2}\\). \\(a_N\\) je negativen, ker pot tu zavija v desno (podnapis na grafu). Os tangente je vodoravna, v smeri hitrosti \\((2;\\,0{,}002)\\ \\mathrm{m/s}\\), os normale je navpična.',
@@ -131,6 +138,7 @@ const kn5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn5-projection', order: 3,
+        declare: kinematicsFrame({uses: ['kinematics-time']}),
         title: text('Dela pospeška', 'The parts of the acceleration'),
         purpose: text('Napovedati zvezo med \\(a_T\\), \\(a_N\\) in \\(|a|\\) in jo preveriti ob drugem času.', 'Predicting the relation between \\(a_T\\), \\(a_N\\) and \\(|a|\\) and checking it at another time.'),
         explanation: text(
@@ -139,8 +147,8 @@ const kn5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved z razlogom, nato nastavi Čas t (s) na \\(2\\), preberi \\(a\\), \\(a_T\\) in \\(a_N\\) ter izračunaj \\(a_T^2+a_N^2\\) in \\(|a|^2\\).',
-            'Write down your prediction with the reason, then set Time t (s) to \\(2\\), read \\(a\\), \\(a_T\\) and \\(a_N\\), and compute \\(a_T^2+a_N^2\\) and \\(|a|^2\\).',
+            'Zapiši napoved z razlogom, nato nastavi krmilnik Čas na \\(2\\), preberi \\(a\\), \\(a_T\\) in \\(a_N\\) ter izračunaj \\(a_T^2+a_N^2\\) in \\(|a|^2\\).',
+            'Write down your prediction with the reason, then set the Time control to \\(2\\), read \\(a\\), \\(a_T\\) and \\(a_N\\), and compute \\(a_T^2+a_N^2\\) and \\(|a|^2\\).',
         ),
         expectedObservations: [text(
             'Ob \\(t=2\\ \\mathrm{s}\\) je \\(a=(0{,}909;\\,-0{,}416)\\), \\(a_T=0{,}54\\) in \\(a_N=-0{,}841\\ \\mathrm{m/s^2}\\). Račun: \\(a_T^2+a_N^2\\approx0{,}2916+0{,}7073\\approx1\\) in \\(|a|^2\\approx0{,}826+0{,}173\\approx1\\), enaka. Ob \\(t=\\pi/2\\) je \\(0{,}707^2+0{,}707^2\\approx1=|a|^2\\). Razlog: \\(a_T\\) in \\(a_N\\) sta pravokotni projekciji vektorja \\(a\\) na dve pravokotni osi, torej po Pitagorovem izreku \\(a_T^2+a_N^2=|a|^2\\); to velja ob vsakem času, kjer sta osi določeni.',
@@ -152,6 +160,7 @@ const kn5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn5-speed', order: 4,
+        declare: kinematicsFrame({uses: ['kinematics-time']}),
         title: text('Tangentni del spreminja hitrost', 'The tangential part changes the speed'),
         purpose: text('Napovedati velikost hitrosti po kratkem koraku iz \\(a_T\\) in primerjati z odčitkom.', 'Predicting the speed after a short step from \\(a_T\\) and comparing it with the readout.'),
         explanation: text(
@@ -160,8 +169,8 @@ const kn5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved in račun, nato nastavi Čas t (s) na \\(1{,}1\\) ter preberi velikost hitrosti in \\(a_T\\).',
-            'Write down your prediction and the computation, then set Time t (s) to \\(1.1\\) and read the speed and \\(a_T\\).',
+            'Zapiši napoved in račun, nato nastavi krmilnik Čas na \\(1{,}1\\) ter preberi velikost hitrosti in \\(a_T\\).',
+            'Write down your prediction and the computation, then set the Time control to \\(1.1\\) and read the speed and \\(a_T\\).',
         ),
         expectedObservations: [text(
             'Ocena: \\(a_T\\) je hitrost spreminjanja velikosti hitrosti, torej \\(0{,}959+0{,}1\\cdot0{,}878\\approx1{,}047\\ \\mathrm{m/s}\\); \\(a_N\\) velikosti hitrosti ne spreminja, le smer. Odčitek ob \\(t=1{,}1\\ \\mathrm{s}\\) je \\(1{,}045\\ \\mathrm{m/s}\\): blizu, a ocena je malo previsoka. Razlog: \\(a_T\\) velja za trenutek \\(t=1\\), v koraku pa se spremeni (ob \\(t=1{,}1\\) je \\(0{,}853\\), manj kot \\(0{,}878\\)), zato je račun s staro vrednostjo le približen, bolje pri krajših korakih.',
@@ -173,6 +182,7 @@ const kn5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn5-circle', order: 5,
+        declare: kinematicsFrame({uses: ['osculating'], highlight: ['kappa']}),
         title: text('Normalni del in krivinska krožnica', 'The normal part and the osculating circle'),
         purpose: text('Napovedati polmer in lego središča krivinske krožnice iz ukrivljenosti.', 'Predicting the radius and the centre of the osculating circle from the curvature.'),
         explanation: text(
@@ -181,8 +191,8 @@ const kn5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved, nato vklopi Pokaži krivinsko krožnico in na mreži odčitaj, kje je središče in kako daleč je od točke.',
-            'Write down your prediction, then switch on Show the osculating circle and read on the grid where the centre is and how far it is from the point.',
+            'Zapiši napoved, nato pritisni krmilnik Krožnica κ in na mreži odčitaj, kje je središče in kako daleč je od točke.',
+            'Write down your prediction, then press the Curvature circle control and read on the grid where the centre is and how far it is from the point.',
         ),
         expectedObservations: [text(
             'Polmer je \\(1/|\\kappa|\\approx1/1{,}010\\approx0{,}990\\ \\mathrm{m}\\), skoraj \\(1\\ \\mathrm{m}\\). Pot zavija v desno (\\(\\kappa<0\\)), zato središče leži desno od smeri gibanja: v približno \\((0{,}98;\\,-0{,}12)\\ \\mathrm{m}\\), točka pa je v približno \\((0{,}02;\\,0{,}12)\\ \\mathrm{m}\\). Cela krožnica je na sliki; črta od točke do središča je polmer in je pravokotna na pot. Ob \\(t=0{,}5\\) je \\(a_N\\approx-0{,}247\\ \\mathrm{m/s^2}\\), majhen, čeprav je krožnica majhna: hitrost je tu le približno \\(0{,}495\\ \\mathrm{m/s}\\).',
@@ -194,6 +204,7 @@ const kn5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn5-kappa-v2', order: 6,
+        declare: kinematicsFrame({uses: ['kinematics-omega'], highlight: ['speed', 'kappa', 'kappa-v2']}),
         title: text('Normalni del in hitrost', 'The normal part and the speed'),
         purpose: text('Napovedati \\(a_N\\) pri polovični hitrosti na isti poti.', 'Predicting \\(a_N\\) at half the speed on the same path.'),
         explanation: text(
@@ -202,8 +213,8 @@ const kn5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Zapiši napoved z razlogom, nato nastavi Kotna hitrost ω (rad/s) na \\(0{,}5\\) in preberi velikost hitrosti, \\(\\kappa\\), \\(a_N\\) in \\(\\kappa\\cdot|v|^2\\).',
-            'Write down your prediction with the reason, then set Angular velocity ω (rad/s) to \\(0.5\\) and read the speed, \\(\\kappa\\), \\(a_N\\) and \\(\\kappa\\cdot|v|^2\\).',
+            'Zapiši napoved z razlogom, nato s krmilnikom Kotna hitrost nastavi ω na \\(0{,}5\\) in preberi velikost hitrosti, \\(\\kappa\\), \\(a_N\\) in \\(\\kappa\\cdot|v|^2\\).',
+            'Write down your prediction with the reason, then use the Angular velocity control to set ω to \\(0.5\\) and read the speed, \\(\\kappa\\), \\(a_N\\) and \\(\\kappa\\cdot|v|^2\\).',
         ),
         expectedObservations: [text(
             'Velikost hitrosti je \\(0{,}5\\ \\mathrm{m/s}\\), polovica. Pot je ista krožnica, zato \\(\\kappa=1\\ \\mathrm{1/m}\\) ostane. Normalni del je \\(a_N=\\kappa|v|^2=1\\cdot0{,}5^2=0{,}25\\ \\mathrm{m/s^2}\\), štirikrat manj: hitrost je v kvadratu. Odčitek \\(\\kappa\\cdot|v|^2\\) je \\(0{,}25\\), enak \\(a_N\\); \\(a_T=0\\), ker je hitrost stalna.',
@@ -215,6 +226,7 @@ const kn5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'kn5-explore', order: 7,
+        declare: kinematicsFrame({open: ['tools']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Napovedati \\(a_N\\) po formuli na zbirki krivulj in jo preveriti.', 'Predicting \\(a_N\\) by the formula on the catalogue curves and checking it.'),
         explanation: text(

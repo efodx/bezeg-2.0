@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../base/GraphHost';
 import type {PresetDataCheck} from '../../base/presets/PresetCollection';
 import {installBoardShims} from '../../base/realGraphTestHarness';
+import {runAs} from '../../base/writes/writeSource';
 import {renderMessage, setLanguage} from '../../../localization';
 import {DEFAULT_KINEMATICS_STATE, serializeKinematicsState, withMotion, type KinematicsState} from '../../../kinematics/kinematicsModel';
 import {KinematicsGraph} from './KinematicsGraph';
@@ -25,7 +26,7 @@ const circular: KinematicsState = {...withMotion(DEFAULT_KINEMATICS_STATE, 'circ
 describe('curve-kinematics Preset collection', () => {
     test.each([['the default', DEFAULT_KINEMATICS_STATE], ['a varied circular motion', circular]])('%s round-trips through the file check and a fresh graph', (_name, state) => {
         const source = mountGraph(new KinematicsGraph());
-        act(() => { source.setState(state); });
+        act(() => { runAs('learner', () => { source.setState(state); }); });
         const preset = json(source.exportPreset());
         expect(preset.id).toBe('curve-kinematics');
         expect(preset.data).toEqual(serializeKinematicsState(state));
@@ -33,7 +34,7 @@ describe('curve-kinematics Preset collection', () => {
         expect(kinematicsPresetCollection().check(preset.data)).toEqual({data: serializeKinematicsState(state)});
 
         const fresh = mountGraph(new KinematicsGraph());
-        act(() => { fresh.importPreset(preset); });
+        act(() => { runAs('learner', () => { fresh.importPreset(preset); }); });
         expect(serializeKinematicsState(fresh.state)).toEqual(serializeKinematicsState(state));
         expect(fresh.time).toBe(0);
         expect(fresh.playing).toBe(false);
@@ -59,10 +60,10 @@ describe('a Preset file with a stored view keeps that view', () => {
 
     test('the stored boardState is kept with data that frames another view', () => {
         const source = mountGraph(new ViewedGraph());
-        act(() => { source.setState(circular); });
+        act(() => { runAs('learner', () => { source.setState(circular); }); });
         const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
         const fresh = mountGraph(new ViewedGraph());
-        act(() => { fresh.importPreset(preset); });
+        act(() => { runAs('learner', () => { fresh.importPreset(preset); }); });
         expect(fresh.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)))).toEqual(view);
     });
 });

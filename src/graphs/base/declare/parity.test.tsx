@@ -95,6 +95,11 @@ const arcAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the readout help carries the help line the old panel showed above its details (it carries no readout marker, so the recording holds none), and the mover line "t = .., s(t) = .." is declared as a note while the old panel drew it only as a board caption, which the recording holds as a caption'},
 ];
 
+const kinematicsAccepted: readonly AcceptedDifference[] = [
+    {kind: 'missing', where: 'note', reason: 'the status line began "Čas t s." and then the sentence about the speed change; the time is the declared row time now (a puck and a readout value), so the note keeps only the sentence'},
+    {kind: 'extra', where: 'note', reason: 'the same status sentence without the leading "Čas t s." (the time is the row time); the recorded note is its time-prefixed form'},
+];
+
 const combAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: 'the join sentence "Stik N: ukrivljenost κ levo .., desno .., skok .." was the board caption of the comb (the recording holds it as a caption); the caption only repeated the readout, so it is removed and the sentence is a declared note of the Odčitki card (owner, 2026-11-27)'},
 ];
@@ -956,6 +961,29 @@ const SAMPLES: readonly Sample[] = [
             {name: 'spiral theta = pi', apply: run(g => { g.setCurve('spiral'); g.setParameter(Math.PI); })},
             {name: 'cardioid cusp theta = pi', apply: run(g => { g.setCurve('cardioid'); g.setParameter(Math.PI); })},
             {name: 'rose theta = pi/3', apply: run(g => { g.setCurve('rose'); g.setParameter(Math.PI / 3); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/kinematics/__parity__/curve-kinematics.json', demonstration: 'curve-kinematics', accepted: kinematicsAccepted, states: (() => {
+        type Kin = {applyKinematicsAction(action: unknown): void};
+        const base = {v0: 20, alpha: 45, radius: 2, omega: 1, b: 0, showVelocity: true, showAcceleration: true, split: false, trace: true, osculating: false};
+        // every state names the motion, every stored field and the time, so a state does not inherit the previous one
+        const scene = (motion: string, params: Record<string, unknown>, t: number): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const kin = graph as unknown as Kin;
+                kin.applyKinematicsAction({kind: 'kinematics', operation: 'set-motion', motion});
+                kin.applyKinematicsAction({kind: 'kinematics', operation: 'set-params', ...base, ...params});
+                kin.applyKinematicsAction({kind: 'kinematics', operation: 'set-time', t});
+            });
+        };
+        return [
+            {name: 'cycloid, t = 0 (cusp)', apply: scene('cycloid', {}, 0)},
+            {name: 'cycloid, t = pi/2', apply: scene('cycloid', {}, Math.PI / 2)},
+            {name: 'cycloid, split and osculating circle, t = 0,5', apply: scene('cycloid', {split: true, osculating: true}, 0.5)},
+            {name: 'cardioid, velocity only, t = 2', apply: scene('cardioid', {showAcceleration: false}, 2)},
+            {name: 'projectile, 15 m/s at 60 degrees, t = 1', apply: scene('projectile', {v0: 15, alpha: 60, trace: false}, 1)},
+            {name: 'circular, R = 3, omega = 2, t = 0,79', apply: scene('circular', {radius: 3, omega: 2}, 0.79)},
+            {name: 'circular, speed variation b = 0,5, split, t = 1,12', apply: scene('circular', {radius: 1, b: 0.5, split: true}, 1.12)},
+            {name: 'rose, no arrows, t = 1', apply: scene('rose', {showVelocity: false, showAcceleration: false}, 1)},
         ] satisfies ParityState[];
     })()},
     {file: 'curves/reduction/__parity__/reduction.json', demonstration: 'reduction', accepted: reductionAccepted, states: (() => {
@@ -1859,6 +1887,23 @@ const SAMPLES: readonly Sample[] = [
             {name: 'sampling, 11 Hz at 12 Hz, join', apply: tone({f1: 11}, {showJoin: true}, 0.52)},
             {name: 'sampling, 5 Hz at 12 Hz, sinc', apply: tone({f1: 5}, {showJoin: true, showSinc: true, extra: 192}, 0.3)},
             {name: 'sampling, 12 Hz at 12 Hz (at rest)', apply: tone({f1: 12}, {showAlias: true}, 0.2)},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/epicycles.json', demonstration: 'epicycles', accepted: ['centre', 'circle-1', 'circle-2', 'circle-3'].map(id => ({
+        kind: 'extra', where: `row ${id}`, reason: 'the table of all terms stays in Orodja; the board names the centre and the three largest circles as rows, which the panel showed only in its table and sentence',
+    }) as const), states: (() => {
+        type Epi = {setN(value: number): void; setExample(value: string): void; setParametrization(value: string): void; setTime(value: number): void};
+        const run = (edit: (graph: Epi) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Epi)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'circle, N = 0 (centre only)', apply: run(g => { g.setExample('circle'); g.setN(0); })},
+            {name: 'circle, N = 1, t = pi/2', apply: run(g => { g.setN(1); g.setTime(Math.PI / 2); })},
+            {name: 'circle, N = 5', apply: run(g => { g.setN(5); g.setTime(0); })},
+            {name: 'diamond, N = 9', apply: run(g => { g.setExample('diamond'); g.setN(9); })},
+            {name: 'uneven, equal, N = 9', apply: run(g => { g.setExample('uneven'); })},
+            {name: 'uneven, chord length, N = 9', apply: run(g => { g.setParametrization('chord'); })},
+            {name: 'uneven, N = 50 (the cap)', apply: run(g => { g.setParametrization('equal'); g.setN(50); })},
+            {name: 'outline of Slovenia, N = 12', apply: run(g => { g.setExample('slovenia'); g.setN(12); })},
         ] satisfies ParityState[];
     })()},
 ];

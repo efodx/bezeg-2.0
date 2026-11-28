@@ -2,7 +2,12 @@ import React, {useSyncExternalStore} from "react";
 import BaseGraph, {BaseGraphState} from "../../base/BaseGraph";
 import type {TransientState} from "../../base/BaseGraph";
 import {GraphSession} from "../../base/GraphSession";
-import {currentLanguage, onLanguageChange, t, useT} from "../../../localization";
+import {currentLanguage, message, messageNumber, onLanguageChange, renderMessage, t, useT, type Message} from "../../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ReadoutRow, ViewMarks} from "../../base/declare/graphDeclaration";
+import {runAs} from "../../base/writes/writeSource";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
+import {DomainError} from "../../functions/BaseFunctionGraph";
+import {PuckOwned} from "../../base/controls/PuckOwnership";
 import {formatNumber} from "../../../analysis/format";
 import {ChoiceSelect} from "../../../inputs/ChoiceSelect";
 import {BooleanField} from "../../../inputs/BooleanField";
@@ -24,7 +29,7 @@ import type {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry"
 import {circularSource} from "../../../kinematics/motion";
 import {
     arrowEnd, componentVectors, DEFAULT_KINEMATICS_STATE, deriveKinematics, Evaluation, evaluateAt, FIELD_RANGES, GRAVITY,
-    KinematicsDerived, KinematicsState, MotionChoice, MOTION_IDS, NumericField, parseKinematicsState, SAMPLES, serializeKinematicsState, snapField, ToggleField, withMotion,
+    KinematicsDerived, KinematicsState, MotionChoice, MOTION_IDS, NUMERIC_FIELDS, NumericField, parseKinematicsState, SAMPLES, serializeKinematicsState, snapField, ToggleField, withMotion,
 } from "../../../kinematics/kinematicsModel";
 
 /** The scene state: the stored fields of `KinematicsState`, nothing derived. The time and the playing flag are host state, never stored. */
@@ -58,79 +63,41 @@ interface DrawnCurve {
     updateDataArray: () => void;
 }
 
-/** Room above the path for the captions, as a fraction of the path extent (about 100 px at the opening view on a desktop board); the captions stand in the top left corner, over the margin and this room. */
-const CAPTION_ROOM = 0.25;
+/** The legend entry (and drawn object) of each arrow. */
+const UNIT_KEYS = {m: "kinematics_graph_unit_m", s: "kinematics_graph_unit_s", speed: "kinematics_graph_unit_speed", accel: "kinematics_graph_unit_accel", curv: "kinematics_graph_unit_curv"} as const;
 
-/** The least height in pixels the path box keeps under the captions, however many rows they take. */
-const MIN_PATH_PX = 120;
+const ARROW_LEGEND = {v: "velocity", a: "acceleration", at: "tangential", an: "normal"} as const;
 
 /** Points of the drawn osculating circle, and the largest radius drawn, in sizes of the board frame (above it the circle is not drawn). */
 const OSCULATING_SAMPLES = 180;
 const OSCULATING_RADIUS_FRAMES = 2;
-
-/** One text row of a caption, in pixels (14 px type), and the widest an average character of it is. */
-const CAPTION_ROW_PX = 20;
-const CAPTION_CHAR_PX = 7.5;
-
-/** Boards narrower than this set the captions in a smaller type (12 px) so the stack leaves the path its room. */
-const COMPACT_BOARD_PX = 500;
 
 /** The pixel size of an arrow tag, from its character count (a subscript letter is a narrow glyph) and the font size. */
 export function tagSize(text: string, fontSize: number): {w: number; h: number} {
     return {w: Math.ceil(text.length * 0.6 * fontSize) + 4, h: Math.ceil(fontSize * 1.25) + 2};
 }
 
-/** The type of the captions on a board `width` px wide: font size, row height and the widest an average character is, in pixels. */
-export function captionMetrics(width: number): {fontSize: number; rowPx: number; charPx: number} {
-    return width < COMPACT_BOARD_PX ? {fontSize: 12, rowPx: 16, charPx: 6.4} : {fontSize: 14, rowPx: CAPTION_ROW_PX, charPx: CAPTION_CHAR_PX};
-}
-
-/** The y-axis tick labels stand left of the axis: up to this many pixels (offset 10 px plus a label of up to four characters) must stay clear. */
-const AXIS_LABEL_PX = 60;
-/** The gap between the y axis and a caption that stands to its right. */
-const AXIS_GAP_PX = 8;
-
 /**
- * Where the captions stand on a board `width` px wide whose y axis is `axisPx` px from the left edge (negative or beyond `width` when the axis is off
- * the board): `indent` px from the left edge and `room` px wide. The captions never cover the axis tick labels, which stand left of the axis: they go
- * to the right of the axis when that side is the wider one, else to the left of its labels.
+ * The board rectangle [left, top, right, bottom] for a motion: the path box with a margin of one full arrow and a twentieth of the extent. No board text stands on it (the
+ * legend and the readout name everything), so no room is kept for captions and the frame does not depend on the size of the board.
  */
-export function captionPlacement(axisPx: number, width: number): {indent: number; room: number} {
-    const edge = 10;
-    if (!Number.isFinite(axisPx) || axisPx <= edge + AXIS_GAP_PX || axisPx >= width + AXIS_LABEL_PX) return {indent: edge, room: Math.max(width - 2 * edge, 100)};
-    // An axis just beyond the right edge still has its tick labels on the board: keep the captions left of them.
-    if (axisPx >= width) return {indent: edge, room: Math.max(Math.min(axisPx - AXIS_LABEL_PX, width) - 2 * edge, 100)};
-    const right = {indent: axisPx + AXIS_GAP_PX, room: width - axisPx - AXIS_GAP_PX - edge};
-    const left = {indent: edge, room: axisPx - AXIS_LABEL_PX - edge};
-    const wider = right.room >= left.room ? right : left;
-    return {indent: wider.indent, room: Math.max(wider.room, 100)};
-}
-
-/** The lines a caption takes in `room` px: the browser wraps the text at the edge of the board. */
-export function captionLines(text: string, room: number, charPx: number = CAPTION_CHAR_PX): number {
-    return Math.max(1, Math.ceil((text.length * charPx) / Math.max(room, 100)));
-}
-
-/**
- * The board rectangle [left, top, right, bottom] for a motion: the path box, a margin of one full arrow, and room on top for the captions. Without `captions`
- * the room is a fixed share of the path. With them (`roomPx` of the caption stack on a board `widthPx` by `heightPx`) the frame has exactly the aspect of the
- * board and keeps `roomPx` clear above the path box, so the path takes what is left of the board.
- */
-export function frameFor(derived: KinematicsDerived, captions?: {readonly roomPx: number; readonly widthPx: number; readonly heightPx: number}): [number, number, number, number] {
+export function frameFor(derived: KinematicsDerived): [number, number, number, number] {
     const [minX, maxX, minY, maxY] = derived.box;
     const extent = Math.max(maxX - minX, maxY - minY, 1e-6);
     const margin = derived.scales.unit + 0.05 * extent;
-    if (!captions || !(captions.widthPx > 0) || !(captions.heightPx > 0)) return [minX - margin, maxY + margin + CAPTION_ROOM * extent, maxX + margin, minY - margin];
-    const width = maxX - minX + 2 * margin;
-    const height = maxY - minY + 2 * margin;
-    const room = Math.min(captions.roomPx, captions.heightPx - MIN_PATH_PX);
-    // Pixels per board unit: the path box with its margin must fit the width and the height left under the captions.
-    const scale = Math.min(captions.widthPx / width, (captions.heightPx - room) / height);
-    const bottom = minY - margin;
-    const middle = (minX + maxX) / 2;
-    const half = captions.widthPx / (2 * scale);
-    return [middle - half, bottom + captions.heightPx / scale, middle + half, bottom];
+    return [minX - margin, maxY + margin, maxX + margin, minY - margin];
 }
+
+/** The ids of the kinematics declaration (`DeclarationIds`): the parameters by arbiter key, the readout rows of `readoutRows`, the notes, the drawn legend entries and the actions. */
+export type KinematicsIds = {
+    param: "kinematics-time" | "kinematics-v0" | "kinematics-alpha" | "kinematics-radius" | "kinematics-omega" | "kinematics-b";
+    row: "time" | "position" | "velocity" | "speed" | "acceleration" | "a-t" | "a-n" | "kappa" | "kappa-v2" | "period" | "flight" | "range" | "height" | "gravity"
+        | "scale-velocity" | "scale-acceleration";
+    note: "status" | "notice" | "ended" | "osculating-far" | "sign";
+    legend: "path" | "trace" | "point" | "reference" | "velocity" | "acceleration" | "tangential" | "normal" | "osculating" | "axes";
+    section: never;
+    action: "play-pause" | "reset-time" | "split" | "osculating";
+};
 
 /**
  * The kinematics graph (kinematics spec KN1 to KN5, ADR 0050): a point moving along a catalogue curve, a projectile or a circle, with
@@ -146,15 +113,14 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
     private derivedCache?: {state: KinematicsGraphState; key: string; value: KinematicsDerived};
     private evaluationCache?: {derived: KinematicsDerived; t: number; value: Evaluation};
     private drawnFrame = "";
-    /** The caption texts and the font size they are set in (a narrow board sets them smaller; the board width can change after the build). */
-    private captionTexts: JXG.Text[] = [];
-    private captionFontSize = 14;
-    private frameCache?: {derived: KinematicsDerived; key: string; value: [number, number, number, number]};
+    /** The board objects the legend names, by legend id (`drawnObject`). */
+    private readonly drawnElements = new Map<string, JXG.GeometryElement>();
+    private readonly timeListeners = new Set<() => void>();
     /** The function-valued `visible` of the owned elements; JSXGraph's `update()` does not re-evaluate them, so a change of any result needs `fullUpdate()`. */
     private visibilityProbes: (() => boolean)[] = [];
     private visibilityKey = "";
     private derivations = 0;
-    private notice?: {readonly state: KinematicsGraphState; readonly text: () => string};
+    private notice?: {readonly state: KinematicsGraphState; readonly message: Message};
     private reconciledFor?: KinematicsGraphState;
     private driver?: AnimationDriver;
     /** The one announcement region of the graph. */
@@ -208,7 +174,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
 
     override importPresetData(data: KinematicsState): void {
         const imported = serializeKinematicsState(data);
-        if (this.keepImportedView) this.drawnFrame = this.frame(deriveKinematics(imported), imported).map(value => value.toFixed(4)).join(",");
+        if (this.keepImportedView) this.drawnFrame = frameFor(deriveKinematics(imported)).map(value => value.toFixed(4)).join(",");
         this.setState(imported);
     }
 
@@ -217,11 +183,8 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         return {...super.figurePresetGraphState(graphState), ...(parsed.ok ? parsed.value : {})};
     }
 
-    private reframeOnBuild = false;
-
-    /** The bare frame; every use of the initial view (a new board, Reset, a Preset without a view) is framed again with the room of the captions once the scene stands. */
+    /** The frame of the default motion; every use of the initial view (a new board, Reset, a Preset without a view). */
     protected override initialView(): [number, number, number, number] {
-        this.reframeOnBuild = true;
         return frameFor(deriveKinematics(DEFAULT_KINEMATICS_STATE));
     }
 
@@ -235,6 +198,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
 
     private notifyHost(): void {
         this.hostVersion++;
+        this.timeListeners.forEach(listener => listener());
         this.hostListeners.forEach(listener => listener());
     }
 
@@ -289,20 +253,6 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         this.buildScene();
         const session = this.graphSession;
         if (session) {
-            // A resize of the board (the session's observer ends in `setBoundingBox`, which fires `boundingbox`): the caption type, the wrap and the
-            // caption room of the frame follow the new size, and the frame is drawn again once for it. Panning and zooming keep the size and are left alone.
-            let size = `${this.board.canvasWidth}x${this.board.canvasHeight}`;
-            const board = this.board;
-            const onBoundingBox = () => {
-                const now = `${board.canvasWidth}x${board.canvasHeight}`;
-                if (now === size) return;
-                size = now;
-                if (!this.hasBoard || !this.graphSession?.isAlive) return;
-                this.boardView.resizing(() => this.applyFrame());
-                this.boardUpdate();
-            };
-            board.on("boundingbox", onBoundingBox);
-            session.registerCleanup(() => board.off("boundingbox", onBoundingBox));
             session.registerCleanup(() => this.disposeScene());
             session.registerCleanup(() => {
                 this.stopDriver();
@@ -328,11 +278,6 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         // A replacement (checkpoint restore, Preset import) brings its own view: build first, then mark the frame as drawn so it is kept.
         if (this.hasBoard && this.graphSession?.isAlive) {
             if (this.objects.length === 0) this.buildScene();
-            if (this.reframeOnBuild) {
-                this.reframeOnBuild = false;
-                this.drawnFrame = "";
-                this.boardView.following(() => this.applyFrame());
-            }
             this.drawnFrame = this.frameKey();
         }
         this.syncBoard();
@@ -355,12 +300,6 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
     /** Redraws; a change of what any element shows (a switch, the motion, an arrow shrinking to nothing) needs the full update. */
     override boardUpdate(): void {
         if (!this.graphSession?.isAlive || !this.hasBoard) return;
-        const {fontSize} = captionMetrics(this.board.canvasWidth);
-        if (fontSize !== this.captionFontSize) {
-            this.captionFontSize = fontSize;
-            const attributes: JXG.TextAttributes = {fontSize};
-            for (const text of this.captionTexts) text.setAttribute(attributes);
-        }
         const key = this.visibilityProbes.map(probe => probe() ? "1" : "0").join("");
         if (key !== this.visibilityKey) {
             this.visibilityKey = key;
@@ -368,40 +307,13 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         } else this.board.update();
     }
 
+    /** The frame of the current motion. */
+    private frame(): [number, number, number, number] {
+        return frameFor(this.derived());
+    }
+
     private frameKey(): string {
         return this.frame().map(value => value.toFixed(4)).join(",");
-    }
-
-    /**
-     * The frame of the derived data with the room the caption stack of this board takes: every caption the switches can show (so the time never reframes),
-     * wrapped at the room the captions have beside the y axis of the frame. Captions only grow with the room narrowing, so a few passes settle it.
-     */
-    private frame(derived: KinematicsDerived = this.derived(), state: KinematicsState = this.state): [number, number, number, number] {
-        const key = `${state.motion}|${state.trace}|${state.showVelocity}|${state.showAcceleration}|${state.split}|${state.osculating}|${state.b}|${t("kinematics_graph_cap_point")}|${this.hasBoard ? this.board.canvasWidth : 0}|${this.hasBoard ? this.board.canvasHeight : 0}`;
-        const cached = this.frameCache;
-        if (cached && cached.derived === derived && cached.key === key) return cached.value;
-        const value = this.computeFrame(derived, state);
-        this.frameCache = {derived, key, value};
-        return value;
-    }
-
-    private computeFrame(derived: KinematicsDerived, state: KinematicsState): [number, number, number, number] {
-        const width = this.hasBoard ? this.board.canvasWidth : 0;
-        const height = this.hasBoard ? this.board.canvasHeight : 0;
-        if (!(width > 0) || !(height > 0)) return frameFor(derived);
-        const reserved = this.captionStack(state).filter(caption => caption.reserve());
-        const type = captionMetrics(width);
-        const rowsIn = (room: number) => reserved.reduce((sum, caption) => sum + Math.max(...caption.texts().map(text => captionLines(text, room, type.charPx))), 0);
-        let rows = rowsIn(Math.max(width - 20, 100));
-        let frame = frameFor(derived, {roomPx: 10 + rows * type.rowPx, widthPx: width, heightPx: height});
-        for (let pass = 0; pass < 4; pass++) {
-            const axisPx = ((0 - frame[0]) * width) / (frame[2] - frame[0]);
-            const next = rowsIn(captionPlacement(axisPx, width).room);
-            if (next <= rows) break;
-            rows = next;
-            frame = frameFor(derived, {roomPx: 10 + rows * type.rowPx, widthPx: width, heightPx: height});
-        }
-        return frame;
     }
 
     /** Frames the board once per frame key. Called by the sync that follows a build, never by `buildScene` (a replacement may bring a stored view). */
@@ -477,19 +389,19 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         const regular = () => ev().kind === "regular";
 
         // The whole path, faint; the part travelled, thick.
-        curve(() => [[...this.derived().pathX], [...this.derived().pathY]], {strokeColor: GraphPalette.referenceCurve, strokeWidth: 1});
-        curve(() => {
+        this.drawnElements.set("path", curve(() => [[...this.derived().pathX], [...this.derived().pathY]], {strokeColor: GraphPalette.referenceCurve, strokeWidth: 1}));
+        this.drawnElements.set("trace", curve(() => {
             const derived = this.derived();
             const e = ev();
             const count = Math.min(SAMPLES, Math.floor(e.t / derived.tEnd * SAMPLES));
             return [[...derived.pathX.slice(0, count + 1), e.point[0]], [...derived.pathY.slice(0, count + 1), e.point[1]]];
-        }, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 3, visible: watch(() => state().trace)});
+        }, {strokeColor: GraphPalette.primaryCurve, strokeWidth: 3, visible: watch(() => state().trace)}));
 
         // The moving point, and for the circular motion with a changing speed the point of the uniform motion.
-        const mover = dot(() => ev().point[0], () => ev().point[1], () => true, {size: 5, strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.primaryCurve});
+        const mover = dot(() => ev().point[0], () => ev().point[1], () => true, {size: 5, strokeColor: GraphPalette.primaryCurve, fillColor: GraphPalette.primaryCurve}); this.drawnElements.set("point", mover);
         const referenceAt = () => circularSource(state().radius, state().omega).at(ev().t).point;
         const referenceVisible = () => state().motion === "circular" && state().b > 0;
-        dot(() => referenceAt()[0], () => referenceAt()[1], referenceVisible, {size: 4, face: "[]", strokeColor: GraphPalette.constructionAccent, fillColor: "none"});
+        this.drawnElements.set("reference", dot(() => referenceAt()[0], () => referenceAt()[1], referenceVisible, {size: 4, face: "[]", strokeColor: GraphPalette.constructionAccent, fillColor: "none"}));
 
         // Arrows from the point to owned hidden end points. Velocity and its parts need a direction, so a zero speed hides them.
         const regularEv = () => { const e = ev(); return e.kind === "regular" ? e : undefined; };
@@ -515,7 +427,6 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         ];
         // The tags stand at the arrow tips, placed in pixels by the shared label placer so that none runs into another, into an arrowhead,
         // into the moving point or into a shaft. The layout is cached by its inputs: at most 4 tags x 48 candidates x (4 tips and about 60 shaft samples) per change, nothing on a frame that moves no tip.
-        let captionBlock: () => PxBox | undefined = () => undefined;
         let tagCache: {key: string; boxes: Record<string, PxBox>} | undefined;
         const tagLayout = (): Record<string, PxBox> => {
             const {ux, uy, left, top} = this.scaleOf();
@@ -525,19 +436,18 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             const shown = arrows.filter(arrow => arrow.shown() && longEnough(arrow.name)());
             const point = toPx(...ev().point);
             const tips = shown.map(arrow => ({arrow, tip: toPx(...endOf(arrow.name)())}));
-            const block = captionBlock();
             const ticks = this.tickNumberBoxes(toPx, left, top, width, height, ux, uy);
-            const key = [width, height, ux, uy, left, top, fontSize, currentLanguage(), point, block ? block.y1 : 0,
+            const key = [width, height, ux, uy, left, top, fontSize, currentLanguage(), point,
                 this.displaySettings.tickNumbersVisible(), this.displaySettings.fontSize, ticks.length, tips.map(({arrow, tip}) => `${arrow.name}${tip}`)].join("|");
             if (tagCache?.key === key) return tagCache.boxes;
             const samples = tips.flatMap(({tip}) => sampleLine([point[0], tip[0]], [point[1], tip[1]], (x, y) => [x, y], width * 4, height * 4, 5, 60));
             const items: TagItem[] = tips.map(({arrow, tip}) => ({id: arrow.name, tip, ...tagSize(t(`kinematics_graph_${arrow.key}`), fontSize)}));
             const strips = [{x0: 0, y0: top * uy, x1: width, y1: top * uy + 22}, {x0: (0 - left) * ux - 40, y0: 0, x1: (0 - left) * ux, y1: height}];
-            let boxes = placeArrowTags(items, {width, height, point, samples, block, strips, blocks: ticks});
+            let boxes = placeArrowTags(items, {width, height, point, samples, strips, blocks: ticks});
             // A tick number costs a spot more than a shaft, so where the numbers would force two tags onto each other the tags are placed as before.
             const placed = Object.values(boxes);
             if (placed.length < items.length || placed.some((a, i) => placed.slice(i + 1).some(b => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0))) {
-                boxes = placeArrowTags(items, {width, height, point, samples, block, strips});
+                boxes = placeArrowTags(items, {width, height, point, samples, strips});
             }
             tagCache = {key, boxes};
             return boxes;
@@ -545,9 +455,9 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         for (const arrow of arrows) {
             const visible = watch(() => arrow.shown() && longEnough(arrow.name)());
             const end = dot(() => endOf(arrow.name)()[0], () => endOf(arrow.name)()[1], () => false);
-            this.own(board.create("arrow", [mover, end], {
+            this.drawnElements.set(ARROW_LEGEND[arrow.name], this.own(board.create("arrow", [mover, end], {
                 strokeColor: arrow.color, strokeWidth: arrow.width, dash: arrow.dash, fixed: true, highlight: false, withLabel: false, visible,
-            }));
+            })));
             const corner = (): PxBox => tagLayout()[arrow.name] ?? {x0: 0, y0: 0, x1: 0, y1: 0};
             this.own(board.create("text", [() => this.scaleOf().left + corner().x0 / this.scaleOf().ux, () => this.scaleOf().top - corner().y0 / this.scaleOf().uy,
                 // The name of the vector, typeset at the compact size of the named labels (M03).
@@ -557,8 +467,8 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             }) as JXG.Text);
         }
 
-        // The osculating circle needs a direction; the tangent and normal axes (below, after the captions) too.
-        curve(() => {
+        // The osculating circle needs a direction; the tangent and normal axes too.
+        this.drawnElements.set("osculating", curve(() => {
             const circle = this.osculatingCircleNow();
             if (!circle) return [[], []];
             const xs: number[] = [];
@@ -569,7 +479,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
                 ys.push(circle.centre[1] + circle.radius * Math.sin(angle));
             }
             return [xs, ys];
-        }, {strokeColor: GraphPalette.additionalCurves[0], strokeWidth: 2, visible: watch(() => this.osculatingCircleNow() !== undefined)});
+        }, {strokeColor: GraphPalette.additionalCurves[0], strokeWidth: 2, visible: watch(() => this.osculatingCircleNow() !== undefined)}));
         // The centre (a small fixed point) and the radius: a thin segment from the moving point to the centre, in the circle's colour.
         const circleShown = watch(() => this.osculatingCircleNow() !== undefined);
         const centre = dot(() => this.osculatingCircleNow()?.centre[0] ?? 0, () => this.osculatingCircleNow()?.centre[1] ?? 0, circleShown, {
@@ -579,36 +489,15 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             strokeColor: GraphPalette.additionalCurves[0], strokeWidth: 1, fixed: true, highlight: false, withLabel: false, visible: circleShown,
         }));
 
-        // The captions: stacked from the top left of the screen, only the visible ones take a row. They name every element a readout names.
-        const captions = this.captionStack();
-        // The captions stand clear of the y-axis tick labels (`captionPlacement`): right of the axis, or left of its labels on the wider side.
-        const placement = () => { const {left, ux} = this.scaleOf(); return captionPlacement((0 - left) * ux, board.canvasWidth); };
-        const type = () => captionMetrics(board.canvasWidth);
-        this.captionTexts = [];
-        this.captionFontSize = type().fontSize;
-        captions.forEach((caption, index) => {
-            // A caption wider than its room wraps: the rows above add up the lines each takes, so none runs into the next.
-            const rows = () => captions.slice(0, index).filter(other => other.visible()).reduce((sum, other) => sum + captionLines(other.text(), placement().room, type().charPx), 0);
-            const text = this.own(board.create("text", [
-                () => { const {left, ux} = this.scaleOf(); return left + placement().indent / ux; },
-                () => { const {top, uy} = this.scaleOf(); return top - (10 + rows() * type().rowPx) / uy; },
-                () => caption.text(),
-            ], {strokeColor: caption.color, fontSize: type().fontSize, anchorX: "left", anchorY: "top", fixed: true, highlight: false, withLabel: false, visible: watch(caption.visible)}) as JXG.Text);
-            this.captionTexts.push(text);
-        });
-
-        // The tangent and normal axes: thin dashed lines through the point while the acceleration is split, cut off under the caption stack so that no
-        // axis runs through caption text. Each is the part of the line inside the board and below the last caption row.
-        const captionBottomPx = () => 10 + captions.filter(caption => caption.visible()).reduce((sum, caption) => sum + captionLines(caption.text(), placement().room, type().charPx), 0) * type().rowPx;
-        captionBlock = () => captions.some(caption => caption.visible()) ? {x0: 0, y0: 0, x1: placement().indent + placement().room, y1: captionBottomPx()} : undefined;
+        // The tangent and normal axes: thin dashed lines through the point while the acceleration is split. Each is the part of the line inside the board.
         for (const normal of [false, true]) {
-            curve(() => {
+            const axis = curve(() => {
                 const e = regularEv();
                 if (!e) return [[], []];
                 const {left, top, ux, uy} = this.scaleOf();
                 const right = left + board.canvasWidth / ux;
                 const bottom = top - board.canvasHeight / uy;
-                const limit = top - (captionBottomPx() + 4) / uy;
+                const limit = top;
                 const dx = (normal ? -e.velocity[1] : e.velocity[0]) / e.speed;
                 const dy = (normal ? e.velocity[0] : e.velocity[1]) / e.speed;
                 // Clip the line point + s * (dx, dy) to left <= x <= right, bottom <= y <= limit.
@@ -622,14 +511,14 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
                 }
                 if (!(lo < hi) || !Number.isFinite(lo) || !Number.isFinite(hi)) return [[], []];
                 return [[e.point[0] + lo * dx, e.point[0] + hi * dx], [e.point[1] + lo * dy, e.point[1] + hi * dy]];
-            }, {strokeColor: GraphPalette.label, strokeWidth: 1, dash: 3, visible: watch(() => state().split && regular())});
+            }, {strokeColor: GraphPalette.label, strokeWidth: 1, dash: 3, visible: watch(() => state().split && regular())}); if (!normal) this.drawnElements.set("axes", axis);
         }
     }
 
     /**
      * The osculating circle at the current time: radius 1/|kappa|, centre on the side the path turns to (the left normal for kappa > 0). Undefined when
      * the switch is off, at a cusp, on a straight stretch, and when the radius exceeds OSCULATING_RADIUS_FRAMES board sizes (a circle that large is not a
-     * picture of the bend; the caption says so).
+     * picture of the bend).
      */
     osculatingCircleNow(): {readonly centre: readonly [number, number]; readonly radius: number} | undefined {
         if (!this.state.osculating) return undefined;
@@ -643,45 +532,9 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         return {centre: [e.point[0] + nx / e.kappa, e.point[1] + ny / e.kappa], radius};
     }
 
-    /**
-     * The caption rows, top to bottom. `visible` is what shows now; `reserve` is what the switches in `reserved` (the stored state) can show at some time, which is
-     * what the frame keeps room for. `texts` are the texts a row can take (the osculating row has two).
-     */
-    private captionStack(reserved: KinematicsState = this.state): readonly {text: () => string; texts: () => string[]; visible: () => boolean; reserve: () => boolean; color: string}[] {
-        const live = () => this.state;
-        const regular = () => this.evaluation().kind === "regular";
-        const referenceVisible = () => live().motion === "circular" && live().b > 0;
-        const row = (text: () => string, visible: () => boolean, color: string, reserve: boolean | (() => boolean) = visible, texts?: () => string[]) =>
-            ({text, texts: texts ?? (() => [text()]), visible, reserve: typeof reserve === "boolean" ? () => reserve : reserve, color});
-        const r = reserved;
-        return [
-            row(() => t("kinematics_graph_cap_point"), () => true, GraphPalette.primaryCurve, true),
-            row(() => t("kinematics_graph_cap_path"), () => true, GraphPalette.label, true),
-            row(() => t("kinematics_graph_cap_trace"), () => live().trace, GraphPalette.primaryCurve, r.trace),
-            row(() => this.scaleCaption("velocity"), () => live().showVelocity, GraphPalette.comparisonCurve, r.showVelocity),
-            row(() => this.scaleCaption("acceleration"), () => live().showAcceleration || live().split, GraphPalette.constructionAccent, r.showAcceleration || r.split),
-            row(() => t("kinematics_graph_cap_components"), () => live().split, GraphPalette.additionalCurves[3], r.split),
-            row(() => t("kinematics_graph_cap_sign"), () => live().split, GraphPalette.additionalCurves[2], r.split),
-            row(() => t("kinematics_graph_cap_axes"), () => live().split && regular(), GraphPalette.label, r.split),
-            row(() => t("kinematics_graph_cap_osculating"), () => this.osculatingCircleNow() !== undefined, GraphPalette.additionalCurves[0], r.osculating,
-                () => [t("kinematics_graph_cap_osculating"), t("kinematics_graph_cap_osculating_far")]),
-            row(() => t("kinematics_graph_cap_osculating_far"), () => live().osculating && regular() && this.osculatingCircleNow() === undefined, GraphPalette.label, false),
-            row(() => t("kinematics_graph_cap_reference"), referenceVisible, GraphPalette.constructionAccent, r.motion === "circular" && r.b > 0),
-            row(() => t("kinematics_graph_cap_gravity", {value0: dec(GRAVITY, 2)}), () => live().motion === "projectile", GraphPalette.label, r.motion === "projectile"),
-            row(() => t("kinematics_graph_cap_cusp"), () => (live().showVelocity && this.standstill()) || ((live().split || live().osculating) && !regular()), GraphPalette.label,
-                r.motion === "cycloid" && (r.showVelocity || r.split || r.osculating)),
-        ];
-    }
-
     /** The unit of a scale in the current language, resolved when it is drawn (the derived data holds no language). */
     private unitOf(kind: "velocity" | "acceleration"): string {
         return t(kind === "velocity" ? "kinematics_graph_unit_speed" : "kinematics_graph_unit_accel");
-    }
-
-    private scaleCaption(kind: "velocity" | "acceleration"): string {
-        const scales = this.derived().scales;
-        const params = {value0: dec(scales.unit, 2), value1: dec(scales[kind].step, 3), value2: this.unitOf(kind)};
-        return t(kind === "velocity" ? "kinematics_graph_cap_scale_velocity" : "kinematics_graph_cap_scale_acceleration", params);
     }
 
     private disposeScene(): void {
@@ -691,7 +544,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             if (alive.length) board.removeObject(alive);
         }
         this.objects = [];
-        this.captionTexts = [];
+        this.drawnElements.clear();
         this.visibilityProbes = [];
         this.visibilityKey = "";
     }
@@ -728,10 +581,20 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
     /** Plays from the current time (from 0 at the end). Under reduced motion nothing moves; the slider still sets the time. */
     play(): void {
         if (this.playingValue || this.reducedMotion() || !this.hasBoard || !this.graphSession?.isAlive) return;
-        if (this.timeValue >= this.derived().tEnd) this.timeValue = 0;
+        if (this.timeValue >= this.derived().tEnd) {
+            this.timeValue = 0;
+            // Attribute the restart to the learner's Play before the lease starts, or the later notify would end that lease.
+            this.timeListeners.forEach(listener => listener());
+        }
         this.playingValue = true;
         this.driver = new AnimationDriver(delta => this.advance(delta), this.animationScheduler());
+        this.driver.useLease({arbiter: () => this.parameters, keys: ["kinematics-time"], onInterrupted: () => this.halt()});
         this.driver.play();
+        // The learner holds the time (dragging its slider): the driver did not start, so the control stays paused.
+        if (!this.driver.isRunning()) {
+            this.halt();
+            return;
+        }
         this.boardUpdate();
         this.notifyHost();
     }
@@ -782,13 +645,13 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
             this.halt();
             this.timeValue = 0;
             const key = previous.b !== 0 && state.b === 0 ? "kinematics_graph_notice_reset_b" : "kinematics_graph_notice_reset";
-            this.notice = {state, text: () => t(key)};
+            this.notice = {state, message: message(key)};
         } else if (motionKey(previous) !== motionKey(state)) {
             const end = this.derived().tEnd;
             if (this.timeValue > end) {
                 this.halt();
                 this.timeValue = end;
-                this.notice = {state, text: () => t("kinematics_graph_notice_clamped", {value0: dec(end, 2)})};
+                this.notice = {state, message: message("kinematics_graph_notice_clamped", {value0: messageNumber(end, 2)})};
             }
         }
         this.notifyHost();
@@ -809,7 +672,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         // A saved time that does not fit the motion is refused, not clamped (shared rule: restored values are never changed); the time is 0 and the status says so.
         this.timeValue = valid ? time : 0;
         this.reconciledFor = this.state;
-        if (time !== undefined && !valid) this.notice = {state: this.state, text: () => t("kinematics_graph_notice_time_refused")};
+        if (time !== undefined && !valid) this.notice = {state: this.state, message: message("kinematics_graph_notice_time_refused")};
         this.notifyHost();
     }
 
@@ -905,7 +768,7 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
                 : e.status === "speeding-up" ? "kinematics_graph_status_speeding"
                     : e.status === "slowing-down" ? "kinematics_graph_status_slowing" : "kinematics_graph_status_stationary"));
         }
-        if (this.notice && this.notice.state === this.state) parts.push(this.notice.text());
+        if (this.notice && this.notice.state === this.state) parts.push(renderMessage(this.notice.message));
         return parts.join(" ");
     }
 
@@ -958,15 +821,176 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
         return rows;
     }
 
+    // ---- Declaration -----------------------------------------------------------------------------------------------------
+
+    /** Whether the arrow of a vector is drawn now: its switch is on, the motion has a direction where one is needed, and it is longer than a thousandth of the full arrow. */
+    private arrowDrawn(name: "v" | "a" | "at" | "an"): boolean {
+        const state = this.state;
+        const e = this.evaluation();
+        if (name === "a") return state.showAcceleration && Math.hypot(...e.acceleration) / this.derived().scales.acceleration.step > MIN_ARROW;
+        if (e.kind !== "regular" || !(name === "v" ? state.showVelocity : state.split)) return false;
+        const vector = name === "v" ? e.velocity : name === "at" ? componentVectors(e).tangential : componentVectors(e).normal;
+        return Math.hypot(vector[0], vector[1]) / this.derived().scales[name === "v" ? "velocity" : "acceleration"].step > MIN_ARROW;
+    }
+
+    /** The numeric pucks that apply to the motion: the launch speed and angle of the projectile, the radius, angular velocity and speed variation of the circular motion. */
+    private fieldPucks(): readonly NumericField[] {
+        return this.state.motion === "projectile" ? ["v0", "alpha"] : this.state.motion === "circular" ? ["radius", "omega", "b"] : [];
+    }
+
+    /** The two switches are pucks where a lesson step flips them (the paths); on the circular motion they stay in Orodja, which keeps the strip short. */
+    private switchPucks(): boolean {
+        return this.state.motion !== "circular";
+    }
+
+    /**
+     * Pure data from the state and the cached derivation. Parameters: the time always, and only the numbers the motion uses (the launch speed and angle, or the radius,
+     * the angular velocity and the speed variation), with the two switches that a step flips as pucks on the other motions, so the strip holds about four at most. Rows
+     * are the readout rows; the legend names what is drawn now; notes carry the status wording; the frame is the path box with the room of one arrow.
+     */
+    protected override declaration(): GraphDeclaration<KinematicsIds> {
+        const state = this.state;
+        const derived = this.derived();
+        const e = this.evaluation();
+        const regular = e.kind === "regular" ? e : undefined;
+        const fieldRange = (field: NumericField) => ({kind: "range" as const, min: FIELD_RANGES[field].min, max: FIELD_RANGES[field].max, step: FIELD_RANGES[field].step, placement: "board" as const});
+        const parameters: ParameterDeclaration<KinematicsIds["param"]>[] = [
+            {key: "kinematics-time", kind: "range", label: message("kinematics_name_time"), symbol: "t", placement: "board", min: 0, max: derived.tEnd, step: TIME_STEP,
+                bigStep: TIME_BIG_STEP, maxDecimals: 2, unit: message("kinematics_graph_unit_s")},
+        ];
+        for (const field of this.fieldPucks()) {
+            switch (field) {
+                case "v0": parameters.push({key: "kinematics-v0", label: message("kinematics_name_v0"), symbol: "v_0", unit: message("kinematics_graph_unit_speed"), bigStep: 5, maxDecimals: 0, ...fieldRange(field)}); break;
+                case "alpha": parameters.push({key: "kinematics-alpha", label: message("kinematics_name_alpha"), symbol: "\\alpha", unit: message("kinematics_unit_degree"), bigStep: 15, maxDecimals: 0, ...fieldRange(field)}); break;
+                case "radius": parameters.push({key: "kinematics-radius", label: message("kinematics_name_radius"), symbol: "R", unit: message("kinematics_graph_unit_m"), bigStep: 1, maxDecimals: 1, ...fieldRange(field)}); break;
+                case "omega": parameters.push({key: "kinematics-omega", label: message("kinematics_name_omega"), symbol: "\\omega", unit: message("kinematics_unit_omega"), bigStep: 1, maxDecimals: 2, ...fieldRange(field)}); break;
+                case "b": parameters.push({key: "kinematics-b", label: message("kinematics_name_b"), symbol: "b", help: message("kinematics_graph_b_help"), bigStep: 0.25, maxDecimals: 2, ...fieldRange(field)}); break;
+            }
+        }
+        const vector = (value: readonly [number, number], unit: keyof typeof UNIT_KEYS): Message => message("kinematics_graph_vector_value", {
+            value0: messageNumber(value[0], 3), value1: messageNumber(value[1], 3), value2: message(UNIT_KEYS[unit])});
+        const quantity = (value: number, unit: keyof typeof UNIT_KEYS, digits = 3) => ({value: messageNumber(value, digits), unit: message(UNIT_KEYS[unit])});
+        const none = message("kinematics_graph_not_defined");
+        const drawn = {v: this.arrowDrawn("v"), a: this.arrowDrawn("a"), at: this.arrowDrawn("at"), an: this.arrowDrawn("an")};
+        const rows: ReadoutRow<KinematicsIds>[] = [
+            {id: "time", name: message("kinematics_graph_r_time"), ...quantity(e.t, "s", 2)},
+            {id: "position", name: message("kinematics_graph_r_position"), value: vector(e.point, "m"), legend: "point"},
+            {id: "velocity", name: message("kinematics_graph_r_velocity"), value: vector(e.velocity, "speed"), ...(drawn.v ? {legend: "velocity" as const} : {})},
+            {id: "speed", name: message("kinematics_graph_r_speed"), ...quantity(e.speed, "speed")},
+            {id: "acceleration", name: message("kinematics_graph_r_acceleration"), value: vector(e.acceleration, "accel"), ...(drawn.a ? {legend: "acceleration" as const} : {})},
+            {id: "a-t", name: message("kinematics_graph_r_at"), ...(regular ? quantity(regular.aT, "accel") : {value: none}), ...(drawn.at ? {legend: "tangential" as const} : {})},
+            {id: "a-n", name: message("kinematics_graph_r_an"), ...(regular ? quantity(regular.aN, "accel") : {value: none}), ...(drawn.an ? {legend: "normal" as const} : {})},
+            {id: "kappa", name: message("kinematics_graph_r_kappa"), ...(regular ? quantity(regular.kappa, "curv") : {value: none})},
+            {id: "kappa-v2", name: message("kinematics_graph_r_kappa_v2"), ...(regular ? quantity(regular.kappaSpeedSquared, "accel") : {value: none})},
+        ];
+        if (state.motion === "circular") rows.push({id: "period", name: message("kinematics_graph_r_period"), ...quantity(derived.tEnd, "s")});
+        if (derived.summary) {
+            rows.push(
+                {id: "flight", name: message("kinematics_graph_r_flight"), ...quantity(derived.summary.flightTime, "s")},
+                {id: "range", name: message("kinematics_graph_r_range"), ...quantity(derived.summary.range, "m")},
+                {id: "height", name: message("kinematics_graph_r_height"), ...quantity(derived.summary.maxHeight, "m")},
+                {id: "gravity", name: message("kinematics_graph_r_g"), ...quantity(GRAVITY, "accel", 2)},
+            );
+        }
+        const scale = (kind: "velocity" | "acceleration"): Message => message("kinematics_graph_r_scale_value", {
+            value0: messageNumber(derived.scales.unit, 2), value1: messageNumber(derived.scales[kind].step, 3), value2: message(kind === "velocity" ? "kinematics_graph_unit_speed" : "kinematics_graph_unit_accel")});
+        if (state.showVelocity) rows.push({id: "scale-velocity", name: message("kinematics_graph_r_scale_velocity"), value: scale("velocity")});
+        if (state.showAcceleration || state.split) rows.push({id: "scale-acceleration", name: message("kinematics_graph_r_scale_acceleration"), value: scale("acceleration")});
+
+        const wording = e.kind === "singular" || this.standstill() ? "kinematics_graph_status_cusp"
+            : e.status === "constant-speed" ? "kinematics_graph_status_constant" : e.status === "speeding-up" ? "kinematics_graph_status_speeding"
+                : e.status === "slowing-down" ? "kinematics_graph_status_slowing" : "kinematics_graph_status_stationary";
+        const notes: ReadoutNote<KinematicsIds>[] = [{id: "status", text: message(wording)}];
+        if (this.notice && this.notice.state === state) notes.push({id: "notice", text: this.notice.message});
+        if (e.t >= derived.tEnd && !this.playingValue) notes.push({id: "ended", text: message("kinematics_graph_status_ended", {value0: messageNumber(e.t, 2)})});
+        if (state.osculating && regular && this.osculatingCircleNow() === undefined) notes.push({id: "osculating-far", text: message("kinematics_note_osculating_far"), tone: "muted"});
+        notes.push({id: "sign", text: message("kinematics_graph_sign_hint"), tone: "muted"});
+
+        const legend: LegendEntry<KinematicsIds>[] = [
+            {id: "path", label: message("kinematics_legend_path"), kind: "line", object: "path"},
+            ...(state.trace ? [{id: "trace" as const, label: message("kinematics_legend_trace"), kind: "line" as const, object: "trace"}] : []),
+            {id: "point", label: message("kinematics_legend_point"), kind: "point", object: "point"},
+            ...(state.motion === "circular" && state.b > 0 ? [{id: "reference" as const, label: message("kinematics_legend_reference"), kind: "ring" as const, object: "reference"}] : []),
+            ...(drawn.v ? [{id: "velocity" as const, label: message("kinematics_legend_velocity"), kind: "line" as const, object: "velocity"}] : []),
+            ...(drawn.a ? [{id: "acceleration" as const, label: message("kinematics_legend_acceleration"), kind: "dashed" as const, object: "acceleration"}] : []),
+            ...(drawn.at ? [{id: "tangential" as const, label: message("kinematics_legend_tangential"), kind: "dashed" as const, object: "tangential"}] : []),
+            ...(drawn.an ? [{id: "normal" as const, label: message("kinematics_legend_normal"), kind: "dashed" as const, object: "normal"}] : []),
+            ...(this.osculatingCircleNow() ? [{id: "osculating" as const, label: message("kinematics_legend_osculating"), kind: "line" as const, object: "osculating"}] : []),
+            ...(state.split && regular ? [{id: "axes" as const, label: message("kinematics_legend_axes"), kind: "dashed" as const, object: "axes"}] : []),
+        ];
+        const actions: ActionDeclaration<KinematicsIds>[] = [
+            {id: "play-pause", label: message(this.playingValue ? "pause" : "play"), placement: "board", enabled: this.playingValue || !this.reducedMotion(),
+                help: this.reducedMotion() ? message("playback_block_reduced_motion_time") : undefined},
+            {id: "reset-time", label: message("reset"), placement: "board", enabled: this.playingValue || this.timeValue > 0},
+            ...(this.switchPucks() ? [
+                {id: "split" as const, label: message("kinematics_action_split"), placement: "board" as const, enabled: true, pressed: state.split, puck: true as const},
+                {id: "osculating" as const, label: message("kinematics_action_osculating"), placement: "board" as const, enabled: true, pressed: state.osculating, puck: true as const},
+            ] : []),
+        ];
+        const box = this.frame();
+        const marks: ViewMarks = {must: [{kind: "box", left: box[0], top: box[1], right: box[2], bottom: box[3]}]};
+        return {parameters, readouts: [{id: "values", title: message("kinematics_graph_readout_title"), rows}], notes, legend, actions, marks, followView: box};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawnElements.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it. It reads the attribute only: nothing is redrawn.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp(id === "point" ? "fillcolor" : "strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        if (id === "play-pause") runAs("learner", () => (this.playingValue ? this.pausePlayback() : this.play()));
+        else if (id === "reset-time") runAs("learner", () => this.resetTime());
+        else if (id === "split" || id === "osculating") runAs("learner", () => this.editToggle(id, !this.state[id]));
+        else throw new Error("Unknown action");
+    }
+
+    /**
+     * Parameter writes (ADR 0064). Keys: `kinematics-time` (the time, in range 0 to the end of the motion) and the numbers `kinematics-v0`, `-alpha`, `-radius`, `-omega`, `-b`
+     * (on the field's grid inside its range). Writers: the pucks and Orodja (`learner`), lesson actions and scenes (`lesson`). Only the time animates: Play's frames move it as
+     * `animation` under a lease; a learner or lesson write of the time ends the lease and `onInterrupted` halts the playback. A value outside the range is a `DomainError`
+     * (never clamped); a value off the grid snaps to it; the speed variation b other than 0 is refused off the circular motion.
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const bindings: Record<string, ParameterBinding> = {
+            "kinematics-time": {
+                read: () => this.timeValue,
+                apply: (value: unknown) => {
+                    if (typeof value !== "number" || !this.setTime(value)) {
+                        throw new DomainError(message("kinematics_graph_time_rejected", {value0: messageNumber(this.derived().tEnd, 2)}));
+                    }
+                },
+                subscribe: listener => {
+                    this.timeListeners.add(listener);
+                    return () => { this.timeListeners.delete(listener); };
+                },
+            },
+        };
+        for (const field of NUMERIC_FIELDS) {
+            bindings[`kinematics-${field}`] = {
+                read: () => this.state[field],
+                apply: (value: unknown) => {
+                    const range = FIELD_RANGES[field];
+                    if (typeof value !== "number" || (field === "b" && this.state.motion !== "circular" && value !== 0) || !this.editNumber(field, value)) {
+                        throw new DomainError(message("kinematics_value_refused", {value0: messageNumber(range.min, 2), value1: messageNumber(range.max, 2)}));
+                    }
+                },
+            };
+        }
+        return bindings;
+    }
+
     // ---- Controls -------------------------------------------------------------------------------------------------------
 
     private slider(field: NumericField, labelKey: "kinematics_graph_v0_label" | "kinematics_graph_alpha_label" | "kinematics_graph_radius_label"
         | "kinematics_graph_omega_label" | "kinematics_graph_b_label", decimals: number, bigStep: number, help?: string): JSX.Element {
         const range = FIELD_RANGES[field];
-        return <Slider key={field} customText={t(labelKey)} value={this.state[field]} step={range.step} bigStep={bigStep} min={range.min} max={range.max}
+        return <PuckOwned key={field} param={`kinematics-${field}`}><Slider customText={t(labelKey)} value={this.state[field]} step={range.step} bigStep={bigStep} min={range.min} max={range.max}
                        grid={range.step} decimals={decimals} fieldDecimals={decimals} help={help}
                        rejectedHint={t("kinematics_graph_field_rejected", {value0: dec(range.min, decimals), value1: dec(range.max, decimals)})}
-                       onChange={value => this.editNumber(field, value)}/>;
+                       onChange={value => this.editNumber(field, value)}/></PuckOwned>;
     }
 
     override getGraphCommands(): JSX.Element[] {
@@ -989,10 +1013,10 @@ export class KinematicsGraph extends BaseGraph<KinematicsGraphState, KinematicsS
                           checked={state.showVelocity} onChange={on => this.editToggle("showVelocity", on)}/>,
             <BooleanField key="showAcceleration" variant="switch" label={t("kinematics_graph_show_acceleration")} help={t("kinematics_graph_show_acceleration_help")}
                           checked={state.showAcceleration} onChange={on => this.editToggle("showAcceleration", on)}/>,
-            <BooleanField key="split" variant="switch" label={t("kinematics_graph_split")} help={t("kinematics_graph_split_help")}
-                          checked={state.split} onChange={on => this.editToggle("split", on)}/>,
-            <BooleanField key="osculating" variant="switch" label={t("kinematics_graph_osculating")} help={t("kinematics_graph_osculating_help")}
-                          checked={state.osculating} onChange={on => this.editToggle("osculating", on)}/>,
+            <PuckOwned key="split" param="split"><BooleanField variant="switch" label={t("kinematics_graph_split")} help={t("kinematics_graph_split_help")}
+                          checked={state.split} onChange={on => this.editToggle("split", on)}/></PuckOwned>,
+            <PuckOwned key="osculating" param="osculating"><BooleanField variant="switch" label={t("kinematics_graph_osculating")} help={t("kinematics_graph_osculating_help")}
+                          checked={state.osculating} onChange={on => this.editToggle("osculating", on)}/></PuckOwned>,
             <BooleanField key="trace" variant="switch" label={t("kinematics_graph_trace")} help={t("kinematics_graph_trace_help")}
                           checked={state.trace} onChange={on => this.editToggle("trace", on)}/>,
         );
@@ -1024,9 +1048,9 @@ function KinematicsPlayback(props: {graph: KinematicsGraph}) {
                          placement="graph" groupLabel={text("kinematics_graph_playback_group")} resetLabel={text("kinematics_graph_reset_label")}
                          playing={playing} onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
                          {...blocks} playBlock={!playing && graph.reducedMotion() ? "reduced-motion" : undefined}/>
-        <Slider customText={text("kinematics_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
+        <PuckOwned param="kinematics-time"><Slider customText={text("kinematics_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
                 rejectedHint={text("kinematics_graph_time_rejected", {value0: params.value0})}
-                valueText={value => `${dec(value, 2)} ${text("kinematics_graph_unit_s")}`} onChange={value => graph.setTime(value)}/>
+                valueText={value => `${dec(value, 2)} ${text("kinematics_graph_unit_s")}`} onChange={value => graph.setTime(value)}/></PuckOwned>
     </div>;
 }
 
@@ -1035,11 +1059,11 @@ function KinematicsReadout(props: {graph: KinematicsGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    return <div className="inspector-group">
+    return <div className="inspector-group" data-declared-panel="">
         <ReadoutHeading>{text("kinematics_graph_readout_title")}</ReadoutHeading>
-        <p data-kinematics-status="">{graph.statusText()}</p>
+        <p data-kinematics-status="" data-readout-note="">{graph.statusText()}</p>
         <ReadoutList label={text("kinematics_graph_readout_title")} rows={graph.readoutRows()}/>
-        <p data-kinematics-sign="">{text("kinematics_graph_sign_hint")}</p>
+        <p data-kinematics-sign="" data-readout-note="">{text("kinematics_graph_sign_hint")}</p>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
     </div>;
 }

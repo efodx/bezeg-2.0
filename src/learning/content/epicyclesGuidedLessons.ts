@@ -8,10 +8,14 @@
  * rebuilds the loop), the parametrization, N and the time, so it works after any other scene; playback is stopped by every scene change.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {EpicycleIds} from '../../graphs/functions/EpicycleGraph';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** Frame declarations name rows, notes and pucks of the graph: an unknown id is a type error. */
+const declared = frameDeclarer<EpicycleIds>();
 
 interface SceneState {
     readonly example: 'circle' | 'diamond' | 'uneven';
@@ -51,14 +55,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** The rows and pucks each frame points at (only rows the scene shows). */
+    readonly declare?: {readonly explanation?: FrameDeclaration; readonly calculation?: FrameDeclaration; readonly observation?: FrameDeclaration};
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-explanation`, 'explanation', declare?.explanation),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation', declare?.calculation)] : []),
+        frame(`${content.id}-observation`, 'observation', declare?.observation),
     ],
 });
 
@@ -146,6 +152,7 @@ const epicyclesLesson: GuidedLesson = {
     steps: [
         step({
             id: 'epi-loop', order: 1,
+            declare: {explanation: declared({highlight: ['centre', 'circle-1']}), observation: declared({highlight: ['status']})},
             title: text('Zanka in en krog', 'The loop and one circle'),
             purpose: text('Napovedati polmer naslednjega kroga.', 'Predicting the radius of the next circle.'),
             explanation: text(
@@ -161,6 +168,7 @@ const epicyclesLesson: GuidedLesson = {
         }),
         step({
             id: 'epi-radius', order: 2,
+            declare: {explanation: declared({highlight: ['circle-1', 'circle-2']}), observation: declared({highlight: ['circle-1']})},
             title: text('\\(N=1\\): polmer \\(|c_1|\\)', '\\(N=1\\): the radius \\(|c_1|\\)'),
             purpose: text('Videti, da je polmer kroga velikost koeficienta.', 'Seeing that the radius of the circle is the modulus of the coefficient.'),
             explanation: text(
@@ -168,7 +176,7 @@ const epicyclesLesson: GuidedLesson = {
                 'The time is now a quarter of the way round, \\(t=\\pi/2\\). The arm of the circle \\(c_1e^{it}\\) has turned by a quarter, while the circle itself still has radius \\(|c_1|\\). So the modulus \\(|c_1|\\) is the radius and the argument of \\(c_1\\) is the angle where the arm starts. For \\(N=1\\) there is also the circle for \\(k=-1\\), but its radius \\(|c_{-1}|\\) in the table is \\(0\\).',
             ),
             formulaIds: ['epicycle-sum'],
-            observationPrompt: text('Primerjaj polmer kroga s krivuljo in prebrano velikostjo \\(|c_1|\\) v tabeli.', 'Compare the radius of the circle with the curve and the modulus \\(|c_1|\\) read in the table.'),
+            observationPrompt: text('Primerjaj polmer kroga s krivuljo in velikostjo \\(|c_1|\\), prebrano med odčitki.', 'Compare the radius of the circle with the curve and the modulus \\(|c_1|\\) read in the readouts.'),
             expectedObservations: [text('Polmer kroga je \\(1{,}0001\\), skoraj polmer krožnice.', 'The radius of the circle is \\(1.0001\\), almost the radius of the circle curve.')],
             scene: epicycleScene('epi-radius-scene', {example: 'circle', parametrization: 'equal', N: 1, time: HALF_PI},
                 'Krožnica, \\(N=1\\), \\(t=\\pi/2\\): polmer \\(|c_1|=1{,}0001\\).',
@@ -176,6 +184,7 @@ const epicyclesLesson: GuidedLesson = {
         }),
         step({
             id: 'epi-add', order: 3,
+            declare: {explanation: declared({highlight: ['circle-1', 'circle-2', 'circle-3']}), observation: declared({highlight: ['circle-1', 'circle-2', 'circle-3']})},
             title: text('Dodajamo kroge enega za drugim', 'Adding circles one at a time'),
             purpose: text('Primerjati napovedani polmer z dejanskim in videti, kako hitro napaka pada.', 'Comparing the predicted radius with the real one and seeing how fast the error falls.'),
             explanation: text(
@@ -183,7 +192,7 @@ const epicyclesLesson: GuidedLesson = {
                 'For \\(N=5\\) the chain holds the circles \\(k=1\\), \\(k=5\\) and \\(k=-3\\), by decreasing size. The second and third are tiny: \\(|c_5|=0.0037\\) and \\(|c_{-3}|=0.0036\\). The circle curve has four-fold symmetry, \\(z(t+\\pi/2)=i\\,z(t)\\), so every coefficient except those with \\(k\\equiv1\\pmod 4\\) is \\(0\\) (below \\(10^{-9}\\) numerically). The error falls: \\(0.00476\\) for \\(N=3\\) and \\(0.00155\\) for \\(N=5\\).',
             ),
             formulaIds: ['epicycle-sum'],
-            observationPrompt: text('Primerjaj napoved s tabelo in opazuj, katere frekvence \\(k\\) imajo velikost nad \\(0\\).', 'Compare your prediction with the table and watch which frequencies \\(k\\) have a modulus above \\(0\\).'),
+            observationPrompt: text('Primerjaj napoved z odčitki in opazuj, katere frekvence \\(k\\) imajo velikost nad \\(0\\).', 'Compare your prediction with the readouts and watch which frequencies \\(k\\) have a modulus above \\(0\\).'),
             expectedObservations: [text('Naslednja kroga sta več kot dvestokrat manjša od prvega; napaka je \\(0{,}00155\\).', 'The next circles are more than two hundred times smaller than the first; the error is \\(0.00155\\).')],
             scene: epicycleScene('epi-add-scene', {example: 'circle', parametrization: 'equal', N: 5, time: 0},
                 'Krožnica, \\(N=5\\): krogi \\(1{,}0001\\), \\(0{,}0037\\) in \\(0{,}0036\\), napaka \\(0{,}00155\\).',
@@ -191,6 +200,7 @@ const epicyclesLesson: GuidedLesson = {
         }),
         step({
             id: 'epi-trace', order: 4,
+            declare: {explanation: declared({highlight: ['status']}), observation: declared({highlight: ['status']})},
             title: text('Sled proti prvotni krivulji', 'The trace against the original'),
             purpose: text('Primerjati sled delne vsote s prvotno zanko in razločiti ilustracijo od izreka.', 'Comparing the trace of the partial sum with the original loop and telling an illustration from a theorem.'),
             explanation: text(
@@ -206,6 +216,7 @@ const epicyclesLesson: GuidedLesson = {
         }),
         step({
             id: 'epi-diamond', order: 5,
+            declare: {explanation: declared({highlight: ['circle-1', 'circle-2', 'circle-3']}), calculation: declared({highlight: ['circle-1']}), observation: declared({highlight: ['status'], uses: ['epicycle-n']})},
             title: text('Romb: oglišča in pojemanje', 'The diamond: corners and decay'),
             purpose: text('Videti, da zanka z vogali potrebuje veliko krogov.', 'Seeing that a loop with corners needs many circles.'),
             explanation: text(
@@ -214,7 +225,7 @@ const epicyclesLesson: GuidedLesson = {
             ),
             formulaIds: ['epicycle-coefficient'],
             workedExampleId: 'diamond-c1',
-            observationPrompt: text('Poglej, kako sled zaokroži vogale, in povečaj \\(N\\); kdaj vogali izginejo?', 'Look at how the trace rounds the corners and raise \\(N\\); when do the corners disappear?'),
+            observationPrompt: text('Poglej, kako sled zaokroži vogale, in povečaj \\(N\\) s krmilnikom Podrobnost sledi ob grafu; kdaj vogali izginejo?', 'Look at how the trace rounds the corners and raise \\(N\\) with the Trace detail control beside the graph; when do the corners disappear?'),
             expectedObservations: [text('Vogali ostanejo zaobljeni; napaka je \\(0{,}04040\\) za \\(N=9\\) in pada počasi.', 'The corners stay rounded; the error is \\(0.04040\\) for \\(N=9\\) and falls slowly.')],
             scene: epicycleScene('epi-diamond-scene', {example: 'diamond', parametrization: 'equal', N: 9, time: 0},
                 'Romb, \\(N=9\\): krogi \\(0{,}8106\\), \\(0{,}0901\\), \\(0{,}0324\\), napaka \\(0{,}04040\\).',
@@ -222,6 +233,7 @@ const epicyclesLesson: GuidedLesson = {
         }),
         step({
             id: 'epi-uneven-equal', order: 6,
+            declare: {explanation: declared({highlight: ['circle-1', 'status']}), observation: declared({highlight: ['circle-1', 'status']})},
             title: text('Neenakomerna krivulja, enakomerna parametrizacija', 'An uneven curve, equal parametrization'),
             purpose: text('Videti, da imajo neenakomerni loki pri enakomerni parametrizaciji neenakomerno hitrost.', 'Seeing that uneven spans get an uneven speed under the equal parametrization.'),
             explanation: text(
@@ -237,6 +249,7 @@ const epicyclesLesson: GuidedLesson = {
         }),
         step({
             id: 'epi-uneven-chord', order: 7,
+            declare: {explanation: declared({highlight: ['circle-1', 'status']}), observation: declared({highlight: ['circle-1', 'status'], uses: ['epicycle-parametrization']})},
             title: text('Ista krivulja, parametrizacija po dolžini tetiv', 'The same curve, chord-length parametrization'),
             purpose: text('Videti, da drugačna parametrizacija iste krivulje da druge koeficiente in drugačno sled.', 'Seeing that another parametrization of the same curve gives other coefficients and another trace.'),
             explanation: text(
@@ -244,7 +257,7 @@ const epicyclesLesson: GuidedLesson = {
                 'The curve is the same; only the speed at which it is traversed has changed: a span now lasts in proportion to the length of its chord. The coefficients differ: \\(|c_{-1}|=1.7843\\), and the sampled error for \\(N=9\\) is \\(0.14875\\), against \\(0.09719\\) for the equal one. This holds for this example and this \\(N\\), not for every curve. Moving the start of the loop would multiply \\(c_k\\) by \\(e^{ik\\tau}\\) and keep the shape; the graph has no control for the start, so this is stated, not shown.',
             ),
             formulaIds: ['epicycle-coefficient', 'epicycle-start-shift'],
-            observationPrompt: text('Primerjaj velikosti krogov in napako s prejšnjim korakom ter pri obeh parametrizacijah poglej, kje so loki daljši.', 'Compare the sizes of the circles and the error with the previous step, and look at where the spans are longer under both.'),
+            observationPrompt: text('Preklopi parametrizacijo na krmilniku ob grafu ter primerjaj velikosti krogov in napako pri obeh; poglej, kje so loki daljši.', 'Switch the parametrization on the control beside the graph and compare the sizes of the circles and the error under both; look at where the spans are longer.'),
             expectedObservations: [text('Največji krog je \\(1{,}7843\\), napaka \\(0{,}14875\\): drugi koeficienti, druga sled.', 'The largest circle is \\(1.7843\\), the error \\(0.14875\\): other coefficients, another trace.')],
             scene: epicycleScene('epi-uneven-chord-scene', {example: 'uneven', parametrization: 'chord', N: 9, time: 0},
                 'Neenakomerna krivulja, po dolžini tetiv, \\(N=9\\): \\(|c_{-1}|=1{,}7843\\), napaka \\(0{,}14875\\).',
@@ -252,6 +265,7 @@ const epicyclesLesson: GuidedLesson = {
         }),
         step({
             id: 'epi-drag', order: 8,
+            declare: {explanation: declared({highlight: ['centre', 'circle-1', 'status']}), observation: declared({highlight: ['status']})},
             title: text('Premik kontrolne točke', 'Dragging a control point'),
             purpose: text('Videti, kako se krogi odzovejo na spremembo krivulje.', 'Seeing how the circles respond to a change of the curve.'),
             explanation: text(
@@ -267,6 +281,7 @@ const epicyclesLesson: GuidedLesson = {
         }),
         step({
             id: 'epi-explore', order: 9,
+            declare: {explanation: declared({uses: ['epicycle-n', 'epicycle-parametrization']}), observation: declared({uses: ['epicycle-n', 'epicycle-parametrization']})},
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno raziskati število krogov, primere in parametrizacijo.', 'Exploring the number of circles, the examples and the parametrization independently.'),
             explanation: text(

@@ -2,10 +2,10 @@ import React from 'react';
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../../base/realGraphTestHarness';
+import {installBoardShims, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../base/realGraphTestHarness';
+import {runAs} from '../../base/writes/writeSource';
 import type {LessonAction} from '../../../learning/model';
 import {setLanguage, t} from '../../../localization';
-import {enterNumber} from '../../../inputs/testEntry';
 import type {MotionChoice} from '../../../kinematics/kinematicsModel';
 import {KinematicsGraph} from './KinematicsGraph';
 
@@ -27,60 +27,65 @@ const setMotion = (motion: MotionChoice): LessonAction => ({kind: 'kinematics', 
 const setTime = (value: number): LessonAction => ({kind: 'kinematics', operation: 'set-time', t: value});
 const setParams = (params: Omit<Extract<LessonAction, {kind: 'kinematics'; operation: 'set-params'}>, 'kind' | 'operation'>): LessonAction => ({kind: 'kinematics', operation: 'set-params', ...params});
 const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
-const type = (label: string, value: string) => act(() => { enterNumber(field(t('number_field_label', {value0: label})), value); });
+/** The learner's typed entry on the field's puck (the numbers are pucks on the strip once the motion uses them). */
+const type = async (key: 'time' | 'v0' | 'alpha' | 'radius' | 'omega' | 'b', value: string) => { await waitForPucks(`kinematics-${key}`); typePuck(`kinematics-${key}`, value); };
 const choose = (motion: MotionChoice) => act(() => { fireEvent.change(field(t('kinematics_graph_motion_label')), {target: {value: motion}}); });
+/** A switch of Orodja by its label (the circular motion keeps the switches there). */
 const toggle = (label: string) => act(() => { fireEvent.click(field(label)); });
-const slide = (value: number) => act(() => { fireEvent.change(screen.getByRole('slider', {name: t('kinematics_graph_time_label')}), {target: {value: String(value)}}); });
+/** A switch puck on the strip, by its action id. */
+const pressPuck = (key: 'split' | 'osculating') => act(() => { fireEvent.click(puckControl(key)); });
+const slide = (value: number) => type('time', String(value).replace('.', ','));
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const status = () => document.querySelector('[data-kinematics-status]')?.textContent;
 const stateOf = (graph: KinematicsGraph) => JSON.parse(JSON.stringify({...graph.state, time: graph.time})) as Record<string, unknown>;
 
 /** The state (with the time), the readouts and the status line after running `edit` on a fresh graph and then unmounting it. */
-function after(edit: (graph: KinematicsGraph) => void) {
+async function after(edit: (graph: KinematicsGraph) => void | Promise<void>) {
     const graph = mount();
-    edit(graph);
+    await waitForPucks('kinematics-time');
+    await edit(graph);
     const result = {state: stateOf(graph), readouts: readouts(), status: status()};
     cleanup();
     return result;
 }
 
-test('set-motion reaches the state, readouts and status of choosing the motion in the list', () => {
+test('set-motion reaches the state, readouts and status of choosing the motion in the list', async () => {
     for (const motion of ['cardioid', 'rose', 'spiral', 'projectile', 'circular', 'cycloid'] as const) {
-        const viaAction = after(graph => { apply(graph, setTime(1)); apply(graph, setMotion(motion)); });
-        const viaControl = after(() => { slide(1); choose(motion); });
+        const viaAction = await after(graph => { apply(graph, setTime(1)); apply(graph, setMotion(motion)); });
+        const viaControl = await after(async () => { await slide(1); choose(motion); });
         expect({motion, ...viaAction}).toEqual({motion, ...viaControl});
         expect(viaAction.state).toEqual(expect.objectContaining({motion, time: motion === 'cycloid' ? 1 : 0})); // choosing the motion already shown changes nothing
     }
 });
 
-test('set-time reaches the state, readouts and status of moving the time slider', () => {
+test('set-time reaches the state, readouts and status of moving the time puck', async () => {
     for (const value of [0, 1.57, 3.14, 6.28]) {
-        const viaAction = after(graph => apply(graph, setTime(value)));
-        const viaControl = after(() => slide(value));
+        const viaAction = await after(graph => apply(graph, setTime(value)));
+        const viaControl = await after(() => slide(value));
         expect({value, ...viaAction}).toEqual({value, ...viaControl});
         expect(viaAction.state.time).toBe(value);
     }
 });
 
-test('set-params reaches the state, readouts and status of typing into the fields and the four switches', () => {
-    const viaAction = after(graph => {
+test('set-params reaches the state, readouts and status of typing into the fields and the four switches', async () => {
+    const viaAction = await after(graph => {
         apply(graph, setMotion('circular'));
         apply(graph, setParams({radius: 1, omega: 1, b: 0.5, showVelocity: false, showAcceleration: false, split: true, trace: false}));
     });
-    const viaControl = after(() => {
+    const viaControl = await after(async () => {
         choose('circular');
-        type(t('kinematics_graph_radius_label'), '1'); type(t('kinematics_graph_omega_label'), '1'); type(t('kinematics_graph_b_label'), '0,5');
+        await type('radius', '1'); await type('omega', '1'); await type('b', '0,5');
         toggle(t('kinematics_graph_show_velocity')); toggle(t('kinematics_graph_show_acceleration'));
         toggle(t('kinematics_graph_split')); toggle(t('kinematics_graph_trace'));
     });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state).toEqual(expect.objectContaining({motion: 'circular', radius: 1, omega: 1, b: 0.5, showVelocity: false, showAcceleration: false, split: true, trace: false}));
-    const projectile = after(graph => { apply(graph, setMotion('projectile')); apply(graph, setParams({v0: 13, alpha: 50})); });
-    expect(projectile).toEqual(after(() => { choose('projectile'); type(t('kinematics_graph_v0_label'), '13'); type(t('kinematics_graph_alpha_label'), '50'); }));
+    const projectile = await after(graph => { apply(graph, setMotion('projectile')); apply(graph, setParams({v0: 13, alpha: 50})); });
+    expect(projectile).toEqual(await after(async () => { choose('projectile'); await type('v0', '13'); await type('alpha', '50'); }));
     expect(projectile.state).toEqual(expect.objectContaining({v0: 13, alpha: 50}));
 });
 
-test('a scene runs its actions in one synchronous sequence: set-motion, set-time, then set-params, each reading what the earlier one wrote', () => {
+test('a scene runs its actions in one synchronous sequence: set-motion, set-time, then set-params, each reading what the earlier one wrote', async () => {
     const graph = mount();
     const free = stateOf(graph);
     act(() => {
@@ -95,7 +100,7 @@ test('a scene runs its actions in one synchronous sequence: set-motion, set-time
     expect(stateOf(graph)).not.toEqual(free);
     const here = {state: stateOf(graph), readouts: readouts(), status: status()};
     cleanup();
-    const viaControl = after(() => { choose('circular'); type(t('kinematics_graph_radius_label'), '1'); type(t('kinematics_graph_omega_label'), '1'); type(t('kinematics_graph_b_label'), '0,5'); slide(3.14); });
+    const viaControl = await after(async () => { choose('circular'); await type('radius', '1'); await type('omega', '1'); await type('b', '0,5'); await slide(3.14); });
     expect(viaControl).toEqual(here);
 });
 
@@ -109,7 +114,7 @@ test('restoring the checkpoint after the actions returns the free state', () => 
     apply(graph, setParams({b: 0.5, split: true}));
     apply(graph, setTime(2));
     expect(stateOf(graph)).not.toEqual(free);
-    act(() => { capabilities.restoreState(checkpoint); });
+    act(() => { runAs('learner', () => capabilities.restoreState(checkpoint)); });
     expect(stateOf(graph)).toEqual(free);
     expect(readouts()).toEqual(freeReadouts);
 });
@@ -146,9 +151,9 @@ test('the graph supports its actions; invalid scene data is a lesson-content err
     expect(stateOf(graph)).toEqual(onCardioid);
 });
 
-test('set-params osculating reaches the state, readouts and status of the osculating switch', () => {
-    const viaAction = after(graph => { apply(graph, setTime(3.14)); apply(graph, setParams({osculating: true})); });
-    const viaControl = after(() => { slide(3.14); toggle(t('kinematics_graph_osculating')); });
+test('set-params osculating reaches the state, readouts and status of the osculating switch puck', async () => {
+    const viaAction = await after(graph => { apply(graph, setTime(3.14)); apply(graph, setParams({osculating: true})); });
+    const viaControl = await after(async () => { await slide(3.14); pressPuck('osculating'); });
     expect(viaAction).toEqual(viaControl);
     expect(viaAction.state.osculating).toBe(true);
 });

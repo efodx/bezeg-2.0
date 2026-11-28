@@ -197,12 +197,12 @@ describe('KN5 scenes on the real graph', () => {
 
 describe('KN5 labels the prompts name', () => {
     const NAMED = {
-        'kn5-along': ['kinematics_graph_time_label', 'kinematics_graph_r_at'],
-        'kn5-axes': ['kinematics_graph_split'],
-        'kn5-projection': ['kinematics_graph_time_label'],
-        'kn5-speed': ['kinematics_graph_time_label'],
-        'kn5-circle': ['kinematics_graph_osculating'],
-        'kn5-kappa-v2': ['kinematics_graph_omega_label', 'kinematics_graph_motion_circular'],
+        'kn5-along': ['kinematics_name_time', 'kinematics_graph_r_at'],
+        'kn5-axes': ['kinematics_action_split'],
+        'kn5-projection': ['kinematics_name_time'],
+        'kn5-speed': ['kinematics_name_time'],
+        'kn5-circle': ['kinematics_action_osculating'],
+        'kn5-kappa-v2': ['kinematics_name_omega', 'kinematics_graph_motion_circular'],
         'kn5-explore': ['kinematics_graph_motion_label', 'kinematics_graph_motion_cardioid', 'kinematics_graph_motion_rose', 'kinematics_graph_motion_spiral',
             'kinematics_graph_motion_projectile', 'kinematics_graph_motion_circular', 'kinematics_graph_motion_cycloid'],
     } as const;
