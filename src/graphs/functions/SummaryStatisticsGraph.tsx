@@ -28,7 +28,12 @@ import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 /** Height step of the next equal value in a stack of tied dots, and the rows of the box plot and the markers (board units). */
 export const SUMMARY_STACK_STEP = 0.35;
-/** The follow box is at least this many times the width of the must marks (the director zooms out at most 2.2 times; the strip between the cards is about a third of a small board). */
+/**
+ * The follow box is at least this many times the width of the must marks. Workaround for the view director's zoom-out cap
+ * (`DEFAULT_MAX_OUT` = 2.2 in src/workspace/view/fitIntent.ts, also the keep fallback in viewDirector.ts): the strip between the
+ * cards is about a third of a small board, so a data-tight box left the outlier under Odčitki. That cap is an open owner
+ * question (lesson mode, 2026-11-28); when it is raised, remove this constant and use `fitSummaryView` directly.
+ */
 const SUMMARY_FOLLOW_SPREAD = 1.5;
 const BOX_BOTTOM = 1;
 const BOX_TOP = 2;
