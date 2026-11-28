@@ -103,6 +103,8 @@ class Graph extends BaseSplineCurveGraph<SplineAlphaParamGraphStates> {
     }
 
 
+    protected override declaresSplineWorkspace(): boolean { return true; }
+
     /** Construction first: α leads, the sample count follows (graph-control first use, param plan). */
     protected override workspaceConstructionFirst() { return true; }
 

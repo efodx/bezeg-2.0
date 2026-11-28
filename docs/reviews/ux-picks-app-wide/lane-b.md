@@ -48,7 +48,8 @@ Rewritten by handler 2 at its soft budget (2026-11-27). Present state only.
   `85c4efe8a`). Merge again before each lane; conflicts are list unions in `fragments/index.ts`, `parity.test.tsx`,
   `*FirstTask.test.tsx`, lesson files and the lane notes: keep both sides (a Sonnet worker resolves them; check for
   leftover markers with Grep `^(<<<<<<<|>>>>>>>)` before committing the merge).
-- Stream A = **"Board workspace handler 13"**: send every accepted commit id there; it cherry-picks and publishes.
+- Stream A = **"Board workspace handler 14"** (13 handed off after L33 descent): send every accepted commit id there; it
+  cherry-picks and publishes.
 - Lane-b Vite dev server on 4484 (`npx vite --port 4484 --strictPort --host 127.0.0.1`, background; check the port's
   owner before restarting, it may already be running): `http://127.0.0.1:4484/bezeg-2.0/`. Lesson smoke port 4395.
 
