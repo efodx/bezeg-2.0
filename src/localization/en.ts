@@ -167,7 +167,7 @@ export const en: Record<keyof typeof sl, string> = {
     "prompt_bernstein": "Change the polynomial degree. How do the peaks and endpoint values change?",
     "prompt_ph": "Select the curve and move a free point in the hodograph. How does the PH curve change?",
     "prompt_spline": "Move a free control point. Observe the neighboring segments at their join.",
-    "prompt_parameterization": "Change a parameter in the tools. Compare the spacing of the marked points along the curve.",
+    "prompt_parameterization": "Change a parameter with the controls on the graph. Compare the spacing of the marked points along the curve.",
     "prompt_elevation": "Elevate the curve's degree. Compare its shape and control points before and after elevation.",
     "prompt_subdivision": "Change the subdivision parameter. Compare the resulting parts with the original curve.",
     "prompt_decasteljau": "Change parameter t. Observe the intermediate construction points and the final point on the curve.",

@@ -165,7 +165,7 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
      * odmika" compares d = 1 and d = -1), the arc length as a row while its switch is on (it was board text), the offset in the legend
      * while drawn, and the arc length switch as a display action. The offset switch, their number and the hodograph stay in Orodja.
      */
-    protected override declaration(): GraphDeclaration<PhIds> | undefined {
+    protected override declaration(): GraphDeclaration | undefined {
         if (!this.declaresPhWorkspace()) return undefined;
         const common = this.commonCurveDeclaration();
         const offsetShown = this.offsetShown();

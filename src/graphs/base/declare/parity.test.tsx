@@ -1112,6 +1112,18 @@ const SAMPLES: readonly Sample[] = [
             {name: 'offset at d = -1.5, w0 moved', apply: run(g => { g.getFirstJxgCurveAsPHCurve().setOffsetCurveDistance(-1.5); g.getFirstCurveAsPHBezierCurve().w[0].setX(-1); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'curves/parametrisations/__parity__/uniform-parameterization.json', demonstration: 'uniform-parameterization', accepted: phCubicAccepted, states: (() => {
+        type Uni = {getFirstCurveAsPHBezierCurve(): {w: {setY(y: number): void; setX(x: number): void; Y(): number}[]};
+            setState(patch: {showArcLength?: boolean; isAlphaParam?: boolean; numberOfPoints?: number}): void; boardUpdate(): void};
+        const run = (edit: (graph: Uni) => void): ParityState['apply'] => graph => { runAs('learner', () => { edit(graph as unknown as Uni); (graph as unknown as Uni).boardUpdate(); }); };
+        return [
+            {name: 'default (arc length shown)', apply: () => undefined},
+            {name: 'arc length hidden', apply: run(g => g.setState({showArcLength: false}))},
+            {name: 'w1 raised, arc length shown', apply: run(g => { g.setState({showArcLength: true}); g.getFirstCurveAsPHBezierCurve().w[1].setY(g.getFirstCurveAsPHBezierCurve().w[1].Y() + 1); })},
+            {name: 'uniform mode, 3 points, w1 lowered', apply: run(g => { g.setState({isAlphaParam: false, numberOfPoints: 3}); g.getFirstCurveAsPHBezierCurve().w[1].setY(g.getFirstCurveAsPHBezierCurve().w[1].Y() - 1.5); })},
+            {name: 'w0 moved, weighted again', apply: run(g => { g.setState({isAlphaParam: true}); g.getFirstCurveAsPHBezierCurve().w[0].setX(-1); })},
+        ] satisfies ParityState[];
+    })()},
     {file: 'curves/parametric/__parity__/curve-parametric.json', demonstration: 'curve-parametric', accepted: parametricAccepted, states: (() => {
         type Par = {setCurve(curve: 'cycloid' | 'cardioid' | 'rose' | 'spiral'): void; setRadius(value: number): void; setParameter(value: number): void};
         const run = (edit: (graph: Par) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Par)); };

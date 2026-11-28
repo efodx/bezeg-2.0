@@ -1,5 +1,9 @@
-import {t} from "../../../localization";
-import BasePhBezierCurveGraph, {BasePhBezierCurveGraphStates} from "../ph/BasePhBezierCurveGraph";
+import {message, t} from "../../../localization";
+import BasePhBezierCurveGraph, {BasePhBezierCurveGraphStates, type PhIds} from "../ph/BasePhBezierCurveGraph";
+import type {GraphDeclaration, LegendEntry, ParameterDeclaration} from "../../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../../base/controls/PuckOwnership";
+import {DomainError} from "../../functions/BaseFunctionGraph";
 import React from "react";
 import Slider from "../../../inputs/Slider";
 import {CountSetter} from "../../../inputs/CountSetter";
@@ -22,6 +26,15 @@ interface UniformParamBezierCurveGraphStates extends BasePhBezierCurveGraphState
     numberOfPoints: number
     alpha: number
 }
+
+/**
+ * The ids of the uniform comparison's declaration (the PH ids plus the method and the sample count, both board pucks and arbiter
+ * keys). The weight alpha is not declared: no lesson step asks the learner to vary it here, so its slider stays in Orodja.
+ */
+export type UniformIds = {
+    param: PhIds['param'] | 'param-mode' | 'param-count'; row: PhIds['row']; note: never; section: never;
+    legend: PhIds['legend'] | 'samples'; action: PhIds['action'];
+};
 
 class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBezierCurveGraphStates> {
     private ts?: number[];
@@ -61,11 +74,62 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
         return t("compare_weighted_and_uniform_parametrization_of_the_ph_curve");
     }
 
-    /** Construction first: the parametrization chooser leads, then the sample count and, for the weighted method, α. */
-    protected override workspaceConstructionFirst() { return true; }
+    /** The PH workspace: legend, marks, the arc length as a row (it was board text), the offset puck while offsets are drawn. */
+    protected override declaresPhWorkspace(): boolean { return true; }
 
-    override getGraphCommands(): JSX.Element[] {
-        return this.state.initialized ? [this.paramField()].concat(super.getGraphCommands()) : [];
+    /** No lesson step flips the control polygon or the hull here; the pucks are the method and the sample count. */
+    protected override curveDisplayPuck(): boolean { return false; }
+
+    /** Construction first: the method and the sample count are board pucks (steps "Preklopi med ..." and "spremeni Število točk"), α stays here. */
+    protected override workspaceEdit(): React.ReactNode {
+        const params = this.state.isAlphaParam ? ['param-mode', 'param-count', 'param-alpha'] : ['param-mode', 'param-count'];
+        return <>{this.state.initialized && <PuckOwnedGroup params={params} className="inspector-group"><h3>{t("construction")}</h3>{this.paramField()}</PuckOwnedGroup>}
+            {super.workspaceEdit()}</>;
+    }
+
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            ...super.parameterBindings(),
+            'param-mode': {
+                read: () => this.state.isAlphaParam ? 'alpha' : 'uniform',
+                apply: (value: unknown) => {
+                    if (value !== 'alpha' && value !== 'uniform') throw new DomainError(message('param_mode_refused'));
+                    this.selectParam(value);
+                },
+            },
+            'param-count': {
+                read: () => this.state.numberOfPoints,
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isInteger(value) || value < ALPHA_PARAM_MIN_SAMPLES || value > ALPHA_PARAM_MAX_SAMPLES) {
+                        throw new DomainError(message('param_samples_refused', {value0: String(ALPHA_PARAM_MIN_SAMPLES), value1: String(ALPHA_PARAM_MAX_SAMPLES)}));
+                    }
+                    this.setNumberOfPoints(value);
+                },
+            },
+        };
+    }
+
+    protected override declaration(): GraphDeclaration | undefined {
+        const base = super.declaration();
+        if (!base) return undefined;
+        const mine: ParameterDeclaration<UniformIds['param']>[] = [
+            {key: 'param-mode', kind: 'choice', label: message('param_mode_name'), placement: 'board', puck: true, options: [
+                {value: 'alpha', label: message('weighted_parametrization'), short: message('param_mode_weighted_short')},
+                {value: 'uniform', label: message('uniform_parametrization'), short: message('param_mode_uniform_short')},
+            ]},
+            {key: 'param-count', kind: 'count', label: message('number_of_points'), symbol: 'N', placement: 'board', min: ALPHA_PARAM_MIN_SAMPLES, max: ALPHA_PARAM_MAX_SAMPLES},
+        ];
+        const samples: LegendEntry<UniformIds> = {id: 'samples', label: message('param_samples_legend'), kind: 'point', object: 'samples'};
+        return {...base, parameters: [...(base.parameters ?? []), ...mine], legend: [...(base.legend ?? []), samples]};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id !== 'samples') return super.drawnObject(id);
+        const element = this.sampleJxgPoints[0];
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as typeof element & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp('fillcolor')), visible: Boolean(drawn.evalVisProp('visible'))};
     }
 
     protected override onStateChange(prevState: Readonly<UniformParamBezierCurveGraphStates>) {
@@ -145,18 +209,18 @@ class UniformParamBezierCurveGraph extends BasePhBezierCurveGraph<UniformParamBe
 
     paramField() {
         return <div>
-            <div className="mb-3">
+            <PuckOwned param="param-mode"><div className="mb-3">
                 <ChoiceSelect label={t("choose_parametrization")}
                               value={this.state.isAlphaParam ? "alpha" : "uniform"}
                               options={[{value: "alpha", text: t("weighted_parametrization")},
                                   {value: "uniform", text: t("uniform_parametrization")}]}
                               onChange={value => this.selectParam(value)}/>
-            </div>
-            <div><CountSetter label={t("number_of_points")} n={this.state.numberOfPoints} min={ALPHA_PARAM_MIN_SAMPLES} max={ALPHA_PARAM_MAX_SAMPLES}
+            </div></PuckOwned>
+            <PuckOwned param="param-count"><div><CountSetter label={t("number_of_points")} n={this.state.numberOfPoints} min={ALPHA_PARAM_MIN_SAMPLES} max={ALPHA_PARAM_MAX_SAMPLES}
                                  onPlus={() => this.setNumberOfPoints(Math.min(ALPHA_PARAM_MAX_SAMPLES, this.state.numberOfPoints + 1))}
                                  onMinus={() => this.setNumberOfPoints(Math.max(ALPHA_PARAM_MIN_SAMPLES, this.state.numberOfPoints - 1))}
                                  onSet={count => count >= ALPHA_PARAM_MIN_SAMPLES && count <= ALPHA_PARAM_MAX_SAMPLES ? (this.setNumberOfPoints(count), true) : false}/>
-            </div>
+            </div></PuckOwned>
             {this.state.isAlphaParam ? <div>
                 <Slider min={PARAMETERIZATION_ALPHA_MIN} max={PARAMETERIZATION_ALPHA_MAX} value={this.state.alpha} customText={t("parameter_alpha")}
                         onChange={(alpha) => this.setAlpha(alpha)}/>

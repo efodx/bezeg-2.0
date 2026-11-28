@@ -1,7 +1,13 @@
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {WeightedIds} from '../../graphs/curves/parametrisations/AlphaParamBezierCurveGraph';
+import type {UniformIds} from '../../graphs/curves/parametrisations/UniformParamBezierCurveGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+/** Typed by each graph's declaration ids: an unknown control or row fails the type check. */
+const weightedFrame = frameDeclarer<WeightedIds>();
+const uniformFrame = frameDeclarer<UniformIds>();
 
 const weightedParameterization: GuidedLesson = {
     demonstrationId: 'weighted-parameterization',
@@ -36,8 +42,8 @@ const weightedParameterization: GuidedLesson = {
             id: 'wp-phi',
             latex: '\\varphi_\\alpha(t)=\\frac{(1-\\alpha)\\,t}{\\alpha\\,(1-t)+(1-\\alpha)\\,t}',
             notation: text(
-                'Parameter \\(\\alpha\\) je na drsniku \\(\\alpha\\) med 0 in 1; \\(t\\) je vrednost med 0 in 1.',
-                'The parameter \\(\\alpha\\) is on the \\(\\alpha\\) slider between 0 and 1; \\(t\\) is a value between 0 and 1.',
+                'Parameter \\(\\alpha\\) nastavljaš na krmilniku \\(\\alpha\\) na grafu med 0 in 1; \\(t\\) je vrednost med 0 in 1.',
+                'The parameter \\(\\alpha\\) is set on the \\(\\alpha\\) control on the graph between 0 and 1; \\(t\\) is a value between 0 and 1.',
             ),
             explanation: text(
                 'Za \\(0<\\alpha<1\\) je \\(\\varphi_\\alpha\\) naraščajoča, \\(\\varphi_\\alpha(0)=0\\) in \\(\\varphi_\\alpha(1)=1\\), zato preslika \\([0,1]\\) nazaj na \\([0,1]\\). Pri \\(\\alpha=\\tfrac{1}{2}\\) je \\(\\varphi_\\alpha(t)=t\\).',
@@ -145,7 +151,7 @@ const weightedParameterization: GuidedLesson = {
                 'At \\(\\alpha=\\tfrac{1}{4}\\) we raise Number of points from 3 to 10. The points are now at \\(\\varphi_{1/4}\\bigl(\\tfrac{i}{11}\\bigr)\\) for \\(i=1,\\dots,10\\): the gaps between them shrink toward \\(P_3\\), while the control points and the curve stay the same as in the previous steps.',
             ),
             formulaIds: ['wp-sample-parameters', 'wp-phi'],
-            frames: [frame('wp-density-ten-explanation', 'explanation'), frame('wp-density-ten-observation', 'observation')],
+            frames: [frame('wp-density-ten-explanation', 'explanation'), frame('wp-density-ten-observation', 'observation', weightedFrame({uses: ['param-count']}))],
             observationPrompt: text('Preštej točke in primerjaj razmike ob \\(P_0\\) in ob \\(P_3\\); nato poskusi še Število točk.', 'Count the points and compare the gaps near \\(P_0\\) and near \\(P_3\\); then try Number of points yourself.'),
             expectedObservations: [text('Na krivulji je 10 notranjih točk; razmiki ob \\(P_0\\) so veliki, ob \\(P_3\\) pa majhni, krajišči nista označeni.', 'There are 10 interior points on the curve; the gaps near \\(P_0\\) are large and near \\(P_3\\) small, and the end points are not marked.')],
             scene: {
@@ -163,8 +169,8 @@ const weightedParameterization: GuidedLesson = {
                 'With 20 points and \\(\\alpha=\\tfrac{1}{4}\\) the points gather densely near \\(P_3\\) and are sparse near \\(P_0\\): the parameterization does not change the curve, it changes the speed of traversal. At \\(\\alpha=0\\) or \\(\\alpha=1\\) every interior point falls onto an endpoint, so choose interior values.',
             ),
             formulaIds: ['wp-phi', 'wp-symmetry'],
-            frames: [frame('wp-density-explanation', 'explanation'), frame('wp-density-observation', 'observation')],
-            observationPrompt: text('Premikaj drsnik \\(\\alpha\\) med 0 in 1 ter opazuj gostoto točk ob \\(P_0\\) in \\(P_3\\).', 'Move the \\(\\alpha\\) slider between 0 and 1 and watch the density of points near \\(P_0\\) and \\(P_3\\).'),
+            frames: [frame('wp-density-explanation', 'explanation'), frame('wp-density-observation', 'observation', weightedFrame({uses: ['param-alpha']}))],
+            observationPrompt: text('Premikaj krmilnik \\(\\alpha\\) na grafu med 0 in 1 ter opazuj gostoto točk ob \\(P_0\\) in \\(P_3\\).', 'Move the \\(\\alpha\\) control on the graph between 0 and 1 and watch the density of points near \\(P_0\\) and \\(P_3\\).'),
             expectedObservations: [text('Manjši \\(\\alpha\\) zgosti točke ob \\(P_3\\), večji ob \\(P_0\\); krivulja in kontrolne točke ostanejo nespremenjene.', 'A smaller \\(\\alpha\\) crowds the points near \\(P_3\\), a larger one near \\(P_0\\); the curve and the control points stay unchanged.')],
             scene: {
                 id: 'wp-quarter-twenty', basedOn: 'demonstration-default',
@@ -190,7 +196,7 @@ const weightedParameterization: GuidedLesson = {
     ],
     edgeCases: [
         text('Pri \\(\\alpha=0\\) ali \\(\\alpha=1\\) vse notranje vzorčne točke padejo v eno končno točko krivulje, zato lekcija uporablja notranje vrednosti.', 'At \\(\\alpha=0\\) or \\(\\alpha=1\\) every interior sample point collapses onto one endpoint of the curve, so the lesson uses interior values.'),
-        text('Drsnik \\(\\alpha\\) in Število točk ne spremenita krivulje ali kontrolnih točk, spremenita le vzorčne točke.', 'The \\(\\alpha\\) slider and Number of points never change the curve or the control points, only the sample points.'),
+        text('Krmilnika \\(\\alpha\\) in Število točk ne spremenita krivulje ali kontrolnih točk, spremenita le vzorčne točke.', 'The \\(\\alpha\\) and Number of points controls never change the curve or the control points, only the sample points.'),
     ],
     unresolvedQuestions: [
         text('Pred classroom-ready pregledom je treba potrditi slovenski izraz »vzorčne točke« in presoditi, ali naj ima lekcija izrecen primer z \\(\\alpha=0\\).', 'Before classroom-ready review, confirm the Slovenian term "vzorčne točke" (sample points) and decide whether the lesson needs an explicit case with \\(\\alpha=0\\).'),
@@ -328,8 +334,8 @@ const uniformParameterization: GuidedLesson = {
                 'With 10 points in the uniform parameterization each of the 11 arcs (counting the pieces out to the end points) has length \\(\\tfrac{L}{11}\\approx 1.52\\), with negligible error. The chords, the straight segments between neighboring points, are nearly equal (\\(1.52\\) near the ends), but the middle one is shorter (\\(1.44\\)) because the curve bends the most there. Equal arc length is therefore not equal chord length.',
             ),
             formulaIds: ['up-equal-arc'],
-            frames: [frame('up-uniform-twenty-explanation', 'explanation'), frame('up-uniform-twenty-observation', 'observation')],
-            observationPrompt: text('Poglej razmike med točkami in jih primerjaj z dolžino loka; nato spremeni Število točk.', 'Look at the gaps between the points and compare them with the arc length; then change Number of points.'),
+            frames: [frame('up-uniform-twenty-explanation', 'explanation'), frame('up-uniform-twenty-observation', 'observation', uniformFrame({highlight: ['arc-length'], open: ['readouts'], uses: ['param-count']}))],
+            observationPrompt: text('Poglej razmike med točkami in jih primerjaj z dolžino loka v kartici Odčitki; nato spremeni Število točk.', 'Look at the gaps between the points and compare them with the arc length in the Readouts card; then change Number of points.'),
             expectedObservations: [text('Razmiki med točkami so videti enaki po vsej krivulji; tetiva na sredini je za približno 5 % krajša od tetiv ob koncih, čeprav so loki enaki.', 'The gaps between points look even along the whole curve; the chord in the middle is about 5% shorter than the chords near the ends, although the arcs are equal.')],
             scene: {
                 id: 'up-uniform-ten-scene', basedOn: 'demonstration-default',
@@ -346,7 +352,7 @@ const uniformParameterization: GuidedLesson = {
                 'Back in the weighted parameterization with \\(\\alpha=\\tfrac{1}{2}\\) and the same 10 points on the same curve: the points are at \\(t_i=\\tfrac{i}{11}\\), and the arcs range from about \\(2.81\\) near the ends to about \\(0.69\\) in the middle, so the end arcs are about 4 times longer. The uniform parameterization does not depend on \\(\\alpha\\); the weighted one offers the \\(\\alpha\\) slider for an arbitrary distribution in the parameter.',
             ),
             formulaIds: ['up-weighted-contrast'],
-            frames: [frame('up-weighted-contrast-explanation', 'explanation'), frame('up-weighted-contrast-observation', 'observation')],
+            frames: [frame('up-weighted-contrast-explanation', 'explanation'), frame('up-weighted-contrast-observation', 'observation', uniformFrame({uses: ['param-mode']}))],
             observationPrompt: text('Preklopi med Utežena parametrizacija in Enakomerna parametrizacija ter primerjaj razmike.', 'Switch between Weighted parametrization and Uniform parametrization and compare the gaps.'),
             expectedObservations: [text('Pri uteženi parametrizaciji z \\(\\alpha=\\tfrac{1}{2}\\) so točke goste na sredini in redke ob koncih, pri enakomerni so razmiki enaki; krivulja in kontrolne točke se ne spremenijo.', 'In the weighted parameterization with \\(\\alpha=\\tfrac{1}{2}\\) the points are dense in the middle and sparse near the ends, while in the uniform one the gaps are even; the curve and the control points do not change.')],
             scene: {

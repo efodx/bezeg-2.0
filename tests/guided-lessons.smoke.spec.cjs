@@ -97,9 +97,14 @@ const rationalElevation = {
 // ---------------------------------------------------------------- Parameterization
 const DEFAULT_SAMPLES = 10;
 // The sample count is a CountSetter labelled "Število točk" / "Number of points" (typed field or read-only output).
-const samplesValue = page => page.locator('.count-setter')
-    .filter({has: page.locator('.count-setter-label', {hasText: /^(Število točk|Number of points)$/})}).first()
-    .evaluate(root => Number((root.querySelector('input')?.value ?? root.querySelector('output')?.textContent ?? '').replace(/\D+/g, '')));
+// Declared graphs own it as a board puck instead (a slider of the puck strip named after it).
+const samplesValue = async page => {
+    const puck = page.locator('[role="spinbutton"][aria-label^="Število točk"], [role="spinbutton"][aria-label^="Number of points"]').first();
+    if (await puck.count()) return Number(((await puck.getAttribute('aria-valuenow')) ?? (await puck.textContent()) ?? '').replace(/\D+/g, ''));
+    return page.locator('.count-setter')
+        .filter({has: page.locator('.count-setter-label', {hasText: /^(Število točk|Number of points)$/})}).first()
+        .evaluate(root => Number((root.querySelector('input')?.value ?? root.querySelector('output')?.textContent ?? '').replace(/\D+/g, '')));
+};
 
 // Sample points currently drawn: visible points minus the control points.
 const sampleCount = async (page, controls) => (await boardStats(page)).points - controls;

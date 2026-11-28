@@ -2,7 +2,7 @@
  * Construction first on the parametrization routes (graph-control first use, wave 3): each route's first task leads the
  * Edit panel and stays there while the curve is selected; the plan's Acceptance line is checked on the real graph.
  */
-import {act, fireEvent, screen, within} from '@testing-library/react';
+import {act, fireEvent, screen, waitFor, within} from '@testing-library/react';
 import {allGraphFactories as graphFactories} from '../../allGraphFactories';
 import BaseGraph, {BaseGraphState} from '../../base/BaseGraph';
 import {appStorage} from '../../../storage/appStorage';
@@ -32,14 +32,34 @@ const setSlider = (name: string, value: string) => act(() => { fireEvent.change(
 const markers = (graph: Run) => (graph.sampleMarkers ?? graph.sampleJxgPoints ?? []).map(p => [p.X(), p.Y()]);
 const gaps = (points: number[][]) => points.slice(1).map((p, i) => Math.hypot(p[0] - points[i][0], p[1] - points[i][1]));
 
-const firstTask: Record<Key, (root: HTMLElement) => HTMLElement[]> = {
+/** The weighted and uniform routes declare the workspace (task 08 lane L21): their first task is board pucks, not an Edit group. */
+const pucked: Record<'weighted-parameterization' | 'uniform-parameterization', string[]> = {
+    'weighted-parameterization': ['param-alpha', 'param-count'],
+    'uniform-parameterization': ['param-mode', 'param-count'],
+};
+const firstTask: Record<'spline-parameterization', (root: HTMLElement) => HTMLElement[]> = {
     'spline-parameterization': r => [within(r).getByRole('slider', {name: t('parameter_alpha')}), within(r).getByRole('spinbutton', {name: t('number_of_points')})],
-    'weighted-parameterization': r => [within(r).getByRole('slider', {name: t('parameter_alpha')}), within(r).getByRole('spinbutton', {name: t('number_of_points')})],
-    'uniform-parameterization': r => [within(r).getByRole('combobox', {name: t('choose_parametrization')}), within(r).getByRole('spinbutton', {name: t('number_of_points')})],
 };
 const later = [t('curve_selection'), t('hodograph'), t('curve_offsets')];
 
-describe.each(Object.keys(firstTask) as Key[])('%s construction first', key => {
+describe.each(Object.keys(pucked) as (keyof typeof pucked)[])('%s first task as pucks', key => {
+    test('the first task is on the puck strip and absent from Edit, with and without a selected curve', async () => {
+        const graph = mount(key);
+        const check = () => {
+            const strip = document.querySelector('.puck-strip') as HTMLElement;
+            for (const puck of pucked[key]) expect(strip.querySelector(`[data-puck-key="${puck}"]`), puck).not.toBeNull();
+            expect(inEdit(t('number_of_points'))).toEqual([]);
+            expect(screen.queryAllByRole('combobox', {name: t('choose_parametrization')})).toEqual([]);
+            expect(inEdit(t('graph_commands'))).toEqual([]);
+        };
+        await waitFor(() => expect(document.querySelector('.puck-strip [data-puck-key]')).not.toBeNull());
+        check();
+        select(graph);
+        check();
+    });
+});
+
+describe.each(Object.keys(firstTask) as 'spline-parameterization'[])('%s construction first', key => {
     test('the first task is the first Edit group, before the later controls, and stays while the curve is selected', () => {
         const graph = mount(key);
         const follows = (card: HTMLElement, element: Element) =>
@@ -65,9 +85,13 @@ describe.each(Object.keys(firstTask) as Key[])('%s construction first', key => {
 describe('route acceptance', () => {
     test.each(['spline-parameterization', 'weighted-parameterization'] as const)('%s: two alpha values change the marker spacing, not the marker count', key => {
         const graph = mount(key);
-        setSlider(t('parameter_alpha'), '0.3');
+        // The weighted route owns α as a board puck (arbiter key `param-alpha`); the spline route keeps its slider.
+        const setAlpha = (value: number) => key === 'weighted-parameterization'
+            ? act(() => { graph.parameters!.write('param-alpha', value, 'learner'); })
+            : setSlider(t('parameter_alpha'), String(value));
+        setAlpha(0.3);
         const low = markers(graph);
-        setSlider(t('parameter_alpha'), '0.7');
+        setAlpha(0.7);
         const high = markers(graph);
         expect(low.length).toBeGreaterThan(0);
         expect(high.length).toBe(low.length);
@@ -78,12 +102,13 @@ describe('route acceptance', () => {
     test('uniform: switching methods keeps the curve and marker count while the spacing follows the method', () => {
         const graph = mount('uniform-parameterization');
         const curve = () => graph.jxgCurves[0].getCurve().getPoints().map(p => [p.X(), p.Y()]);
-        const method = () => screen.getByRole('combobox', {name: t('choose_parametrization')});
+        // The method is a board puck (arbiter key `param-mode`); α stays a slider in Orodja.
+        const setMethod = (value: string) => act(() => { graph.parameters!.write('param-mode', value, 'learner'); });
         const alpha = () => screen.queryByRole('slider', {name: t('parameter_alpha')});
         expect(alpha()).not.toBeNull();
         setSlider(t('parameter_alpha'), '0.2');
         const weightedCurve = curve(), weighted = markers(graph);
-        act(() => { fireEvent.change(method(), {target: {value: 'uniform'}}); });
+        setMethod('uniform');
         expect(alpha()).toBeNull();
         const uniform = markers(graph);
         expect(curve()).toEqual(weightedCurve);
@@ -92,7 +117,7 @@ describe('route acceptance', () => {
         // Uniform arc-length spacing: the gaps between neighbouring markers are nearly equal.
         const ug = gaps(uniform);
         expect(Math.max(...ug) / Math.min(...ug)).toBeLessThan(1.25);
-        act(() => { fireEvent.change(method(), {target: {value: 'alpha'}}); });
+        setMethod('alpha');
         expect(alpha()).not.toBeNull();
         expect(markers(graph).length).toBe(weighted.length);
     });

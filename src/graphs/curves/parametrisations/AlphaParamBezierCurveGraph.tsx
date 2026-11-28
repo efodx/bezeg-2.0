@@ -1,5 +1,9 @@
-import {t} from "../../../localization";
-import {BaseGraphStates} from "../../base/BaseCurveGraph";
+import {message, t} from "../../../localization";
+import {BaseCurveIds, BaseGraphStates} from "../../base/BaseCurveGraph";
+import type {GraphDeclaration, LegendEntry, ParameterDeclaration} from "../../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
+import {PuckOwned, PuckOwnedGroup} from "../../base/controls/PuckOwnership";
+import {DomainError} from "../../functions/BaseFunctionGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import React from "react";
 import Slider from "../../../inputs/Slider";
@@ -20,6 +24,12 @@ interface AlphaParamGraphStates extends BaseGraphStates {
     numberOfPoints: number;
     alpha: number;
 }
+
+/** The ids of the weighted comparison's declaration: the weight α and the sample count (board pucks, arbiter keys), the sample points in the legend. */
+export type WeightedIds = {
+    param: 'param-alpha' | 'param-count'; row: never; note: never; section: never;
+    legend: BaseCurveIds['legend'] | 'samples'; action: BaseCurveIds['action'];
+};
 
 /** phi_alpha(t) = (1-alpha) t / (alpha (1-t) + (1-alpha) t); alpha = 1/2 is the identity. */
 export function alphaParameterization(alpha: number, t: number): number {
@@ -120,11 +130,60 @@ class AlphaParamBezierCurveGraph extends BaseBezierCurveGraph<AlphaParamGraphSta
 
     alphaParam: (t: number) => number = (t: number) => alphaParameterization(this.state.alpha, t);
 
-    /** Construction first: α leads, the sample count follows (graph-control first use, param plan). */
-    protected override workspaceConstructionFirst() { return true; }
+    protected override declaresCurveWorkspace(): boolean { return true; }
+    /** No lesson step flips the control polygon or the hull here; the pucks are α and the sample count. */
+    protected override curveDisplayPuck(): boolean { return false; }
 
-    override getGraphCommands(): JSX.Element[] {
-        return this.state.initialized ? [this.alphaParamSlider(), this.numberOfPointsSlider()].concat(super.getGraphCommands()) : [];
+    /** Construction first: α leads, the sample count follows; both are board pucks (steps "Premikaj drsnik α" and "poskusi še Število točk"). */
+    protected override workspaceEdit(): React.ReactNode {
+        return <>{this.state.initialized && <PuckOwnedGroup params={['param-alpha', 'param-count']} className="inspector-group"><h3>{t("construction")}</h3>
+            <PuckOwned param="param-alpha">{this.alphaParamSlider()}</PuckOwned>
+            <PuckOwned param="param-count">{this.numberOfPointsSlider()}</PuckOwned></PuckOwnedGroup>}
+            {super.workspaceEdit()}</>;
+    }
+
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            ...super.parameterBindings(),
+            'param-alpha': {
+                read: () => this.state.alpha,
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isFinite(value) || value < PARAMETERIZATION_ALPHA_MIN || value > PARAMETERIZATION_ALPHA_MAX) {
+                        throw new DomainError(message('param_alpha_refused', {value0: String(PARAMETERIZATION_ALPHA_MIN), value1: String(PARAMETERIZATION_ALPHA_MAX)}));
+                    }
+                    this.setAlpha(value);
+                },
+            },
+            'param-count': {
+                read: () => this.state.numberOfPoints,
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isInteger(value) || value < ALPHA_PARAM_MIN_SAMPLES || value > ALPHA_PARAM_MAX_SAMPLES) {
+                        throw new DomainError(message('param_samples_refused', {value0: String(ALPHA_PARAM_MIN_SAMPLES), value1: String(ALPHA_PARAM_MAX_SAMPLES)}));
+                    }
+                    this.setNumberOfPoints(value);
+                },
+            },
+        };
+    }
+
+    /** The common curve declaration, the weight α and the sample count as board pucks, and the sample points in the legend. Shows no values. */
+    protected override declaration(): GraphDeclaration<WeightedIds> {
+        const common = this.commonCurveDeclaration();
+        const parameters: ParameterDeclaration<WeightedIds['param']>[] = [
+            {key: 'param-alpha', kind: 'range', label: message('param_alpha_name'), symbol: '\\alpha', placement: 'board', min: PARAMETERIZATION_ALPHA_MIN, max: PARAMETERIZATION_ALPHA_MAX, step: 0.01, maxDecimals: 2},
+            {key: 'param-count', kind: 'count', label: message('number_of_points'), symbol: 'N', placement: 'board', min: ALPHA_PARAM_MIN_SAMPLES, max: ALPHA_PARAM_MAX_SAMPLES},
+        ];
+        const legend: LegendEntry<WeightedIds>[] = [...(common.legend ?? []), {id: 'samples', label: message('param_samples_legend'), kind: 'point', object: 'samples'}];
+        return {...common, parameters, legend};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id !== 'samples') return super.drawnObject(id);
+        const element = this.sampleMarkers[0];
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as typeof element & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp('fillcolor')), visible: Boolean(drawn.evalVisProp('visible'))};
     }
 
     setAlpha(alpha: number) {

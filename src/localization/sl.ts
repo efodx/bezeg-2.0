@@ -166,7 +166,7 @@ export const sl = {
     "prompt_bernstein": "Spremeni stopnjo polinomov. Kako se spremenijo njihovi vrhovi in vrednosti na krajiščih?",
     "prompt_ph": "Izberi krivuljo in premakni prosto točko v hodografu. Kako se spremeni PH krivulja?",
     "prompt_spline": "Premakni prosto kontrolno točko. Opazuj sosednja segmenta ob stiku.",
-    "prompt_parameterization": "Spremeni parameter v orodjih. Primerjaj razporeditev označenih točk vzdolž krivulje.",
+    "prompt_parameterization": "Spremeni parameter s krmilniki na grafu. Primerjaj razporeditev označenih točk vzdolž krivulje.",
     "prompt_elevation": "Zvišaj stopnjo krivulje. Primerjaj njeno obliko in kontrolne točke pred zvišanjem in po njem.",
     "prompt_subdivision": "Spremeni parameter delitve. Primerjaj nastala dela z izvirno krivuljo.",
     "prompt_decasteljau": "Spremeni parameter t. Opazuj vmesne točke konstrukcije in končno točko na krivulji.",

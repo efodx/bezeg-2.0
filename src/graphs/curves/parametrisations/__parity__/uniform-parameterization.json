@@ -1,0 +1,49 @@
+{
+  "graph": "uniform-parameterization",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (arc length shown)",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 16,717"
+      ]
+    },
+    {
+      "name": "arc length hidden",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "w1 raised, arc length shown",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 16,850"
+      ]
+    },
+    {
+      "name": "uniform mode, 3 points, w1 lowered",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 16,750"
+      ]
+    },
+    {
+      "name": "w0 moved, weighted again",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 11,150"
+      ]
+    }
+  ]
+}
