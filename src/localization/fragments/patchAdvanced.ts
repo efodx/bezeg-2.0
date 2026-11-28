@@ -14,6 +14,13 @@ const sl = {
     "patch_join_legend_seam": "Skupni rob",
     "patch_join_legend_arrow_a": "S_u krpe A",
     "patch_join_legend_arrow_b": "S_u krpe B",
+    "patch_triangular_legend_highlight": "Črte mreže skozi izbrano točko",
+    "patch_triangular_legend_iso_u": "Krivulje s stalnim u",
+    "patch_triangular_legend_iso_v": "Krivulje s stalnim v",
+    "patch_triangular_legend_iso_w": "Krivulje s stalnim w",
+    "patch_triangular_legend_construction": "Pomožne mreže konstrukcije",
+    "patch_triangular_legend_compare": "Tenzorska krpa iz iste mreže",
+    "patch_triangular_legend_point": "Točka S(u, v, w)",
 } as const;
 
 export const patchAdvanced = {
@@ -33,5 +40,12 @@ export const patchAdvanced = {
         "patch_join_legend_seam": "Shared boundary",
         "patch_join_legend_arrow_a": "S_u of patch A",
         "patch_join_legend_arrow_b": "S_u of patch B",
+        "patch_triangular_legend_highlight": "Net lines through the selected point",
+        "patch_triangular_legend_iso_u": "Curves of constant u",
+        "patch_triangular_legend_iso_v": "Curves of constant v",
+        "patch_triangular_legend_iso_w": "Curves of constant w",
+        "patch_triangular_legend_construction": "Construction nets",
+        "patch_triangular_legend_compare": "Tensor patch from the same net",
+        "patch_triangular_legend_point": "Point S(u, v, w)",
     } satisfies Record<keyof typeof sl, string>,
 };

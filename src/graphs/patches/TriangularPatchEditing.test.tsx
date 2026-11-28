@@ -27,7 +27,8 @@ function mount() {
 
 const select = () => screen.getByLabelText<HTMLSelectElement>(t("patch_triangular_index"));
 /** A coordinate field by "P₂₁₀ x"; the field is named "P₂₁₀, x". `fieldText` reads its text with a decimal point whatever the language. */
-const input = (name: string) => screen.getByRole<HTMLInputElement>("spinbutton", {name: name.replace(/ (\w)$/, ", $1")});
+/** `hidden`: the declared workspace folds Orodja after a Reset or Preset restore (as in TensorPatchPanels.test.tsx). */
+const input = (name: string) => screen.getByRole<HTMLInputElement>("spinbutton", {name: name.replace(/ (\w)$/, ", $1"), hidden: true});
 const fieldText = (field: HTMLInputElement) => field.value.replace(",", ".").replace("−", "-");
 const choose = (i: number, j: number, k: number) => fireEvent.change(select(), {target: {value: triangularPointId(i, j, k)}});
 const highlights = (view: FakeSurfaceView) => view.last.polylines.filter(line => line.role === "highlight");
@@ -203,11 +204,12 @@ describe("Bernstein weight readout", () => {
         expect(weightText()).toBe("0,1875");
         choose(3, 0, 0);
         expect(weightText()).toBe("0,125");
-        expect(screen.getByText("Utež točke P₃₀₀")).toBeTruthy();
-        expect(screen.getByText(t("patch_triangular_bernstein_weight", {value0: "₃", value1: "₀", value2: "₀"}))).toBeTruthy();
+        // The declared row on the board card and the Uredi copy (hidden while the cards show) both name the point.
+        expect(screen.getAllByText("Utež točke P₃₀₀")).toHaveLength(2);
+        expect(screen.getAllByText(t("patch_triangular_bernstein_weight", {value0: "₃", value1: "₀", value2: "₀"}))).toHaveLength(2);
         act(() => setLanguage("en"));
         expect(weightText()).toBe("0.125");
-        expect(screen.getByText("Weight of point P₃₀₀")).toBeTruthy();
+        expect(screen.getAllByText("Weight of point P₃₀₀")).toHaveLength(2);
     });
 
     it("is 1 for the vertex at its own corner of the triangle", () => {

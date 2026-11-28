@@ -15,7 +15,14 @@ import {barycentricW, TriangularPatchDisplayPanel, TriangularPatchEditPanel, Tri
 import {triangularBernsteinWeight} from "./patchBernstein";
 import {changeTriangularDegree, defaultTriangularNet, MAX_TRIANGULAR_DEGREE, MIN_TRIANGULAR_DEGREE, triangularFromNet} from "./TriangularPatchDegree";
 import {parseTriangularPointId, triangularIndex, triangularPointId} from "./TriangularPatchLattice";
-import {buildTriangularScene} from "./TriangularPatchScene";
+import {buildTriangularScene, isInteriorPoint} from "./TriangularPatchScene";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutGroup, ReadoutNote} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {formatNumber} from "../../analysis/format";
+import {currentLanguage, message} from "../../localization";
+import {subscriptDigits} from "./TensorPatchPanels";
+import {cssColor, MESH_STYLE, markerColor, polylineStyle} from "./surface-view/jsxStyles";
+import {SURFACE_COLORS} from "./surface-view/surfaceStyles";
 import {mountParameterInset, ParameterInset} from "./parameterInset";
 import {clampToTriangle} from "./triangleDomain";
 import type {GraphSession} from "../base/GraphSession";
@@ -26,6 +33,29 @@ const TRIANGULAR_VISIBILITY_KEYS = {
     "control-net": "showControlNet", "iso-curves": "showIsoCurves", "boundary-curves": "showBoundaryCurves",
     "shading": "showShading", "decasteljau-scheme": "showDeCasteljau",
 } as const;
+
+/** The display switches the declaration names as Orodja actions: action id, state field, label key. */
+const TRIANGULAR_SWITCHES = [
+    ["control-net", "showControlNet", "patch_show_control_net"],
+    ["iso-curves", "showIsoCurves", "patch_show_iso_curves"],
+    ["boundary-curves", "showBoundaryCurves", "patch_show_boundary_curves"],
+    ["decasteljau-scheme", "showDeCasteljau", "de_casteljau_construction"],
+    ["shading", "showShading", "patch_show_shading"],
+] as const satisfies ReadonlyArray<readonly [string, TriangularVisibilityKey, string]>;
+
+/**
+ * The ids of the triangular patch declaration (`DeclarationIds`). No parameters: no lesson step asks the learner to set u or v
+ * (the scenes place S at the centroid), so the Uredi sliders and the inset stay; the camera stays the graph's own Orodja panel.
+ * The rows are the old panel's readouts (w, and the Bernstein weight of a selected point), the legend one entry per scene role.
+ */
+export type TriangularIds = {
+    param: never;
+    row: "w" | "bernstein-weight";
+    note: "w" | "bernstein";
+    legend: "surface" | "net" | "points" | "highlight" | "iso-u" | "iso-v" | "iso-w" | "boundary" | "construction" | "compare" | "point";
+    section: never;
+    action: typeof TRIANGULAR_SWITCHES[number][0] | "subdivision-preview" | "tensor-comparison" | "height-mode";
+};
 
 export interface TriangularPatchGraphState extends SurfaceGraphState {
     /** The degree; the net has `(n + 1)(n + 2) / 2` points. */
@@ -308,6 +338,99 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
         if (index < 0) return undefined;
         const canonical = defaultTriangularNet(n);
         return net.length === canonical.length && net.every((point, k) => point.every((value, axis) => value === canonical[k][axis])) ? index : undefined;
+    }
+
+    // ---- Declaration (task 08, surface recipe) -----------------------------------------------------------------
+
+    /**
+     * The old panel's readouts as rows (the Bernstein weight of a selected point, then w) with their help sentences as notes, the
+     * legend of what the surface view draws, and the switches as Orodja actions. No parameters (no step asks to set u or v:
+     * `triangular-centroid` and `compare-domains` place S at the centroid and ask to read and compare), no marks, view or camera:
+     * a surface view has no `ViewAdapter`, so cards rely on placement.
+     */
+    protected override declaration(): GraphDeclaration<TriangularIds> {
+        const s = this.state;
+        const language = currentLanguage();
+        const selection = this.selection();
+        const readouts: ReadoutGroup<TriangularIds>[] = [];
+        const notes: ReadoutNote<TriangularIds>[] = [];
+        if (selection) {
+            const [i, j, k] = selection.index;
+            readouts.push({id: "bernstein", title: message("patch_bernstein_heading"), rows: [{
+                id: "bernstein-weight", name: message("patch_triangular_bernstein_weight", {value0: subscriptDigits(i), value1: subscriptDigits(j), value2: subscriptDigits(k)}),
+                value: {kind: "formatted", text: formatNumber(selection.weight, language, 4)},
+            }]});
+            notes.push({id: "bernstein", text: message("patch_triangular_bernstein_help"), tone: "muted"});
+        }
+        readouts.push({id: "w", title: message("patch_parameter_w"), rows: [{id: "w", symbol: "w", value: {kind: "formatted", text: formatNumber(barycentricW(s.u, s.v), language, 2)}}]});
+        notes.push({id: "w", text: message("patch_parameter_w_help"), tone: "muted"});
+        type LegendKey = "patch_tensor_legend_surface" | "patch_tensor_legend_net" | "patch_tensor_legend_points" | "patch_tensor_legend_boundary"
+            | "patch_triangular_legend_highlight" | "patch_triangular_legend_iso_u" | "patch_triangular_legend_iso_v" | "patch_triangular_legend_iso_w"
+            | "patch_triangular_legend_construction" | "patch_triangular_legend_compare" | "patch_triangular_legend_point";
+        const entry = (id: TriangularIds["legend"], label: LegendKey, kind: LegendEntry["kind"]): LegendEntry<TriangularIds> =>
+            ({id, label: message(label), kind, object: id});
+        const legend: LegendEntry<TriangularIds>[] = [
+            entry("surface", "patch_tensor_legend_surface", "area"),
+            entry("net", "patch_tensor_legend_net", "line"),
+            entry("points", "patch_tensor_legend_points", "point"),
+            entry("highlight", "patch_triangular_legend_highlight", "line"),
+            entry("iso-u", "patch_triangular_legend_iso_u", "line"),
+            entry("iso-v", "patch_triangular_legend_iso_v", "dashed"),
+            entry("iso-w", "patch_triangular_legend_iso_w", "dashed"),
+            entry("boundary", "patch_tensor_legend_boundary", "line"),
+            entry("construction", "patch_triangular_legend_construction", "line"),
+            entry("compare", "patch_triangular_legend_compare", "dashed"),
+            entry("point", "patch_triangular_legend_point", "point"),
+        ];
+        const tools = (id: TriangularIds["action"], label: ActionDeclaration["label"], tab: "edit" | "display", section: string, pressed: boolean): ActionDeclaration<TriangularIds> =>
+            ({id, label, placement: "tools", tab, section, enabled: true, pressed});
+        const actions: ActionDeclaration<TriangularIds>[] = [
+            tools("subdivision-preview", message("patch_subdivision_show"), "edit", "subdivision", this.subdivisionPreviewValue),
+            ...TRIANGULAR_SWITCHES.map(([id, key, label]) => tools(id, message(label), "display", "display", s[key])),
+            tools("tensor-comparison", message("patch_compare_show"), "display", "display", this.tensorComparisonValue),
+            tools("height-mode", message("patch_move_height"), "display", "display", s.zMode),
+        ];
+        return {readouts, notes, legend, actions};
+    }
+
+    /** A switch pressed as the learner: the method the panel's switch calls. */
+    override performAction(id: string): void {
+        const s = this.state;
+        const visibility = TRIANGULAR_SWITCHES.find(([candidate]) => candidate === id);
+        runAs("learner", () => {
+            if (visibility !== undefined) this.setVisibility(visibility[1], !s[visibility[1]]);
+            else if (id === "subdivision-preview") this.setSubdivisionPreview(!this.subdivisionPreviewValue);
+            else if (id === "tensor-comparison") this.setTensorComparison(!this.tensorComparisonValue);
+            else if (id === "height-mode") this.setZMode(!s.zMode);
+            else throw new Error("Unknown action");
+        });
+    }
+
+    /**
+     * What the surface view draws for a legend entry: the colour its renderer gives the role (`jsxStyles`) and whether
+     * `buildTriangularScene` holds it now. The net, its points and the lines through a selected point follow the net switch;
+     * the iso and boundary families theirs (the split's three cut curves are drawn as boundary curves); the construction nets
+     * are the de Casteljau levels (degree above 1) and the three pieces of an interior split; the tensor patch is its net and
+     * curves while the comparison is on; the point S(u, v, w) is always drawn. Nothing is drawn while the view could not start.
+     */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const {n, u, v, showControlNet, showIsoCurves, showBoundaryCurves, showShading, showDeCasteljau, surfaceUnavailable} = this.state;
+        const split = this.subdivisionPreviewValue && isInteriorPoint(u, v);
+        const drawn = (color: string, visible = true) => ({color, visible: visible && !surfaceUnavailable});
+        switch (id) {
+            case "surface": return drawn(MESH_STYLE.fill ?? cssColor(SURFACE_COLORS.surface), showShading);
+            case "net": return drawn(polylineStyle("net").stroke, showControlNet);
+            case "points": return drawn(cssColor(SURFACE_COLORS.point), showControlNet);
+            case "highlight": return drawn(polylineStyle("highlight").stroke, showControlNet && this.selection() !== undefined);
+            case "iso-u": return drawn(polylineStyle("iso").stroke, showIsoCurves);
+            case "iso-v": return drawn(polylineStyle("iso-v").stroke, showIsoCurves);
+            case "iso-w": return drawn(polylineStyle("iso-w").stroke, showIsoCurves);
+            case "boundary": return drawn(polylineStyle("boundary").stroke, showBoundaryCurves || split);
+            case "construction": return drawn(polylineStyle("construction").stroke, (showDeCasteljau && n > 1) || split);
+            case "compare": return drawn(polylineStyle("compare").stroke, this.tensorComparisonValue && (showControlNet || showIsoCurves || showBoundaryCurves));
+            case "point": return drawn(markerColor("evaluated"));
+            default: return undefined;
+        }
     }
 
     // ---- Panels ------------------------------------------------------------------------------------------------

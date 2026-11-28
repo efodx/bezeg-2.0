@@ -130,3 +130,59 @@ Files (joins only; separable from subdivision for a commit):
    scene roles, u/v pucks only if a step asks (lessons `patch-advanced-triangular` step `triangular-centroid`,
    `patch-advanced-square-triangular` step `compare-domains`: read their prompts first), declaration test, old readout in
    `data-declared-panel`; then the full check list as for joins.
+
+## Session 4 (started 2026-11-28 ~10:40)
+
+### patch-triangular: converted, all checks green
+- `TriangularPatchGraph.tsx`: `TriangularIds`, `declaration()` (readout groups `bernstein` (only with a selection) then `w`, rows
+  `bernstein-weight` (name `patch_triangular_bernstein_weight`, 4 decimals) and `w` (symbol `w`, 2 decimals), notes = the two help
+  sentences; legend surface, net, points, highlight, iso-u/v/w, boundary, construction, compare, point; switches as Orodja actions:
+  `subdivision-preview` (edit), net/iso/boundary/de Casteljau/shading, `tensor-comparison`, `height-mode` (display)),
+  `performAction` under `runAs('learner')`, `drawnObject` (colours from `jsxStyles`; split cut curves count as boundary, split
+  pieces and de Casteljau levels (n > 1) as construction). Mathematics untouched.
+- Placement: **no pucks**. Neither lesson step asks to set u or v: `triangular-centroid` (scene puts S at the centroid; frames
+  read the calculation and observe the edges) and `compare-domains` ("Preveri obe meji in nato prekrivni prikaz v središčni
+  točki": check, no setting). u, v sliders and the inset stay in Uredi; the switches are display/setup -> Orodja.
+  **Open question for the handler**: the demonstration prompt `prompt_patch_barycentric` ("Premikaj u in v ter opazuj w") does ask
+  to move u, v while reading w (the subdivision split puck was justified by a demonstration prompt). If that counts, add u/v range
+  pucks bound to `setParameter` (max follows 1 - other) and `PuckOwned` around the two Uredi sliders.
+- `TriangularPatchPanels.tsx`: both old readouts wrapped in `data-declared-panel`.
+- Fragment `patchAdvanced.ts`: 7 legend keys `patch_triangular_legend_*` (sl + en).
+- Own tests: `TriangularPatchEditing.test.tsx` (coordinate fields queried with `hidden: true`: Orodja folds after Preset restore;
+  the weight label is now on the card and the hidden Uredi copy: `getAllByText(...)` length 2), `TriangularPatchGraph.test.tsx`
+  (degree group `hidden: true`). No `learner()` helper needed: no arbiter-bound key, so no untagged-write check fires; values
+  unchanged.
+- New `TriangularPatchGraph.declaration.test.tsx` (9 tests). Red once: construction visibility reduced to `showDeCasteljau` ->
+  "construction: expected true to be false" in the degree-1 state (`l58-s4-decl-red.log`); reverted.
+- Checks: triangular tests 8 files pass (`l58-s4-unit2.log`); tsc 0 (`l58-s4-tsc.log`); eslint 0 on 6 files (`l58-s4-lint.log`);
+  graph-check patch-triangular --route /patches/triangular PASS (contract 1, parity 2, golden 1, declaration 9, shared 137;
+  `l58-s4-gc.log`), golden read `src/graphs/patches/__parity__/patch-triangular.golden.json` (unchanged, only file of that id);
+  broad unit 286 files, 6505 passed, 369 skipped (`2026-11-28T10-04-55-565Z-32756-5424fb74.log`; first try killed by my 598 s
+  timeout); FirstTask 105 passed; round trip -t patch-triangular 1 passed; `just build` pass; smoke-lesson patch-triangular
+  patch-square-vs-triangular 4 passed; smoke-built demonstrations guided-lessons --grep triangular 5 passed. (Build had to be
+  repeated twice: another worker's concurrent edits changed the build inputs between build and smoke.)
+- Shots (dev 4483, `.command-logs/l58-shots/tri-{1440,1280}-{centroid,compare}-{0,1,2}.png`, `tri-*-plain-0.png`, script
+  `l58-s4-shots.sh`, log `l58-s4-shots.log`): pucks 0 in every frame; Odčitki w = 0,33 with its note; legend lists the drawn roles
+  (folded at 1280); nothing under cards; Slovenian throughout. One 1280 compare walk landed back on part 1/2 after Končaj while
+  the broad unit run loaded the machine; the rerun (`tri-1280-compare-rerun-*`) reached completion.
+- **patch-triangular ready** (pending the u/v puck question).
+
+### Session 4 follow-up: u/v pucks (handler: `prompt_patch_barycentric` counts) - PARTIAL, budget HANDOFF at ~176k
+Not started in code; tree green as above. Next, in this order:
+1. `TriangularPatchGraph.tsx`: import `PATCH_PARAMETER_KEYS` ("patch-u"/"patch-v") from `TensorPatchGraph`; `parameterBindings()`
+   u/v -> `read: this.state[p]`, `apply: setParameter(p, Number(value))` (it clamps to `[0, 1 - other]`, so u + v <= 1);
+   declaration `parameters`: two `range` params `placement: "board"`, label `patch_parameter_u/v`, min 0, max `1 - other`
+   (`Math.max(0, ...)`), step 0.01, maxDecimals 2. Update the `TriangularIds.param` type and the doc comments (justification:
+   `prompt_patch_barycentric` "Premikaj u in v ter opazuj w").
+2. Sweeps: copy TensorPatchGraph's `sweepWrite`/`sweepLease`/`releaseSweepLease` (lines 171-207) and release in `stopSweeps`/
+   `pauseSweeps` and in the lesson `sweep` callback on stop/pause (TensorPatchGraph 262-266); the constructor's `write` goes through it.
+3. Inset `onDrag` (line ~523): wrap in `runAs("learner", ...)` as TensorPatchGraph line 588 does (JSXGraph drag = outside DOM tagging).
+4. `TriangularPatchPanels.tsx`: `PuckOwned param={PATCH_PARAMETER_KEYS.u/v}` around the two Uredi sliders (opt-in prop `puckKeys` like
+   TensorPatchEditPanel); the inset help text mentions "drsnika zgoraj": check whether it must follow (TensorPatchPanels `InsetHelp`).
+5. Tests: `learner()` helper (`act(() => runAs("learner", ...))`) wherever own/shared tests fail on untagged writes; slider
+   lookups in TriangularPatchGraph.test.tsx (`control("patch_parameter_u")`) will need the puck (`TensorPatchPanels.test.tsx`
+   pattern) - values unchanged. Declaration test: expect the two params, max follows 1 - other, write 0.9 to u at v = 0.5 reads 0.5;
+   observed red for the new assertion. PatchFirstTask case for patch-triangular if it asserts the u slider leads Edit.
+6. Rerun: declaration test, own tests, tsc, eslint changed, graph-check patch-triangular (parity/golden unchanged), round trip,
+   `just unit src/graphs/patches src/learning/content`, build + smoke-lesson patch-triangular patch-square-vs-triangular (rerun once
+   on an input clash; inversion/phase/dynamics files belong to another worker), shots 1440/1280 via `.command-logs/l58-s4-shots.sh`.

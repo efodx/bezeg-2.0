@@ -66,7 +66,7 @@ function expectAgreement(graph: TriangularPatchGraph, view: FakeSurfaceView) {
     expect(s.v).toBeGreaterThanOrEqual(0);
     expect(s.u + s.v).toBeLessThanOrEqual(1 + 1e-12);
     // The controls.
-    expect(within(screen.getByRole("group", {name: t("patch_triangular_degree")})).getByRole("spinbutton")).toHaveProperty("value", String(s.n));
+    expect(within(screen.getByRole("group", {name: t("patch_triangular_degree"), hidden: true})).getByRole("spinbutton", {hidden: true})).toHaveProperty("value", String(s.n));
     expect(Number(control<HTMLInputElement>("patch_parameter_u").value)).toBeCloseTo(s.u, 12);
     expect(Number(control<HTMLInputElement>("patch_parameter_v").value)).toBeCloseTo(s.v, 12);
     const w = document.querySelector('[data-readout="parameter-w"] dd')!.textContent;
@@ -165,7 +165,7 @@ describe("degree changes", () => {
 });
 
 describe("shared controls in the panels", () => {
-    const degreeGroup = () => screen.getByRole("group", {name: t("patch_triangular_degree")});
+    const degreeGroup = () => screen.getByRole("group", {name: t("patch_triangular_degree"), hidden: true});
     const startingSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_starting_heading"));
     const azimuth = () => screen.getByLabelText<HTMLInputElement>(t("patch_camera_azimuth"));
 
@@ -352,7 +352,7 @@ describe("Reset, Presets, language and one tick", () => {
         const net = graph.state.net;
         act(() => setLanguage("en"));
         expect(view.labels[view.labels.length - 1]).toBe("Three-dimensional view of the patch");
-        expect(screen.getByRole("group", {name: t("patch_triangular_degree")})).toBeTruthy();
+        expect(screen.getByRole("group", {name: t("patch_triangular_degree"), hidden: true})).toBeTruthy();
         expect(graph.state.net).toBe(net);
         expectAgreement(graph, view);
         act(() => setLanguage("sl"));

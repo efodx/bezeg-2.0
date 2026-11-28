@@ -102,12 +102,13 @@ export function TriangularPatchEditPanel({state, selection, actions}: {state: Tr
                                onCommit={coordinates => actions.setSelectedCoordinates(coordinates)}/>
                 : <p className="inspector-help">{t("patch_triangular_select_point_help")}</p>}
         </div>
-        {selection && <FunctionReadout title={t("patch_bernstein_heading")} rows={[{
+        {/* The readouts are declared (rows and notes); this copy is hidden while the board cards show them. */}
+        {selection && <div data-declared-panel=""><FunctionReadout title={t("patch_bernstein_heading")} rows={[{
             id: "bernstein-weight", label: t("patch_triangular_bernstein_weight", {
                 value0: subscriptDigits(selection.index[0]), value1: subscriptDigits(selection.index[1]), value2: subscriptDigits(selection.index[2]),
             }),
             value: formatNumber(selection.weight, currentLanguage(), 4),
-        }]} note={t("patch_triangular_bernstein_help")}/>}
+        }]} note={t("patch_triangular_bernstein_help")}/></div>}
         <div className="inspector-group"><h3>{t("patch_starting_heading")}</h3>
             <ChoiceSelect label={t("patch_starting_heading")} value={shownPatch} options={startingPatchOptions(t, matching === undefined)}
                           onChange={value => { if (value !== shownPatch && value !== CUSTOM_PATCH) actions.useStartingPatch(Number(value)); }}/>
@@ -128,8 +129,8 @@ export function TriangularPatchEditPanel({state, selection, actions}: {state: Tr
             <ParameterInset attach={actions.setInsetContainer} label={t("patch_parameter_inset_label")}/>
             <p className="inspector-help">{t("patch_triangular_inset_help")}</p>
         </div>
-        <FunctionReadout title={t("patch_parameter_w")} rows={[{id: "parameter-w", label: "w", value: formatNumber(barycentricW(state.u, state.v), currentLanguage(), 2)}]}
-                         note={t("patch_parameter_w_help")}/>
+        <div data-declared-panel=""><FunctionReadout title={t("patch_parameter_w")} rows={[{id: "parameter-w", label: "w", value: formatNumber(barycentricW(state.u, state.v), currentLanguage(), 2)}]}
+                         note={t("patch_parameter_w_help")}/></div>
         <div className="inspector-group"><h3>{t("patch_subdivision_heading")}</h3>
             <OnOffSwitch label={t("patch_subdivision_show")} checked={state.subdivisionPreview} onChange={on => actions.setSubdivisionPreview(on)}/>
             <p className="inspector-help">{t("patch_subdivision_help")}</p>
