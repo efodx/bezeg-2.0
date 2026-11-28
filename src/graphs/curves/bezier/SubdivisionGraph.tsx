@@ -1,11 +1,15 @@
-import {t, useT} from "../../../localization";
+import {message, t, useT} from "../../../localization";
 import React from 'react';
 
 import {CurveOperation} from "../../base/controls/BezierCurveControls";
+import {PuckOwned} from "../../base/controls/PuckOwnership";
 import {JXGBezierCurve} from "../object/JXGBezierCurve";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
-import {BaseGraphStates} from "../../base/BaseCurveGraph";
+import {BaseGraphStates, type BaseCurveIds} from "../../base/BaseCurveGraph";
+import type {GraphDeclaration, LegendEntry} from "../../base/declare/graphDeclaration";
+import {runAs} from "../../base/writes/writeSource";
+import {watchedBox} from "./watchedBox";
 import {Attributes} from "../../attributes/Attributes";
 import {LessonActionRegistry} from "../../base/lesson/LessonActionRegistry";
 import {CurveCollectionPresetData} from "../curvePresetCollections";
@@ -18,7 +22,40 @@ function ShowControlPolygons(props: { checked: boolean, onChange: (checked: bool
     return <OnOffSwitch checked={props.checked} label={t("control_polygons")} onChange={props.onChange}/>;
 }
 
+/** The ids of the repeated-subdivision declaration: the common curve ids (a switch per piece), a compact legend of the pieces and the scheme switch. */
+export type RepeatedSubdivisionIds = Omit<BaseCurveIds, "legend" | "action"> & {
+    legend: BaseCurveIds["legend"] | "pieces" | "pieces-alt" | "control-points";
+    action: BaseCurveIds["action"] | "decasteljau-scheme";
+};
+
 class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
+    /** Task 08 (lane L41): the board workspace (legend of the pieces, view marks, polygon and hull pucks of a lone curve). No cut parameter: the lesson halves at 1/2 only. */
+    protected override declaresCurveWorkspace(): boolean { return true; }
+
+    /**
+     * The common declaration with a compact legend: up to 32 pieces would give 64 entries, so the pieces are one entry (a lone
+     * curve is "Krivulja") and, once there are several, a second for the neighbours' alternate colour, plus the control points.
+     */
+    protected override declaration(): GraphDeclaration<RepeatedSubdivisionIds> {
+        const common = this.commonCurveDeclaration();
+        const many = this.jxgCurves.length > 1;
+        const legend: LegendEntry<RepeatedSubdivisionIds>[] = [
+            {id: "pieces", label: many ? message("repeated_subdivision_pieces") : message("curve"), kind: "line", object: "curve-0"},
+            ...(many ? [{id: "pieces-alt" as const, label: message("repeated_subdivision_pieces_alt"), kind: "line" as const, object: `curve-${this.jxgCurves.length - 1}`}] : []),
+            {id: "control-points", label: message("control_points"), kind: "point", object: "control-points-0"}];
+        const selected = this.getSelectedCurve();
+        return {...common, legend, followView: watchedBox(common.marks),
+            actions: [...(common.actions ?? []), {id: "decasteljau-scheme", label: message("de_casteljau_scheme"), placement: "tools", section: "display",
+                enabled: !!selected, pressed: !!selected?.isShowingDecasteljauScheme()}]};
+    }
+
+    override performAction(id: string): void {
+        if (id !== "decasteljau-scheme") { super.performAction(id); return; }
+        const selected = this.getSelectedCurve();
+        if (!selected) return;
+        runAs("learner", () => selected.isShowingDecasteljauScheme() ? this.hideDecasteljauScheme() : this.showDecasteljauScheme());
+    }
+
     /** The midpoint Subdivide operation leads Edit and stays while a curve is selected (graph-control first use). */
     protected override workspaceConstructionFirst() { return true; }
     /** Typed coordinates for the draggable control points (shared edit-only list). */
@@ -112,14 +149,14 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
     protected override workspaceGraphDisplay(): React.ReactNode {
         const selected = this.getSelectedCurve();
         return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("construction")}</h3>
-            <ShowControlPolygons checked={this.getFirstJxgCurve().isShowingControlPolygon()}
+            <PuckOwned param="control-polygon-0"><ShowControlPolygons checked={this.getFirstJxgCurve().isShowingControlPolygon()}
                                  onChange={(checked) => {
                                      if (checked) {
                                          this.showControlPolygons();
                                      } else {
                                          this.hideControlPolygons();
                                      }
-                                 }}/>
+                                 }}/></PuckOwned>
             {selected
                 ? <OnOffSwitch checked={selected.isShowingDecasteljauScheme()} onChange={checked => {
                     if (checked) {
@@ -156,6 +193,7 @@ class SubdivisionGraph extends BaseBezierCurveGraph<BaseGraphStates> {
         this.board.suspendUpdate();
         if (this.getSelectedCurve()) {
             this.getSelectedCurve().setDecasteljauT(1 / 2);
+            this.getSelectedCurve().showCurrentDecasteljauScheme(true);
         }
         this.unsuspendBoardUpdate();
         this.store.notify();

@@ -5,9 +5,10 @@ import {GraphPalette} from "../../styles/GraphPalette";
 import {CurveOperation} from "../../base/controls/BezierCurveControls";
 import {usePuckOwns} from "../../base/controls/PuckOwnership";
 import {BaseGraphStates, type BaseCurveIds} from '../../base/BaseCurveGraph';
-import type {GraphDeclaration, LegendEntry, ViewMarks} from "../../base/declare/graphDeclaration";
+import type {GraphDeclaration, LegendEntry} from "../../base/declare/graphDeclaration";
 import type {ParameterBinding} from "../../base/writes/parameterArbiter";
 import {runAs} from "../../base/writes/writeSource";
+import {watchedBox} from "./watchedBox";
 import {DomainError} from "../../functions/BaseFunctionGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {Attributes} from "../../attributes/Attributes";
@@ -65,22 +66,9 @@ class SubdivisionGraph1 extends BaseBezierCurveGraph<DecasteljauGraphStates> {
         const legend: LegendEntry<SubdivisionIds>[] = [...(common.legend ?? []),
             {id: "rest", label: message("decasteljau_legend_rest"), kind: "line", object: "rest"},
             {id: "scheme", label: message("decasteljau_legend_scheme"), kind: "point", object: "scheme"}];
-        return {...common, legend, followView: this.watchedBox(common.marks),
+        return {...common, legend, followView: watchedBox(common.marks),
             parameters: [{key: "subdivision-t", kind: "range", label: message("subdivision_t_name"), symbol: "t", placement: "board", min: SUBDIVISION_T_MIN, max: SUBDIVISION_T_MAX, step: 0.01, maxDecimals: 2}],
             actions: [...(common.actions ?? []), {id: "decasteljau-scheme", label: message("show_scheme"), placement: "tools", section: "display", enabled: true, pressed: this.schemeShown()}]};
-    }
-
-    /**
-     * The box the view frames: the control points and curve samples with a fifth of room around and double room above for the
-     * point tags. Without it the lesson scene's wide box is widened to the canvas and the curve is a speck in the card-free strip.
-     */
-    private watchedBox(marks: ViewMarks | undefined): [number, number, number, number] | undefined {
-        const points = [...(marks?.must ?? []), ...(marks?.nice ?? [])].flatMap(mark => mark.kind === "point" ? [[mark.x, mark.y]] : mark.kind === "polyline" ? mark.points.map(p => [p[0], p[1]]) : []);
-        if (points.length === 0) return undefined;
-        const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
-        const left = Math.min(...xs), right = Math.max(...xs), bottom = Math.min(...ys), top = Math.max(...ys);
-        const pad = Math.max(0.2 * Math.max(right - left, top - bottom), 0.5);
-        return [left - pad, top + 2 * pad, right + pad, bottom - pad];
     }
 
     private schemeShown(): boolean {
