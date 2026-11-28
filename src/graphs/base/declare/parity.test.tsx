@@ -38,6 +38,10 @@ interface Sample {
     readonly movedNotes?: {readonly pattern: RegExp; readonly reason: string};
 }
 
+const eulerLineAccepted: readonly AcceptedDifference[] = [
+    {kind: 'missing', where: 'note', reason: 'a point merely outside the live view carried the suffix "zunaj pogleda"; whether a point is outside the view is board state, which a declaration cannot hold (only the far-vertex state records it)'},
+    {kind: 'extra', where: 'note', reason: 'the same note without the "zunaj pogleda" suffix'},
+];
 const continuityAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'row a', reason: 'the parameter is a board puck now, so its slider output "a = 1,5" is a readout row; the panel showed the value only on the slider'},
 ];
@@ -299,6 +303,36 @@ const SAMPLES: readonly Sample[] = [
             step('open polygon', graph => { load(pentagon)(graph); runAs('learner', () => (graph as unknown as Area).setPolygonClosed(false)); }),
             step('two points', load(polygon([[0, 0], [4, 1]]))),
             step('bow tie', load(polygon([[0, 0], [4, 4], [4, 0], [0, 4]]))),
+        ];
+    })()},
+    {file: 'compgeo/__parity__/euler-line.json', demonstration: 'euler-line', accepted: eulerLineAccepted, states: (() => {
+        type Euler = {loadExample(id: string): void; loadModel(model: unknown): void};
+        const example = (id: string): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as Euler).loadExample(id)); };
+        const triangle = (points: [number, number][]): ParityState['apply'] => graph => {
+            runAs('learner', () => (graph as unknown as Euler).loadModel({mode: 'points', closed: false, gridStepExponent: 0, points: points.map(([x, y]) => ({x, y}))}));
+        };
+        return [
+            {name: 'default triangle', apply: () => {}},
+            {name: 'right triangle', apply: example('right')},
+            {name: 'isosceles', apply: example('isosceles')},
+            {name: 'near equilateral', apply: example('near-equilateral')},
+            {name: 'degenerate', apply: example('degenerate')},
+            {name: 'two points', apply: triangle([[0, 0], [4, 1]])},
+            {name: 'far vertex', apply: triangle([[0, 0], [7, 0], [2000000, 5]])},
+        ];
+    })()},
+    {file: 'compgeo/__parity__/inscribed-angle.json', demonstration: 'inscribed-angle', states: (() => {
+        type Inscribed = {loadExample(id: string): void; loadModel(model: unknown): void; setT(value: number): void};
+        const on = (apply: (g: Inscribed) => void): ParityState['apply'] => graph => { runAs('learner', () => apply(graph as unknown as Inscribed)); };
+        const points = (list: [number, number][]) => ({mode: 'points', closed: false, gridStepExponent: 0, points: list.map(([x, y]) => ({x, y}))});
+        return [
+            {name: 'default (P at 90)', apply: () => {}},
+            {name: 'C moved', apply: on(g => g.loadModel(points([[0, 0], [7, 0], [3, 6]])))},
+            {name: 'P on the other arc', apply: on(g => g.setT(270))},
+            {name: 'Thales diameter', apply: on(g => { g.loadExample('thales'); g.setT(60); })},
+            {name: 'degenerate', apply: on(g => g.loadModel(points([[0, 0], [1, 1], [3, 3]])))},
+            {name: 'two points', apply: on(g => g.loadModel(points([[0, 0], [4, 1]])))},
+            {name: 'circle too large', apply: on(g => g.loadModel(points([[0, 0], [2000000, 1], [1, 2000000]])))},
         ];
     })()},
     {file: 'compgeo/__parity__/orientation.json', demonstration: 'orientation', states: (() => {

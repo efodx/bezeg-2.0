@@ -2,7 +2,7 @@
  * Plane-geometry routes, first task first (graph-control first use, batch 2): each changed route's own first task is the first control of the
  * Edit panel on a fresh visit; the controls the plan places after it follow.
  */
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, puckControl, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../base/realGraphTestHarness';
 import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import {InscribedAngleGraph} from './InscribedAngleGraph';
@@ -23,7 +23,8 @@ const routes: Record<string, () => BaseGraph<BaseGraphState>> = {
 
 /** `first` is a label prefix of the first control; `later` are label prefixes of controls the plan places after it. */
 const plan: Record<string, {first: Label; later: Label[]}> = {
-    'inscribed-angle': {first: () => t('inscribed_t_label'), later: [() => t('inscribed_example_label')]},
+    // The glider moved to the puck strip on the board; the example select now leads the Edit panel.
+    'inscribed-angle': {first: () => t('inscribed_example_label'), later: []},
     'simson-line': {first: () => t('simson_t_label'), later: [() => t('simson_example_label'), () => t('simson_mode_label')]},
 };
 
@@ -45,6 +46,15 @@ describe.each(Object.keys(routes))('%s', key => {
         const {first, later} = plan[key];
         expect(at(first)).toBe(0);
         for (const label of later) expect(at(label), label()).toBeGreaterThan(0);
+    });
+});
+
+describe('inscribed-angle glider', () => {
+    test('the first task is a puck on the board strip, not a control of the Edit panel', async () => {
+        mountGraph(new InscribedAngleGraph());
+        await waitForPucks('inscribed-t');
+        expect(puckControl('inscribed-t').getAttribute('aria-label')).toMatch(/^Lega točke P/);
+        expect(document.querySelector('#inspector-edit [data-inscribed-t]')).toBeNull();
     });
 });
 

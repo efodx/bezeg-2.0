@@ -1,4 +1,4 @@
-import {t} from "../../localization";
+import {message, messageNumber, t, type Message} from "../../localization";
 import {formatNumber, NumberLanguage} from "../../analysis/format";
 import {GLIDER_EXCLUSION_DEG, InscribedAnalysis} from "../../compgeo/inscribedAngleModel";
 
@@ -53,4 +53,39 @@ export function inscribedTexts(analysis: InscribedAnalysis, translate: typeof t,
         state: "circle", chip, stateNote: undefined, acb, apb, central, relation, diameter, vertices,
         undefinedNote: translate("inscribed_undefined_note", {value0: num(GLIDER_EXCLUSION_DEG)}),
     };
+}
+
+/** The ids of the sentences the inspector shows (the declaration's notes, in the panel's order). */
+export type InscribedNoteId = "chip" | "acb" | "apb" | "central" | "relation" | "diameter" | "undefined" | "vertex-1" | "vertex-2" | "vertex-3";
+
+export interface InscribedNote {readonly id: InscribedNoteId; readonly text: Message}
+
+/**
+ * The same sentences as {@link inscribedTexts} as catalog messages, for the declaration: pure data from the scene state, in the
+ * panel's order. The state sentence (missing, degenerate, too far or the angle chip) comes first.
+ */
+export function inscribedNotes(analysis: InscribedAnalysis, language: NumberLanguage): readonly InscribedNote[] {
+    if (analysis.kind === "missing") return [{id: "chip", text: message("inscribed_missing", {value0: 3 - analysis.have})}];
+    if (analysis.kind === "degenerate") return [{id: "chip", text: message("inscribed_degenerate")}];
+    const num = (value: number) => formatNumber(value, language, 1);
+    const glider = analysis.glider;
+    const notes: InscribedNote[] = [{
+        id: "chip",
+        text: !analysis.board || !glider ? message("inscribed_too_far")
+            : message("inscribed_chip", {value0: messageNumber(glider.angleApb, 1), value1: messageNumber(analysis.angleAcb, 1), value2: messageNumber(analysis.centralAngle, 1)}),
+    }];
+    notes.push({id: "acb", text: message("inscribed_acb", {value0: messageNumber(analysis.angleAcb, 1)})});
+    if (analysis.board && glider) notes.push({id: "apb", text: message("inscribed_apb", {value0: messageNumber(glider.angleApb, 1)})});
+    notes.push({id: "central", text: message("inscribed_central", {value0: messageNumber(analysis.centralAngle, 1)})});
+    if (analysis.board && glider) {
+        notes.push({id: "relation", text: message(glider.relation === "sameArc" ? "inscribed_relation_same" : "inscribed_relation_other",
+            {value0: messageNumber(glider.angleApb, 1), value1: messageNumber(glider.expectedApb, 1)})});
+    }
+    if (analysis.diameter) notes.push({id: "diameter", text: message("inscribed_diameter")});
+    if (analysis.board && glider) notes.push({id: "undefined", text: message("inscribed_undefined_note", {value0: messageNumber(GLIDER_EXCLUSION_DEG, 1)})});
+    analysis.vertices.forEach((v, i) => notes.push({
+        id: `vertex-${i + 1}` as InscribedNoteId,
+        text: message("notable_vertex_row", {value0: NAMES[i], value1: i + 1, value2: `(${num(v.x)}, ${num(v.y)})`}),
+    }));
+    return notes;
 }

@@ -5,6 +5,7 @@ import {NotablePointsGraph} from './NotablePointsGraph';
 import {EulerLineGraph} from './EulerLineGraph';
 import {InscribedAngleGraph} from './InscribedAngleGraph';
 import {GraphHost} from '../base/GraphHost';
+import {runAs} from '../base/writes/writeSource';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
 import {setLanguage} from '../../localization';
 import type {Preset} from '../base/presets/Presets';
@@ -107,11 +108,11 @@ const ROWS: Row[] = [
         name: 'inscribed-angle', key: INSCRIBED_ANGLE_PRESET_KEY, create: () => new Inscribed(), overlayIds: INSCRIBED_ANGLE_OVERLAY_IDS,
         source: {
             model: model([[0, 0], [8, 6], [1, 7]]), exampleId: 'thales', extras: {t: 250}, overlays: {radii: true, grid: true},
-            load: g => { const i = as.inscribed(g); i.loadExample('thales'); i.setT(250); i.setOverlay('radii', true); i.setOverlay('grid', true); },
+            load: g => runAs('learner', () => { const i = as.inscribed(g); i.loadExample('thales'); i.setT(250); i.setOverlay('radii', true); i.setOverlay('grid', true); }),
         },
         preceding: [
-            g => { const i = as.inscribed(g); i.loadExample('default'); i.setT(30); i.setOverlay('angles', false); },
-            g => { const i = as.inscribed(g); i.loadModel(CUSTOM); i.setState(patch({exampleId: 'thales', t: 100})); },
+            g => { const i = as.inscribed(g); i.loadExample('default'); runAs('learner', () => i.setT(30)); i.setOverlay('angles', false); },
+            g => { const i = as.inscribed(g); i.loadModel(CUSTOM); runAs('learner', () => i.setState(patch({exampleId: 'thales', t: 100}))); },
         ],
         initialOverlays: {radii: false, angles: true},
         fresh: {exampleId: 'default', t: 90},

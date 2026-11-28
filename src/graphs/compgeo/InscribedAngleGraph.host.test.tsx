@@ -4,11 +4,12 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {DEFAULT_INSCRIBED_MODEL, InscribedAngleGraph} from './InscribedAngleGraph';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../base/realGraphTestHarness';
+import {enterNumber} from '../../inputs/testEntry';
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {GLIDER_EXCLUSION_DEG, gliderGapCentres} from '../../compgeo/inscribedAngleModel';
 import {setLanguage} from '../../localization';
-import {enterNumber} from '../../inputs/testEntry';
+import {runAs} from '../base/writes/writeSource';
 
 const languageListeners = vi.hoisted(() => ({live: 0}));
 vi.mock('../../localization', async importOriginal => {
@@ -47,12 +48,12 @@ const mount = (graph: Observed, strict = false) => {
 type Triggerable = {triggerEventHandlers(names: string[], args: unknown[]): void};
 const drag = (point: JXG.Point) => (point as unknown as Triggerable).triggerEventHandlers(['drag'], []);
 const tri = (...p: [number, number][]): PointSetModel => ({...DEFAULT_INSCRIBED_MODEL, points: p.map(([x, y]) => ({x, y}))});
-const load = (graph: Observed, next: PointSetModel) => act(() => { graph.loadModel(next); });
+const load = (graph: Observed, next: PointSetModel) => act(() => { runAs('learner', () => { graph.loadModel(next); }); });
 const text = (selector: string) => (document.querySelector(selector)?.textContent ?? '');
 const readout = (id: string) => text(`[data-inscribed-readout="${id}"]`);
-const tField = () => document.querySelector('[data-inscribed-t] input[type="text"]') as HTMLInputElement;
-const slider = () => document.querySelector('[data-inscribed-t] input[type="range"]') as HTMLInputElement;
-const setSlider = (value: number) => fireEvent.change(slider(), {target: {value: String(value)}});
+/** P is a puck on the board: a learner's typed entry, or an arrow key on its slider. */
+const typeT = (value: string) => typePuck('inscribed-t', value);
+const pressT = (key: string) => act(() => { fireEvent.keyDown(puckControl('inscribed-t'), {key}); });
 const glider = (graph: Observed) => named(graph, 'P').find(o => o.name === 'P') as unknown as JXG.Point;
 async function settle(start: () => Promise<void>): Promise<void> {
     let pending: Promise<void> = Promise.resolve();
@@ -113,7 +114,7 @@ test('the default scene is the checked circle with the 66.8 and 133.6 degree rea
 test('the Thales example reports the exact diameter and 90 degrees', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { graph.loadExample('thales'); });
+    act(() => { runAs('learner', () => { graph.loadExample('thales'); }); });
     expect(graph.exampleId).toBe('thales');
     expect(text('[data-inscribed-diameter]')).toContain('AB je premer (natančno)');
     expect(readout('acb')).toBe('Obodni kot ∠ACB = 90°');
@@ -131,10 +132,10 @@ test('the angle marks and radii are toggles that draw exactly their named parts 
     expect(parts('inscribed-mark-')).toBe(3);
     expect(parts('inscribed-radius-')).toBe(0);
     const base = all(graph).length;
-    act(() => { graph.setOverlay('radii', true); });
+    act(() => { runAs('learner', () => { graph.setOverlay('radii', true); }); });
     expect(parts('inscribed-radius-')).toBe(2);
     expect(all(graph).length).toBeGreaterThan(base);
-    act(() => { graph.setOverlay('radii', false); graph.setOverlay('angles', false); });
+    act(() => { runAs('learner', () => { graph.setOverlay('radii', false); graph.setOverlay('angles', false); }); });
     expect(parts('inscribed-radius-')).toBe(0);
     expect(parts('inscribed-side-')).toBe(0);
     expect(parts('inscribed-mark-')).toBe(0);
@@ -142,11 +143,12 @@ test('the angle marks and radii are toggles that draw exactly their named parts 
     expectFiniteBoard(graph);
 });
 
-test('the t field and the arrow keys move P and the readouts; Shift steps ten degrees; the other arc gives 180 minus ACB', () => {
+test('the t field and the arrow keys move P and the readouts; Shift steps ten degrees; the other arc gives 180 minus ACB', async () => {
     const graph = new Observed();
     mount(graph);
+    await waitForPucks('inscribed-t');
     const before = glider(graph).Y();
-    enterNumber(tField(), '270');
+    typeT('270');
     expect(graph.t).toBe(270);
     expect(glider(graph).Y()).toBeLessThan(before);
     expect(glider(graph).Y()).toBeLessThan(-1);
@@ -155,44 +157,46 @@ test('the t field and the arrow keys move P and the readouts; Shift steps ten de
     expect(text('[data-inscribed-relation]')).toContain('na drugem loku');
     expect(text('[data-inscribed-relation]')).toContain('180° − ∠ACB = 113,2°');
     expect(readout('acb')).toBe('Obodni kot ∠ACB = 66,8°');
-    setSlider(271);
+    pressT('ArrowRight');
     expect(graph.t).toBe(271);
     // A value outside 0 to 360 wraps (a cyclic angle): -90 is 270.
-    enterNumber(tField(), '-90');
+    act(() => { runAs('learner', () => { graph.setT(-90); }); });
     expect(graph.t).toBe(270);
-    enterNumber(tField(), '90');
+    typeT('90');
     expect(graph.t).toBe(90);
     expect(readout('apb')).toBe('Obodni kot ∠APB = 66,8°');
     expectOnCircle(graph);
     noNaN(graph);
 });
 
-test('a t typed inside an exclusion gap moves out to the edge, and an arrow step across a gap skips it', () => {
+test('a t typed inside an exclusion gap moves out to the edge, and an arrow step across a gap skips it', async () => {
     const graph = new Observed();
     mount(graph);
+    await waitForPucks('inscribed-t');
     const distance = gap(graph);
     const a = gliderGapCentres(graph.model.points)![0];
-    enterNumber(tField(), String(Math.round(a)));
+    typeT(String(Math.round(a)));
     expect(distance(graph.t)).toBeGreaterThanOrEqual(GLIDER_EXCLUSION_DEG - 1e-6);
     expect(distance(graph.t)).toBeLessThan(GLIDER_EXCLUSION_DEG + 1e-3);
     expect(text('[data-inscribed-readout="apb"]')).not.toMatch(/NaN/);
     // One degree lands inside the gap, 0.2 before A: the step goes on to the far edge instead of back to the near one.
-    act(() => { graph.setT(a - 1.2); });
+    act(() => { runAs('learner', () => { graph.setT(a - 1.2); }); });
     expect(graph.t).toBeCloseTo(a - 1.2, 9);
-    setSlider(Math.round(a - 0.2));
+    pressT('ArrowRight');
     expect(graph.t).toBeCloseTo(a + GLIDER_EXCLUSION_DEG, 6);
     expect(distance(graph.t)).toBeGreaterThanOrEqual(GLIDER_EXCLUSION_DEG - 1e-6);
     expectOnCircle(graph);
     noNaN(graph);
 });
 
-test('panel: the range keeps the direction of motion into a gap, and the chip is not live', () => {
+test('panel: the range keeps the direction of motion into a gap, and the chip is not live', async () => {
     const graph = new Observed();
     mount(graph);
+    await waitForPucks('inscribed-t');
     const a = gliderGapCentres(graph.model.points)![0];
     // A range change from just below A's gap into it continues to the far edge (direction of motion).
-    act(() => { graph.setT(a - 1.2); });
-    setSlider(a - 0.2);
+    act(() => { runAs('learner', () => { graph.setT(a - 1.2); }); });
+    pressT('ArrowRight');
     expect(graph.t).toBeCloseTo(a + GLIDER_EXCLUSION_DEG, 6);
     expect(document.querySelector('[data-inscribed-chip]')?.getAttribute('role')).toBeNull();
     expect(document.querySelector('[data-inscribed-chip]')?.closest('[aria-live]')).toBeNull();
@@ -272,7 +276,7 @@ test('collinear and coincident vertices give a text message: no circle, no P, no
 test('Presets store vertices, example, t and toggles; import validates, accepts collinear, and Reset restores the default', async () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { graph.loadExample('thales'); graph.setT(200); graph.setOverlay('radii', true); graph.setOverlay('angles', false); });
+    act(() => { runAs('learner', () => { graph.loadExample('thales'); graph.setT(200); graph.setOverlay('radii', true); graph.setOverlay('angles', false); }); });
     await settle(() => graph.reset());
     expect(graph.model.points).toEqual(DEFAULT_INSCRIBED_MODEL.points);
     expect(graph.exampleId).toBe('default');
@@ -283,11 +287,11 @@ test('Presets store vertices, example, t and toggles; import validates, accepts 
     expect(named(graph, 'inscribed-mark-')).toHaveLength(3);
     expectOnCircle(graph);
 
-    act(() => { graph.loadExample('thales'); graph.setT(200); graph.setOverlay('radii', true); graph.setOverlay('angles', false); });
+    act(() => { runAs('learner', () => { graph.loadExample('thales'); graph.setT(200); graph.setOverlay('radii', true); graph.setOverlay('angles', false); }); });
     const exported = graph.exportPresetData();
     expect(exported.points).toEqual([{x: 0, y: 0}, {x: 8, y: 6}, {x: 1, y: 7}]);
     act(() => { graph.saveCurrentPreset('mine'); });
-    act(() => { graph.loadExample('default'); graph.setOverlay('radii', false); graph.setOverlay('angles', true); });
+    act(() => { runAs('learner', () => { graph.loadExample('default'); graph.setOverlay('radii', false); graph.setOverlay('angles', true); }); });
     await settle(() => graph.selectPreset('mine'));
     expect(graph.model.points).toEqual(exported.points);
     expect(graph.exampleId).toBe('thales');
@@ -306,7 +310,7 @@ test('Presets store vertices, example, t and toggles; import validates, accepts 
     expect(collection.checkGraphState?.({t: Number.NaN})).toBeDefined();
     expect(collection.checkGraphState?.({t: 200, exampleId: 'thales', overlays: {radii: true}})).toBeUndefined();
     // A stored t outside [0, 360) is accepted and shown normalised.
-    act(() => { graph.writeStoredT(-30); });
+    act(() => { runAs('learner', () => { graph.writeStoredT(-30); }); });
     expect(graph.t).toBe(330);
     expectOnCircle(graph);
 });
@@ -325,7 +329,7 @@ test('every board object the graph owns is removed again: degenerate drops them,
         load(graph, tri([0, 0], [7, 0], [2, 5]));
     }
     expect((board.objectsList as unknown[]).length).toBe(count);
-    act(() => { graph.setOverlay('radii', true); graph.setOverlay('radii', false); });
+    act(() => { runAs('learner', () => { graph.setOverlay('radii', true); graph.setOverlay('radii', false); }); });
     expect((board.objectsList as unknown[]).length).toBe(count);
     expect(languageListeners.live).toBeGreaterThan(0);
     view.unmount();
@@ -342,16 +346,17 @@ test('every board object the graph owns is removed again: degenerate drops them,
     expect(languageListeners.live).toBe(0);
 });
 
-test('the controls and the board text follow a language switch', () => {
+test('the controls and the board text follow a language switch', async () => {
     const graph = new Observed();
     mount(graph);
+    await waitForPucks('inscribed-t');
     expect(named(graph, 'inscribed-chip')[0].plaintext).toBe('∠APB = 66,8°; ∠ACB = 66,8°; središčni kot = 133,6°');
     act(() => { setLanguage('en'); });
     expect(named(graph, 'inscribed-chip')[0].plaintext).toBe('∠APB = 66.8°; ∠ACB = 66.8°; central angle = 133.6°');
     expect(text('[data-inscribed-chip]')).toBe('∠APB = 66.8°; ∠ACB = 66.8°; central angle = 133.6°');
     expect(readout('central')).toBe('Central angle ∠AOB over the arc without C = 133.6° (= 2 · ∠ACB)');
     expect(text('[data-inscribed-relation]')).toContain('equal to the displayed precision');
-    expect(screen.getByLabelText('Position of P (t, degrees)')).toBe(slider());
+    expect(puckControl('inscribed-t').getAttribute('aria-label')).toMatch(/^Position of P/);
     act(() => { setLanguage('sl'); });
     expect(named(graph, 'inscribed-chip')[0].plaintext).toContain('središčni kot');
 });
@@ -360,7 +365,7 @@ test('the controls and the board text follow a language switch', () => {
 function measureDrag(target: 'glider' | 'vertex', runs = 120) {
     const graph = new Observed();
     const view = mount(graph);
-    act(() => { graph.setOverlay('radii', true); graph.setOverlay('grid', true); });
+    act(() => { runAs('learner', () => { graph.setOverlay('radii', true); graph.setOverlay('grid', true); }); });
     const point = (target === 'glider' ? glider(graph) : named(graph, 'P3')[0]) as unknown as JXG.Point;
     const board = graph.liveBoard();
     const o = named(graph, 'O').find(object => object.name === 'O')!;

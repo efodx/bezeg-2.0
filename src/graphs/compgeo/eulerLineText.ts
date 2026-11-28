@@ -1,4 +1,4 @@
-import {t} from "../../localization";
+import {message, messageNumber, t, type Message} from "../../localization";
 import {formatNumber, MINUS_SIGN, NumberLanguage} from "../../analysis/format";
 import {EulerAnalysis} from "../../compgeo/eulerLineModel";
 import {exactText} from "./notablePointsText";
@@ -78,4 +78,49 @@ export function eulerTexts(analysis: Extract<EulerAnalysis, {kind: "triangle"}>,
         tooFar,
         vertices: eulerVertexTexts(analysis.vertices, translate),
     };
+}
+
+/** The ids of the sentences the inspector shows (the declaration's notes, in the panel's order). */
+export type EulerNoteId =
+    | "missing" | "chip" | "degenerate-why" | "equilateral" | EulerPlaceId | "r2-quarter" | "hg" | "go" | "ho" | "half-r" | "relation" | "distinct"
+    | "too-far-h" | "too-far-g" | "too-far-o" | "too-far-n" | "vertex-1" | "vertex-2" | "vertex-3";
+
+export interface EulerNote {readonly id: EulerNoteId; readonly text: Message}
+
+function vertexNotes(vertices: readonly {x: number; y: number}[]): EulerNote[] {
+    return vertices.map((p, i) => ({
+        id: `vertex-${i + 1}` as EulerNoteId,
+        text: message("notable_vertex_row", {value0: NAMES[i], value1: i + 1, value2: `(${p.x}, ${p.y})`.replace(/-/g, MINUS_SIGN)}),
+    }));
+}
+
+/**
+ * The same sentences as {@link eulerTexts} as catalog messages, for the declaration: pure data from the scene state. A point merely
+ * outside the current view is not marked (that needs the board's view); a point too far to draw is.
+ */
+export function eulerNotes(analysis: EulerAnalysis): readonly EulerNote[] {
+    if (analysis.kind === "missing") return [{id: "missing", text: message("notable_missing", {value0: 3 - analysis.have})}];
+    if (analysis.kind === "degenerate") {
+        return [{id: "chip", text: message("euler_chip_degenerate")}, {id: "degenerate-why", text: message("euler_degenerate_why")}, ...vertexNotes(analysis.vertices)];
+    }
+    const notes: EulerNote[] = [{id: "chip", text: message(analysis.line === undefined ? "euler_chip_equilateral" : "euler_chip_line")}];
+    if (analysis.line === undefined) notes.push({id: "equilateral", text: message("euler_equilateral_note")});
+    const tooFar: EulerNote[] = [];
+    for (const id of EULER_PLACE_IDS) {
+        const place = analysis[id];
+        const symbol = EULER_PLACE_SYMBOL[id];
+        if (place.board === undefined) tooFar.push({id: `too-far-${id}` as EulerNoteId, text: message("euler_too_far", {value0: symbol})});
+        notes.push({id, text: message("euler_point_row", {value0: symbol, value1: pointText(place.point)})});
+    }
+    notes.push(
+        {id: "r2-quarter", text: message("euler_r2_quarter", {value0: exactText(analysis.r2Quarter)})},
+        {id: "hg", text: message("euler_hg", {value0: messageNumber(analysis.hg, 5)})},
+        {id: "go", text: message("euler_go", {value0: messageNumber(analysis.go, 5)})},
+        {id: "ho", text: message("euler_ho", {value0: messageNumber(analysis.ho, 5)})},
+        {id: "half-r", text: message("euler_half_r", {value0: messageNumber(analysis.halfCircumradius, 5)})},
+        {id: "relation", text: message(analysis.collinear && analysis.ratioHolds ? "euler_relation_holds" : "euler_relation_fails")},
+        {id: "distinct", text: message("euler_distinct", {value0: analysis.nine.distinctCount})},
+        ...tooFar, ...vertexNotes(analysis.vertices),
+    );
+    return notes;
 }

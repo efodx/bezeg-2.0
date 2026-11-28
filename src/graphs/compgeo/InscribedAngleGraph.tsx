@@ -3,7 +3,7 @@ import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {finiteNumberField, PointSetExtension} from "./pointSetPersistence";
 import {GraphSession} from "../base/GraphSession";
-import {currentLanguage, onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, type Message, onLanguageChange, t} from "../../localization";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphPalette} from "../styles/GraphPalette";
 import {pointLabelMath} from "../styles/pointLabelMath";
@@ -13,8 +13,11 @@ import {
     InscribedExampleId, inscribedExample, isInscribedExampleId, normaliseDegrees, resolveGliderT,
 } from "../../compgeo/inscribedAngleModel";
 import {INSCRIBED_ANGLE_OVERLAY_IDS, INSCRIBED_ANGLE_VERTEX_COUNT, inscribedAngleCollection} from "./inscribedAnglePresetCollection";
-import {InscribedAnglePanel} from "./InscribedAnglePanel";
-import {inscribedTexts} from "./inscribedAngleText";
+import {INSCRIBED_T_KEY, InscribedAngleControls, InscribedAngleReadouts} from "./InscribedAnglePanel";
+import {inscribedNotes, type InscribedNoteId, inscribedTexts} from "./inscribedAngleText";
+import type {GraphDeclaration, LegendEntry, ParameterDeclaration, ViewMarks} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 /**
@@ -34,6 +37,15 @@ import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
  * No route, catalog entry or Demonstration registration yet (task 05).
  */
 export type InscribedOverlayId = "radii" | "angles";
+
+/**
+ * The ids of the declaration (frames name them): the glider angle `t` is the one parameter (a range puck); the sentences of the
+ * inspector are notes; the legend names the points, the circle, the chord, P and the two overlays; the overlay switches are actions.
+ */
+export type InscribedAngleIds = {
+    param: typeof INSCRIBED_T_KEY; row: never; note: InscribedNoteId; legend: "points" | "circle" | "chord" | "glider" | InscribedOverlayId;
+    section: never; action: "grid" | InscribedOverlayId;
+};
 
 export interface InscribedAngleState extends PointSetGraphState {
     exampleId: InscribedExampleId | undefined;
@@ -308,7 +320,7 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
         if (this.inGliderSnap || this.graphInteractionLocked) return;
         const next = gliderTFromBoard(this.model.points, point.X(), point.Y(), this.t);
         if (next === undefined) return;
-        this.patch({t: next});
+        runAs("learner", () => this.patch({t: next}));
         this.ensureScene();
     }
 
@@ -407,6 +419,80 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
         return objects;
     }
 
+    // ---- Declaration (task 08) -----------------------------------------------------------------------------------
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: "grid" | InscribedOverlayId): Message {
+        switch (id) {
+            case "radii": return message("inscribed_overlay_radii");
+            case "angles": return message("inscribed_overlay_angles");
+            default: return super.overlayMessage(id);
+        }
+    }
+
+    /** The overlays draw several objects, so the legend colour is the swatch's. Switches stay in Orodja: each step sets them in its scene. */
+    protected override overlaySwatch(id: "grid" | InscribedOverlayId) {
+        switch (id) {
+            case "radii": return {kind: "dashed" as const, color: GraphPalette.comparisonCurve};
+            case "angles": return {kind: "line" as const, color: GraphPalette.additionalCurves[1]};
+            default: return undefined;
+        }
+    }
+
+    protected override pointSetNotes() { return inscribedNotes(this.analysis(), currentLanguage()); }
+
+    /** The glider angle, through the setter the panel's slider calls (it moves the angle out of the exclusion gaps). */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {[INSCRIBED_T_KEY]: {read: () => this.t, apply: (value: number) => this.setT(value, Math.abs(value - this.t) <= 10 ? value - this.t : undefined)}};
+    }
+
+    private marksCache: {base: ViewMarks; circle: string; marks: ViewMarks} | undefined;
+
+    /** The vertices and the whole circle: P travels all of it, so the view keeps its bounding box in view. */
+    private inscribedMarks(): ViewMarks {
+        const base = this.pointSetViewMarks();
+        const circle = this.circleView()?.board;
+        if (!circle) return base;
+        const key = `${circle.centre.x},${circle.centre.y},${circle.radius}`;
+        if (this.marksCache?.base === base && this.marksCache.circle === key) return this.marksCache.marks;
+        const {centre, radius} = circle;
+        const marks: ViewMarks = {must: [...base.must, {kind: "box", left: centre.x - radius, top: centre.y + radius, right: centre.x + radius, bottom: centre.y - radius}]};
+        this.marksCache = {base, circle: key, marks};
+        return marks;
+    }
+
+    protected override declaration(): GraphDeclaration | undefined {
+        const common = super.declaration();
+        if (!common) return undefined;
+        const circle = this.circleView();
+        const [points, ...overlays] = common.legend ?? [];
+        const legend: LegendEntry[] = [
+            ...(points ? [points] : []),
+            ...(circle ? [
+                {id: "circle" as const, label: message("inscribed_decl_legend_circle"), kind: "line" as const, object: "circle"},
+                {id: "chord" as const, label: message("inscribed_decl_legend_chord"), kind: "line" as const, object: "chord"},
+                ...(circle.glider ? [{id: "glider" as const, label: message("inscribed_decl_legend_glider"), kind: "point" as const, object: "glider"}] : []),
+            ] : []),
+            ...overlays,
+        ];
+        const parameters: ParameterDeclaration[] = circle?.glider ? [{
+            key: INSCRIBED_T_KEY, kind: "range", label: message("inscribed_decl_glider_name"), symbol: "t", placement: "board",
+            min: 0, max: 360, step: 1, bigStep: 10, maxDecimals: 1, unit: message("curvature_unit_degrees"),
+        }] : [];
+        return {...common, legend, parameters, marks: this.inscribedMarks()};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const names: Readonly<Record<string, string>> = {circle: "inscribed-circle", chord: "inscribed-chord", glider: "P"};
+        if (!(id in names)) return super.drawnObject(id);
+        const fallback = {color: id === "glider" ? GraphPalette.additionalCurves[0] : id === "circle" ? GraphPalette.comparisonCurve : GraphPalette.primaryCurve, visible: false};
+        if (!this.hasBoard) return fallback;
+        const found = (this.sceneObjects as (JXG.GeometryElement & {evalVisProp(name: string): unknown})[]).find(element => element.name === names[id]);
+        if (!found) return fallback;
+        return {color: String(found.evalVisProp(id === "glider" ? "fillcolor" : "strokecolor")), visible: Boolean(found.evalVisProp("visible"))};
+    }
+
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected override showsModeToggle(): boolean {
@@ -415,8 +501,9 @@ export class InscribedAngleGraph extends PointSetGraph<InscribedOverlayId> {
 
     protected override workspaceEdit(): React.ReactNode {
         return <>
-            <InscribedAnglePanel analysis={this.analysis()} exampleId={this.exampleId}
-                                 onExample={id => this.loadExample(id)} onT={(value, direction) => this.setT(value, direction)}/>
+            <InscribedAngleControls analysis={this.analysis()} exampleId={this.exampleId}
+                                    onExample={id => this.loadExample(id)} onT={(value, direction) => this.setT(value, direction)}/>
+            <div data-declared-panel=""><InscribedAngleReadouts analysis={this.analysis()}/></div>
             {super.workspaceEdit()}
         </>;
     }

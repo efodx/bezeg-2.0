@@ -8,6 +8,7 @@ import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestH
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
+import {runAs} from '../base/writes/writeSource';
 
 const languageListeners = vi.hoisted(() => ({live: 0}));
 vi.mock('../../localization', async importOriginal => {
@@ -172,7 +173,8 @@ test('a distant point is reported "outside the view", Fit frames it, and a point
     expect(pointRow('o')?.textContent).toContain('zunaj pogleda');
     expect(named(graph, 'euler-chip')[0].plaintext).toContain('O: zunaj pogleda');
     const before = graph.liveBoard().getBoundingBox();
-    act(() => { graph.fit(); });
+    graph.setViewDirector(undefined); // the workspace's view director owns Fit once the graph is bound (it needs layout geometry, absent in jsdom); this checks the graph's own fit
+    act(() => { runAs('learner', () => { graph.fit(); }); });
     const after = graph.liveBoard().getBoundingBox();
     expect(after).not.toEqual(before);
     expect(o.X!()).toBeGreaterThanOrEqual(after[0]);
@@ -311,7 +313,8 @@ test('a drag with every overlay on keeps the board in step and every scene objec
 
 /** What a student sees: every board object's place and size, the framing after Fit, and the inspector text. */
 function seen(graph: Observed) {
-    act(() => { graph.fit(); });
+    graph.setViewDirector(undefined); // the workspace's view director owns Fit once the graph is bound (it needs layout geometry, absent in jsdom); this checks the graph's own fit
+    act(() => { runAs('learner', () => { graph.fit(); }); });
     // Axis ticks and their labels follow the viewport, not the triangle.
     const objects = all(graph).filter(o => !['label', 'ticks', 'axis'].includes(o.elType)).map(o => ({
         type: o.elType, name: o.name ?? '', coords: o.coords?.usrCoords, radius: o.Radius ? o.Radius() : undefined, text: o.plaintext,

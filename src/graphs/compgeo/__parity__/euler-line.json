@@ -1,0 +1,158 @@
+{
+  "graph": "euler-line",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default triangle",
+      "rows": [],
+      "notes": [
+        "Eulerjeva premica: O, G in H so kolinearne",
+        "H = (2, 2)",
+        "G = (3, 5/3)",
+        "O = (7/2, 3/2)",
+        "N = (11/4, 7/4)",
+        "R²/4 = 29/8",
+        "HG ≈ 1,05409",
+        "GO ≈ 0,52705",
+        "|HO| ≈ 1,58114",
+        "Polmer krožnice devetih točk R/2 ≈ 1,90394",
+        "O, G in H so kolinearne in HG = 2·GO (natančno preverjeno).",
+        "Različnih točk: 9 od 9",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Eulerjeva premica: O, G in H so kolinearne"
+      ]
+    },
+    {
+      "name": "right triangle",
+      "rows": [],
+      "notes": [
+        "Eulerjeva premica: O, G in H so kolinearne",
+        "H = (0, 0)",
+        "G = (4/3, 1)",
+        "O = (2, 3/2)",
+        "N = (1, 3/4)",
+        "R²/4 = 25/16",
+        "HG ≈ 1,66667",
+        "GO ≈ 0,83333",
+        "|HO| ≈ 2,5",
+        "Polmer krožnice devetih točk R/2 ≈ 1,25",
+        "O, G in H so kolinearne in HG = 2·GO (natančno preverjeno).",
+        "Različnih točk: 5 od 9",
+        "A (P1) = (0, 0)",
+        "B (P2) = (4, 0)",
+        "C (P3) = (0, 3)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Eulerjeva premica: O, G in H so kolinearne"
+      ]
+    },
+    {
+      "name": "isosceles",
+      "rows": [],
+      "notes": [
+        "Eulerjeva premica: O, G in H so kolinearne",
+        "H = (3, 9/5)",
+        "G = (3, 5/3)",
+        "O = (3, 8/5)",
+        "N = (3, 17/10)",
+        "R²/4 = 289/100",
+        "HG ≈ 0,13333",
+        "GO ≈ 0,06667",
+        "|HO| ≈ 0,2",
+        "Polmer krožnice devetih točk R/2 ≈ 1,7",
+        "O, G in H so kolinearne in HG = 2·GO (natančno preverjeno).",
+        "Različnih točk: 8 od 9",
+        "A (P1) = (0, 0)",
+        "B (P2) = (6, 0)",
+        "C (P3) = (3, 5)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Eulerjeva premica: O, G in H so kolinearne"
+      ]
+    },
+    {
+      "name": "near equilateral",
+      "rows": [],
+      "notes": [
+        "Eulerjeva premica: O, G in H so kolinearne",
+        "H = (4, 16/7)",
+        "G = (4, 7/3)",
+        "O = (4, 33/14)",
+        "N = (4, 65/28)",
+        "R²/4 = 4225/784",
+        "HG ≈ 0,04762",
+        "GO ≈ 0,02381",
+        "|HO| ≈ 0,07143",
+        "Polmer krožnice devetih točk R/2 ≈ 2,32143",
+        "O, G in H so kolinearne in HG = 2·GO (natančno preverjeno).",
+        "Različnih točk: 8 od 9",
+        "A (P1) = (0, 0)",
+        "B (P2) = (8, 0)",
+        "C (P3) = (4, 7)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Eulerjeva premica: O, G in H so kolinearne"
+      ]
+    },
+    {
+      "name": "degenerate",
+      "rows": [],
+      "notes": [
+        "Eulerjeva premica ni določena (izrojen trikotnik)",
+        "Točke so kolinearne ali sovpadajo, zato trikotnik ne obstaja: središče očrtane krožnice O, višinska točka H in krožnica devetih točk niso določeni.",
+        "A (P1) = (0, 0)",
+        "B (P2) = (1, 1)",
+        "C (P3) = (3, 3)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Eulerjeva premica ni določena (izrojen trikotnik)"
+      ]
+    },
+    {
+      "name": "two points",
+      "rows": [],
+      "notes": [
+        "Trikotnik potrebuje tri točke. Dodaj še točke; manjka jih: 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "far vertex",
+      "rows": [],
+      "notes": [
+        "Eulerjeva premica: O, G in H so kolinearne",
+        "H = (2000000, -799997200000); zunaj pogleda",
+        "G = (666669, 5/3); zunaj pogleda",
+        "O = (7/2, 799997200005/2); zunaj pogleda",
+        "N = (4000007/4, -799997199995/4); zunaj pogleda",
+        "R²/4 = 319997760007919986000037/8",
+        "HG ≈ 799997200002,77783",
+        "GO ≈ 399998600001,38892",
+        "|HO| ≈ 1199995800004,16675",
+        "Polmer krožnice devetih točk R/2 ≈ 199999300001,24997",
+        "O, G in H so kolinearne in HG = 2·GO (natančno preverjeno).",
+        "Različnih točk: 9 od 9",
+        "H je predaleč, da bi ga narisali; koordinate so v seznamu izračunov.",
+        "O je predaleč, da bi ga narisali; koordinate so v seznamu izračunov.",
+        "N je predaleč, da bi ga narisali; koordinate so v seznamu izračunov.",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2000000, 5)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Eulerjeva premica: O, G in H so kolinearne; H: zunaj pogleda; G: zunaj pogleda; O: zunaj pogleda; N: zunaj pogleda"
+      ]
+    }
+  ]
+}

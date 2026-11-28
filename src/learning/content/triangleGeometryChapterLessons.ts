@@ -4,6 +4,8 @@ import type {SimsonExampleId, SimsonOffset} from '../../compgeo/simsonLineModel'
 import type {InversionExampleId} from '../../compgeo/inversionModel';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {NotablePointsIds} from '../../graphs/compgeo/NotablePointsGraph';
+import type {InscribedAngleIds} from '../../graphs/compgeo/InscribedAngleGraph';
+import type {EulerLineIds} from '../../graphs/compgeo/EulerLineGraph';
 
 // Triangle geometry chapter-owned guided activities (spec T1 to T5). Every number is recomputed in triangleGeometryChapter.test.ts
 // from the triangle and circle kernel. Scene actions run synchronously in one tick; each scene starts from the Demonstration
@@ -21,6 +23,8 @@ const glider = (value: number): LessonAction => ({kind: 'parameter', name: 't', 
 
 /** Typed by the triangle centres' declaration ids: an unknown note fails the type check. */
 const notableFrame = frameDeclarer<NotablePointsIds>();
+const inscribedFrame = frameDeclarer<InscribedAngleIds>();
+const eulerFrame = frameDeclarer<EulerLineIds>();
 
 const NOTABLE_OVERLAYS = ['triangle', 'centroid', 'circumcentre', 'incentre', 'orthocentre'] as const;
 const INSCRIBED_OVERLAYS = ['radii', 'angles'] as const;
@@ -46,9 +50,10 @@ function notableStep(id: string, title: LocalizedText, body: LocalizedText, prom
 }
 
 function inscribedStep(id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, shown: readonly (typeof INSCRIBED_OVERLAYS)[number][],
-                       t: number, options: {points?: readonly LessonPoint[]; view?: LessonViewBox} = {}): LessonStep {
+                       t: number, options: {points?: readonly LessonPoint[]; view?: LessonViewBox; declare?: FrameDeclaration} = {}): LessonStep {
     return {
         id, title, body, prompt,
+        ...(options.declare ? {frames: [{id: `${id}-content`, kind: 'explanation' as const, title, body, prompt, declare: options.declare}]} : {}),
         scene: {actions: [defaultScene(`inscribed-angle-${id}`, options.view), ...(options.points ? [triangle(...options.points)] : []), ...overlays(shown, INSCRIBED_OVERLAYS), glider(t)]},
     };
 }
@@ -121,43 +126,43 @@ export const inscribedAngleLesson: LessonDefinition = {
             words('Skozi \\(A=(0,0)\\) (P1), \\(B=(7,0)\\) (P2) in \\(C=(2,5)\\) (P3) gre krožnica s središčem \\(O=(7/2,\\,3/2)\\) in \\(R^2=29/2\\). Tetiva \\(AB\\) jo razdeli na dva loka. Obodni kot v \\(C\\) je \\(\\angle ACB\\approx66{,}8^\\circ\\). Točka \\(P\\) se po krožnici premika s parametrom \\(t\\) v stopinjah; je edini približni objekt na grafu, ker je izračunana z decimalnimi števili. Pri \\(t=90^\\circ\\) je \\(P\\) nad središčem, na istem loku kot \\(C\\).',
                 'The circle with centre \\(O=(7/2,\\,3/2)\\) and \\(R^2=29/2\\) passes through \\(A=(0,0)\\) (P1), \\(B=(7,0)\\) (P2) and \\(C=(2,5)\\) (P3). The chord \\(AB\\) splits it into two arcs. The inscribed angle at \\(C\\) is \\(\\angle ACB\\approx66.8^\\circ\\). The point \\(P\\) moves along the circle by the parameter \\(t\\) in degrees; it is the only inexact (approximate) object on the graph, because it is computed with floating-point numbers. At \\(t=90^\\circ\\) the point \\(P\\) is above the centre, on the same arc as \\(C\\).'),
             words('Napovej, kako se spreminja \\(\\angle APB\\), ko premikaš \\(P\\) po loku nad tetivo, nato preberi odčitek.', 'Predict how \\(\\angle APB\\) changes as you move \\(P\\) along the arc above the chord, then read the readout.'),
-            ['angles'], 90),
+            ['angles'], 90, {declare: inscribedFrame({open: ['readouts'], highlight: ['acb'], uses: ['inscribed-t']})}),
         inscribedStep('same-arc',
             words('Isti lok: kot ostane enak', 'The same arc: the angle stays equal'),
             words('Izrek (Evklid, Elementi III.21): obodni koti nad istim lokom so enaki. Pri \\(t=60^\\circ\\), \\(90^\\circ\\) in \\(120^\\circ\\) je \\(\\angle APB\\approx66{,}8^\\circ\\), kar je enako \\(\\angle ACB\\) na prikazano natančnost; za točko \\(P\\) ne trdimo več kot enakost na prikazano natančnost. Kot \\(\\angle APB\\) ni določen, če je \\(P\\) v \\(A\\) ali \\(B\\); zato parameter \\(t\\) teh dveh leg ne zavzame. Vlečenje to ponazarja; izrek velja zaradi dokaza.',
                 'Theorem (Euclid, Elements III.21): inscribed angles over the same arc are equal. At \\(t=60^\\circ\\), \\(90^\\circ\\) and \\(120^\\circ\\) we get \\(\\angle APB\\approx66.8^\\circ\\), which equals \\(\\angle ACB\\) to the displayed precision; for the point \\(P\\) we claim nothing beyond equality to the displayed precision. The angle \\(\\angle APB\\) is not defined when \\(P\\) is at \\(A\\) or \\(B\\), so the parameter \\(t\\) never takes those two positions. Dragging illustrates this; the theorem holds because of its proof.'),
             words('Povleci \\(P\\) z enega konca loka na drugega. Ali se odčitek kdaj spremeni za več kot zaokrožitev?', 'Drag \\(P\\) from one end of the arc to the other. Does the readout ever change by more than rounding?'),
-            ['angles'], 60),
+            ['angles'], 60, {declare: inscribedFrame({open: ['readouts'], highlight: ['acb', 'apb'], uses: ['inscribed-t']})}),
         inscribedStep('central',
             words('Središčni kot je dvakratnik', 'The central angle is twice as large'),
             words('Izrek (Evklid III.20): središčni kot nad tetivo je dvakratnik obodnega kota nad istim lokom. Tu je \\(\\angle AOB\\approx133{,}6^\\circ=2\\cdot66{,}8^\\circ\\) (obe vrednosti sta zaokroženi na desetinko stopinje). Središčni kot meri lok brez \\(C\\); zato je obodni kot polovica središčnega.',
                 'Theorem (Euclid III.20): the central angle over a chord is twice the inscribed angle over the same arc. Here \\(\\angle AOB\\approx133.6^\\circ=2\\cdot66.8^\\circ\\) (both values are rounded to a tenth of a degree). The central angle measures the arc without \\(C\\); so the inscribed angle is half of it.'),
             words('Preveri na odčitkih, da je središčni kot dvakrat večji od obodnega.', 'Check on the readouts that the central angle is twice the inscribed angle.'),
-            ['angles', 'radii'], 90),
+            ['angles', 'radii'], 90, {declare: inscribedFrame({open: ['readouts'], highlight: ['acb', 'central']})}),
         inscribedStep('other-arc',
             words('Nasprotni lok: dopolnilni kot', 'The other arc: the supplement'),
             words('Če je \\(P\\) na nasprotni strani tetive \\(AB\\) od \\(C\\), na primer pri \\(t=270^\\circ\\), je \\(\\angle APB\\approx113{,}2^\\circ=180^\\circ-66{,}8^\\circ\\). Izrek (Evklid III.22): nasprotna kota tetivnega štirikotnika \\(ACBP\\) se seštejeta v \\(180^\\circ\\). Enakost velja na prikazano natančnost.',
                 'If \\(P\\) is on the other side of the chord \\(AB\\) from \\(C\\), for example at \\(t=270^\\circ\\), then \\(\\angle APB\\approx113.2^\\circ=180^\\circ-66.8^\\circ\\). Theorem (Euclid III.22): opposite angles of a cyclic quadrilateral \\(ACBP\\) add up to \\(180^\\circ\\). The displayed equality holds to the displayed precision.'),
             words('Povleci \\(P\\) čez \\(A\\) ali \\(B\\) na nasprotni lok. Kaj se zgodi z odčitkom in kaj z oznako loka?', 'Drag \\(P\\) across \\(A\\) or \\(B\\) to the other arc. What happens to the readout and to the arc label?'),
-            ['angles'], 270),
+            ['angles'], 270, {declare: inscribedFrame({open: ['readouts'], highlight: ['apb', 'relation'], uses: ['inscribed-t']})}),
         inscribedStep('diameter',
             words('Tetiva kot premer', 'The chord as a diameter'),
             words('Za \\(A=(0,0)\\), \\(B=(8,6)\\) in \\(C=(1,7)\\) je tetiva \\(AB\\) premer krožnice s središčem \\((4,3)\\) in polmerom \\(5\\). Središčni kot je \\(180^\\circ\\) in obodni kot je \\(\\angle ACB=90^\\circ\\). Izrek (Evklid III.31, Talesov izrek): obodni kot nad premerom je pravi kot. Ker je dopolnilni kot pravega kota spet pravi, odčitek \\(\\angle APB\\) ostane \\(90^\\circ\\) na obeh lokih.',
                 'For \\(A=(0,0)\\), \\(B=(8,6)\\) and \\(C=(1,7)\\) the chord \\(AB\\) is a diameter of the circle with centre \\((4,3)\\) and radius \\(5\\). The central angle is \\(180^\\circ\\) and the inscribed angle is \\(\\angle ACB=90^\\circ\\). Theorem (Euclid III.31, Thales\' theorem): an inscribed angle over a diameter is a right angle. Since the supplement of a right angle is again a right angle, the readout \\(\\angle APB\\) stays \\(90^\\circ\\) on both arcs.'),
             words('Povleci \\(P\\) po obeh lokih in preveri, da je odčitek povsod \\(90^\\circ\\).', 'Drag \\(P\\) along both arcs and check that the readout is \\(90^\\circ\\) everywhere.'),
-            ['angles', 'radii'], 60, {points: THALES_TRIANGLE, view: THALES_VIEW}),
+            ['angles', 'radii'], 60, {points: THALES_TRIANGLE, view: THALES_VIEW, declare: inscribedFrame({open: ['readouts'], highlight: ['apb', 'diameter'], uses: ['inscribed-t']})}),
         inscribedStep('lattice',
             words('Mrežna točka kot natančen primer', 'A lattice point as an exact instance'),
             words('Točka \\(C=(1,7)\\) leži na krožnici, ker je \\(|C-(4,3)|^2=9+16=25=5^2\\). Skalarni produkt \\((1-0)(1-8)+(7-0)(7-6)=-7+7=0\\) je natanko nič, zato je kot pri \\(C\\) pravi. To graf presodi natančno s celoštevilskim računom, ne s točko \\(P\\) in ne s toleranco. Besedilo »AB je premer (natančno)« v odčitkih je torej trditev o mrežnih točkah, odčitki za \\(P\\) pa so le zaokroženi.',
                 'The point \\(C=(1,7)\\) lies on the circle because \\(|C-(4,3)|^2=9+16=25=5^2\\). The dot product \\((1-0)(1-8)+(7-0)(7-6)=-7+7=0\\) is exactly zero, so the angle at \\(C\\) is right. The graph decides this exactly with integer arithmetic, not with the point \\(P\\) and not with a tolerance. The text "AB is a diameter (exactly)" in the readouts is therefore a statement about lattice points, while the readouts for \\(P\\) are only rounded.'),
             words('Povleci \\(C\\) (P3) za en korak. Ali je \\(AB\\) še vedno premer?', 'Drag \\(C\\) (P3) one step. Is \\(AB\\) still a diameter?'),
-            ['angles', 'radii'], 90, {points: THALES_TRIANGLE, view: THALES_VIEW}),
+            ['angles', 'radii'], 90, {points: THALES_TRIANGLE, view: THALES_VIEW, declare: inscribedFrame({open: ['readouts'], highlight: ['acb']})}),
         inscribedStep('explore',
             words('Prosto raziskovanje', 'Free exploration'),
             words('Pokazano je vse. Povleci \\(A\\), \\(B\\) in \\(C\\) ter točko \\(P\\) in opazuj tri kote. Vsak položaj je primer izreka, ne njegov dokaz; edini približni objekt je \\(P\\), vse drugo se računa natančno na mreži.',
                 'Everything is shown. Drag \\(A\\), \\(B\\), \\(C\\) and the point \\(P\\) and watch the three angles. Each position is an instance of the theorem, not a proof of it; the only approximate object is \\(P\\), everything else is computed exactly on the grid.'),
             words('Poišči tetivo, pri kateri je obodni kot topi, in preveri središčni kot.', 'Find a chord whose inscribed angle is obtuse and check the central angle.'),
-            ['angles', 'radii'], 90),
+            ['angles', 'radii'], 90, {declare: inscribedFrame({open: ['readouts'], highlight: ['apb', 'acb', 'central'], uses: ['inscribed-t']})}),
     ],
 };
 
@@ -170,9 +175,10 @@ export const NEAR_EQUILATERAL_TRIANGLE: readonly LessonPoint[] = [[0, 0], [8, 0]
 export const NEAR_EQUILATERAL_VIEW: LessonViewBox = [-2, 9, 10, -3];
 
 function eulerStep(id: string, title: LocalizedText, body: LocalizedText, prompt: LocalizedText, shown: readonly (typeof EULER_OVERLAYS)[number][],
-                   options: {points?: readonly LessonPoint[]; view?: LessonViewBox} = {}): LessonStep {
+                   options: {points?: readonly LessonPoint[]; view?: LessonViewBox; declare?: FrameDeclaration} = {}): LessonStep {
     return {
         id, title, body, prompt,
+        ...(options.declare ? {frames: [{id: `${id}-content`, kind: 'explanation' as const, title, body, prompt, declare: options.declare}]} : {}),
         scene: {actions: [defaultScene(`euler-line-${id}`, options.view), ...(options.points ? [triangle(...options.points)] : []), ...overlays(shown, EULER_OVERLAYS)]},
     };
 }
@@ -191,43 +197,43 @@ export const eulerLineLesson: LessonDefinition = {
             words('Trikotnik \\(A=(0,0)\\) (P1), \\(B=(7,0)\\) (P2), \\(C=(2,5)\\) (P3) iz prve naloge ima središče očrtane krožnice \\(O=(7/2,\\,3/2)\\), težišče \\(G=(3,\\,5/3)\\) in višinsko točko \\(H=(2,\\,2)\\). To so tri različne točke, vse izračunane natančno kot ulomki. Ali ležijo na isti premici, še ne vemo; to bomo preverili.',
                 'The triangle \\(A=(0,0)\\) (P1), \\(B=(7,0)\\) (P2), \\(C=(2,5)\\) (P3) from the first lesson has circumcentre \\(O=(7/2,\\,3/2)\\), centroid \\(G=(3,\\,5/3)\\) and orthocentre \\(H=(2,\\,2)\\). These are three different points, all computed exactly as fractions. Whether they lie on one line we do not know yet; we are going to check it.'),
             words('Napovej, ali lahko ležijo \\(O\\), \\(G\\) in \\(H\\) na isti premici, in kje bo \\(G\\) glede na \\(O\\) in \\(H\\).', 'Predict whether \\(O\\), \\(G\\) and \\(H\\) can lie on one line, and where \\(G\\) will be relative to \\(O\\) and \\(H\\).'),
-            ['triangle', 'centres']),
+            ['triangle', 'centres'], {declare: eulerFrame({open: ['readouts'], highlight: ['chip']})}),
         eulerStep('line',
             words('Premica skozi O, G in H', 'The line through O, G and H'),
             words('Premica skozi \\(O\\), \\(G\\) in \\(H\\) je Eulerjeva premica. Razdalji sta \\(HG\\approx1{,}05409\\) in \\(GO\\approx0{,}52705\\), torej \\(HG=2\\,GO\\). Graf to presodi natančno z ulomki: \\(HG^2=10/9\\) in \\(GO^2=5/18\\), zato je \\(HG^2=4\\,GO^2\\), orientacija trojice \\(O,G,H\\) pa je natanko \\(0\\). Decimalni zapisi so le zaokrožitve odčitkov.',
                 'The line through \\(O\\), \\(G\\) and \\(H\\) is the Euler line. The distances are \\(HG\\approx1.05409\\) and \\(GO\\approx0.52705\\), so \\(HG=2\\,GO\\). The graph decides this exactly with fractions: \\(HG^2=10/9\\) and \\(GO^2=5/18\\), so \\(HG^2=4\\,GO^2\\), and the orientation of the triple \\(O,G,H\\) is exactly \\(0\\). The decimals are only roundings of the readouts.'),
             words('Preberi \\(HG\\) in \\(GO\\) ter izračunaj njun količnik.', 'Read \\(HG\\) and \\(GO\\) and compute their quotient.'),
-            ['triangle', 'centres', 'line']),
+            ['triangle', 'centres', 'line'], {declare: eulerFrame({open: ['readouts'], highlight: ['hg', 'go']})}),
         eulerStep('drag',
             words('Premik oglišča: razmerje ostane 2', 'Dragging a vertex: the ratio stays 2'),
             words('Izrek (H. S. M. Coxeter, Introduction to Geometry): v vsakem trikotniku, ki ni enakostraničen, ležijo \\(O\\), \\(G\\) in \\(H\\) na eni premici, Eulerjevi premici, in velja \\(HG=2\\,GO\\). Povleci oglišče: premica se premakne, odčitka \\(HG\\) in \\(GO\\) se spreminjata, njun količnik pa je pri vsakem trikotniku natanko \\(2\\). Vlečenje izreka le ponazarja; veljavnost zagotavlja dokaz, ne slika. Če je trikotnik enakostraničen, je \\(H=O\\) in premica ni določena.',
                 'Theorem (H. S. M. Coxeter, Introduction to Geometry): in every triangle that is not equilateral, \\(O\\), \\(G\\) and \\(H\\) lie on one line, the Euler line, and \\(HG=2\\,GO\\). Drag a vertex: the line moves and the readouts \\(HG\\) and \\(GO\\) change, but their quotient is exactly \\(2\\) for every triangle. Dragging only illustrates the theorem; it holds because of its proof, not the picture. If the triangle is equilateral then \\(H=O\\) and the line is not defined.'),
             words('Povleci \\(C\\) (P3) na nekaj mest in vsakič preveri odčitka \\(HG\\) in \\(GO\\).', 'Drag \\(C\\) (P3) to several positions and check the readouts \\(HG\\) and \\(GO\\) each time.'),
-            ['triangle', 'centres', 'line']),
+            ['triangle', 'centres', 'line'], {declare: eulerFrame({open: ['readouts'], highlight: ['hg', 'go', 'relation']})}),
         eulerStep('nine-points',
             words('Devet točk in krožnica', 'The nine points and the circle'),
             words('Devet točk je: razpolovišča treh stranic, vznožja treh višin in razpolovišča daljic \\(AH\\), \\(BH\\), \\(CH\\). Izrek (Coxeter): ležijo na eni krožnici, krožnici devetih točk, s središčem \\(N=(O+H)/2\\) in polmerom \\(R/2\\). Tu je \\(N=(11/4,\\,7/4)\\) in \\(R^2/4=29/8\\), torej \\(R/2\\approx1{,}90394\\). Vznožje višine iz \\(C\\) je \\((2,0)\\), razpolovišče daljice \\(CH\\) je \\((2,\\,7/2)\\) in za obe velja \\(|X-N|^2=29/8\\), natančno. Pri tem trikotniku je devet točk različnih; pri posebnih trikotnikih je različnih točk manj.',
                 'The nine points are the midpoints of the three sides, the feet of the three altitudes and the midpoints of the segments \\(AH\\), \\(BH\\), \\(CH\\). Theorem (Coxeter): they lie on one circle, the nine-point circle, with centre \\(N=(O+H)/2\\) and radius \\(R/2\\). Here \\(N=(11/4,\\,7/4)\\) and \\(R^2/4=29/8\\), so \\(R/2\\approx1.90394\\). The foot of the altitude from \\(C\\) is \\((2,0)\\) and the midpoint of the segment \\(CH\\) is \\((2,\\,7/2)\\), and both satisfy \\(|X-N|^2=29/8\\), exactly. For this triangle the nine points are all different; for special triangles there are fewer distinct ones.'),
             words('Preštej, koliko od devetih točk je različnih, in preveri, da je središče \\(N\\) na polovici daljice \\(OH\\).', 'Count how many of the nine points are distinct, and check that the centre \\(N\\) is halfway along \\(OH\\).'),
-            ['triangle', 'centres', 'line', 'circle', 'ninepoints']),
+            ['triangle', 'centres', 'line', 'circle', 'ninepoints'], {declare: eulerFrame({open: ['readouts'], highlight: ['distinct']})}),
         eulerStep('special',
             words('Posebni trikotnik: točke sovpadejo', 'A special triangle: points coincide'),
             words('Za pravokotni trikotnik \\(A=(0,0)\\), \\(B=(4,0)\\), \\(C=(0,3)\\) je \\(H=(0,0)\\) kar oglišče \\(A\\). Zato se vznožji višin iz \\(B\\) in \\(C\\) ter razpolovišče daljice \\(AH\\) sovpadejo v \\(A\\), razpolovišči daljic \\(BH\\) in \\(CH\\) pa sovpadata z razpoloviščema stranic \\(AB\\) in \\(CA\\). Različnih točk je le \\(5\\) od \\(9\\); krožnica devetih točk ima središče \\(N=(1,\\,3/4)\\) in \\(R^2/4=25/16\\). Enakokraki trikotnik \\((0,0)\\), \\((6,0)\\), \\((3,5)\\) ima \\(8\\) različnih točk. Število različnih točk graf določi natančno.',
                 'For the right triangle \\(A=(0,0)\\), \\(B=(4,0)\\), \\(C=(0,3)\\) the orthocentre \\(H=(0,0)\\) is the vertex \\(A\\) itself. So the feet of the altitudes from \\(B\\) and \\(C\\) and the midpoint of the segment \\(AH\\) all coincide at \\(A\\), and the midpoints of \\(BH\\) and \\(CH\\) coincide with the midpoints of the sides \\(AB\\) and \\(CA\\). Only \\(5\\) of the \\(9\\) points are different; the nine-point circle has centre \\(N=(1,\\,3/4)\\) and \\(R^2/4=25/16\\). The isosceles triangle \\((0,0)\\), \\((6,0)\\), \\((3,5)\\) has \\(8\\) distinct points. The graph decides the number of distinct points exactly.'),
             words('Povleci \\(C\\) (P3) za en korak stran od osi \\(y\\) in preberi, koliko različnih točk je zdaj.', 'Drag \\(C\\) (P3) one step away from the \\(y\\)-axis and read how many distinct points there are now.'),
-            ['triangle', 'centres', 'line', 'circle', 'ninepoints'], {points: RIGHT_TRIANGLE}),
+            ['triangle', 'centres', 'line', 'circle', 'ninepoints'], {points: RIGHT_TRIANGLE, declare: eulerFrame({open: ['readouts'], highlight: ['distinct']})}),
         eulerStep('near-equilateral',
             words('Skoraj enakostranični trikotnik', 'A near-equilateral triangle'),
             words('Za \\(A=(0,0)\\), \\(B=(8,0)\\), \\(C=(4,7)\\) je \\(H=(4,\\,16/7)\\) in \\(O=(4,\\,33/14)\\). Razdalja \\(|HO|=1/14\\approx0{,}0714\\) je zelo majhna v primerjavi s polmerom \\(R=65/14\\approx4{,}64286\\). Smer Eulerjeve premice je natančna, tukaj navpična, vendar je vizualno nestabilna: pri enakostraničnem trikotniku bi bila \\(H=O\\) in premice ne bi bilo. Točki \\(O\\) in \\(H\\) se na platnu skoraj prekrivata; njuni koordinati sta v odčitkih. Pogled je prilagojen, da je viden tudi vrh \\(C\\).',
                 'For \\(A=(0,0)\\), \\(B=(8,0)\\), \\(C=(4,7)\\) we get \\(H=(4,\\,16/7)\\) and \\(O=(4,\\,33/14)\\). The distance \\(|HO|=1/14\\approx0.0714\\) is tiny compared with the radius \\(R=65/14\\approx4.64286\\). The direction of the Euler line is exact, here vertical, but visually unstable: for an equilateral triangle \\(H=O\\) and there would be no line. On the board \\(O\\) and \\(H\\) almost overlap; their coordinates are in the readouts. The view is adjusted so that the apex \\(C\\) is visible too.'),
             words('Povleci \\(C\\) za en korak levo ali desno: kaj se zgodi s smerjo premice?', 'Drag \\(C\\) one step left or right: what happens to the direction of the line?'),
-            ['triangle', 'centres', 'line', 'circle'], {points: NEAR_EQUILATERAL_TRIANGLE, view: NEAR_EQUILATERAL_VIEW}),
+            ['triangle', 'centres', 'line', 'circle'], {points: NEAR_EQUILATERAL_TRIANGLE, view: NEAR_EQUILATERAL_VIEW, declare: eulerFrame({open: ['readouts'], highlight: ['ho', 'half-r']})}),
         eulerStep('explore',
             words('Prosto raziskovanje', 'Free exploration'),
             words('Pokazano je vse, tudi očrtana krožnica. Povleci oglišča ali vpiši koordinate. Tri točke na isti premici ne tvorijo trikotnika, zato Eulerjeve premice ni. Vsak položaj je primer izreka, ne njegov dokaz.',
                 'Everything is shown, including the circumcircle. Drag the vertices or type coordinates. Three points on one line do not form a triangle, so there is no Euler line. Each position is an instance of the theorem, not a proof of it.'),
             words('Poišči trikotnik, pri katerem je število različnih točk \\(5\\), in trikotnik z \\(8\\) različnimi točkami.', 'Find a triangle with \\(5\\) distinct points and a triangle with \\(8\\) distinct points.'),
-            ['triangle', 'centres', 'line', 'circle', 'ninepoints', 'circumcircle']),
+            ['triangle', 'centres', 'line', 'circle', 'ninepoints', 'circumcircle'], {declare: eulerFrame({open: ['readouts'], highlight: ['distinct', 'chip']})}),
     ],
 };
 

@@ -2,7 +2,7 @@ import React from "react";
 import {PointSetGraph, PointSetGraphState} from "./PointSetGraph";
 import {PointSetExtension} from "./pointSetPersistence";
 import {GraphSession} from "../base/GraphSession";
-import {onLanguageChange, t} from "../../localization";
+import {message, type Message, onLanguageChange, t} from "../../localization";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphPalette} from "../styles/GraphPalette";
 import {pointLabelMath} from "../styles/pointLabelMath";
@@ -13,7 +13,7 @@ import {
 } from "../../compgeo/eulerLineModel";
 import {EULER_LINE_OVERLAY_IDS, EULER_POINT_COUNT, eulerLineCollection} from "./eulerLinePresetCollection";
 import {EulerLinePanel, EulerLineExampleSelect} from "./EulerLinePanel";
-import {EULER_PLACE_IDS, EULER_PLACE_SYMBOL, EulerPlaceId, eulerChip} from "./eulerLineText";
+import {EULER_PLACE_IDS, EULER_PLACE_SYMBOL, EulerPlaceId, eulerChip, eulerNotes, type EulerNoteId} from "./eulerLineText";
 
 /**
  * Euler line and nine-point circle (spec triangle-geometry-lessons T3, task triangle-geometry/06): a `PointSetGraph`
@@ -31,6 +31,9 @@ import {EULER_PLACE_IDS, EULER_PLACE_SYMBOL, EulerPlaceId, eulerChip} from "./eu
  * No route, catalog entry or Demonstration registration yet.
  */
 export type EulerOverlayId = Exclude<typeof EULER_LINE_OVERLAY_IDS[number], "grid">;
+
+/** The ids of the declaration (frames name them): the inspector's sentences as notes, the overlay switches as actions, the legend entries. */
+export type EulerLineIds = {param: never; row: never; note: EulerNoteId; legend: "points" | EulerOverlayId; section: never; action: "grid" | EulerOverlayId};
 
 export interface EulerLineState extends PointSetGraphState {
     exampleId: EulerExampleId | undefined;
@@ -193,6 +196,37 @@ export class EulerLineGraph extends PointSetGraph<EulerOverlayId> {
         }
     }
 
+    // ---- Declaration (task 08): the base's marks, legend and switches, plus the readout sentences as notes -------------------
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: "grid" | EulerOverlayId): Message {
+        switch (id) {
+            case "triangle": return message("notable_overlay_triangle");
+            case "centres": return message("euler_overlay_centres");
+            case "line": return message("euler_overlay_line");
+            case "circle": return message("euler_overlay_circle");
+            case "ninepoints": return message("euler_overlay_ninepoints");
+            case "circumcircle": return message("euler_overlay_circumcircle");
+            default: return super.overlayMessage(id);
+        }
+    }
+
+    /** One legend entry per drawn thing; the colour is the swatch's (the overlays draw several objects). Switches stay in Orodja: no step asks to flip one (each scene sets them). */
+    protected override overlaySwatch(id: "grid" | EulerOverlayId) {
+        switch (id) {
+            case "triangle": return {kind: "line" as const, color: GraphPalette.primaryCurve};
+            case "centres": return {kind: "cross" as const, color: COLOUR.g};
+            case "line": return {kind: "line" as const, color: COLOUR.line};
+            case "circle": return {kind: "dashed" as const, color: COLOUR.n};
+            case "ninepoints": return {kind: "point" as const, color: NINE_COLOUR.midpoint};
+            case "circumcircle": return {kind: "dashed" as const, color: COLOUR.o};
+            default: return undefined;
+        }
+    }
+
+    protected override pointSetNotes() { return eulerNotes(this.analysis()); }
+
     protected override drawOverlay(id: "grid" | EulerOverlayId, model: PointSetModel): JXG.GeometryElement[] {
         if (id === "grid") return super.drawOverlay(id, model);
         const analysis = analyseEulerLine(model.points, model.gridStepExponent);
@@ -326,7 +360,7 @@ export class EulerLineGraph extends PointSetGraph<EulerOverlayId> {
         // What the inspector shows is what a later view change is compared with.
         this.outsideKey = [...outside].join(",");
         return <>
-            <EulerLinePanel analysis={analysis} outsideView={outside}/>
+            <div data-declared-panel=""><EulerLinePanel analysis={analysis} outsideView={outside}/></div>
             {super.workspaceEdit()}
         </>;
     }

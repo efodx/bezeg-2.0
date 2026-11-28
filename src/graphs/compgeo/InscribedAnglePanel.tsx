@@ -6,7 +6,11 @@ import {INSCRIBED_EXAMPLES, InscribedAnalysis, InscribedExampleId} from "../../c
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {ReadoutHeading} from "../base/controls/ReadoutParts";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import {inscribedTexts} from "./inscribedAngleText";
+
+/** The arbiter key of the glider angle `t` (a range puck on the board). */
+export const INSCRIBED_T_KEY = "inscribed-t";
 
 export interface InscribedAnglePanelProps {
     analysis: InscribedAnalysis;
@@ -22,6 +26,23 @@ export interface InscribedAnglePanelProps {
  * "equal to the displayed precision" wording, the exact diameter statement, the glider controls (the angle slider with its degrees field) and the vertex list for non-pointer use. The status is words, never colour alone.
  */
 export function InscribedAnglePanel(props: InscribedAnglePanelProps) {
+    return <>
+        <InscribedAngleControls {...props}/>
+        <InscribedAngleReadouts analysis={props.analysis}/>
+    </>;
+}
+
+/** The glider angle (a board puck once the declaration shows one) and the example choice: controls, never hidden by the declared workspace. */
+export function InscribedAngleControls(props: InscribedAnglePanelProps) {
+    const glider = props.analysis.kind === "circle" ? props.analysis.glider : undefined;
+    return <>
+        {glider && <PuckOwned param={INSCRIBED_T_KEY}><GliderControls t={glider.t} onT={props.onT}/></PuckOwned>}
+        <ExampleSelect {...props}/>
+    </>;
+}
+
+/** The sentences of the graph; a declared workspace shows them as notes. */
+export function InscribedAngleReadouts(props: {analysis: InscribedAnalysis}) {
     const t = useT();
     const {language} = useLanguage();
     const {analysis} = props;
@@ -30,8 +51,6 @@ export function InscribedAnglePanel(props: InscribedAnglePanelProps) {
     // The one announcement of the graph: the state sentence the chip shows (decision 63); a drag settles before it is read.
     const liveReadout = useStatusReadout(texts.chip, true);
     return <div className="inspector-group inscribed-panel" data-inscribed-state={texts.state}>
-        {glider && <GliderControls t={glider.t} onT={props.onT}/>}
-        <ExampleSelect {...props}/>
         <p data-readout-note className="inspector-help pointset-status" data-inscribed-chip>{texts.chip}</p>
         {texts.acb && <>
             <ReadoutHeading>{t("inscribed_readouts_heading")}</ReadoutHeading>
