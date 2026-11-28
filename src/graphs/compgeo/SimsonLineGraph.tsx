@@ -5,7 +5,10 @@ import {finiteNumberField, PointSetExtension} from "./pointSetPersistence";
 import {GraphSession} from "../base/GraphSession";
 import {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import type {LessonAction} from "../../learning/model";
-import {onLanguageChange, t} from "../../localization";
+import {currentLanguage, message, type Message, onLanguageChange, t} from "../../localization";
+import type {GraphDeclaration, LegendEntry, ParameterDeclaration, ViewMarks} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
 import {GridPoint, isGridPoint} from "../../compgeo/grid";
 import {PointSetModel} from "../../compgeo/pointSetModel";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -15,11 +18,11 @@ import {inBox} from "../../compgeo/notablePointsModel";
 import {normaliseDegrees} from "../../compgeo/inscribedAngleModel";
 import {
     activeSimsonExampleId, analyseSimson, DEFAULT_SIMSON_SETTINGS, FOOT_NAMES, isSimsonExampleId, isSimsonMode, isSimsonOffset, resolveOffset, SimsonAnalysis,
-    SimsonExampleId, simsonExample, SimsonMode, SimsonSettings, simsonTFromBoard,
+    SimsonExampleId, simsonExample, SimsonMode, SIMSON_OFFSETS, SimsonSettings, simsonTFromBoard,
 } from "../../compgeo/simsonLineModel";
 import {SIMSON_LINE_OVERLAY_IDS, SIMSON_POINT_COUNT, simsonLineCollection} from "./simsonLinePresetCollection";
-import {SimsonLinePanel} from "./SimsonLinePanel";
-import {SIMSON_PLACE_IDS, SimsonPlaceId, simsonChip} from "./simsonLineText";
+import {SIMSON_EPSILON_KEY, SIMSON_T_KEY, SimsonLineControls, SimsonLineReadouts} from "./SimsonLinePanel";
+import {SIMSON_PLACE_IDS, SimsonPlaceId, simsonChip, simsonNotes, type SimsonNoteId} from "./simsonLineText";
 
 /**
  * Simson line (spec triangle-geometry-lessons T4, task triangle-geometry/07 F2a): a `PointSetGraph` limited to three points in
@@ -44,6 +47,20 @@ import {SIMSON_PLACE_IDS, SimsonPlaceId, simsonChip} from "./simsonLineText";
  * still equal it.
  */
 export type SimsonOverlayId = Exclude<typeof SIMSON_LINE_OVERLAY_IDS[number], "grid">;
+
+/**
+ * The ids of the declaration (frames name them): the glider angle and the offset are the two parameters (range pucks, glider mode
+ * only); the sentences of the inspector are notes; the legend names the points, P, the feet and the overlays; the switches are actions.
+ */
+export type SimsonLineIds = {
+    param: typeof SIMSON_T_KEY | typeof SIMSON_EPSILON_KEY; row: never; note: SimsonNoteId; legend: "points" | "p" | "feet" | SimsonOverlayId;
+    section: never; action: "grid" | SimsonOverlayId;
+};
+
+/** The offset of the slider nearest to a puck's continuous value (a typed value too): the offsets are the nine stops of the old slider. */
+function nearestOffset(value: number): number {
+    return SIMSON_OFFSETS.reduce((best, offset) => Math.abs(offset - value) < Math.abs(best - value) ? offset : best, SIMSON_OFFSETS[0]);
+}
 
 export interface SimsonLineState extends PointSetGraphState {
     exampleId: SimsonExampleId | undefined;
@@ -394,11 +411,11 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
         if (this.settings.mode === "glider") {
             const next = simsonTFromBoard(this.model.points, point.X(), point.Y());
             if (next === undefined) return;
-            this.patch({t: next});
+            runAs("learner", () => this.patch({t: next}));
         } else {
             const snapped = {x: Math.round(point.X()), y: Math.round(point.Y())};
             if (!isGridPoint(snapped)) return;
-            this.patch({pPrime: snapped});
+            runAs("learner", () => this.patch({pPrime: snapped}));
         }
         this.ensureScene();
     }
@@ -523,6 +540,99 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
         }) as JXG.GeometryElement];
     }
 
+    // ---- Declaration (task 08) -----------------------------------------------------------------------------------
+
+    protected override declaresPointSetWorkspace() { return true; }
+
+    protected override overlayMessage(id: "grid" | SimsonOverlayId): Message {
+        switch (id) {
+            case "triangle": return message("notable_overlay_triangle");
+            case "sidelines": return message("simson_overlay_sidelines");
+            case "circumcircle": return message("simson_overlay_circumcircle");
+            case "perpendiculars": return message("simson_overlay_perpendiculars");
+            case "simson": return message("simson_overlay_simson");
+            case "pedal": return message("simson_overlay_pedal");
+            default: return super.overlayMessage(id);
+        }
+    }
+
+    /** One legend entry per overlay; the colour is the swatch's (an overlay draws several objects). Switches stay in Orodja: each step sets them in its scene. */
+    protected override overlaySwatch(id: "grid" | SimsonOverlayId) {
+        switch (id) {
+            case "triangle": return {kind: "line" as const, color: COLOUR.triangle};
+            case "sidelines": return {kind: "dashed" as const, color: COLOUR.side};
+            case "circumcircle": return {kind: "line" as const, color: COLOUR.circle};
+            case "perpendiculars": return {kind: "dashed" as const, color: COLOUR.perpendicular};
+            case "simson": return {kind: "line" as const, color: COLOUR.simson};
+            case "pedal": return {kind: "area" as const, color: COLOUR.pedal};
+            default: return undefined;
+        }
+    }
+
+    protected override pointSetNotes() { return simsonNotes(this.analysis(), currentLanguage()); }
+
+    /** The glider angle and the offset, through the setters the panel's sliders call (the offset snaps to the nearest of the slider's nine stops). */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            [SIMSON_T_KEY]: {read: () => this.settings.t, apply: (value: number) => this.setT(value)},
+            [SIMSON_EPSILON_KEY]: {read: () => this.settings.epsilon, apply: (value: number) => { this.setEpsilon(nearestOffset(value)); }},
+        };
+    }
+
+    private marksCache: {base: ViewMarks; key: string; marks: ViewMarks} | undefined;
+
+    /** The vertices and where P can be: the whole circumcircle in glider mode (P travels all of it), P-prime in exact mode. */
+    private simsonMarks(): ViewMarks {
+        const base = this.pointSetViewMarks();
+        const view = this.triangleView();
+        if (!view) return base;
+        const circle = view.centreBoard;
+        const place = view.p.board;
+        const extra = view.mode === "glider"
+            ? (circle && Number.isFinite(view.radius) ? {kind: "box" as const, left: circle.x - view.radius, top: circle.y + view.radius, right: circle.x + view.radius, bottom: circle.y - view.radius} : undefined)
+            : (place ? {kind: "point" as const, x: place.x, y: place.y} : undefined);
+        if (!extra) return base;
+        const key = JSON.stringify(extra);
+        if (this.marksCache?.base === base && this.marksCache.key === key) return this.marksCache.marks;
+        const marks: ViewMarks = {must: [...base.must, extra]};
+        this.marksCache = {base, key, marks};
+        return marks;
+    }
+
+    protected override declaration(): GraphDeclaration | undefined {
+        const common = super.declaration();
+        if (!common) return undefined;
+        const view = this.triangleView();
+        const [points, ...overlays] = common.legend ?? [];
+        const legend: LegendEntry[] = [
+            ...(points ? [points] : []),
+            ...(view ? [
+                {id: "p" as const, label: message(view.mode === "exact" ? "simson_decl_legend_pprime" : "simson_decl_legend_p"), kind: "point" as const, object: "p"},
+                {id: "feet" as const, label: message("simson_decl_legend_feet"), kind: "point" as const, object: "feet"},
+            ] : []),
+            ...overlays,
+        ];
+        const parameters: ParameterDeclaration[] = view && view.mode === "glider" ? [
+            {
+                key: SIMSON_T_KEY, kind: "range", label: message("simson_decl_t_name"), symbol: "t", placement: "board",
+                min: 0, max: 360, step: 1, bigStep: 10, maxDecimals: 1, unit: message("curvature_unit_degrees"),
+            },
+            {
+                key: SIMSON_EPSILON_KEY, kind: "range", label: message("simson_decl_epsilon_name"), symbol: "\\varepsilon", help: message("simson_epsilon_note"),
+                placement: "board", min: -0.2, max: 0.2, step: 0.001, bigStep: 0.05, maxDecimals: 3,
+            },
+        ] : [];
+        return {...common, legend, parameters, marks: this.simsonMarks()};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id !== "p" && id !== "feet") return super.drawnObject(id);
+        const fallback = {color: id === "p" ? GraphPalette.additionalCurves[0] : COLOUR.perpendicular, visible: false};
+        const element = (id === "p" ? this.pointObject : this.footObjects[0]) as (JXG.GeometryElement & {evalVisProp(name: string): unknown}) | undefined;
+        if (!this.hasBoard || !element) return fallback;
+        return {color: String(element.evalVisProp("fillcolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
     // ---- Inspector -----------------------------------------------------------------------------------------------
 
     protected override showsModeToggle(): boolean {
@@ -535,10 +645,11 @@ export class SimsonLineGraph extends PointSetGraph<SimsonOverlayId> {
         // What the inspector shows is what a later view change is compared with.
         this.outsideKey = [...outside].join(",");
         return <>
-            <SimsonLinePanel analysis={analysis} settings={this.settings} exampleId={this.exampleId} outsideView={outside}
-                             onExample={id => this.loadExample(id)} onMode={mode => this.setMode(mode)} onT={value => this.setT(value)}
-                             onEpsilon={value => { this.setEpsilon(value); }}
-                             onPPrime={point => { this.setPPrime(point); }}/>
+            <SimsonLineControls analysis={analysis} settings={this.settings} exampleId={this.exampleId} outsideView={outside}
+                                onExample={id => this.loadExample(id)} onMode={mode => this.setMode(mode)} onT={value => this.setT(value)}
+                                onEpsilon={value => { this.setEpsilon(value); }}
+                                onPPrime={point => { this.setPPrime(point); }}/>
+            <div data-declared-panel=""><SimsonLineReadouts analysis={analysis} outsideView={outside}/></div>
             {super.workspaceEdit()}
         </>;
     }

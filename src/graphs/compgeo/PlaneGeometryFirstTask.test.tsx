@@ -25,7 +25,7 @@ const routes: Record<string, () => BaseGraph<BaseGraphState>> = {
 const plan: Record<string, {first: Label; later: Label[]}> = {
     // The glider moved to the puck strip on the board; the example select now leads the Edit panel.
     'inscribed-angle': {first: () => t('inscribed_example_label'), later: []},
-    'simson-line': {first: () => t('simson_t_label'), later: [() => t('simson_example_label'), () => t('simson_mode_label')]},
+    'simson-line': {first: () => t('simson_example_label'), later: [() => t('simson_mode_label')]},
 };
 
 /** The Edit panel's controls in document order, by accessible name. */
@@ -55,6 +55,15 @@ describe('inscribed-angle glider', () => {
         await waitForPucks('inscribed-t');
         expect(puckControl('inscribed-t').getAttribute('aria-label')).toMatch(/^Lega točke P/);
         expect(document.querySelector('#inspector-edit [data-inscribed-t]')).toBeNull();
+    });
+});
+
+describe('simson-line glider', () => {
+    test('the first task is a puck on the board strip, not a control of the Edit panel', async () => {
+        mountGraph(new SimsonLineGraph());
+        await waitForPucks('simson-t');
+        expect(puckControl('simson-t').getAttribute('aria-label')).toMatch(/^Lega točke P/);
+        expect(document.querySelector('#inspector-edit [data-simson-t]')).toBeNull();
     });
 });
 

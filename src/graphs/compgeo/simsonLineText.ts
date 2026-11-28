@@ -1,4 +1,4 @@
-import {t} from "../../localization";
+import {message, t, type Message} from "../../localization";
 import {formatNumber, MINUS_SIGN, NumberLanguage} from "../../analysis/format";
 import {FOOT_NAMES, SimsonAnalysis, SimsonStatus} from "../../compgeo/simsonLineModel";
 import {exactText} from "./notablePointsText";
@@ -109,4 +109,69 @@ export function simsonTexts(analysis: Extract<SimsonAnalysis, {kind: "triangle"}
         tooFar,
         vertices: simsonVertexTexts(analysis.vertices, translate),
     };
+}
+
+/** The ids of the sentences the inspector shows (the declaration's notes, in the panel's order). */
+export type SimsonNoteId =
+    | "missing" | "chip" | "degenerate-why" | "circle" | SimsonPlaceId | "power" | "area" | "on-circle" | "distinct"
+    | "too-far-p" | "too-far-d" | "too-far-e" | "too-far-f" | "vertex-1" | "vertex-2" | "vertex-3";
+
+export interface SimsonNote {readonly id: SimsonNoteId; readonly text: Message}
+
+function vertexNotes(vertices: readonly {x: number; y: number}[]): SimsonNote[] {
+    return vertices.map((p, i) => ({
+        id: `vertex-${i + 1}` as SimsonNoteId,
+        text: message("notable_vertex_row", {value0: NAMES[i], value1: i + 1, value2: `(${p.x}, ${p.y})`.replace(/-/g, MINUS_SIGN)}),
+    }));
+}
+
+function statusMessage(status: SimsonStatus): Message {
+    switch (status) {
+        case "collinear-exact": return message("simson_status_exact");
+        case "collinear-within": return message("simson_status_collinear");
+        case "coincident": return message("simson_status_coincident");
+        default: return message("simson_status_not");
+    }
+}
+
+/**
+ * The same sentences as {@link simsonTexts} as catalog messages, for the declaration: pure data from the scene state, in the
+ * panel's order. A point merely outside the current view is not marked (that needs the board's view); one too far to draw has
+ * its own "too far" note.
+ */
+export function simsonNotes(analysis: SimsonAnalysis, language: NumberLanguage): readonly SimsonNote[] {
+    if (analysis.kind === "missing") return [{id: "missing", text: message("notable_missing", {value0: 3 - analysis.have})}];
+    if (analysis.kind === "degenerate") {
+        return [{id: "chip", text: message("simson_chip_degenerate")}, {id: "degenerate-why", text: message("simson_degenerate_why")}, ...vertexNotes(analysis.vertices)];
+    }
+    const exact = analysis.exact;
+    const num = (value: number) => formatNumber(value, language, 3);
+    const pName = exact ? "P′" : "P";
+    const places: {id: SimsonPlaceId; name: string; x: number; y: number; point: RationalPoint | undefined; board: unknown}[] = [
+        {id: "p", name: pName, x: analysis.p.x, y: analysis.p.y, point: analysis.p.exact, board: analysis.p.board},
+        ...analysis.feet.map((f, i) => ({id: SIMSON_PLACE_IDS[i + 1], name: FOOT_NAMES[i], x: f.x, y: f.y, point: f.exact, board: f.board})),
+    ];
+    const notes: SimsonNote[] = [
+        {id: "chip", text: message("simson_chip", {value0: statusMessage(analysis.status)})},
+        {id: "circle", text: message("simson_circle_row", {value0: exactPointText(analysis.centre), value1: exactText(analysis.r2)})},
+    ];
+    const tooFar: SimsonNote[] = [];
+    for (const place of places) {
+        if (place.board === undefined) tooFar.push({id: `too-far-${place.id}` as SimsonNoteId, text: message("simson_too_far", {value0: place.name})});
+        notes.push({
+            id: place.id,
+            text: place.point
+                ? message("simson_point_row", {value0: place.name, value1: exactPointText(place.point)})
+                : message("simson_point_row_approx", {value0: place.name, value1: `(${num(place.x)}, ${num(place.y)})`}),
+        });
+    }
+    if (exact) notes.push({id: "power", text: message("simson_power", {value0: exactText(exact.power)})});
+    if (exact) notes.push({id: "area", text: message("simson_area_exact", {value0: exactText(exact.areaRatio)})});
+    else if (analysis.collinear) notes.push({id: "area", text: message("simson_area_zero")});
+    else notes.push({id: "area", text: message("simson_area_glider", {value0: areaRatioText(analysis.glider?.relative ?? 0, language)})});
+    if (exact) {
+        notes.push({id: "on-circle", text: message(exact.onCircle ? "simson_on_circle" : "simson_off_circle")});
+        notes.push({id: "distinct", text: message("simson_distinct", {value0: exact.distinctCount})});
+    }
+    return [...notes, ...tooFar, ...vertexNotes(analysis.vertices)];
 }

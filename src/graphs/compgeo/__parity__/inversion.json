@@ -1,0 +1,146 @@
+{
+  "graph": "inversion",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default point",
+      "rows": [],
+      "notes": [
+        "Slika X′ = (6/5, 2/5)",
+        "Točka X je zunaj krožnice inverzije.",
+        "|CX| · |CX′| = r² = 4"
+      ],
+      "outputs": [],
+      "captions": [
+        "Slika X′ = (6/5, 2/5)"
+      ]
+    },
+    {
+      "name": "radius 3, X moved",
+      "rows": [],
+      "notes": [
+        "Slika X′ = (-18/5, 9/5)",
+        "Točka X je znotraj krožnice inverzije.",
+        "|CX| · |CX′| = r² = 9"
+      ],
+      "outputs": [],
+      "captions": [
+        "Slika X′ = (-18/5, 9/5)"
+      ]
+    },
+    {
+      "name": "X at the centre",
+      "rows": [],
+      "notes": [
+        "Točka X je središče inverzije C, zato nima slike."
+      ],
+      "outputs": [],
+      "captions": [
+        "Točka X je središče inverzije C, zato nima slike."
+      ]
+    },
+    {
+      "name": "circle through the centre",
+      "rows": [],
+      "notes": [
+        "Krožnica skozi središče C → premica",
+        "Slika: premica x = 2"
+      ],
+      "outputs": [],
+      "captions": [
+        "Krožnica skozi središče C → premica"
+      ]
+    },
+    {
+      "name": "circle not through the centre",
+      "rows": [],
+      "notes": [
+        "Krožnica mimo središča C → krožnica",
+        "Slika: krožnica s središčem (3/2, 0), r² = 1/4"
+      ],
+      "outputs": [],
+      "captions": [
+        "Krožnica mimo središča C → krožnica"
+      ]
+    },
+    {
+      "name": "orthogonal circle",
+      "rows": [],
+      "notes": [
+        "Krožnica mimo središča C → krožnica",
+        "Slika: krožnica s središčem (5, 0), r² = 9"
+      ],
+      "outputs": [],
+      "captions": [
+        "Krožnica mimo središča C → krožnica"
+      ]
+    },
+    {
+      "name": "line through the centre",
+      "rows": [],
+      "notes": [
+        "Premica skozi središče C → ista premica",
+        "Slika: premica x - y = 0"
+      ],
+      "outputs": [],
+      "captions": [
+        "Premica skozi središče C → ista premica"
+      ]
+    },
+    {
+      "name": "power",
+      "rows": [],
+      "notes": [
+        "Potenca = 16",
+        "Potenca točke P na krožnico: 16",
+        "Točka P je zunaj krožnice (potenca > 0).",
+        "PA = 2, PB = 8; PA · PB ≈ 16",
+        "Dolžina tangentnega odseka: 4"
+      ],
+      "outputs": [],
+      "captions": [
+        "Potenca = 16"
+      ]
+    },
+    {
+      "name": "power, secant turned",
+      "rows": [],
+      "notes": [
+        "Potenca = 16",
+        "Potenca točke P na krožnico: 16",
+        "Točka P je zunaj krožnice (potenca > 0).",
+        "PA = 2,234, PB = 7,163; PA · PB ≈ 16",
+        "Dolžina tangentnega odseka: 4"
+      ],
+      "outputs": [],
+      "captions": [
+        "Potenca = 16"
+      ]
+    },
+    {
+      "name": "angle",
+      "rows": [],
+      "notes": [
+        "Kot 60° → 60°",
+        "Kot pred inverzijo: 60° (s predznakom 60°)",
+        "Kot po inverziji: 60° (s predznakom -60°)",
+        "Inverzija ohrani velikost kota in obrne njegov predznak."
+      ],
+      "outputs": [],
+      "captions": [
+        "Kot 60° → 60°"
+      ]
+    },
+    {
+      "name": "no centre",
+      "rows": [],
+      "notes": [
+        "Ni središča inverzije C. Dodajte točko na graf ali izberite primer."
+      ],
+      "outputs": [],
+      "captions": [
+        "Ni središča inverzije C. Dodajte točko na graf ali izberite primer."
+      ]
+    }
+  ]
+}

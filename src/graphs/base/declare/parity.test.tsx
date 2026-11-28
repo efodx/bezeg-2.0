@@ -42,6 +42,9 @@ const eulerLineAccepted: readonly AcceptedDifference[] = [
     {kind: 'missing', where: 'note', reason: 'a point merely outside the live view carried the suffix "zunaj pogleda"; whether a point is outside the view is board state, which a declaration cannot hold (only the far-vertex state records it)'},
     {kind: 'extra', where: 'note', reason: 'the same note without the "zunaj pogleda" suffix'},
 ];
+const simsonLineAccepted: readonly AcceptedDifference[] = [
+    {kind: 'missing', where: 'output', reason: 'the offset slider output ("0", "0,2") was the only read-off of epsilon; epsilon is a board puck now, which shows its own value (the far-vertex "zunaj pogleda" note did not differ)'},
+];
 const continuityAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'row a', reason: 'the parameter is a board puck now, so its slider output "a = 1,5" is a readout row; the panel showed the value only on the slider'},
 ];
@@ -337,6 +340,43 @@ const SAMPLES: readonly Sample[] = [
             {name: 'degenerate', apply: on(g => g.loadModel(points([[0, 0], [1, 1], [3, 3]])))},
             {name: 'two points', apply: on(g => g.loadModel(points([[0, 0], [4, 1]])))},
             {name: 'circle too large', apply: on(g => g.loadModel(points([[0, 0], [2000000, 1], [1, 2000000]])))},
+        ];
+    })()},
+    {file: 'compgeo/__parity__/simson-line.json', demonstration: 'simson-line', accepted: simsonLineAccepted, states: (() => {
+        type Simson = {loadExample(id: string): void; loadModel(model: unknown): void; setT(value: number): void; setEpsilon(value: number): boolean;
+            setMode(mode: string): void; setPPrime(point: {x: number; y: number}): boolean};
+        const on = (apply: (g: Simson) => void): ParityState['apply'] => graph => { runAs('learner', () => apply(graph as unknown as Simson)); };
+        const points = (list: [number, number][]) => ({mode: 'points', closed: false, gridStepExponent: 0, points: list.map(([x, y]) => ({x, y}))});
+        return [
+            {name: 'default glider', apply: () => {}},
+            {name: 'P moved (t = 150)', apply: on(g => g.setT(150))},
+            {name: 'offset 0.2', apply: on(g => { g.setT(250); g.setEpsilon(0.2); })},
+            {name: 'offset 0.001', apply: on(g => { g.setT(250); g.setEpsilon(0.001); })},
+            {name: 'exact vertex', apply: on(g => g.loadExample('vertex'))},
+            {name: 'exact grid off the circle', apply: on(g => g.loadExample('grid-off-circle'))},
+            {name: 'exact, P moved', apply: on(g => { g.loadExample('grid-on-circle'); g.setPPrime({x: 1, y: -3}); })},
+            {name: 'degenerate', apply: on(g => g.loadModel(points([[0, 0], [1, 1], [3, 3]])))},
+            {name: 'two points', apply: on(g => g.loadModel(points([[0, 0], [4, 1]])))},
+            {name: 'far vertex', apply: on(g => g.loadModel(points([[0, 0], [7, 0], [2000000, 5]])))},
+        ];
+    })()},
+    {file: 'compgeo/__parity__/inversion.json', demonstration: 'inversion', states: (() => {
+        type Inversion = {loadExample(id: string): void; loadModel(model: unknown): void; setFocus(focus: string): void; setRadius(value: number): boolean;
+            setX(point: {x: number; y: number}): boolean; setTheta(degrees: number): void};
+        const on = (apply: (g: Inversion) => void): ParityState['apply'] => graph => { runAs('learner', () => apply(graph as unknown as Inversion)); };
+        const points = (list: [number, number][]) => ({mode: 'points', closed: false, gridStepExponent: 0, points: list.map(([x, y]) => ({x, y}))});
+        return [
+            {name: 'default point', apply: () => {}},
+            {name: 'radius 3, X moved', apply: on(g => { g.setRadius(3); g.setX({x: -2, y: 1}); })},
+            {name: 'X at the centre', apply: on(g => g.setX({x: 0, y: 0}))},
+            {name: 'circle through the centre', apply: on(g => g.loadExample('through-centre'))},
+            {name: 'circle not through the centre', apply: on(g => g.loadExample('not-through-centre'))},
+            {name: 'orthogonal circle', apply: on(g => g.loadExample('orthogonal'))},
+            {name: 'line through the centre', apply: on(g => g.loadExample('line-through-centre'))},
+            {name: 'power', apply: on(g => g.loadExample('power'))},
+            {name: 'power, secant turned', apply: on(g => { g.loadExample('power'); g.setTheta(20); })},
+            {name: 'angle', apply: on(g => g.loadExample('angle'))},
+            {name: 'no centre', apply: on(g => g.loadModel(points([])))},
         ];
     })()},
     {file: 'compgeo/__parity__/orientation.json', demonstration: 'orientation', states: (() => {

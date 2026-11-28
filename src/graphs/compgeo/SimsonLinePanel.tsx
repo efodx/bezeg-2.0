@@ -13,6 +13,7 @@ import {
 import {LiveReadout} from "../base/controls/LiveReadout";
 import {ReadoutHeading} from "../base/controls/ReadoutParts";
 import {useStatusReadout} from "../base/controls/useStatusReadout";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import {SimsonPlaceId, simsonChip, simsonTexts, simsonVertexTexts} from "./simsonLineText";
 
 export interface SimsonLinePanelProps {
@@ -29,16 +30,41 @@ export interface SimsonLinePanelProps {
     onPPrime(point: GridPoint): void;
 }
 
+/** The arbiter keys of the glider angle `t` and the offset from the circle (range pucks on the board). */
+export const SIMSON_T_KEY = "simson-t";
+export const SIMSON_EPSILON_KEY = "simson-epsilon";
+
 /**
- * The readouts and controls of the Simson line graph: example and mode choice, the status in words, the circle, P (or P-prime)
- * and the three feet (exact fractions in exact mode, rounded decimals in glider mode), the power or the area ratio, the
- * glider controls (the angle slider with its degrees field, the discrete offset slider), the exact point fields and the vertex list. State is words, never colour alone. The status paragraph keeps its
- * element mounted (live region).
+ * The controls of the Simson line graph: in glider mode the angle and the discrete offset (the board's pucks once the workspace
+ * declares them), in exact mode the fields of P-prime, and always the example and mode choice. Never hidden.
  */
+export function SimsonLineControls(props: SimsonLinePanelProps) {
+    const {analysis, settings} = props;
+    return <>
+        {analysis.kind === "triangle" && (settings.mode === "glider"
+            ? <GliderControls t={normaliseDegrees(settings.t)} epsilon={resolveOffset(settings.epsilon)} onT={props.onT} onEpsilon={props.onEpsilon}/>
+            : <PPrimeFields point={settings.pPrime} onPPrime={props.onPPrime}/>)}
+        <ExampleAndMode {...props}/>
+    </>;
+}
+
+/** Controls then readouts: the panel as it was. */
 export function SimsonLinePanel(props: SimsonLinePanelProps) {
+    return <>
+        <SimsonLineControls {...props}/>
+        <SimsonLineReadouts analysis={props.analysis} outsideView={props.outsideView}/>
+    </>;
+}
+
+/**
+ * The readouts of the Simson line graph: the status in words, the circle, P (or P-prime) and the three feet (exact fractions in
+ * exact mode, rounded decimals in glider mode), the power or the area ratio and the vertex list. State is words, never colour
+ * alone. The status paragraph keeps its element mounted (live region). A declared workspace shows the same sentences as notes.
+ */
+export function SimsonLineReadouts(props: {analysis: SimsonAnalysis; outsideView: ReadonlySet<SimsonPlaceId>}) {
     const t = useT();
     const {language} = useLanguage();
-    const {analysis, settings} = props;
+    const {analysis} = props;
     const texts = analysis.kind === "missing" || analysis.kind === "degenerate" ? undefined : simsonTexts(analysis, t, language, props.outsideView);
     // The one announcement of the graph: the state sentence the chip shows (decision 63); a drag settles before it is read.
     const stateText = analysis.kind === "missing" ? t("notable_missing", {value0: 3 - analysis.have})
@@ -46,43 +72,37 @@ export function SimsonLinePanel(props: SimsonLinePanelProps) {
     const liveReadout = useStatusReadout(stateText, true);
     if (analysis.kind === "missing") {
         return <div className="inspector-group" data-simson-state="missing">
-            <p className="inspector-help pointset-status">{stateText}</p>
-            <ExampleAndMode {...props}/>
+            <p data-readout-note className="inspector-help pointset-status">{stateText}</p>
             <LiveReadout readout={liveReadout} dataAttribute="simson-live"/>
         </div>;
     }
     if (analysis.kind === "degenerate") {
         return <div className="inspector-group simson-panel" data-simson-state="degenerate">
-            <ExampleAndMode {...props}/>
-            <p className="inspector-help pointset-status" data-simson-chip>{stateText}</p>
-            <p className="inspector-help" data-simson-degenerate>{t("simson_degenerate_why")}</p>
+            <p data-readout-note className="inspector-help pointset-status" data-simson-chip>{stateText}</p>
+            <p data-readout-note className="inspector-help" data-simson-degenerate>{t("simson_degenerate_why")}</p>
             <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
             <ul className="pointset-list" data-simson-coordinates>
-                {simsonVertexTexts(analysis.vertices, t).map((text, i) => <li key={i}>{text}</li>)}
+                {simsonVertexTexts(analysis.vertices, t).map((text, i) => <li data-readout-note key={i}>{text}</li>)}
             </ul>
             <LiveReadout readout={liveReadout} dataAttribute="simson-live"/>
         </div>;
     }
     if (!texts) return null;
     return <div className="inspector-group simson-panel" data-simson-state={texts.state} data-simson-status={analysis.status}>
-        {settings.mode === "glider"
-            ? <GliderControls t={normaliseDegrees(settings.t)} epsilon={resolveOffset(settings.epsilon)} onT={props.onT} onEpsilon={props.onEpsilon}/>
-            : <PPrimeFields point={settings.pPrime} onPPrime={props.onPPrime}/>}
-        <ExampleAndMode {...props}/>
-        <p className="inspector-help pointset-status" data-simson-chip>{texts.chip}</p>
+        <p data-readout-note className="inspector-help pointset-status" data-simson-chip>{texts.chip}</p>
         <ReadoutHeading>{t("notable_readouts_heading")}</ReadoutHeading>
         <ul className="pointset-list simson-readouts">
-            <li data-simson-readout="circle">{texts.circle}</li>
-            {texts.rows.map(row => <li key={row.id} data-simson-point={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
-            {texts.power && <li data-simson-readout="power">{texts.power}</li>}
-            <li data-simson-readout="area">{texts.area}</li>
+            <li data-readout-note data-simson-readout="circle">{texts.circle}</li>
+            {texts.rows.map(row => <li data-readout-note key={row.id} data-simson-point={row.id} data-outside-view={row.outsideView}>{row.text}</li>)}
+            {texts.power && <li data-readout-note data-simson-readout="power">{texts.power}</li>}
+            <li data-readout-note data-simson-readout="area">{texts.area}</li>
         </ul>
-        {texts.onCircle && <p className="inspector-help" data-simson-on-circle>{texts.onCircle}</p>}
-        {texts.distinct && <p className="inspector-help" data-simson-distinct>{texts.distinct}</p>}
-        {texts.tooFar.map(note => <p key={note} className="inspector-help" data-simson-too-far>{note}</p>)}
+        {texts.onCircle && <p data-readout-note className="inspector-help" data-simson-on-circle>{texts.onCircle}</p>}
+        {texts.distinct && <p data-readout-note className="inspector-help" data-simson-distinct>{texts.distinct}</p>}
+        {texts.tooFar.map(note => <p data-readout-note key={note} className="inspector-help" data-simson-too-far>{note}</p>)}
         <ReadoutHeading>{t("notable_coordinates_heading")}</ReadoutHeading>
         <ul className="pointset-list" data-simson-coordinates>
-            {texts.vertices.map((text, i) => <li key={i}>{text}</li>)}
+            {texts.vertices.map((text, i) => <li data-readout-note key={i}>{text}</li>)}
         </ul>
         <LiveReadout readout={liveReadout} dataAttribute="simson-live"/>
     </div>;
@@ -124,18 +144,22 @@ function GliderControls(props: GliderControlsProps) {
     const {language} = useLanguage();
     const stop = Math.max(0, SIMSON_OFFSETS.findIndex(offset => offset === props.epsilon));
     return <>
-        <div data-simson-t>
-            <AngleSlider customText={t("simson_t_label")} value={props.t} onChange={value => props.onT(value)}/>
-        </div>
-        <div data-simson-epsilon>
-            <Slider customText={t("simson_epsilon_label")} min={0} max={SIMSON_OFFSETS.length - 1} step={1} value={stop}
-                    formatValue={index => formatNumber(SIMSON_OFFSETS[index] ?? props.epsilon, language, 3)}
-                    onChange={index => {
-                        const offset = SIMSON_OFFSETS[index];
-                        if (offset !== undefined) props.onEpsilon(offset);
-                    }}/>
-        </div>
-        <p className="inspector-help" data-simson-epsilon-note>{t("simson_epsilon_note")}</p>
+        <PuckOwned param={SIMSON_T_KEY}>
+            <div data-simson-t>
+                <AngleSlider customText={t("simson_t_label")} value={props.t} onChange={value => props.onT(value)}/>
+            </div>
+        </PuckOwned>
+        <PuckOwned param={SIMSON_EPSILON_KEY}>
+            <div data-simson-epsilon>
+                <Slider customText={t("simson_epsilon_label")} min={0} max={SIMSON_OFFSETS.length - 1} step={1} value={stop}
+                        formatValue={index => formatNumber(SIMSON_OFFSETS[index] ?? props.epsilon, language, 3)}
+                        onChange={index => {
+                            const offset = SIMSON_OFFSETS[index];
+                            if (offset !== undefined) props.onEpsilon(offset);
+                        }}/>
+            </div>
+            <p className="inspector-help" data-simson-epsilon-note>{t("simson_epsilon_note")}</p>
+        </PuckOwned>
     </>;
 }
 

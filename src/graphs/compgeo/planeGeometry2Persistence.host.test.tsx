@@ -5,6 +5,7 @@ import {SimsonLineGraph} from './SimsonLineGraph';
 import {InversionGraph} from './InversionGraph';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {setLanguage} from '../../localization';
 import type {Preset} from '../base/presets/Presets';
 import type {PointSetGraphState} from './PointSetGraph';
@@ -89,16 +90,16 @@ const ROWS: Row[] = [
             model: model([[0, 0], [6, 0], [1, 4]]),
             fields: {exampleId: 'vertex', mode: 'exact', t: 250, epsilon: 0.05, pPrime: {x: -3, y: 5}},
             overlays: {grid: true, pedal: false},
-            load: g => {
+            load: g => runAs('learner', () => {
                 const s = g as Simson;
                 s.loadModel(model([[0, 0], [6, 0], [1, 4]]));
                 s.setState(patch({exampleId: 'vertex', mode: 'exact', t: 250, epsilon: 0.05, pPrime: {x: -3, y: 5}}));
                 s.setOverlay('grid', true); s.setOverlay('pedal', false);
-            },
+            }),
         },
         preceding: [
-            g => { const s = g as Simson; s.loadExample('grid-off-circle'); s.setT(10); s.setEpsilon(-0.2); s.setOverlay('simson', false); },
-            g => { const s = g as Simson; s.loadModel(CUSTOM); s.setState(patch({exampleId: 'default', mode: 'glider', t: 100, epsilon: 0.2, pPrime: {x: 9, y: 9}})); },
+            g => runAs('learner', () => { const s = g as Simson; s.loadExample('grid-off-circle'); s.setT(10); s.setEpsilon(-0.2); s.setOverlay('simson', false); }),
+            g => runAs('learner', () => { const s = g as Simson; s.loadModel(CUSTOM); s.setState(patch({exampleId: 'default', mode: 'glider', t: 100, epsilon: 0.2, pPrime: {x: 9, y: 9}})); }),
         ],
         fresh: {exampleId: 'default', mode: 'glider', t: 60, epsilon: 0, pPrime: {x: 2, y: -2}},
         forbidden: [

@@ -1,0 +1,210 @@
+{
+  "graph": "simson-line",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default glider",
+      "rows": [],
+      "notes": [
+        "Nožišča D, E, F: kolinearna",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P ≈ (5,404, 4,798)",
+        "D ≈ (3,803, 3,197)",
+        "E ≈ (2,4, 5,999)",
+        "F ≈ (5,404, 0)",
+        "Ploščina nožiščnega trikotnika / S = 0",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
+      "outputs": [
+        "0"
+      ],
+      "captions": [
+        "Nožišča D, E, F: kolinearna"
+      ]
+    },
+    {
+      "name": "P moved (t = 150)",
+      "rows": [],
+      "notes": [
+        "Nožišča D, E, F: kolinearna",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P ≈ (0,202, 3,404)",
+        "D ≈ (1,899, 5,101)",
+        "E ≈ (1,202, 3,004)",
+        "F ≈ (0,202, 0)",
+        "Ploščina nožiščnega trikotnika / S = 0",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
+      "outputs": [
+        "0"
+      ],
+      "captions": [
+        "Nožišča D, E, F: kolinearna"
+      ]
+    },
+    {
+      "name": "offset 0.2",
+      "rows": [],
+      "notes": [
+        "Nožišča D, E, F: ni kolinearna",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P ≈ (1,937, -2,794)",
+        "D ≈ (5,866, 1,134)",
+        "E ≈ (-0,696, -1,741)",
+        "F ≈ (1,937, 0)",
+        "Ploščina nožiščnega trikotnika / S ≈ 0,11",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
+      "outputs": [
+        "0,2"
+      ],
+      "captions": [
+        "Nožišča D, E, F: ni kolinearna"
+      ]
+    },
+    {
+      "name": "offset 0.001",
+      "rows": [],
+      "notes": [
+        "Nožišča D, E, F: ni kolinearna",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P ≈ (2,196, -2,082)",
+        "D ≈ (5,639, 1,361)",
+        "E ≈ (-0,415, -1,037)",
+        "F ≈ (2,196, 0)",
+        "Ploščina nožiščnega trikotnika / S ≈ 5,0·10⁻⁴",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
+      "outputs": [
+        "0,001"
+      ],
+      "captions": [
+        "Nožišča D, E, F: ni kolinearna"
+      ]
+    },
+    {
+      "name": "exact vertex",
+      "rows": [],
+      "notes": [
+        "Nožišča D, E, F: dve nožišči sovpadata; premica poteka skozi različni nožišči",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P′ = (7, 0)",
+        "D = (7, 0)",
+        "E = (28/29, 70/29)",
+        "F = (7, 0)",
+        "Potenca točke P′ na očrtano krožnico = 0",
+        "Ploščina nožiščnega trikotnika / S = 0 (natančno)",
+        "P′ je natančno na očrtani krožnici (potenca je 0).",
+        "Različnih nožišč: 2 od 3",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Nožišča D, E, F: dve nožišči sovpadata; premica poteka skozi različni nožišči"
+      ]
+    },
+    {
+      "name": "exact grid off the circle",
+      "rows": [],
+      "notes": [
+        "Nožišča D, E, F: ni kolinearna",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P′ = (6, 4)",
+        "D = (9/2, 5/2)",
+        "E = (64/29, 160/29)",
+        "F = (6, 0)",
+        "Potenca točke P′ na očrtano krožnico = -2",
+        "Ploščina nožiščnega trikotnika / S = 1/29 (natančno)",
+        "P′ ni na očrtani krožnici (potenca ni 0).",
+        "Različnih nožišč: 3 od 3",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Nožišča D, E, F: ni kolinearna"
+      ]
+    },
+    {
+      "name": "exact, P moved",
+      "rows": [],
+      "notes": [
+        "Nožišča D, E, F: ni kolinearna",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P′ = (1, -3)",
+        "D = (11/2, 3/2)",
+        "E = (-26/29, -65/29)",
+        "F = (1, 0)",
+        "Potenca točke P′ na očrtano krožnico = 12",
+        "Ploščina nožiščnega trikotnika / S = 6/29 (natančno)",
+        "P′ ni na očrtani krožnici (potenca ni 0).",
+        "Različnih nožišč: 3 od 3",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Nožišča D, E, F: ni kolinearna"
+      ]
+    },
+    {
+      "name": "degenerate",
+      "rows": [],
+      "notes": [
+        "Simsonova premica ni določena (izrojen trikotnik)",
+        "Oglišča so kolinearna ali sovpadajo, zato trikotnik in njegova očrtana krožnica ne obstajata: točke P, nožišč in premice ni.",
+        "A (P1) = (0, 0)",
+        "B (P2) = (1, 1)",
+        "C (P3) = (3, 3)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Simsonova premica ni določena (izrojen trikotnik)"
+      ]
+    },
+    {
+      "name": "two points",
+      "rows": [],
+      "notes": [
+        "Trikotnik potrebuje tri točke. Dodaj še točke; manjka jih: 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "far vertex",
+      "rows": [],
+      "notes": [
+        "Nožišča D, E, F: ni kolinearna",
+        "O = (7/2, 799997200005/2), R² = 319997760007919986000037/2",
+        "P′ = (1, -3)",
+        "D = (3999942000329/3999972000074, -59999865/3999972000074)",
+        "E = (159998800000/160000000001, 399997/160000000001)",
+        "F = (1, 0)",
+        "Potenca točke P′ na očrtano krožnico = 2399991600018",
+        "Ploščina nožiščnega trikotnika / S = 1199995800009/319997760007919986000037 (natančno)",
+        "P′ ni na očrtani krožnici (potenca ni 0).",
+        "Različnih nožišč: 3 od 3",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2000000, 5)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Nožišča D, E, F: ni kolinearna"
+      ]
+    }
+  ]
+}

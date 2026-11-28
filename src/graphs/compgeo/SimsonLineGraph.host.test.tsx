@@ -4,11 +4,12 @@ import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {DEFAULT_SIMSON_MODEL, SimsonLineGraph} from './SimsonLineGraph';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../base/realGraphTestHarness';
 import {PointSetModel} from '../../compgeo/pointSetModel';
 import {SIMSON_OFFSETS} from '../../compgeo/simsonLineModel';
 import {setLanguage} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
+import {runAs} from '../base/writes/writeSource';
 
 const languageListeners = vi.hoisted(() => ({live: 0}));
 vi.mock('../../localization', async importOriginal => {
@@ -50,15 +51,14 @@ const drag = (point: JXG.Point) => {
     target.triggerEventHandlers(['drag'], []);
 };
 const tri = (...p: [number, number][]): PointSetModel => ({...DEFAULT_SIMSON_MODEL, points: p.map(([x, y]) => ({x, y}))});
-const load = (graph: Observed, next: PointSetModel) => act(() => { graph.loadModel(next); });
+const load = (graph: Observed, next: PointSetModel) => act(() => { runAs('learner', () => { graph.loadModel(next); }); });
 const ALL = ['triangle', 'sidelines', 'circumcircle', 'perpendiculars', 'simson', 'pedal'] as const;
-const showAllOverlays = (graph: Observed) => act(() => { for (const id of ALL) graph.setOverlay(id, true); });
-const hideAllOverlays = (graph: Observed) => act(() => { for (const id of ALL) graph.setOverlay(id, false); });
+const showAllOverlays = (graph: Observed) => act(() => { runAs('learner', () => { for (const id of ALL) graph.setOverlay(id, true); }); });
+const hideAllOverlays = (graph: Observed) => act(() => { runAs('learner', () => { for (const id of ALL) graph.setOverlay(id, false); }); });
 const text = (selector: string) => (document.querySelector(selector)?.textContent ?? '');
 const field = (selector: string) => document.querySelector(selector) as HTMLInputElement;
 const select = (selector: string) => field(`${selector} select`);
-const range = (selector: string) => field(`${selector} input[type="range"]`);
-const typed = (selector: string) => field(`${selector} input[type="text"]`);
+const puckOf = (key: string) => document.querySelector(`.puck-strip [data-puck-key="${key}"]`);
 const statusOf = () => document.querySelector('[data-simson-state][data-simson-status]')?.getAttribute('data-simson-status');
 async function settle(start: () => Promise<void>): Promise<void> {
     let pending: Promise<void> = Promise.resolve();
@@ -118,7 +118,7 @@ test('each overlay draws exactly its own named objects, independent of the other
     const graph = new Observed();
     mount(graph);
     // Off the circle so that both the foot triangle and (by switching) the line can be shown.
-    act(() => { graph.setEpsilon(0.2); });
+    act(() => { runAs('learner', () => { graph.setEpsilon(0.2); }); });
     hideAllOverlays(graph);
     const base = all(graph).length;
     const expected: Record<string, [string, boolean, number][]> = {
@@ -129,7 +129,7 @@ test('each overlay draws exactly its own named objects, independent of the other
         pedal: [['pedal-triangle', false, 1]],
     };
     for (const [id, parts] of Object.entries(expected)) {
-        act(() => { graph.setOverlay(id as typeof ALL[number], true); });
+        act(() => { runAs('learner', () => { graph.setOverlay(id as typeof ALL[number], true); }); });
         for (const [name, prefix, count] of parts) {
             const found = prefix ? named(graph, name) : exact(graph, name);
             expect(found, `${id} ${name}`).toHaveLength(count);
@@ -141,13 +141,13 @@ test('each overlay draws exactly its own named objects, independent of the other
                 expect(prefix ? named(graph, name) : exact(graph, name), `${id} leaks ${name}`).toHaveLength(0);
             }
         }
-        act(() => { graph.setOverlay(id as typeof ALL[number], false); });
+        act(() => { runAs('learner', () => { graph.setOverlay(id as typeof ALL[number], false); }); });
         expect(all(graph).length, `${id} hidden`).toBe(base);
     }
     // The Simson line exists only while the feet are collinear.
-    act(() => { graph.setOverlay('simson', true); });
+    act(() => { runAs('learner', () => { graph.setOverlay('simson', true); }); });
     expect(exact(graph, 'simson-line')).toHaveLength(0);
-    act(() => { graph.setEpsilon(0); });
+    act(() => { runAs('learner', () => { graph.setEpsilon(0); }); });
     expect(exact(graph, 'simson-line')).toHaveLength(1);
     showAllOverlays(graph);
     expect(exact(graph, 'pedal-triangle')).toHaveLength(0);
@@ -158,13 +158,13 @@ test('each overlay draws exactly its own named objects, independent of the other
 test('the foot triangle is drawn exactly when the feet are not collinear, in both modes', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { graph.setEpsilon(0.001); });
+    act(() => { runAs('learner', () => { graph.setEpsilon(0.001); }); });
     expect(exact(graph, 'pedal-triangle')).toHaveLength(1);
     expect(exact(graph, 'simson-line')).toHaveLength(0);
-    act(() => { graph.setMode('exact'); graph.setPPrime({x: 6, y: 4}); });
+    act(() => { runAs('learner', () => { graph.setMode('exact'); graph.setPPrime({x: 6, y: 4}); }); });
     expect(exact(graph, 'pedal-triangle')).toHaveLength(1);
     expect(exact(graph, 'simson-line')).toHaveLength(0);
-    act(() => { graph.setPPrime({x: 5, y: 5}); });
+    act(() => { runAs('learner', () => { graph.setPPrime({x: 5, y: 5}); }); });
     expect(exact(graph, 'pedal-triangle')).toHaveLength(0);
     expect(exact(graph, 'simson-line')).toHaveLength(1);
 });
@@ -172,9 +172,9 @@ test('the foot triangle is drawn exactly when the feet are not collinear, in bot
 test('Reset restores the default scene: glider, t = 60, no offset, default example and every overlay on', async () => {
     const graph = new Observed();
     mount(graph);
-    act(() => {
+    act(() => { runAs('learner', () => {
         graph.loadExample('grid-off-circle'); graph.setT(200); graph.setEpsilon(0.05); graph.setOverlay('simson', false); graph.setOverlay('pedal', false);
-    });
+    }); });
     expect(graph.settings.mode).toBe('exact');
     await settle(() => graph.reset());
     expect(graph.model.points).toEqual(DEFAULT_SIMSON_MODEL.points);
@@ -190,9 +190,9 @@ test('Reset restores the default scene: glider, t = 60, no offset, default examp
 test('Presets restore the vertices, mode, t, epsilon, P-prime, example and overlays; import validates and accepts collinear', async () => {
     const graph = new Observed();
     mount(graph);
-    act(() => {
+    act(() => { runAs('learner', () => {
         graph.loadExample('grid-off-circle'); graph.setT(211.5); graph.setEpsilon(-0.05); graph.setOverlay('sidelines', false); graph.setOverlay('perpendiculars', false);
-    });
+    }); });
     const exported = graph.exportPresetData();
     expect(exported.points).toEqual(DEFAULT_SIMSON_MODEL.points);
     const state = graph.exportPreset().graphState as unknown as Record<string, unknown>;
@@ -200,10 +200,10 @@ test('Presets restore the vertices, mode, t, epsilon, P-prime, example and overl
     expect('model' in state).toBe(false);
     expect(graph.presetCollection().checkGraphState!(state)).toBeUndefined();
     act(() => { graph.saveCurrentPreset('mine'); });
-    act(() => {
+    act(() => { runAs('learner', () => {
         graph.loadModel(tri([0, 0], [4, 0], [0, 3])); graph.setMode('glider'); graph.setT(10); graph.setEpsilon(0); graph.setPPrime({x: 0, y: 0});
         graph.setOverlay('sidelines', true); graph.setOverlay('perpendiculars', true);
-    });
+    }); });
     await settle(() => graph.selectPreset('mine'));
     expect(graph.model.points).toEqual(exported.points);
     expect(graph.settings).toEqual({mode: 'exact', t: 211.5, epsilon: -0.05, pPrime: {x: 6, y: 4}});
@@ -228,11 +228,11 @@ test('every board object is removed again: a mode switch and degenerate round tr
     expect(start).toBeGreaterThan(15);
     for (const name of ['P', 'D', 'E', 'F', 'simson-chip', 'circumcircle']) expect(exact(graph, name), name).toHaveLength(1);
     for (let i = 0; i < 3; i++) {
-        act(() => { graph.setMode('exact'); });
+        act(() => { runAs('learner', () => { graph.setMode('exact'); }); });
         expect(count(), 'exact').toBe(start);
         expect(exact(graph, 'P′')).toHaveLength(1);
         expect(exact(graph, 'P')).toHaveLength(0);
-        act(() => { graph.setMode('glider'); });
+        act(() => { runAs('learner', () => { graph.setMode('glider'); }); });
         expect(count(), 'glider').toBe(start);
         expect(exact(graph, 'P')).toHaveLength(1);
     }
@@ -244,7 +244,7 @@ test('every board object is removed again: a mode switch and degenerate round tr
         load(graph, tri([0, 0], [7, 0], [2, 5]));
     }
     expect(count()).toBe(start);
-    act(() => { ALL.forEach(id => graph.setOverlay(id, false)); ALL.forEach(id => graph.setOverlay(id, true)); });
+    act(() => { runAs('learner', () => { ALL.forEach(id => graph.setOverlay(id, false)); ALL.forEach(id => graph.setOverlay(id, true)); }); });
     expect(count()).toBe(start);
     expect(languageListeners.live).toBeGreaterThan(0);
     view.unmount();
@@ -259,19 +259,20 @@ test('every board object is removed again: a mode switch and degenerate round tr
     expect(languageListeners.live).toBe(0);
 });
 
-test('the mode control switches in both directions, with P named P or P-prime and the matching controls', () => {
+test('the mode control switches in both directions, with P named P or P-prime and the matching controls', async () => {
     const graph = new Observed();
     mount(graph);
+    await waitForPucks('simson-t');
     const modeSelect = select('[data-simson-mode]');
     expect(modeSelect.value).toBe('glider');
-    expect(field('[data-simson-t]')).not.toBeNull();
-    expect(field('[data-simson-epsilon]')).not.toBeNull();
+    expect(puckOf('simson-t')).not.toBeNull();
+    expect(puckOf('simson-epsilon')).not.toBeNull();
     expect(document.querySelector('[data-simson-readout="power"]')).toBeNull();
     fireEvent.change(modeSelect, {target: {value: 'exact'}});
     expect(graph.settings.mode).toBe('exact');
     expect(text('[data-simson-state]')).toContain('P′ = (2, −2)');
-    expect(field('[data-simson-t]')).toBeNull();
-    expect(field('[data-simson-epsilon]')).toBeNull();
+    expect(puckOf('simson-t')).toBeNull();
+    expect(puckOf('simson-epsilon')).toBeNull();
     expect(screen.getByLabelText('P′, x')).toBeInTheDocument();
     expect(text('[data-simson-readout="power"]')).toBe('Potenca točke P′ na očrtano krožnico = 0');
     expect(statusOf()).toBe('collinear-exact');
@@ -279,37 +280,37 @@ test('the mode control switches in both directions, with P named P or P-prime an
     expect(graph.exampleId).toBeUndefined();
     fireEvent.change(modeSelect, {target: {value: 'glider'}});
     expect(graph.settings.mode).toBe('glider');
-    expect(field('[data-simson-t]')).not.toBeNull();
+    await waitForPucks('simson-t');
+    expect(puckOf('simson-t')).not.toBeNull();
     expect(graph.exampleId).toBe('default');
     expect(statusOf()).toBe('collinear-within');
     noNaN(graph);
 });
 
-test('the t field and the arrow keys move P along the circle and update the readouts', () => {
+test('the t puck and the arrow keys move P along the circle and update the readouts', async () => {
     const graph = new Observed();
     mount(graph);
+    await waitForPucks('simson-t');
     const distance = () => { const p = pointOf(graph, 'P'); return Math.hypot(p.X() - O.x, p.Y() - O.y); };
     const angle = () => { const p = pointOf(graph, 'P'); return (Math.atan2(p.Y() - O.y, p.X() - O.x) * 180 / Math.PI + 360) % 360; };
     expect(angle()).toBeCloseTo(60, 6);
     expect(distance()).toBeCloseTo(R, 9);
     const before = text('[data-simson-point="d"]');
-    enterNumber(typed('[data-simson-t]'), '200');
+    typePuck('simson-t', '200');
     expect(graph.settings.t).toBe(200);
     expect(angle()).toBeCloseTo(200, 6);
     expect(distance()).toBeCloseTo(R, 9);
     expect(text('[data-simson-point="d"]')).not.toBe(before);
-    expect(typed('[data-simson-t]').value).toBe('200');
-    const slider = range('[data-simson-t]');
-    fireEvent.change(slider, {target: {value: '201'}});
+    act(() => { fireEvent.keyDown(puckControl('simson-t'), {key: 'ArrowRight'}); });
     expect(graph.settings.t).toBe(201);
-    fireEvent.keyDown(slider, {key: 'ArrowLeft', shiftKey: true});
+    act(() => { fireEvent.keyDown(puckControl('simson-t'), {key: 'ArrowLeft', shiftKey: true}); });
     expect(graph.settings.t).toBe(191);
     expect(angle()).toBeCloseTo(191, 6);
     expect(text('[data-simson-point="p"]')).toContain('P ≈ (');
     // A value outside 0 to 360 wraps (a cyclic angle); 360 is the same angle as 0 (t is normalised to [0, 360)).
-    enterNumber(typed('[data-simson-t]'), '-5');
+    act(() => { runAs('learner', () => { graph.setT(-5); }); });
     expect(graph.settings.t).toBe(355);
-    enterNumber(typed('[data-simson-t]'), '360');
+    typePuck('simson-t', '360');
     expect(graph.settings.t).toBe(0);
     expect(statusOf()).toBe('collinear-within');
     noNaN(graph);
@@ -322,7 +323,7 @@ test('dragging P on the board sets t by the angle about O in glider mode and sna
     act(() => { p.moveTo([O.x - 2 * R, O.y], 0); drag(p); });
     expect(graph.settings.t).toBeCloseTo(180, 6);
     expect(Math.hypot(p.X() - O.x, p.Y() - O.y)).toBeCloseTo(R, 9);
-    act(() => { graph.setMode('exact'); });
+    act(() => { runAs('learner', () => { graph.setMode('exact'); }); });
     const q = pointOf(graph, 'P′');
     act(() => { q.moveTo([3.4, 1.6], 0); drag(q); });
     expect(graph.settings.pPrime).toEqual({x: 3, y: 2});
@@ -331,14 +332,14 @@ test('dragging P on the board sets t by the angle about O in glider mode and sna
     expect(statusOf()).toBe('not-collinear');
 });
 
-test('every offset stop changes the status as specified: plain collinear at 0, not collinear at every other stop, with the readout', () => {
+test('every offset stop changes the status as specified: plain collinear at 0, not collinear at every other stop, with the readout', async () => {
     const graph = new Observed();
     mount(graph);
-    const slider = range('[data-simson-epsilon]');
-    expect(slider.value).toBe('4');
+    await waitForPucks('simson-epsilon');
+    expect(graph.settings.epsilon).toBe(0);
     const ratios: Record<string, string> = {'0.001': '5,0·10⁻⁴', '0.01': '5,0·10⁻³', '0.05': '0,02563', '0.2': '0,11'};
     SIMSON_OFFSETS.forEach((epsilon, index) => {
-        fireEvent.change(slider, {target: {value: String(index)}});
+        typePuck('simson-epsilon', String(epsilon));
         expect(graph.settings.epsilon, `stop ${index}`).toBe(epsilon);
         const area = text('[data-simson-readout="area"]');
         if (epsilon === 0) {
@@ -355,12 +356,11 @@ test('every offset stop changes the status as specified: plain collinear at 0, n
             expect(exact(graph, 'simson-line')).toHaveLength(0);
             expect(exact(graph, 'pedal-triangle')).toHaveLength(1);
         }
-        expect(text('[data-simson-epsilon] output')).toMatch(/\d/);
+        expect(puckControl('simson-epsilon').getAttribute('aria-valuenow')).not.toBeNull();
         const p = pointOf(graph, 'P');
         expect(Math.hypot(p.X() - O.x, p.Y() - O.y)).toBeCloseTo(R * (1 + epsilon), 9);
     });
-    expect(text('[data-simson-epsilon-note]')).toContain('odloča odčitek ploščine');
-    expect(graph.setEpsilon(0.02)).toBe(false);
+    expect(runAs('learner', () => graph.setEpsilon(0.02))).toBe(false);
     expect(graph.settings.epsilon).toBe(0.2);
     noNaN(graph);
 });
@@ -412,11 +412,11 @@ test('the vertex example shows the coincidence status, two distinct feet and the
 test('the examples set vertices, mode and their point fields; a custom vertex edit leaves the example', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { graph.loadExample('grid-on-circle'); });
+    act(() => { runAs('learner', () => { graph.loadExample('grid-on-circle'); }); });
     expect(graph.settings).toMatchObject({mode: 'exact', pPrime: {x: 2, y: -2}});
     expect(text('[data-simson-point="e"]')).toBe('E = (−12/29, −30/29); zunaj pogleda'.replace('; zunaj pogleda', ''));
     expect(statusOf()).toBe('collinear-exact');
-    act(() => { graph.loadExample('grid-off-circle'); });
+    act(() => { runAs('learner', () => { graph.loadExample('grid-off-circle'); }); });
     expect(statusOf()).toBe('not-collinear');
     expect(text('[data-simson-readout="power"]')).toContain('−2');
     enterNumber(screen.getByLabelText('P3, x'), '1');
@@ -433,7 +433,7 @@ test('the examples set vertices, mode and their point fields; a custom vertex ed
 test('a foot on a side line outside its segment is drawn and reported with no error', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { graph.loadExample('grid-on-circle'); });
+    act(() => { runAs('learner', () => { graph.loadExample('grid-on-circle'); }); });
     // E is on line CA beyond A: it has board coordinates and the line is drawn through it.
     expect(exact(graph, 'E')).toHaveLength(1);
     const e = pointOf(graph, 'E');
@@ -443,7 +443,7 @@ test('a foot on a side line outside its segment is drawn and reported with no er
     expect(document.querySelector('[data-simson-too-far]')).toBeNull();
 });
 
-test('a live Slovenian to English switch updates the panel and the board labels', () => {
+test('a live Slovenian to English switch updates the panel and the board labels', async () => {
     const graph = new Observed();
     const view = mount(graph, true);
     expect(exact(graph, 'simson-chip')[0].plaintext).toBe('Nožišča D, E, F: kolinearna');
@@ -452,13 +452,14 @@ test('a live Slovenian to English switch updates the panel and the board labels'
     expect(text('[data-simson-chip]')).toBe(english);
     expect(exact(graph, 'simson-chip')[0].plaintext).toBe(english);
     expect(text('[data-simson-readout="area"]')).toBe('Area of the foot triangle / S = 0');
-    expect(screen.getByLabelText(/^Offset ε of P from the circle \(relative to the radius\)/)).toBeInTheDocument();
-    act(() => { graph.setEpsilon(0.01); });
+    await waitForPucks('simson-epsilon');
+    expect(puckControl('simson-epsilon').getAttribute('aria-label')).toMatch(/^Offset from the circle/);
+    act(() => { runAs('learner', () => { graph.setEpsilon(0.01); }); });
     expect(text('[data-simson-chip]')).toBe('Feet D, E, F: not collinear');
     expect(exact(graph, 'simson-chip')[0].plaintext).toBe('Feet D, E, F: not collinear');
     expect(text('[data-simson-readout="area"]')).toBe('Area of the foot triangle / S ≈ 5.0·10⁻³');
     expect(document.body.textContent).not.toMatch(/exactly collinear/);
-    act(() => { graph.setMode('exact'); });
+    act(() => { runAs('learner', () => { graph.setMode('exact'); }); });
     expect(text('[data-simson-readout="power"]')).toMatch(/^Power of P′ with respect to the circumcircle = /);
     expect(languageListeners.live).toBeGreaterThan(0);
     view.unmount();
@@ -470,7 +471,7 @@ test('degenerate vertices say why in words, draw no P, feet or line, and put no 
     const graph = new Observed();
     mount(graph);
     for (const mode of ['glider', 'exact'] as const) {
-        act(() => { graph.setMode(mode); });
+        act(() => { runAs('learner', () => { graph.setMode(mode); }); });
         for (const points of [tri([0, 0], [1, 1], [3, 3]), tri([2, 2], [2, 2], [2, 2])]) {
             load(graph, points);
             expect(text('[data-simson-state="degenerate"] [data-simson-chip]')).toBe('Simsonova premica ni določena (izrojen trikotnik)');
@@ -491,10 +492,10 @@ test('degenerate vertices say why in words, draw no P, feet or line, and put no 
 test('a point far outside the view is reported as such, and one beyond the cap is never drawn', () => {
     const graph = new Observed();
     mount(graph);
-    act(() => { graph.setMode('exact'); graph.setPPrime({x: 400, y: -300}); });
+    act(() => { runAs('learner', () => { graph.setMode('exact'); graph.setPPrime({x: 400, y: -300}); }); });
     expect(document.querySelector('[data-simson-point="p"]')?.getAttribute('data-outside-view')).toBe('true');
     expect(text('[data-simson-point="p"]')).toContain('zunaj pogleda');
-    act(() => { graph.setPPrime({x: 2 ** 25, y: -(2 ** 25)}); });
+    act(() => { runAs('learner', () => { graph.setPPrime({x: 2 ** 25, y: -(2 ** 25)}); }); });
     expectFiniteBoard(graph);
     noNaN(graph);
 });
@@ -529,7 +530,7 @@ test('a drag of P, of P-prime and of a vertex with every overlay on keeps the bo
         const a = i * 3 * Math.PI / 180;
         return [O.x + 4 * Math.cos(a), O.y + 4 * Math.sin(a)];
     });
-    const exactRun = measureDrag("P' (exact)", graph => { act(() => { graph.setMode('exact'); }); return pointOf(graph, 'P′'); },
+    const exactRun = measureDrag("P' (exact)", graph => { act(() => { runAs('learner', () => { graph.setMode('exact'); }); }); return pointOf(graph, 'P′'); },
         i => [(i % 12) - 3 + 0.2, ((i * 7) % 9) - 3 + 0.1]);
     const vertex = measureDrag('Vertex C', graph => named(graph, 'P3')[0] as unknown as JXG.Point,
         i => [2 + (i % 12) - 6 + 0.2, 5 + ((i * 7) % 9) - 4 + 0.1]);
@@ -549,11 +550,4 @@ test('the labels of P, O and the feet are typeset as math while the elements kee
     showAllOverlays(graph);
     expect(labelText(exact(graph, 'P')[0])).toBe('$$P$$');
     expect(labelText(exact(graph, 'O')[0])).toBe('$$O$$');
-});
-
-test('the t and epsilon sliders are direct children of the inspector group, so the group spacing rule keeps them 12 px apart', () => {
-    mount(new Observed());
-    for (const selector of ['[data-simson-t]', '[data-simson-epsilon]']) {
-        expect(field(selector).parentElement?.classList.contains('inspector-group')).toBe(true);
-    }
 });
