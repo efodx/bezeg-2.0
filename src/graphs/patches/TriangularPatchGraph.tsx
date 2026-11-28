@@ -16,8 +16,10 @@ import {triangularBernsteinWeight} from "./patchBernstein";
 import {changeTriangularDegree, defaultTriangularNet, MAX_TRIANGULAR_DEGREE, MIN_TRIANGULAR_DEGREE, triangularFromNet} from "./TriangularPatchDegree";
 import {parseTriangularPointId, triangularIndex, triangularPointId} from "./TriangularPatchLattice";
 import {buildTriangularScene, isInteriorPoint} from "./TriangularPatchScene";
-import type {ActionDeclaration, GraphDeclaration, LegendEntry, ReadoutGroup, ReadoutNote} from "../base/declare/graphDeclaration";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, RangeParameter, ReadoutGroup, ReadoutNote} from "../base/declare/graphDeclaration";
+import type {Lease, ParameterBinding} from "../base/writes/parameterArbiter";
 import {runAs} from "../base/writes/writeSource";
+import {PATCH_PARAMETER_KEYS} from "./TensorPatchGraph";
 import {formatNumber} from "../../analysis/format";
 import {currentLanguage, message} from "../../localization";
 import {subscriptDigits} from "./TensorPatchPanels";
@@ -44,12 +46,13 @@ const TRIANGULAR_SWITCHES = [
 ] as const satisfies ReadonlyArray<readonly [string, TriangularVisibilityKey, string]>;
 
 /**
- * The ids of the triangular patch declaration (`DeclarationIds`). No parameters: no lesson step asks the learner to set u or v
- * (the scenes place S at the centroid), so the Uredi sliders and the inset stay; the camera stays the graph's own Orodja panel.
- * The rows are the old panel's readouts (w, and the Bernstein weight of a selected point), the legend one entry per scene role.
+ * The ids of the triangular patch declaration (`DeclarationIds`). The parameters are u and v as board pucks: the demonstration
+ * prompt `prompt_patch_barycentric` ("Premikaj u in v ter opazuj w") asks the learner to move them while reading w; the Uredi
+ * sliders give way to them and the inset stays; the camera stays the graph's own Orodja panel. The rows are the old panel's
+ * readouts (w, and the Bernstein weight of a selected point), the legend one entry per scene role.
  */
 export type TriangularIds = {
-    param: never;
+    param: typeof PATCH_PARAMETER_KEYS["u" | "v"];
     row: "w" | "bernstein-weight";
     note: "w" | "bernstein";
     legend: "surface" | "net" | "points" | "highlight" | "iso-u" | "iso-v" | "iso-w" | "boundary" | "construction" | "compare" | "point";
@@ -134,13 +137,66 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
         this.sweeps = new PatchSweeps({
             read: parameter => this.state[parameter],
             range: parameter => [0, Math.max(0, 1 - this.state[parameter === "u" ? "v" : "u"])],
-            write: (parameter, value) => this.setParameter(parameter, value),
+            write: (parameter, value) => this.sweepWrite(parameter, value),
         }, options.scheduler);
     }
 
-    protected override stopSweeps(): void { this.sweeps.stopAll(); }
+    protected override stopSweeps(): void {
+        this.sweeps.stopAll();
+        this.releaseSweepLease();
+    }
 
-    protected override pauseSweeps(): void { this.sweeps.pauseAll(); }
+    protected override pauseSweeps(): void {
+        this.sweeps.pauseAll();
+        this.releaseSweepLease();
+    }
+
+    // ---- Sweep writes under an animation lease (ADR 0064), as in TensorPatchGraph ------------------------------
+
+    /** The lease a running sweep writes its parameter under, while the parameter is bound in the arbiter. */
+    private sweepLease?: {parameter: "u" | "v"; lease: Lease};
+
+    /**
+     * A sweep frame's write. Where u and v are bound, the sweep leases its parameter and writes it as `animation`; a learner
+     * or lesson write of that parameter ends the lease and stops the sweep. Elsewhere it is the plain setter.
+     */
+    private sweepWrite(parameter: "u" | "v", value: number): void {
+        const arbiter = this.parameters, key = PATCH_PARAMETER_KEYS[parameter];
+        if (!arbiter || !arbiter.keys().includes(key)) {
+            this.setParameter(parameter, value);
+            return;
+        }
+        if (this.sweepLease?.parameter !== parameter) {
+            this.releaseSweepLease();
+            let lease: Lease | undefined = undefined;
+            lease = arbiter.lease([key], reason => {
+                if (this.sweepLease?.lease === lease) this.sweepLease = undefined;
+                if (reason !== "released") this.sweeps.apply(parameter, "stop");
+            });
+            if (!lease) {
+                // The learner holds the parameter: the sweep does not run over it.
+                this.sweeps.apply(parameter, "stop");
+                return;
+            }
+            this.sweepLease = {parameter, lease};
+        }
+        this.sweepLease.lease.write(key, value);
+    }
+
+    private releaseSweepLease(): void {
+        const held = this.sweepLease;
+        this.sweepLease = undefined;
+        held?.lease.release();
+    }
+
+    /** u and v, bound to `setParameter` (each clamped to `[0, 1 - other]`, so `u + v <= 1`). */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        const binding = (parameter: "u" | "v"): ParameterBinding => ({
+            read: () => this.state[parameter],
+            apply: (value: unknown) => this.setParameter(parameter, Number(value)),
+        });
+        return {[PATCH_PARAMETER_KEYS.u]: binding("u"), [PATCH_PARAMETER_KEYS.v]: binding("v")};
+    }
 
     override getInitialState(): TriangularPatchGraphState {
         return {initialized: false, surfaceUnavailable: false, zMode: false, ...stateFromDto(defaultDto())};
@@ -171,7 +227,10 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
             visibilityTargets: () => new Set(["control-net", "iso-curves", "boundary-curves", "shading", "decasteljau-scheme"] as const),
             setVisibility: (target, visible) => this.setVisibility(TRIANGULAR_VISIBILITY_KEYS[target as keyof typeof TRIANGULAR_VISIBILITY_KEYS], visible),
             setParameters: (u, v) => this.setParameters(u, v),
-            sweep: (parameter, command) => this.sweeps.apply(parameter, command),
+            sweep: (parameter, command) => {
+                this.sweeps.apply(parameter, command);
+                if (command === "stop" || command === "pause") this.releaseSweepLease();
+            },
             applyCameraPreset: view => this.applyCameraPreset(view),
             subdivision: () => ({
                 kind: "triangular",
@@ -343,10 +402,10 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
     // ---- Declaration (task 08, surface recipe) -----------------------------------------------------------------
 
     /**
-     * The old panel's readouts as rows (the Bernstein weight of a selected point, then w) with their help sentences as notes, the
-     * legend of what the surface view draws, and the switches as Orodja actions. No parameters (no step asks to set u or v:
-     * `triangular-centroid` and `compare-domains` place S at the centroid and ask to read and compare), no marks, view or camera:
-     * a surface view has no `ViewAdapter`, so cards rely on placement.
+     * u and v as board range pucks whose maximum follows `1 - other` (`prompt_patch_barycentric`: "Premikaj u in v ter opazuj w"),
+     * the old panel's readouts as rows (the Bernstein weight of a selected point, then w) with their help sentences as notes, the
+     * legend of what the surface view draws, and the switches as Orodja actions. No marks, view or camera: a surface view has no
+     * `ViewAdapter`, so cards rely on placement.
      */
     protected override declaration(): GraphDeclaration<TriangularIds> {
         const s = this.state;
@@ -390,7 +449,11 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
             tools("tensor-comparison", message("patch_compare_show"), "display", "display", this.tensorComparisonValue),
             tools("height-mode", message("patch_move_height"), "display", "display", s.zMode),
         ];
-        return {readouts, notes, legend, actions};
+        const parameter = (direction: "u" | "v"): RangeParameter<TriangularIds["param"]> => ({
+            kind: "range", key: PATCH_PARAMETER_KEYS[direction], label: message(direction === "u" ? "patch_parameter_u" : "patch_parameter_v"),
+            placement: "board", min: 0, max: Math.max(0, 1 - s[direction === "u" ? "v" : "u"]), step: 0.01, maxDecimals: 2,
+        });
+        return {parameters: [parameter("u"), parameter("v")], readouts, notes, legend, actions};
     }
 
     /** A switch pressed as the learner: the method the panel's switch calls. */
@@ -462,7 +525,7 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
 
     protected override workspaceEdit(): React.ReactNode {
         return <>{this.unavailableNotice()}<TriangularPatchEditPanel state={{...this.state, subdivisionPreview: this.subdivisionPreviewValue, compareTensor: this.tensorComparisonValue}}
-                                                                 selection={this.selection()} actions={this.panelActions}/></>;
+                                                                 selection={this.selection()} actions={this.panelActions} puckKeys={PATCH_PARAMETER_KEYS}/></>;
     }
 
     protected override workspaceDisplay(): React.ReactNode {
@@ -520,7 +583,7 @@ export default class TriangularPatchGraph extends BaseSurfaceGraph<TriangularPat
                 });
             },
             constrain: clampToTriangle,
-            onDrag: (u, v) => this.setParameters(u, v),
+            onDrag: (u, v) => runAs("learner", () => this.setParameters(u, v)),
             onSessionEnd: () => { if (this.inset === inset) { this.inset = undefined; this.insetSquare = undefined; } },
         });
         this.inset = inset;

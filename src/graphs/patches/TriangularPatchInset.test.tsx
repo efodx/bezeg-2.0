@@ -1,11 +1,13 @@
 /** The parameter-domain inset of the triangular patch: the reference triangle with a dot at (u, v). */
-import {act, fireEvent, render, screen} from "@testing-library/react";
+import {act, render} from "@testing-library/react";
 import JXG, {JSXGraph} from "jsxgraph";
 import {MemoryRouter} from "react-router-dom";
 import {GraphHost} from "../base/GraphHost";
-import {installBoardShims, settle} from "../base/realGraphTestHarness";
+import {installBoardShims, puckControl, settle} from "../base/realGraphTestHarness";
+import {runAs} from "../base/writes/writeSource";
+import {PATCH_PARAMETER_KEYS} from "./TensorPatchGraph";
 import {appStorage} from "../../storage/appStorage";
-import {setLanguage, t} from "../../localization";
+import {setLanguage} from "../../localization";
 import {FakeSurfaceView} from "./FakeSurfaceView";
 import TriangularPatchGraph from "./TriangularPatchGraph";
 
@@ -28,7 +30,10 @@ function mount() {
     const rendered = mountGraph(graph);
     return {graph, view, rendered};
 }
-const range = (label: "patch_parameter_u" | "patch_parameter_v") => screen.getByLabelText<HTMLInputElement>(t(label));
+/** u and v are board pucks (`patch-u`, `patch-v`): the value a puck shows, a learner's write as the puck makes it, and a write as the learner outside the DOM. */
+const puckValue = (direction: "u" | "v") => Number(puckControl(PATCH_PARAMETER_KEYS[direction]).getAttribute("aria-valuenow"));
+const setOnPuck = (graph: ExposedGraph, direction: "u" | "v", value: number) => act(() => { graph.parameters!.write(PATCH_PARAMETER_KEYS[direction], value, "learner"); });
+const learner = (write: () => void) => act(() => runAs("learner", write));
 const dotOf = (graph: ExposedGraph) => [graph.insetPoint!.X(), graph.insetPoint!.Y()];
 const drag = (graph: ExposedGraph, x: number, y: number) => act(() => {
     const point = graph.insetPoint!;
@@ -43,8 +48,8 @@ describe("triangular parameter-domain inset", () => {
         const revision = view.last.revision;
         drag(graph, 0.25, 0.5);
         expect([graph.state.u, graph.state.v]).toEqual([0.25, 0.5]);
-        expect(Number(range("patch_parameter_u").value)).toBeCloseTo(0.25, 12);
-        expect(Number(range("patch_parameter_v").value)).toBeCloseTo(0.5, 12);
+        expect(puckValue("u")).toBeCloseTo(0.25, 12);
+        expect(puckValue("v")).toBeCloseTo(0.5, 12);
         expect(view.last.revision).toBe(revision);
     });
 
@@ -64,18 +69,18 @@ describe("triangular parameter-domain inset", () => {
         expect(dotOf(graph)).toEqual([0, 1]);
     });
 
-    it("follows sliders, scene writes, starting patches, Preset restore, Reset and a language switch", async () => {
+    it("follows pucks, scene writes, starting patches, Preset restore, Reset and a language switch", async () => {
         const {graph} = mount();
-        fireEvent.change(range("patch_parameter_u"), {target: {value: "0.2"}});
+        setOnPuck(graph, "u", 0.2);
         expect(dotOf(graph)).toEqual([0.2, graph.state.v]);
-        fireEvent.change(range("patch_parameter_v"), {target: {value: "0.6"}});
+        setOnPuck(graph, "v", 0.6);
         expect(dotOf(graph)).toEqual([0.2, 0.6]);
         graph.presetService!.savePreset({...graph.exportPreset(), id: "mine"});
-        act(() => { graph.setState({u: 0.7}); graph.setState({v: 0.1}); });
+        learner(() => { graph.setState({u: 0.7}); graph.setState({v: 0.1}); });
         expect(dotOf(graph)).toEqual([0.7, 0.1]);
-        act(() => graph.setParameters(0.6, 0.2));
+        learner(() => graph.setParameters(0.6, 0.2));
         expect(dotOf(graph)).toEqual([0.6, 0.2]);
-        act(() => graph.useStartingPatch(2));
+        learner(() => graph.useStartingPatch(2));
         expect(dotOf(graph)).toEqual([graph.state.u, graph.state.v]);
         expect(graph.state.u).not.toBe(0.6);
         await settle(() => graph.selectPreset("mine"));
@@ -84,7 +89,7 @@ describe("triangular parameter-domain inset", () => {
         act(() => setLanguage("en"));
         expect(dotOf(graph)).toEqual([0.2, 0.6]);
         await settle(() => graph.selectPreset(""));
-        act(() => graph.setParameters(0.6, 0.4));
+        learner(() => graph.setParameters(0.6, 0.4));
         await settle(() => graph.reset());
         expect(dotOf(graph)).toEqual([graph.state.u, graph.state.v]);
         expect(graph.state.u).not.toBe(0.6);
@@ -92,11 +97,11 @@ describe("triangular parameter-domain inset", () => {
 
     it("setParameters moves a point outside the triangle to the nearest point and ignores non-finite values", () => {
         const {graph} = mount();
-        act(() => graph.setParameters(1, 1));
+        learner(() => graph.setParameters(1, 1));
         expect([graph.state.u, graph.state.v]).toEqual([0.5, 0.5]);
         expect(dotOf(graph)).toEqual([0.5, 0.5]);
         const before = [graph.state.u, graph.state.v];
-        act(() => { graph.setParameters(Number.NaN, 0.2); graph.setParameters(0.2, Infinity); });
+        learner(() => { graph.setParameters(Number.NaN, 0.2); graph.setParameters(0.2, Infinity); });
         expect([graph.state.u, graph.state.v]).toEqual(before);
     });
 

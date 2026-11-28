@@ -21,6 +21,7 @@ const sl = {
     "patch_triangular_legend_construction": "Pomožne mreže konstrukcije",
     "patch_triangular_legend_compare": "Tenzorska krpa iz iste mreže",
     "patch_triangular_legend_point": "Točka S(u, v, w)",
+    "patch_triangular_inset_help_pucks": "Povleci piko po trikotniku, da nastaviš u in v; w = 1 − u − v se izračuna sam. Zunaj trikotnika se pika postavi na najbližjo točko roba. S tipkovnico ju nastaviš s krmilnikoma Parameter u in Parameter v na grafu.",
 } as const;
 
 export const patchAdvanced = {
@@ -47,5 +48,6 @@ export const patchAdvanced = {
         "patch_triangular_legend_construction": "Construction nets",
         "patch_triangular_legend_compare": "Tensor patch from the same net",
         "patch_triangular_legend_point": "Point S(u, v, w)",
+        "patch_triangular_inset_help_pucks": "Drag the dot inside the triangle to set u and v; w = 1 − u − v follows. Outside the triangle the dot lands on the nearest point of its edge. With the keyboard, set them with the Parameter u and Parameter v controls on the graph.",
     } satisfies Record<keyof typeof sl, string>,
 };

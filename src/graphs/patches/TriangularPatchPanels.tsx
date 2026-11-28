@@ -5,6 +5,7 @@ import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import Slider from "../../inputs/Slider";
 import {currentLanguage, useT} from "../../localization";
 import {ReadoutHelp} from "../base/controls/ReadoutParts";
+import {PuckOwned, usePuckOwns} from "../base/controls/PuckOwnership";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import {defaultTriangularPatchPresets} from "./patchPresetCollections";
 import type {PatchDensity} from "./patchSceneBuilder";
@@ -87,7 +88,17 @@ export const barycentricW = (u: number, v: number): number => Math.max(0, 1 - u 
 const indexOptions = (degree: number) =>
     [...triangularIndices(degree).map(index => ({value: triangularPointId(...index), text: `(${index.join(", ")})`}))];
 
-export function TriangularPatchEditPanel({state, selection, actions}: {state: TriangularPatchPanelState; selection?: TriangularSelection; actions: TriangularPatchPanelActions}) {
+/** The inset's help: it names the sliders above, or the board pucks once they own u and v. */
+function TriangularInsetHelp({puckKeys}: {puckKeys?: {readonly u: string; readonly v: string}}) {
+    const t = useT();
+    const ownsU = usePuckOwns(puckKeys?.u), ownsV = usePuckOwns(puckKeys?.v);
+    return <p className="inspector-help">{ownsU && ownsV ? t("patch_triangular_inset_help_pucks") : t("patch_triangular_inset_help")}</p>;
+}
+
+/** `puckKeys` are the arbiter keys of u and v: their sliders render nothing while the board pucks own them. */
+export function TriangularPatchEditPanel({state, selection, actions, puckKeys}: {
+    state: TriangularPatchPanelState; selection?: TriangularSelection; actions: TriangularPatchPanelActions; puckKeys?: {readonly u: string; readonly v: string};
+}) {
     const t = useT();
     const interior = isInteriorPoint(state.u, state.v);
     const matching = actions.startingPatchIndex();
@@ -122,12 +133,12 @@ export function TriangularPatchEditPanel({state, selection, actions}: {state: Tr
                          }}/>
         </div>
         <div className="inspector-group"><h3>{t("patch_point_heading")}</h3>
-            <Slider customText={t("patch_parameter_u")} min={0} max={Math.max(0, 1 - state.v)} step={0.01} value={state.u}
-                    onChange={value => actions.setParameter("u", value)}/>
-            <Slider customText={t("patch_parameter_v")} min={0} max={Math.max(0, 1 - state.u)} step={0.01} value={state.v}
-                    onChange={value => actions.setParameter("v", value)}/>
+            <PuckOwned param={puckKeys?.u}><Slider customText={t("patch_parameter_u")} min={0} max={Math.max(0, 1 - state.v)} step={0.01} value={state.u}
+                    onChange={value => actions.setParameter("u", value)}/></PuckOwned>
+            <PuckOwned param={puckKeys?.v}><Slider customText={t("patch_parameter_v")} min={0} max={Math.max(0, 1 - state.u)} step={0.01} value={state.v}
+                    onChange={value => actions.setParameter("v", value)}/></PuckOwned>
             <ParameterInset attach={actions.setInsetContainer} label={t("patch_parameter_inset_label")}/>
-            <p className="inspector-help">{t("patch_triangular_inset_help")}</p>
+            <TriangularInsetHelp puckKeys={puckKeys}/>
         </div>
         <div data-declared-panel=""><FunctionReadout title={t("patch_parameter_w")} rows={[{id: "parameter-w", label: "w", value: formatNumber(barycentricW(state.u, state.v), currentLanguage(), 2)}]}
                          note={t("patch_parameter_w_help")}/></div>

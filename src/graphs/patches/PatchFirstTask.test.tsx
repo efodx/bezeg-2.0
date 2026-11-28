@@ -85,11 +85,15 @@ describe('net-point routes (batch 3)', () => {
         act(() => graph.selectBoundaryPoint('c1', 2));
         expect(editor(), 'editor shown').not.toBeNull();
     });
-    test('patches/triangular: the point indices lead, starting patch, degree and parameters follow', () => {
+    test('patches/triangular: the point indices lead, starting patch and degree follow; u, v are board pucks', async () => {
         const {graph} = mountGraph(new TriangularPatchGraph(options)) as unknown as {graph: TriangularPatchGraph};
+        await waitForPucks(PATCH_PARAMETER_KEYS.v);
         const names = editControls();
         expect(names[0], names.join(' | ')).toContain(t('patch_triangular_index'));
-        for (const label of [t('patch_starting_heading'), t('patch_triangular_degree'), t('patch_parameter_u')]) expect(names.findIndex(name => name.includes(label)), label).toBeGreaterThan(0);
+        for (const label of [t('patch_starting_heading'), t('patch_triangular_degree')]) expect(names.findIndex(name => name.includes(label)), label).toBeGreaterThan(0);
+        // u and v are declared board pucks (`prompt_patch_barycentric`): they live on the puck strip, not in Edit.
+        for (const label of [t('patch_parameter_u'), t('patch_parameter_v')]) expect(names.findIndex(name => name.includes(label)), names.join(' | ')).toBe(-1);
+        for (const key of [PATCH_PARAMETER_KEYS.u, PATCH_PARAMETER_KEYS.v]) expect(puckControl(key), key).toBeTruthy();
         act(() => graph.selectIndex([2, 0, 1]));
         precedes(editor(), t('patch_starting_heading'));
         precedes(editor(), t('patch_degree_heading'));

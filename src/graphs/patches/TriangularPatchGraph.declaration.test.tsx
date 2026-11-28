@@ -27,6 +27,8 @@ function mount() {
     return {graph, fake: surfaceViewOf(graph as never)!};
 }
 const declared = (graph: TriangularPatchGraph) => graph.getDeclaration() as GraphDeclaration<TriangularIds>;
+/** The [min, max] of each declared range parameter, in order. */
+const bounds = (graph: TriangularPatchGraph) => declared(graph).parameters!.map(p => p.kind === 'range' ? [p.min, p.max] : []);
 /** The text of a row value: the graph formats both rows itself. */
 const text = (value: unknown) => (value as {kind: string; text: string}).kind === 'formatted' ? (value as {text: string}).text : renderMessage(value as Message);
 const LEGEND = ['surface', 'net', 'points', 'highlight', 'iso-u', 'iso-v', 'iso-w', 'boundary', 'construction', 'compare', 'point'];
@@ -42,8 +44,9 @@ describe('Triangular patch declaration', () => {
         act(() => runAs('learner', () => apply(graph)));
         const declaration = declared(graph);
         expect(checkDeclaration(declaration)).toEqual([]);
-        // No step asks to set u or v: no parameters, the Uredi sliders stay.
-        expect(declaration.parameters ?? []).toEqual([]);
+        // u and v are board range pucks (`prompt_patch_barycentric`); each maximum follows 1 - other, so u + v <= 1.
+        expect(declaration.parameters!.map(p => [p.key, p.kind, p.placement])).toEqual([['patch-u', 'range', 'board'], ['patch-v', 'range', 'board']]);
+        expect(bounds(graph)).toEqual([[0, Math.max(0, 1 - graph.state.v)], [0, Math.max(0, 1 - graph.state.u)]]);
 
         // The rows are the old panel's readouts: the Bernstein weight of a selected point, then w; each with its help note.
         const rows = declaration.readouts!.flatMap(group => group.rows);
@@ -62,6 +65,16 @@ describe('Triangular patch declaration', () => {
         expect(visible('points')).toBe(scene.points.length > 0);
         expect(visible('point')).toBe(scene.markers.some(marker => marker.id === 'evaluated'));
         expect(graph.drawnObject('nothing')).toBeUndefined();
+    });
+
+    test('a puck write past 1 - other is clamped into the triangle, and the other maximum follows', () => {
+        const {graph} = mount();
+        act(() => runAs('learner', () => graph.setParameters(0.2, 0.5)));
+        act(() => { graph.parameters!.write('patch-u', 0.9, 'learner'); });
+        expect([graph.state.u, graph.state.v]).toEqual([0.5, 0.5]);
+        expect(bounds(graph)).toEqual([[0, 0.5], [0, 0.5]]);
+        act(() => { graph.parameters!.write('patch-v', 0.25, 'learner'); });
+        expect(bounds(graph)).toEqual([[0, 0.75], [0, 0.5]]);
     });
 
     test('the Bernstein weight row shows the selected point and its weight as the old panel', () => {

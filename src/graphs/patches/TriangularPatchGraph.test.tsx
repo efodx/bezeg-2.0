@@ -6,7 +6,9 @@
 import {act, fireEvent, render, screen, within} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {GraphHost} from "../base/GraphHost";
-import {installBoardShims, settle} from "../base/realGraphTestHarness";
+import {installBoardShims, puckControl, settle, waitForPucks} from "../base/realGraphTestHarness";
+import {runAs} from "../base/writes/writeSource";
+import {PATCH_PARAMETER_KEYS} from "./TensorPatchGraph";
 import {appStorage} from "../../storage/appStorage";
 import {enterNumber} from "../../inputs/testEntry";
 import {formatNumber} from "../../analysis/format";
@@ -38,6 +40,12 @@ type Key = "patch_parameter_u" | "patch_parameter_v" | "patch_show_control_net" 
     | "patch_show_boundary_curves" | "patch_show_shading" | "patch_iso_density" | "patch_shading_density" | "patch_move_height"
     | "patch_subdivision_show" | "de_casteljau_construction";
 const control = <T extends HTMLElement>(label: Key) => screen.getByLabelText<T>(t(label));
+/** u and v are board pucks (`patch-u`, `patch-v`): the value and range a puck shows, and a learner's write as the puck makes it. */
+const puck = (direction: "u" | "v") => puckControl(PATCH_PARAMETER_KEYS[direction]);
+const puckValue = (direction: "u" | "v") => Number(puck(direction).getAttribute("aria-valuenow"));
+const setOnPuck = (graph: TriangularPatchGraph, direction: "u" | "v", value: number) => act(() => { graph.parameters!.write(PATCH_PARAMETER_KEYS[direction], value, "learner"); });
+/** A write as the learner makes it outside the DOM (the inset drag, a puck): u and v are arbiter-bound. */
+const learner = (write: () => void) => act(() => runAs("learner", write));
 const point = (graph: TriangularPatchGraph, u: number, v: number): Xyz => {
     const p = triangularFromNet(graph.state.net).eval(u, v);
     return [p.X(), p.Y(), p.Z()];
@@ -67,8 +75,8 @@ function expectAgreement(graph: TriangularPatchGraph, view: FakeSurfaceView) {
     expect(s.u + s.v).toBeLessThanOrEqual(1 + 1e-12);
     // The controls.
     expect(within(screen.getByRole("group", {name: t("patch_triangular_degree"), hidden: true})).getByRole("spinbutton", {hidden: true})).toHaveProperty("value", String(s.n));
-    expect(Number(control<HTMLInputElement>("patch_parameter_u").value)).toBeCloseTo(s.u, 12);
-    expect(Number(control<HTMLInputElement>("patch_parameter_v").value)).toBeCloseTo(s.v, 12);
+    expect(puckValue("u")).toBeCloseTo(s.u, 12);
+    expect(puckValue("v")).toBeCloseTo(s.v, 12);
     const w = document.querySelector('[data-readout="parameter-w"] dd')!.textContent;
     expect(w).toBe(formatNumber(Math.max(0, 1 - s.u - s.v), currentLanguage(), 2));
     expect(control<HTMLInputElement>("patch_show_control_net").checked).toBe(s.showControlNet);
@@ -103,26 +111,35 @@ describe("default scene", () => {
 });
 
 describe("sliders and the triangle domain", () => {
-    it("the u and v sliders move S(u, v, w), w follows, and the slider ranges shrink with the other parameter", () => {
+    it("the u and v pucks move S(u, v, w), w follows, and the puck ranges shrink with the other parameter", async () => {
         const {graph, view} = mount();
-        fireEvent.change(control("patch_parameter_u"), {target: {value: "0.25"}});
-        fireEvent.change(control("patch_parameter_v"), {target: {value: "0.5"}});
+        await waitForPucks(PATCH_PARAMETER_KEYS.v);
+        expect(screen.queryAllByLabelText(t("patch_parameter_u")).filter(element => element.tagName === "INPUT")).toEqual([]);
+        expect(screen.getByText(t("patch_triangular_inset_help_pucks"))).toBeTruthy();
+        setOnPuck(graph, "u", 0.25);
+        setOnPuck(graph, "v", 0.5);
         expect([graph.state.u, graph.state.v]).toEqual([0.25, 0.5]);
-        expect(control<HTMLInputElement>("patch_parameter_u").max).toBe("0.5");
-        expect(control<HTMLInputElement>("patch_parameter_v").max).toBe("0.75");
+        expect(puck("u").getAttribute("aria-valuemax")).toBe("0.5");
+        expect(puck("v").getAttribute("aria-valuemax")).toBe("0.75");
+        setOnPuck(graph, "u", 0.9);
+        expect(graph.state.u).toBe(0.5);
+        setOnPuck(graph, "u", 0.25);
+        act(() => { fireEvent.keyDown(puck("u"), {key: "ArrowRight"}); });
+        expect(graph.state.u).toBeCloseTo(0.26, 12);
+        setOnPuck(graph, "u", 0.25);
         near(view.last.markers.find(m => m.role === "evaluated")!.xyz, point(graph, 0.25, 0.5));
         expectAgreement(graph, view);
     });
     it("clamps so that u, v >= 0 and u + v <= 1 and ignores non-finite values", () => {
         const {graph, view} = mount();
-        act(() => graph.setParameter("u", 0.6));
-        act(() => graph.setParameter("v", 0.9));
+        learner(() => graph.setParameter("u", 0.6));
+        learner(() => graph.setParameter("v", 0.9));
         expect([graph.state.u, graph.state.v]).toEqual([0.6, 0.4]);
-        act(() => graph.setParameter("u", 5));
+        learner(() => graph.setParameter("u", 5));
         expect([graph.state.u, graph.state.v]).toEqual([0.6, 0.4]);
-        act(() => graph.setParameter("u", -3));
+        learner(() => graph.setParameter("u", -3));
         expect(graph.state.u).toBe(0);
-        act(() => { graph.setParameter("v", Number.NaN); graph.setParameter("v", Infinity); });
+        learner(() => { graph.setParameter("v", Number.NaN); graph.setParameter("v", Infinity); });
         expect(graph.state.v).toBe(0.4);
         expectAgreement(graph, view);
     });
@@ -263,15 +280,15 @@ describe("display switches", () => {
         const {graph, view} = mount();
         fireEvent.click(control("de_casteljau_construction"));
         const before = view.last.markers.filter(m => m.role === "construction").map(m => m.xyz);
-        act(() => graph.setParameter("u", 0.6));
+        learner(() => graph.setParameter("u", 0.6));
         expect(view.last.markers.filter(m => m.role === "construction").map(m => m.xyz)).not.toEqual(before);
         fireEvent.click(control("patch_subdivision_show"));
         expect(view.last.polylines.some(line => line.id.startsWith("piece-0-"))).toBe(true);
-        act(() => graph.setParameter("v", 0.4));
+        learner(() => graph.setParameter("v", 0.4));
         expect(graph.state.u + graph.state.v).toBeCloseTo(1, 12);
         expect(view.last.polylines.some(line => line.id.startsWith("piece-"))).toBe(false);
         expect(screen.getByText(t("patch_subdivision_interior_required"))).toBeTruthy();
-        act(() => graph.setParameter("u", 0.2));
+        learner(() => graph.setParameter("u", 0.2));
         expect(view.last.polylines.some(line => line.id.startsWith("piece-0-"))).toBe(true);
     });
 });
@@ -283,7 +300,7 @@ describe("Reset, Presets, language and one tick", () => {
         const freshNet = fresh.graph.state.net;
         const freshCamera = fresh.graph.state.camera;
         fresh.rendered.unmount();       // one document, one set of labelled controls
-        act(() => { graph.setDegree(4); graph.setParameter("u", 0.7); graph.setSubdivisionPreview(true); graph.setVisibility("showShading", false); });
+        learner(() => { graph.setDegree(4); graph.setParameter("u", 0.7); graph.setSubdivisionPreview(true); graph.setVisibility("showShading", false); });
         view.emit({kind: "camera", camera: {...graph.state.camera, az: 2, distance: 9}});
         view.emit({kind: "point", pointId: "t-1-1-2", xyz: [1, 1, 1], phase: "move"});
         await settle(() => graph.reset());
@@ -295,7 +312,7 @@ describe("Reset, Presets, language and one tick", () => {
     });
     it("a saved Preset restores net, degree, parameters, switches and camera (not the session's height mode)", async () => {
         const {graph, view} = mount();
-        act(() => { graph.setDegree(2); graph.setParameter("v", 0.55); graph.setParameter("u", 0.3); graph.setDensity("iso", 16); graph.setVisibility("showDeCasteljau", true); graph.setZMode(true); });
+        learner(() => { graph.setDegree(2); graph.setParameter("v", 0.55); graph.setParameter("u", 0.3); graph.setDensity("iso", 16); graph.setVisibility("showDeCasteljau", true); graph.setZMode(true); });
         view.emit({kind: "point", pointId: "t-1-1-0", xyz: [0.1, 0.2, 3], phase: "move"});
         view.emit({kind: "camera", camera: {...graph.state.camera, az: 1.3, el: 0.1, distance: 12}});
         const saved = {net: graph.state.net, camera: graph.state.camera};
@@ -316,7 +333,7 @@ describe("Reset, Presets, language and one tick", () => {
     });
     it("a Preset file from another browser session imports into a second graph unchanged", () => {
         const {graph, rendered} = mount();
-        act(() => { graph.setDegree(4); graph.setParameter("u", 0.2); graph.setParameter("v", 0.7); });
+        learner(() => { graph.setDegree(4); graph.setParameter("u", 0.2); graph.setParameter("v", 0.7); });
         const file = JSON.parse(JSON.stringify(graph.exportPreset()));
         const data = graph.exportPresetData();
         const camera = graph.state.camera;
@@ -333,7 +350,7 @@ describe("Reset, Presets, language and one tick", () => {
         const data = [["TriangularBezierPatch", {n: 1, net, state: {u: 0.5, v: 0.5000000005}}]];
         const checked = patchPresetCollections["patch-triangular"].check(data);
         if (!("data" in checked)) throw new Error("the DTO tolerance should accept the pair");
-        act(() => graph.importPresetData(checked.data));
+        learner(() => graph.importPresetData(checked.data));
         expect(graph.state.u).toBe(0.5);
         expect(graph.state.v).toBe(0.5);
         expectAgreement(graph, view);
@@ -348,7 +365,7 @@ describe("Reset, Presets, language and one tick", () => {
     });
     it("a language switch relabels the view and the panel and keeps the scene", () => {
         const {graph, view} = mount();
-        act(() => { graph.setParameter("u", 0.4); graph.setDegree(2); });
+        learner(() => { graph.setParameter("u", 0.4); graph.setDegree(2); });
         const net = graph.state.net;
         act(() => setLanguage("en"));
         expect(view.labels[view.labels.length - 1]).toBe("Three-dimensional view of the patch");
@@ -361,7 +378,7 @@ describe("Reset, Presets, language and one tick", () => {
     });
     it("several synchronous actions in one tick each read the state the previous one wrote", () => {
         const {graph, view} = mount();
-        act(() => {
+        learner(() => {
             graph.setDegree(4);
             graph.setParameter("u", 0.5);
             graph.setParameter("v", 0.9);          // clamped by the u written one line before
@@ -382,11 +399,11 @@ describe("Reset, Presets, language and one tick", () => {
     });
     it("the lesson checkpoint restores a rollback within one tick, including the split preview", () => {
         const {graph, view} = mount();
-        act(() => { graph.setParameter("u", 0.2); graph.setSubdivisionPreview(true); });
+        learner(() => { graph.setParameter("u", 0.2); graph.setSubdivisionPreview(true); });
         const capabilities = graph.getLessonCapabilities();
         const checkpoint = capabilities.captureState();
         const net = graph.state.net;
-        act(() => {
+        learner(() => {
             graph.setDegree(2);
             graph.setSubdivisionPreview(false);
             graph.setParameter("u", 0.7);

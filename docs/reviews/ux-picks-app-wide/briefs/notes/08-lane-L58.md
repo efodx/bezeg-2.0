@@ -186,3 +186,34 @@ Not started in code; tree green as above. Next, in this order:
 6. Rerun: declaration test, own tests, tsc, eslint changed, graph-check patch-triangular (parity/golden unchanged), round trip,
    `just unit src/graphs/patches src/learning/content`, build + smoke-lesson patch-triangular patch-square-vs-triangular (rerun once
    on an input clash; inversion/phase/dynamics files belong to another worker), shots 1440/1280 via `.command-logs/l58-s4-shots.sh`.
+
+## Session 5 (2026-11-28 ~10:25-11:00): u/v pucks on patch-triangular, all checks green
+
+- `TriangularPatchGraph.tsx`: `parameterBindings()` binds `PATCH_PARAMETER_KEYS` (`patch-u`, `patch-v`, imported from
+  `TensorPatchGraph`) to `setParameter` (clamp `[0, 1 - other]`, so u + v <= 1); declaration `parameters`: two `range` pucks,
+  `placement: "board"`, min 0, max `Math.max(0, 1 - other)`, step 0.01, 2 decimals; `TriangularIds.param` and doc comments
+  updated (justification `prompt_patch_barycentric` "Premikaj u in v ter opazuj w"). Sweeps write through `sweepWrite` under an
+  animation lease (copied from TensorPatchGraph), released in `stopSweeps`/`pauseSweeps` and on lesson sweep stop/pause. Inset
+  `onDrag` runs under `runAs("learner")`. Mathematics untouched.
+- `TriangularPatchPanels.tsx`: `puckKeys` opt-in prop; `PuckOwned` around the two Uredi sliders; the inset help names the sliders
+  above, so it follows the pucks (`TriangularInsetHelp`, as TensorPatchPanels `InsetHelp`) with new key
+  `patch_triangular_inset_help_pucks` (sl + en) in fragment `patchAdvanced.ts`.
+- Tests (values unchanged): `TriangularPatchGraph.test.tsx` (`learner()` helper around parameter writes and the checked import;
+  controls agreement reads the puck `aria-valuenow`; the slider test now drives the pucks: values, `aria-valuemax` 0.5/0.75, clamp
+  0.9 -> 0.5, ArrowRight +0.01, Uredi slider gone, puck help shown), `TriangularPatchInset.test.tsx` (pucks instead of sliders,
+  `learner()` for setParameters/setState/useStartingPatch), `TriangularPatchEditing.test.tsx` (`learner()` for setParameters),
+  `PatchFirstTask.test.tsx` triangular case (u, v absent from Edit, pucks on the strip, as the tensor case).
+- Declaration test: every state checks keys/kind/placement and `[min, max] = [0, 1 - other]`; new test: puck write u = 0.9 at
+  v = 0.5 reads 0.5, maxima follow. Red: max set to `1` -> 7 failed, "expected [ +0, 1 ] to deeply equal [ +0, 0.6666666666666667 ]"
+  (`l58-s5-decl-red.log`); reverted.
+- Checks: triangular + shared patch tests 13 files 227 passed (`l58-s5-unit3.log`); graph-check patch-triangular --route
+  /patches/triangular PASS (contract 1, parity 2, golden 1, declaration 10, shared 137; `l58-s5-gc.log`), golden read
+  `src/graphs/patches/__parity__/patch-triangular.golden.json` (only file of that id, unchanged); golden check pass
+  (`l58-s5-golden.log`); round trip -t patch-triangular 1 passed; `just unit src/graphs/patches src/localization` 76 files 1154
+  passed; `just unit src/graphs/base src/learning/content` 210 files 5352 passed, 369 skipped; tsc 0; eslint 0 on 8 changed files;
+  `just build` pass; smoke-lesson patch-triangular patch-square-vs-triangular 4 passed (no input clash this time).
+- Shots (dev 4483, `l58-s4-shots.sh` rerun, overwrote `.command-logs/l58-shots/tri-*`, log `l58-s5-shots.log`): pucks 2 in every
+  frame (both lessons 3 frames each and plain, 1440 and 1280), bottom left; Odčitki w = 0,33; nothing read under a card. Marginal:
+  at 1440 compare part 2 the comparison tensor net's far corner reaches the Legenda card's left edge (no caption there; unchanged by
+  this session).
+- Not run: `just unit FirstTask` (only PatchFirstTask), inspector-width shot of Uredi, browser specs beyond smoke-lesson.

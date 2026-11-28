@@ -6,6 +6,7 @@ import {act, fireEvent, render, screen} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {GraphHost} from "../base/GraphHost";
 import {installBoardShims, settle} from "../base/realGraphTestHarness";
+import {runAs} from "../base/writes/writeSource";
 import {appStorage} from "../../storage/appStorage";
 import {setLanguage, t} from "../../localization";
 import {FakeSurfaceView} from "./FakeSurfaceView";
@@ -33,6 +34,8 @@ const fieldText = (field: HTMLInputElement) => field.value.replace(",", ".").rep
 const choose = (i: number, j: number, k: number) => fireEvent.change(select(), {target: {value: triangularPointId(i, j, k)}});
 const highlights = (view: FakeSurfaceView) => view.last.polylines.filter(line => line.role === "highlight");
 const weightText = () => document.querySelector('[data-readout="bernstein-weight"] dd')?.textContent;
+/** A write as the learner makes it outside the DOM (the inset drag): u and v are arbiter-bound. */
+const learner = (write: () => void) => act(() => runAs("learner", write));
 const typeAxis = (name: string, axis: string, value: string) => {
     fireEvent.change(input(`${name} ${axis}`), {target: {value}});
     fireEvent.keyDown(input(`${name} ${axis}`), {key: "Enter"});
@@ -126,7 +129,7 @@ describe("numeric xyz editor", () => {
         expect(select().value).toBe("t-1-1-1");
         expect(screen.getByLabelText("Point indices (i, j, k)")).toBe(select());
 
-        act(() => {
+        learner(() => {
             graph.selectIndex([2, 0, 1]);
             graph.setSelectedCoordinates([1, 2, 3]);
             graph.setParameters(0.5, 0.25);
@@ -199,7 +202,7 @@ describe("Bernstein weight readout", () => {
         choose(1, 1, 1);
         // 6 (1/3)^3 at the centroid
         expect(weightText()).toBe("0,2222");
-        act(() => graph.setParameters(0.5, 0.25));
+        learner(() => graph.setParameters(0.5, 0.25));
         // 6 * 0.5 * 0.25 * 0.25
         expect(weightText()).toBe("0,1875");
         choose(3, 0, 0);
@@ -215,7 +218,7 @@ describe("Bernstein weight readout", () => {
     it("is 1 for the vertex at its own corner of the triangle", () => {
         const {graph} = mount();
         choose(0, 0, 3);
-        act(() => graph.setParameters(0, 0));
+        learner(() => graph.setParameters(0, 0));
         expect(weightText()).toBe("1");
     });
 });
