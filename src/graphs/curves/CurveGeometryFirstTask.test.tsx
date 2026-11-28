@@ -43,7 +43,8 @@ const plan: Record<string, {first: Label; later: Label[]}> = {
     envelope: {first: () => t('envelope_lines_shown'), later: [() => t('envelope_touch_shown')]},
     // The time and the number fields are pucks on the board (task 08): Orodja keeps the playback buttons first and then the motion list.
     kinematics: {first: () => 'action:play-pause', later: [() => t('kinematics_graph_motion_label')]},
-    descent: {first: () => 'action:play-pause', later: [() => t('descent_graph_time_label'), () => t('descent_graph_mode_label')]},
+    // The time, the radius and the two switches are pucks on the board (task 08): Orodja keeps the playback buttons first and then the experiment choice.
+    descent: {first: () => 'action:play-pause', later: [() => t('descent_graph_mode_label')]},
 };
 
 /** The Edit panel's controls in document order, by accessible name. */

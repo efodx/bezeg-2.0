@@ -7,7 +7,12 @@ import {GraphSession} from "../base/GraphSession";
 import {PresetCollection} from "../base/presets/PresetCollection";
 import {Preset} from "../base/presets/Presets";
 import {descentPresetCollection} from "./descentPresetCollection";
-import {currentLanguage, onLanguageChange, t, useT} from "../../localization";
+import {currentLanguage, message, messageNumber, onLanguageChange, renderMessage, t, useT, type Message} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutNote, ReadoutRow, ViewMarks} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import {formatNumber} from "../../analysis/format";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {PointListInput} from "../../inputs/PointListInput";
@@ -23,7 +28,6 @@ import {placeStable, textBox, type Spots, type TrackItem} from "./descentLabels"
 import type {LessonAction} from "../../learning/model";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 import {AnimationDriver, AnimationScheduler} from "../../learning/runtime/animation";
-import {fitBoundingBox} from "../base/fitBoundingBox";
 import {G} from "../../mechanics/descentTime";
 import type {Track, Vec2} from "../../mechanics/tracks";
 import {
@@ -75,7 +79,6 @@ const NAME_KEYS = {
 } as const;
 type TrackName = keyof typeof NAME_KEYS;
 
-const RESIZE_SETTLE_MS = 150;
 const REDUCED_REASON_ID = "descent-play-reduced-reason";
 
 const FIELD_LABEL_KEYS = {
@@ -92,12 +95,23 @@ function derivedKey(s: DescentState): string {
     }
 }
 
-/** The board rectangle [left, top, right, bottom] around a content box, with a margin and room on top for the captions. */
+/** The board rectangle [left, top, right, bottom] around a content box, with a margin (the readouts are cards: no board caption needs room). */
 function frameAround(x0: number, x1: number, depth0: number, depth1: number): [number, number, number, number] {
     const extent = Math.max(x1 - x0, depth1 - depth0, 1e-6);
     const margin = 0.1 * extent;
-    return [x0 - margin, -depth0 + margin + 0.6 * extent, x1 + margin, -(depth1 + margin)];
+    return [x0 - margin, -depth0 + margin, x1 + margin, -(depth1 + margin)];
 }
+
+/** The ids of the descent declaration: the parameters by arbiter key, the readout rows, the notes, the drawn legend entries and the actions. */
+export type DescentIds = {
+    param: "descent-time" | "descent-radius";
+    row: "time" | "end" | "time-line" | "time-arc" | "time-cycloid" | "winner" | "line-slower" | "radius" | "point-b" | "point-p1" | "point-p2" | "status" | "time-track"
+        | "cycloid-theta" | "cycloid-radius" | "difference" | "bead-1" | "bead-2" | "bead-3" | "arc-1" | "arc-2" | "arc-3" | "closed-form" | "gravity";
+    note: "result" | "notice" | "ended" | "hint";
+    legend: "line" | "arc" | "cycloid" | "track" | "polygon";
+    section: never;
+    action: "play-pause" | "reset-time" | "show-cycloid" | "show-arc";
+};
 
 /**
  * The frame of a mode. It depends on the radius only (the track mode has a fixed frame), so dragging a point never moves the view.
@@ -159,9 +173,11 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
     private tags: Array<{content: () => string; visible: () => boolean; math: boolean}> = [];
     private trackMemo?: {readonly frame: string; readonly token: readonly unknown[]; readonly spots: Spots};
     private drawnFrame = "";
-    private shownView: number[] | undefined;
+    /** The track curves the legend names, by object id (`drawnObject`). */
+    private readonly drawnElements = new Map<string, JXG.GeometryElement>();
+    private readonly timeListeners = new Set<() => void>();
     private derivations = 0;
-    private notice?: {readonly state: DescentGraphState; readonly text: () => string};
+    private notice?: {readonly state: DescentGraphState; readonly message: Message};
     private reconciledFor?: DescentGraphState;
     private driver?: AnimationDriver;
     /** The one announcement region of the graph. */
@@ -238,6 +254,7 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
 
     private notifyHost(): void {
         this.hostVersion++;
+        this.timeListeners.forEach(listener => listener());
         this.hostListeners.forEach(listener => listener());
     }
 
@@ -346,19 +363,8 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
         this.buildScene();
         // A new board (also the second mount of StrictMode) starts unframed, whatever an earlier board drew.
         this.drawnFrame = "";
-        this.shownView = undefined;
         this.applyFrame();
         const session = this.graphSession;
-        const container = this.board.containerObj as HTMLElement | undefined;
-        if (session && container && typeof ResizeObserver !== "undefined") {
-            let timer: ReturnType<typeof setTimeout> | undefined;
-            const observer = new ResizeObserver(() => {
-                clearTimeout(timer);
-                timer = setTimeout(() => this.reframeToSize(), RESIZE_SETTLE_MS);
-            });
-            observer.observe(container);
-            session.registerCleanup(() => { clearTimeout(timer); observer.disconnect(); });
-        }
         if (session) {
             session.registerCleanup(() => this.disposeScene());
             session.registerCleanup(() => {
@@ -411,31 +417,8 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
         const key = frame.map(value => value.toFixed(4)).join(",");
         if (key === this.drawnFrame) return;
         this.drawnFrame = key;
-        this.boardView.following(() => this.showFrame(frame));
-    }
-
-    /** Shows the whole frame: the box is widened to the canvas aspect around the frame's centre (a plain keep-aspect box crops one side). */
-    private showFrame(frame: readonly [number, number, number, number]): void {
-        const [left, top, right, bottom] = frame;
-        const box = fitBoundingBox([[left, top], [right, bottom]], this.board.canvasWidth, this.board.canvasHeight);
-        this.boardView.setIntent(box ?? frame, {keepAspectRatio: true});
-        this.shownView = this.viewOf();
-    }
-
-    /** The centre of the board's box: a resize keeps the centre and changes the scale and the corners, so the centre tells whether the view is still the framed one (a pan or a zoom about a point moves it). */
-    private viewOf(): number[] {
-        const [left, top, right, bottom] = this.board.getBoundingBox();
-        return [(left + right) / 2, (top + bottom) / 2];
-    }
-
-    /** The board's height settles after the first frame (the layout finishes): a view still on the frame we drew is framed again for the final size. A view the user moved is left alone. */
-    private reframeToSize(): void {
-        if (!this.hasBoard || !this.graphSession?.isAlive || !this.shownView) return;
-        const now = this.viewOf();
-        const near = (a: number, b: number) => Math.abs(a - b) <= 1e-6 * (1 + Math.abs(b));
-        if (!now.every((value, index) => near(value, this.shownView![index]))) return;
-        this.boardView.resizing(() => this.showFrame(frameFor(this.state, this.derived())));
-        this.board.update();
+        // The frame is the intent; the view director fits it to the visible area (`followView`), so a board that settles in size needs no reframing here.
+        this.boardView.following(() => this.boardView.setIntent(frame, {keepAspectRatio: true}));
     }
 
     private own<E extends JXG.GeometryElement>(element: E): E {
@@ -453,13 +436,14 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
 
     private mode(): DescentMode { return this.state.mode; }
 
-    private curve(data: () => {x: number[]; y: number[]}, color: string, width: number, dash: number, visible: () => boolean): void {
+    private curve(id: string, data: () => {x: number[]; y: number[]}, color: string, width: number, dash: number, visible: () => boolean): void {
         const element = this.own(this.board.create("curve", [[], []], {fixed: true, highlight: false, withLabel: false, strokeColor: color, strokeWidth: width, dash, visible}));
         element.updateDataArray = () => {
             const {x, y} = data();
             element.dataX = x;
             element.dataY = y;
         };
+        this.drawnElements.set(id, element);
     }
 
     private text(content: () => string, x: () => number, y: () => number, color: string, visible: () => boolean,
@@ -586,17 +570,17 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
 
         // The tracks. Each differs by dash as well as colour, and is named on the board.
         const lineTrack = () => race()?.tracks.line ?? track()?.line;
-        this.curve(() => (lineTrack() ? this.sampled(lineTrack()!) : empty), GraphPalette.comparisonCurve, 2, 2, () => this.mode() !== "tautochrone");
-        this.curve(() => (race() ? this.sampled(race()!.tracks.arc) : empty), GraphPalette.additionalCurves[1], 2, 4, () => this.mode() === "race");
+        this.curve("line", () => (lineTrack() ? this.sampled(lineTrack()!) : empty), GraphPalette.comparisonCurve, 2, 2, () => this.mode() !== "tautochrone");
+        this.curve("arc", () => (race() ? this.sampled(race()!.tracks.arc) : empty), GraphPalette.additionalCurves[1], 2, 4, () => this.mode() === "race");
         const cycloidTrack = () => race()?.tracks.cycloid ?? track()?.cycloid.track ?? taut()?.cycloid;
-        this.curve(() => (cycloidTrack() ? this.sampled(cycloidTrack()!) : empty), GraphPalette.primaryCurve, 3, 0,
+        this.curve("cycloid", () => (cycloidTrack() ? this.sampled(cycloidTrack()!) : empty), GraphPalette.primaryCurve, 3, 0,
             () => this.mode() !== "track" || state().showCycloid);
-        this.curve(() => (track() ? this.sampled(track()!.track) : empty), GraphPalette.controlPoint, 3, 0, () => this.mode() === "track");
-        this.curve(() => {
+        this.curve("track", () => (track() ? this.sampled(track()!.track) : empty), GraphPalette.controlPoint, 3, 0, () => this.mode() === "track");
+        this.curve("polygon", () => {
             const d = track();
             return d ? {x: d.controls.map(p => p[0]), y: d.controls.map(p => -p[1])} : empty;
         }, GraphPalette.controlPolygon, 1, 1, () => this.mode() === "track");
-        this.curve(() => { const guide = taut()?.arcGuide; return guide ? this.sampled(guide) : empty; }, GraphPalette.additionalCurves[1], 2, 4,
+        this.curve("guide", () => { const guide = taut()?.arcGuide; return guide ? this.sampled(guide) : empty; }, GraphPalette.additionalCurves[1], 2, 4,
             () => this.mode() === "tautochrone" && state().showArc);
 
         // The names of the tracks, on the tracks.
@@ -644,74 +628,6 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
             }) as JXG.Point);
             this.tagText(() => String(this.beadSpecs()[i]?.tag ?? ""), () => this.beadPositions()[i] ?? [0, 0], GraphPalette.label, () => (this.beadSpecs()[i]?.tag ?? 0) > 0, 8, -12);
         }
-
-        // The captions, stacked from the top left of the screen: only the visible ones take a row. They name every element a readout names.
-        const captions: readonly {text: () => string; visible: () => boolean; color: string}[] = [
-            {text: () => t("descent_graph_cap_units", {value0: dec(G, 2)}), visible: () => true, color: GraphPalette.label},
-            {text: () => t("descent_graph_cap_bead", {value0: seconds(Math.min(this.timeValue, this.tEnd()))}), visible: () => true, color: GraphPalette.label},
-            ...(["line", "arc", "cycloid"] as const).map(id => ({
-                text: () => this.timeRow(id), visible: () => this.mode() === "race", color: this.trackColor(id),
-            })),
-            {text: () => t("descent_graph_cap_winner", {value0: t(NAME_KEYS[race()?.winner ?? "cycloid"])}), visible: () => this.mode() === "race", color: GraphPalette.label},
-            {text: () => t("descent_graph_cap_end_computed", {value0: metres(race()?.end[0] ?? 0), value1: metres(race()?.end[1] ?? 0)}), visible: () => this.mode() === "race", color: GraphPalette.label},
-            {text: () => this.timeRow("track"), visible: () => this.mode() === "track", color: this.trackColor("track")},
-            {text: () => this.timeRow("cycloid"), visible: () => this.mode() === "track" && state().showCycloid, color: this.trackColor("cycloid")},
-            {text: () => this.timeRow("line"), visible: () => this.mode() === "track", color: this.trackColor("line")},
-            {text: () => this.differenceCaption(), visible: () => this.mode() === "track" && track()?.difference !== undefined && state().showCycloid, color: GraphPalette.label},
-            {text: () => t("descent_graph_cap_closed_form", {value0: seconds(taut()?.closedForm ?? 0)}), visible: () => this.mode() === "tautochrone", color: GraphPalette.label},
-            ...[0, 1, 2].map(i => ({text: () => this.beadRow(i), visible: () => this.mode() === "tautochrone", color: GraphPalette.primaryCurve})),
-            ...[0, 1, 2].map(i => ({
-                text: () => t("descent_graph_cap_arc_row", {value0: String(i + 1), value1: seconds(taut()?.beads[i].arc?.time ?? 0)}),
-                visible: () => this.mode() === "tautochrone" && taut()?.beads[i].arc !== undefined, color: GraphPalette.additionalCurves[1],
-            })),
-        ];
-        captions.forEach((caption, index) => {
-            const row = () => captions.slice(0, index).filter(other => other.visible()).length;
-            this.text(
-                () => caption.text(),
-                () => { const {left, ux} = this.scaleOf(); return left + 10 / ux; },
-                () => { const {top, uy} = this.scaleOf(); return top - (10 + row() * 20) / uy; },
-                caption.color, caption.visible, {anchorY: "top"},
-            );
-        });
-    }
-
-    private trackColor(id: TrackName): string {
-        switch (id) {
-            case "line": return GraphPalette.comparisonCurve;
-            case "arc": return GraphPalette.additionalCurves[1];
-            case "cycloid": return GraphPalette.primaryCurve;
-            case "track": return GraphPalette.controlPoint;
-        }
-    }
-
-    /** The computed time of a named track, or undefined (a track that is not timed). */
-    private timeOf(id: TrackName): number | undefined {
-        const d = this.derived();
-        if (d.mode === "race") return id === "track" ? undefined : d.times[id];
-        if (d.mode === "track") return id === "track" ? d.time : id === "line" ? d.lineTime : id === "cycloid" ? d.cycloid.time : undefined;
-        return undefined;
-    }
-
-    private timeRow(id: TrackName): string {
-        const time = this.timeOf(id);
-        const name = t(NAME_KEYS[id]);
-        return time === undefined ? t("descent_graph_cap_no_time_row", {value0: name}) : t("descent_graph_cap_time_row", {value0: name, value1: seconds(time)});
-    }
-
-    private beadRow(i: number): string {
-        const d = this.derived();
-        if (d.mode !== "tautochrone") return "";
-        const bead = d.beads[i];
-        return bead.status === "at-bottom"
-            ? t("descent_graph_cap_bead_row_bottom", {value0: String(i + 1)})
-            : t("descent_graph_cap_bead_row", {value0: String(i + 1), value1: thetaText(bead.theta), value2: seconds(bead.time)});
-    }
-
-    private differenceCaption(): string {
-        const d = this.derived();
-        if (d.mode !== "track" || d.difference === undefined || d.differencePercent === undefined) return "";
-        return t("descent_graph_cap_difference", {value0: seconds(d.difference), value1: dec(d.differencePercent, 1)});
     }
 
     private disposeScene(): void {
@@ -722,6 +638,7 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
             if (alive.length) board.removeObject(alive);
         }
         this.objects = [];
+        this.drawnElements.clear();
         this.handles = [];
         this.tags = [];
         this.trackMemo = undefined;
@@ -784,10 +701,20 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
     /** Plays from the current time (from 0 at the end). Under reduced motion nothing moves; the slider still sets the time. */
     play(): void {
         if (this.playingValue || this.reducedMotion() || !this.hasBoard || !this.graphSession?.isAlive || !(this.tEnd() > 0)) return;
-        if (this.timeValue >= this.tEnd()) this.timeValue = 0;
+        if (this.timeValue >= this.tEnd()) {
+            this.timeValue = 0;
+            // Attribute the restart to the learner's Play before the lease starts, or the later notify would end that lease.
+            this.timeListeners.forEach(listener => listener());
+        }
         this.playingValue = true;
         this.driver = new AnimationDriver(delta => this.advance(delta), this.animationScheduler());
+        this.driver.useLease({arbiter: () => this.parameters, keys: ["descent-time"], onInterrupted: () => this.halt()});
         this.driver.play();
+        // The learner holds the time (dragging its slider): the driver did not start, so the control stays paused.
+        if (!this.driver.isRunning()) {
+            this.halt();
+            return;
+        }
         this.boardUpdate();
         this.notifyHost();
     }
@@ -837,13 +764,13 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
         if (previous.mode !== state.mode) {
             this.halt();
             this.timeValue = 0;
-            this.notice = {state, text: () => t("descent_graph_notice_reset")};
+            this.notice = {state, message: message("descent_graph_notice_reset")};
         } else {
             const end = this.tEnd();
             if (this.timeValue > end) {
                 this.halt();
                 this.timeValue = end;
-                this.notice = {state, text: () => t("descent_graph_notice_clamped", {value0: dec(end, 2)})};
+                this.notice = {state, message: message("descent_graph_notice_clamped", {value0: messageNumber(end, 2)})};
             }
         }
         this.notifyHost();
@@ -864,7 +791,7 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
         // A saved time that does not fit the run is refused, not clamped (restored values are never changed); the time is 0 and the status says so.
         this.timeValue = valid ? time : 0;
         this.reconciledFor = this.state;
-        if (time !== undefined && !valid) this.notice = {state: this.state, text: () => t("descent_graph_notice_time_refused")};
+        if (time !== undefined && !valid) this.notice = {state: this.state, message: message("descent_graph_notice_time_refused")};
         this.notifyHost();
     }
 
@@ -985,7 +912,7 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
             const arcs = d.beads.flatMap(bead => (bead.arc ? [seconds(bead.arc.time)] : []));
             if (arcs.length > 0) parts.push(t("descent_graph_sentence_arc", {value0: listText(arcs)}));
         }
-        if (this.notice && this.notice.state === this.state) parts.push(this.notice.text());
+        if (this.notice && this.notice.state === this.state) parts.push(renderMessage(this.notice.message));
         return parts.join(" ");
     }
 
@@ -1042,6 +969,157 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
         return rows;
     }
 
+    // ---- Declaration -----------------------------------------------------------------------------------------------------
+
+    /**
+     * Pure data from the state and the cached derivation. Parameters: the time (when the run has a length) and the radius where the mode has one; the cycloid and the
+     * circular arc are switch pucks where a lesson step flips them. The point rows, the times and the bead rows are the old readout rows; the legend names the tracks
+     * drawn now and the rows of a track link to its entry; the frame is the mode's frame without caption room.
+     */
+    protected override declaration(): GraphDeclaration<DescentIds> {
+        const state = this.state;
+        const d = this.derived();
+        const seconds4 = (value: number): Message => message("descent_value_seconds", {value0: messageNumber(value, 4)});
+        const quantity = (value: number, unit: "descent_graph_unit_m" | "descent_graph_unit_s" | "descent_graph_unit_rad" | "descent_graph_unit_accel", digits: number) =>
+            ({value: messageNumber(value, digits), unit: message(unit)});
+        const point = (x: number, y: number): Message => message("descent_graph_value_point", {value0: messageNumber(x, 2), value1: messageNumber(y, 2)});
+        const theta = (value: number) => (value === Math.PI ? message("descent_value_pi") : messageNumber(value, 2));
+        const notTimed = message("descent_graph_not_timed");
+        const timeOf = (id: TrackName): Message => message("descent_graph_r_time_of", {value0: message(NAME_KEYS[id])});
+        const shown = d.mode === "race" ? ["line", "arc", "cycloid"] : d.mode === "track" ? ["line", "track", "polygon", ...(state.showCycloid ? ["cycloid"] : [])] : ["cycloid", ...(state.showArc ? ["arc"] : [])];
+
+        const parameters: ParameterDeclaration<DescentIds["param"]>[] = [];
+        if (d.tEnd > 0) {
+            parameters.push({key: "descent-time", kind: "range", label: message("descent_name_time"), symbol: "t", placement: "board", min: 0, max: d.tEnd, step: TIME_STEP,
+                bigStep: TIME_BIG_STEP, maxDecimals: 2, unit: message("descent_graph_unit_s")});
+        }
+        if (d.mode !== "track") {
+            const range = FIELD_RANGES.radius;
+            parameters.push({key: "descent-radius", kind: "range", label: message("descent_name_radius"), symbol: "r", placement: "board", min: range.min, max: range.max, step: range.step,
+                bigStep: 1, maxDecimals: 2, unit: message("descent_graph_unit_m")});
+        }
+
+        const rows: ReadoutRow<DescentIds>[] = [{id: "time", name: message("descent_graph_r_time"), ...quantity(Math.min(this.timeValue, d.tEnd), "descent_graph_unit_s", 2)}];
+        if (d.mode === "race") {
+            rows.push(
+                {id: "end", name: message("descent_graph_r_end"), value: point(d.end[0], d.end[1])},
+                {id: "time-line", name: timeOf("line"), ...quantity(d.times.line, "descent_graph_unit_s", 4), legend: "line"},
+                {id: "time-arc", name: timeOf("arc"), ...quantity(d.times.arc, "descent_graph_unit_s", 4), legend: "arc"},
+                {id: "time-cycloid", name: timeOf("cycloid"), ...quantity(d.times.cycloid, "descent_graph_unit_s", 4), legend: "cycloid"},
+                {id: "winner", name: message("descent_graph_r_winner"), value: message(NAME_KEYS[d.winner])},
+                {id: "line-slower", name: message("descent_graph_r_line_slower"), value: messageNumber(d.lineSlowerPercent, 1), unit: message("descent_value_percent")},
+                {id: "radius", name: message("descent_graph_r_radius"), ...quantity(d.radius, "descent_graph_unit_m", 2)},
+            );
+        } else if (d.mode === "track") {
+            const named = (name: "descent_graph_name_b" | "descent_graph_name_p1" | "descent_graph_name_p2", x: number, y: number, id: "point-b" | "point-p1" | "point-p2"): ReadoutRow<DescentIds> =>
+                ({id, name: message("descent_graph_r_point", {value0: message(name)}), value: point(x, y)});
+            rows.push(
+                named("descent_graph_name_b", state.endX, state.endY, "point-b"), named("descent_graph_name_p1", state.p1x, state.p1y, "point-p1"),
+                named("descent_graph_name_p2", state.p2x, state.p2y, "point-p2"),
+                {id: "status", name: message("descent_graph_r_status"), value: message(d.status === "ok" ? "descent_graph_status_track_ok" : d.status === "above-start" ? "descent_graph_status_above_start" : "descent_graph_status_never_starts")},
+                {id: "time-track", name: timeOf("track"), ...(d.time === undefined ? {value: notTimed} : quantity(d.time, "descent_graph_unit_s", 4)), legend: "track"},
+                {id: "time-line", name: timeOf("line"), ...quantity(d.lineTime, "descent_graph_unit_s", 4), legend: "line"},
+                {id: "time-cycloid", name: timeOf("cycloid"), ...quantity(d.cycloid.time, "descent_graph_unit_s", 4), ...(state.showCycloid ? {legend: "cycloid" as const} : {})},
+                {id: "cycloid-theta", name: message("descent_graph_r_cycloid_theta"), ...quantity(d.cycloid.theta, "descent_graph_unit_rad", 4)},
+                {id: "cycloid-radius", name: message("descent_graph_r_cycloid_radius"), ...quantity(d.cycloid.r, "descent_graph_unit_m", 4)},
+                {id: "difference", name: message("descent_graph_r_difference"), value: d.difference === undefined || d.differencePercent === undefined ? notTimed
+                    : message("descent_graph_value_difference", {value0: seconds4(d.difference), value1: messageNumber(d.differencePercent, 1)})},
+            );
+        } else {
+            rows.push({id: "radius", name: message("descent_graph_r_radius"), ...quantity(d.radius, "descent_graph_unit_m", 2)});
+            const ids = [["bead-1", "arc-1"], ["bead-2", "arc-2"], ["bead-3", "arc-3"]] as const;
+            d.beads.forEach((bead, i) => {
+                const [beadId, arcId] = ids[i];
+                rows.push({
+                    id: beadId, name: message("descent_graph_r_bead_time", {value0: String(i + 1)}), legend: "cycloid",
+                    value: bead.status === "at-bottom" ? message("descent_graph_value_at_bottom", {value0: theta(bead.theta)})
+                        : message("descent_graph_value_bead_row", {value0: theta(bead.theta), value1: message("descent_graph_unit_rad"), value2: seconds4(bead.time)}),
+                });
+                if (bead.arc) rows.push({id: arcId, name: message("descent_graph_r_arc_time", {value0: String(i + 1)}), ...quantity(bead.arc.time, "descent_graph_unit_s", 4), legend: "arc"});
+            });
+            rows.push({id: "closed-form", name: message("descent_graph_r_closed_form"), ...quantity(d.closedForm, "descent_graph_unit_s", 4)});
+        }
+        rows.push({id: "gravity", name: message("descent_graph_r_g"), ...quantity(G, "descent_graph_unit_accel", 2)});
+
+        // The result sentences that say more than a row: the winner of the race, the track against the cycloid, the equal times of the tautochrone.
+        const notes: ReadoutNote<DescentIds>[] = [];
+        if (d.mode === "race") {
+            notes.push({id: "result", text: message("descent_graph_sentence_race", {value0: message(NAME_KEYS[d.winner]), value1: seconds4(d.times[d.winner]), value2: messageNumber(d.lineSlowerPercent, 1)})});
+        } else if (d.mode === "track" && d.status === "ok" && d.difference !== undefined && d.differencePercent !== undefined) {
+            notes.push({id: "result", text: message("descent_graph_sentence_track", {value0: seconds4(d.time ?? 0), value1: seconds4(d.difference), value2: messageNumber(d.differencePercent, 1)})});
+        } else if (d.mode === "tautochrone") {
+            const timed = d.beads.filter(bead => bead.status === "ok");
+            if (timed.length > 0 && new Set(timed.map(bead => dec(bead.time, 4))).size === 1) notes.push({id: "result", text: message("descent_graph_sentence_taut_equal", {value0: seconds4(timed[0].time)})});
+        }
+        if (this.notice && this.notice.state === state) notes.push({id: "notice", text: this.notice.message});
+        if (Math.min(this.timeValue, d.tEnd) >= d.tEnd && !this.playingValue) notes.push({id: "ended", text: message("descent_graph_status_ended")});
+        notes.push({id: "hint", text: message("descent_graph_depth_hint"), tone: "muted"});
+
+        const legend: LegendEntry<DescentIds>[] = [];
+        if (shown.includes("line")) legend.push({id: "line", label: message("descent_graph_name_line"), kind: "dashed", object: "line"});
+        if (shown.includes("arc")) legend.push({id: "arc", label: message("descent_graph_name_arc"), kind: "dashed", object: d.mode === "race" ? "arc" : "guide"});
+        if (shown.includes("track")) legend.push({id: "track", label: message("descent_graph_name_track"), kind: "line", object: "track"});
+        if (shown.includes("polygon")) legend.push({id: "polygon", label: message("descent_legend_polygon"), kind: "dashed", object: "polygon"});
+        if (shown.includes("cycloid")) legend.push({id: "cycloid", label: message("descent_graph_name_cycloid"), kind: "line", object: "cycloid"});
+
+        const actions: ActionDeclaration<DescentIds>[] = [
+            {id: "play-pause", label: message(this.playingValue ? "pause" : "play"), placement: "board", enabled: this.playingValue || (!this.reducedMotion() && d.tEnd > 0),
+                help: this.reducedMotion() ? message("playback_block_reduced_motion_time") : undefined},
+            {id: "reset-time", label: message("reset"), placement: "board", enabled: this.playingValue || this.timeValue > 0},
+        ];
+        if (d.mode === "track") actions.push({id: "show-cycloid", label: message("descent_action_cycloid"), placement: "board", enabled: true, pressed: state.showCycloid, puck: true, help: message("descent_graph_show_cycloid_help")});
+        if (d.mode === "tautochrone") actions.push({id: "show-arc", label: message("descent_action_arc"), placement: "board", enabled: true, pressed: state.showArc, puck: true, help: message("descent_graph_show_arc_help")});
+
+        const box = frameFor(state, d);
+        const marks: ViewMarks = {must: [{kind: "box", left: box[0], top: box[1], right: box[2], bottom: box[3]}]};
+        return {parameters, readouts: [{id: "values", title: message("descent_graph_readout_title"), rows}], notes, legend, actions, marks, followView: box};
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawnElements.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it. It reads the attribute only: nothing is redrawn.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp("strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    override performAction(id: string): void {
+        if (id === "play-pause") runAs("learner", () => (this.playingValue ? this.pausePlayback() : this.play()));
+        else if (id === "reset-time") runAs("learner", () => this.resetTime());
+        else if (id === "show-cycloid") runAs("learner", () => this.editToggle("showCycloid", !this.state.showCycloid));
+        else if (id === "show-arc") runAs("learner", () => this.editToggle("showArc", !this.state.showArc));
+        else throw new Error("Unknown action");
+    }
+
+    /**
+     * Parameter writes (ADR 0064). Keys: `descent-time` (the time, from 0 to the end of the run) and `descent-radius` (the radius of the race and the tautochrone, on its grid inside its
+     * range). Writers: the pucks and Orodja (`learner`), lesson actions and scenes (`lesson`). Only the time animates: Play's frames move it as `animation` under a lease; a learner or
+     * lesson write of the time ends the lease and `onInterrupted` halts the playback. A value outside the range or off the grid is a `DomainError`, never clamped.
+     */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "descent-time": {
+                read: () => this.timeValue,
+                apply: (value: unknown) => {
+                    if (typeof value !== "number" || !this.setTime(value)) throw new DomainError(message("descent_graph_time_rejected", {value0: messageNumber(this.tEnd(), 2)}));
+                },
+                subscribe: listener => {
+                    this.timeListeners.add(listener);
+                    return () => { this.timeListeners.delete(listener); };
+                },
+            },
+            "descent-radius": {
+                read: () => this.state.radius,
+                apply: (value: unknown) => {
+                    const range = FIELD_RANGES.radius;
+                    if (typeof value !== "number" || this.state.mode === "track" || !this.editNumber("radius", value)) {
+                        throw new DomainError(message("descent_graph_field_rejected", {value0: messageNumber(range.min, 2), value1: messageNumber(range.max, 2), value2: messageNumber(range.step, 2)}));
+                    }
+                },
+            },
+        };
+    }
+
     // ---- Controls -------------------------------------------------------------------------------------------------------
 
     private rangeParams(field: NumericField) {
@@ -1053,9 +1131,9 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
     /** The radius slider: typed values and drags go through `editNumber` (a drag lands on the grid anyway). */
     private radiusSlider(): JSX.Element {
         const range = FIELD_RANGES.radius;
-        return <Slider key="radius" customText={t(FIELD_LABEL_KEYS.radius)} value={this.state.radius} min={range.min} max={range.max} step={range.step} bigStep={1}
+        return <PuckOwned key="radius" param="descent-radius"><Slider customText={t(FIELD_LABEL_KEYS.radius)} value={this.state.radius} min={range.min} max={range.max} step={range.step} bigStep={1}
                        decimals={2} help={t("descent_graph_radius_help")} rejectedHint={t("descent_graph_field_rejected", this.rangeParams("radius"))}
-                       onChange={value => this.editNumber("radius", value)}/>;
+                       onChange={value => this.editNumber("radius", value)}/></PuckOwned>;
     }
 
     /**
@@ -1101,15 +1179,15 @@ export class DescentGraph extends BaseGraph<DescentGraphState, DescentState> {
         else if (state.mode === "track") {
             commands.push(
                 this.trackPoints(),
-                <BooleanField key="showCycloid" variant="switch" label={t("descent_graph_show_cycloid")} help={t("descent_graph_show_cycloid_help")}
-                              checked={state.showCycloid} onChange={on => this.editToggle("showCycloid", on)}/>,
+                <PuckOwned key="showCycloid" param="show-cycloid"><BooleanField variant="switch" label={t("descent_graph_show_cycloid")} help={t("descent_graph_show_cycloid_help")}
+                              checked={state.showCycloid} onChange={on => this.editToggle("showCycloid", on)}/></PuckOwned>,
             );
         } else {
             commands.push(
                 this.radiusSlider(),
                 this.thetaSlider("theta1", t("descent_graph_theta_help")), this.thetaSlider("theta2"), this.thetaSlider("theta3"),
-                <BooleanField key="showArc" variant="switch" label={t("descent_graph_show_arc")} help={t("descent_graph_show_arc_help")}
-                              checked={state.showArc} onChange={on => this.editToggle("showArc", on)}/>,
+                <PuckOwned key="showArc" param="show-arc"><BooleanField variant="switch" label={t("descent_graph_show_arc")} help={t("descent_graph_show_arc_help")}
+                              checked={state.showArc} onChange={on => this.editToggle("showArc", on)}/></PuckOwned>,
             );
         }
         return commands;
@@ -1144,10 +1222,10 @@ function DescentPlayback(props: {graph: DescentGraph}) {
                          onPlayPause={() => (graph.playing ? graph.pausePlayback() : graph.play())} onReset={() => graph.resetTime()}
                          {...blocks} playBlock={playBlock} describedBy={playBlock === "reduced-motion" ? {"play-pause": REDUCED_REASON_ID} : undefined}/>
         {playBlock === "reduced-motion" && <p id={REDUCED_REASON_ID} className="inspector-help">{text("playback_block_reduced_motion_time")}</p>}
-        <Slider customText={text("descent_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
+        <PuckOwned param="descent-time"><Slider customText={text("descent_graph_time_label")} min={0} max={end} step={TIME_STEP} grid={TIME_STEP} bigStep={TIME_BIG_STEP} value={time}
                 unavailableReason={runs ? undefined : noRun}
                 rejectedHint={text("descent_graph_time_rejected", {value0: params.value0})}
-                valueText={value => `${dec(value, 2)} ${text("descent_graph_unit_s")}`} onChange={value => graph.setTime(value)}/>
+                valueText={value => `${dec(value, 2)} ${text("descent_graph_unit_s")}`} onChange={value => graph.setTime(value)}/></PuckOwned>
     </div>;
 }
 
@@ -1156,11 +1234,11 @@ function DescentReadout(props: {graph: DescentGraph}) {
     const text = useT();
     const {graph} = props;
     useSyncExternalStore(graph.subscribeHost, graph.hostSnapshot);
-    return <div className="inspector-group">
+    return <div className="inspector-group" data-declared-panel="">
         <ReadoutHeading>{text("descent_graph_readout_title")}</ReadoutHeading>
-        <p data-descent-status="">{graph.statusText()}</p>
+        <p data-descent-status="" data-readout-note="">{graph.statusText()}</p>
         <ReadoutList label={text("descent_graph_readout_title")} rows={graph.readoutRows()}/>
-        <ReadoutHelp hooks={{"data-descent-hint": ""}}>{text("descent_graph_depth_hint")}</ReadoutHelp>
+        <ReadoutHelp hooks={{"data-descent-hint": "", "data-readout-note": ""}}>{text("descent_graph_depth_hint")}</ReadoutHelp>
         <LiveReadout readout={graph.status} muted={graph.playing}/>
     </div>;
 }

@@ -7,10 +7,13 @@
  * step; the numbers are listed per step in docs/reviews/feature-streams/families-prep/notes/f3-mech-a.md.
  */
 import type {LessonAction} from '../model';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {DescentIds} from '../../graphs/mechanics/DescentGraph';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const descentFrame = frameDeclarer<DescentIds>();
 
 interface StepContent {
     readonly id: string;
@@ -23,14 +26,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the frames of the step declare about the graph: the controls the text names, the rows it reads, the Orodja card it needs. */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
+        frame(`${content.id}-explanation`, 'explanation', declare),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', declare),
     ],
 });
 
@@ -138,11 +143,12 @@ const mc1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'mc1-release', order: 2,
+        declare: descentFrame({uses: ['descent-time']}),
         title: text('Spusti kroglice', 'Release the beads'),
         purpose: text('Opazovati, katera kroglica je ob izbranem času najnižje.', 'Watching which bead is lowest at a chosen time.'),
         explanation: text(
-            'Premakni drsnik časa od \\(0\\) do \\(1{,}19\\ \\mathrm{s}\\) ali pritisni Predvajaj. Pri času \\(0{,}4\\ \\mathrm{s}\\) je kroglica na premici višje kakor kroglici na loku in na cikloidi; ostali dve sta že precej globlje. Opazuj, katera kroglica prva doseže \\(B\\), in primerjaj z napovedjo.',
-            'Move the time slider from \\(0\\) to \\(1.19\\ \\mathrm{s}\\) or press Play. At time \\(0.4\\ \\mathrm{s}\\) the bead on the line is higher than the beads on the arc and on the cycloid; those two are already much deeper. Watch which bead reaches \\(B\\) first and compare with your prediction.',
+            'Premakni krmilnik Čas od \\(0\\) do \\(1{,}19\\ \\mathrm{s}\\) ali pritisni Predvajaj. Pri času \\(0{,}4\\ \\mathrm{s}\\) je kroglica na premici višje kakor kroglici na loku in na cikloidi; ostali dve sta že precej globlje. Opazuj, katera kroglica prva doseže \\(B\\), in primerjaj z napovedjo.',
+            'Move the Time control from \\(0\\) to \\(1.19\\ \\mathrm{s}\\) or press Play. At time \\(0.4\\ \\mathrm{s}\\) the bead on the line is higher than the beads on the arc and on the cycloid; those two are already much deeper. Watch which bead reaches \\(B\\) first and compare with your prediction.',
         ),
         formulaIds: [],
         observationPrompt: text('Poglej, katera kroglica je pri \\(0{,}4\\ \\mathrm{s}\\) najviše in katera prva doseže \\(B\\).', 'Look at which bead is highest at \\(0.4\\ \\mathrm{s}\\) and which reaches \\(B\\) first.'),
@@ -199,6 +205,7 @@ const mc1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'mc1-explore', order: 6,
+        declare: descentFrame({uses: ['descent-radius'], highlight: ['winner', 'line-slower']}),
         title: text('Prosto raziskovanje: polmer', 'Free exploration: the radius'),
         purpose: text('Spreminjati polmer \\(r\\) in opazovati, da se vrstni red ne spremeni.', 'Changing the radius \\(r\\) and seeing that the order does not change.'),
         explanation: text(
@@ -304,11 +311,12 @@ const mc2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'mc2-cycloid', order: 4,
+        declare: descentFrame({uses: ['show-cycloid'], highlight: ['time-cycloid', 'cycloid-theta', 'cycloid-radius']}),
         title: text('Cikloida skozi \\(A\\) in \\(B\\)', 'The cycloid through \\(A\\) and \\(B\\)'),
         purpose: text('Spoznati cikloido kot spodnjo mejo in njen čas.', 'Meeting the cycloid as the lower bound and its time.'),
         explanation: text(
-            'Nazaj k \\(B=(3{,}25;\\,2)\\ \\mathrm{m}\\). Graf nariše cikloido skozi \\(A\\) in \\(B\\) (stikalo Pokaži cikloido) in izračuna njen kot \\(\\theta_B=3{,}1947\\ \\mathrm{rad}\\), polmer \\(1{,}0007\\ \\mathrm{m}\\) in čas \\(1{,}0203\\ \\mathrm{s}\\). Cikloide ne določa mreža: graf izračuna njen kot in polmer iz \\(B\\). Cikloida skozi dve točki je brahistohrona, krivulja najhitrejšega spusta. Izrek variacijskega računa pravi, da noben tir med \\(A\\) in \\(B\\) ni hitrejši; tu ga samo navajamo.',
-            'Back to \\(B=(3.25;\\,2)\\ \\mathrm{m}\\). The graph draws the cycloid through \\(A\\) and \\(B\\) (the switch Show the cycloid) and computes its angle \\(\\theta_B=3.1947\\ \\mathrm{rad}\\), its radius \\(1.0007\\ \\mathrm{m}\\) and its time \\(1.0203\\ \\mathrm{s}\\). The grid does not fix the cycloid: the graph computes its angle and radius from \\(B\\). The cycloid through two points is the brachistochrone, the curve of fastest descent. A theorem of the calculus of variations says that no track between \\(A\\) and \\(B\\) is faster; here we only cite it.',
+            'Nazaj k \\(B=(3{,}25;\\,2)\\ \\mathrm{m}\\). Graf nariše cikloido skozi \\(A\\) in \\(B\\) (krmilnik Pokaži cikloido) in izračuna njen kot \\(\\theta_B=3{,}1947\\ \\mathrm{rad}\\), polmer \\(1{,}0007\\ \\mathrm{m}\\) in čas \\(1{,}0203\\ \\mathrm{s}\\). Cikloide ne določa mreža: graf izračuna njen kot in polmer iz \\(B\\). Cikloida skozi dve točki je brahistohrona, krivulja najhitrejšega spusta. Izrek variacijskega računa pravi, da noben tir med \\(A\\) in \\(B\\) ni hitrejši; tu ga samo navajamo.',
+            'Back to \\(B=(3.25;\\,2)\\ \\mathrm{m}\\). The graph draws the cycloid through \\(A\\) and \\(B\\) (the Show cycloid control) and computes its angle \\(\\theta_B=3.1947\\ \\mathrm{rad}\\), its radius \\(1.0007\\ \\mathrm{m}\\) and its time \\(1.0203\\ \\mathrm{s}\\). The grid does not fix the cycloid: the graph computes its angle and radius from \\(B\\). The cycloid through two points is the brachistochrone, the curve of fastest descent. A theorem of the calculus of variations says that no track between \\(A\\) and \\(B\\) is faster; here we only cite it.',
         ),
         formulaIds: ['brachistochrone'],
         workedExampleId: 'mc2-cycloid',
@@ -350,6 +358,7 @@ const mc2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'mc2-explore', order: 7,
+        declare: descentFrame({uses: ['show-cycloid'], highlight: ['time-track', 'difference']}),
         title: text('Prosto raziskovanje: premakni tudi \\(B\\)', 'Free exploration: move \\(B\\) too'),
         purpose: text('Oblikovati svoj tir in opazovati čas v primerjavi s cikloido.', 'Shaping your own track and watching the time against the cycloid.'),
         explanation: text(
@@ -432,11 +441,12 @@ const mc3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'mc3-release', order: 2,
+        declare: descentFrame({uses: ['descent-time']}),
         title: text('Spusti kroglice', 'Release the beads'),
         purpose: text('Opazovati, v kakšnem vrstnem redu kroglice pridejo na dno.', 'Watching in which order the beads reach the bottom.'),
         explanation: text(
-            'Premakni drsnik časa od \\(0\\) do konca drsnika ali pritisni Predvajaj. Opazuj, v kakšnem vrstnem redu kroglice dosežejo najnižjo točko, in primerjaj z napovedjo. Pomaga, če drsnik premikaš počasi, s korakom \\(0{,}01\\ \\mathrm{s}\\).',
-            'Move the time slider from \\(0\\) to the end of the slider or press Play. Watch in which order the beads reach the lowest point and compare with your prediction. It helps to move the slider slowly, in steps of \\(0.01\\ \\mathrm{s}\\).',
+            'Premakni krmilnik Čas od \\(0\\) do konca ali pritisni Predvajaj. Opazuj, v kakšnem vrstnem redu kroglice dosežejo najnižjo točko, in primerjaj z napovedjo. Pomaga, če ga premikaš počasi, s korakom \\(0{,}01\\ \\mathrm{s}\\).',
+            'Move the Time control from \\(0\\) to its end or press Play. Watch in which order the beads reach the lowest point and compare with your prediction. It helps to move it slowly, in steps of \\(0.01\\ \\mathrm{s}\\).',
         ),
         formulaIds: [],
         observationPrompt: text('Poglej, katera kroglica je prva v najnižji točki, in kje so kroglice ob koncu drsnika.', 'Look at which bead is first at the lowest point and where the beads are at the end of the slider.'),
@@ -468,6 +478,7 @@ const mc3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'mc3-theorem', order: 4,
+        declare: descentFrame({uses: ['descent-radius'], highlight: ['closed-form']}),
         title: text('Izrek o tavtohroni', 'The tautochrone theorem'),
         purpose: text('Povezati odčitke z izrekom in napovedati čas pri manjšem polmeru.', 'Connecting the readouts with the theorem and predicting the time for a smaller radius.'),
         explanation: text(
@@ -487,6 +498,7 @@ const mc3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'mc3-arc', order: 5,
+        declare: descentFrame({uses: ['show-arc'], highlight: ['arc-1', 'arc-2', 'arc-3']}),
         title: text('Krožni lok za primerjavo', 'The circular arc for comparison'),
         purpose: text('Primerjati čase po krožnem loku s časom po cikloidi.', 'Comparing the times along the circular arc with the time along the cycloid.'),
         explanation: text(
@@ -505,11 +517,12 @@ const mc3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'mc3-starts', order: 6,
+        declare: descentFrame({open: ['tools']}),
         title: text('Spremeni začetek', 'Change the start'),
         purpose: text('Preveriti na drugih začetkih, tudi na robovih, kaj se zgodi s časi.', 'Checking on other starts, including the edges, what happens to the times.'),
         explanation: text(
-            'Kot \\(\\theta\\) vsake kroglice spremeniš z vlečenjem kroglice po cikloidi ali z drsniki Kroglica 1: kot θ, Kroglica 2: kot θ in Kroglica 3: kot θ (ali z vnosom števila ob njih) (korak \\(0{,}05\\)). Najprej nastavi kote \\(0{,}5\\), \\(1{,}5\\) in \\(2{,}5\\) in napovej čase po cikloidi in po krožnem loku. Nato nastavi kroglico 1 na kot \\(0\\), vrh cikloide, in kroglico 3 na najnižjo točko \\(\\theta=\\pi\\); na \\(\\pi\\) prideš z vlečenjem kroglice na dno ali s tipko ↑ iz \\(3{,}1\\).',
-            'You change the angle \\(\\theta\\) of each bead by dragging the bead along the cycloid or with the sliders Bead 1: angle θ, Bead 2: angle θ and Bead 3: angle θ (or by typing a number beside them) (step \\(0.05\\)). First set the angles \\(0.5\\), \\(1.5\\) and \\(2.5\\) and predict the times along the cycloid and along the circular arc. Then set bead 1 to the angle \\(0\\), the top of the cycloid, and bead 3 to the lowest point \\(\\theta=\\pi\\); you reach \\(\\pi\\) by dragging the bead to the bottom or with the ↑ key from \\(3.1\\).',
+            'Kot \\(\\theta\\) vsake kroglice spremeniš z vlečenjem kroglice po cikloidi ali z drsniki Kroglica 1: kot θ, Kroglica 2: kot θ in Kroglica 3: kot θ v kartici Orodja (ali z vnosom števila ob njih) (korak \\(0{,}05\\)). Najprej nastavi kote \\(0{,}5\\), \\(1{,}5\\) in \\(2{,}5\\) in napovej čase po cikloidi in po krožnem loku. Nato nastavi kroglico 1 na kot \\(0\\), vrh cikloide, in kroglico 3 na najnižjo točko \\(\\theta=\\pi\\); na \\(\\pi\\) prideš z vlečenjem kroglice na dno ali s tipko ↑ iz \\(3{,}1\\).',
+            'You change the angle \\(\\theta\\) of each bead by dragging the bead along the cycloid or with the sliders Bead 1: angle θ, Bead 2: angle θ and Bead 3: angle θ in the Tools card (or by typing a number beside them) (step \\(0.05\\)). First set the angles \\(0.5\\), \\(1.5\\) and \\(2.5\\) and predict the times along the cycloid and along the circular arc. Then set bead 1 to the angle \\(0\\), the top of the cycloid, and bead 3 to the lowest point \\(\\theta=\\pi\\); you reach \\(\\pi\\) by dragging the bead to the bottom or with the ↑ key from \\(3.1\\).',
         ),
         formulaIds: [],
         observationPrompt: text('Zapiši napoved za kote \\(0{,}5\\), \\(1{,}5\\), \\(2{,}5\\), nato preberi čase in poglej še kota \\(0\\) in \\(\\pi\\).', 'Write down your prediction for the angles \\(0.5\\), \\(1.5\\), \\(2.5\\), then read the times and also look at the angles \\(0\\) and \\(\\pi\\).'),
@@ -523,6 +536,7 @@ const mc3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'mc3-explore', order: 7,
+        declare: descentFrame({open: ['tools'], uses: ['descent-radius', 'show-arc'], highlight: ['closed-form']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Spreminjati polmer, kote in krožni lok ter preizkusiti izrek.', 'Changing the radius, the angles and the circular arc, and testing the theorem.'),
         explanation: text(

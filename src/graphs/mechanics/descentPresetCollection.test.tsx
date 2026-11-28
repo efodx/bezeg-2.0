@@ -6,6 +6,7 @@ import type {PresetDataCheck} from '../base/presets/PresetCollection';
 import {installBoardShims} from '../base/realGraphTestHarness';
 import {renderMessage, setLanguage} from '../../localization';
 import {DEFAULT_DESCENT_STATE, serializeDescentState, type DescentState} from '../../mechanics/trackModel';
+import {runAs} from '../base/writes/writeSource';
 import {DescentGraph} from './DescentGraph';
 import {descentPresetCollection} from './descentPresetCollection';
 
@@ -26,7 +27,7 @@ const track: DescentState = {...DEFAULT_DESCENT_STATE, mode: 'track', endX: 4.5,
 describe('mechanics-descent Preset collection', () => {
     test.each([['the default', DEFAULT_DESCENT_STATE], ['a tautochrone with the arc', tautochrone], ['a track without the cycloid', track]])('%s round-trips through the file check and a fresh graph', (_name, state) => {
         const source = mountGraph(new DescentGraph());
-        act(() => { source.setState(state); });
+        act(() => { runAs('learner', () => { source.setState(state); }); });
         const preset = json(source.exportPreset());
         expect(preset.id).toBe('mechanics-descent');
         expect(preset.data).toEqual(serializeDescentState(state));
@@ -34,7 +35,7 @@ describe('mechanics-descent Preset collection', () => {
         expect(descentPresetCollection().check(preset.data)).toEqual({data: serializeDescentState(state)});
 
         const fresh = mountGraph(new DescentGraph());
-        act(() => { fresh.importPreset(preset); });
+        act(() => { runAs('learner', () => { fresh.importPreset(preset); }); });
         expect(serializeDescentState(fresh.state)).toEqual(serializeDescentState(state));
         expect(fresh.playing).toBe(false);
         expect(fresh.time).toBe(0);
@@ -61,10 +62,10 @@ describe('a Preset file with a stored view keeps that view', () => {
 
     test('the stored boardState is kept with data that frames another view', () => {
         const source = mountGraph(new ViewedGraph());
-        act(() => { source.setState(tautochrone); });
+        act(() => { runAs('learner', () => { source.setState(tautochrone); }); });
         const preset = {...json(source.exportPreset()), boardState: {boundingBox: view}};
         const fresh = mountGraph(new ViewedGraph());
-        act(() => { fresh.importPreset(preset); });
+        act(() => { runAs('learner', () => { fresh.importPreset(preset); }); });
         expect(fresh.state.mode).toBe('tautochrone');
         expect(fresh.liveBoard().getBoundingBox().map(v => Number(v.toFixed(3)))).toEqual(view);
     });

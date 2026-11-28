@@ -1,0 +1,1039 @@
+{
+  "graph": "mechanics-descent",
+  "language": "sl",
+  "states": [
+    {
+      "name": "race, t = 0",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0 s"
+        },
+        {
+          "key": "Konec B (izračunan)#0",
+          "label": "Konec B (izračunan)",
+          "value": "(3,14; 2) m"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,189 s"
+        },
+        {
+          "key": "Čas spusta: Krožni lok (izračunano)#0",
+          "label": "Čas spusta: Krožni lok (izračunano)",
+          "value": "1,0285 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Najhitrejša#0",
+          "label": "Najhitrejša",
+          "value": "Cikloida"
+        },
+        {
+          "key": "Premica je počasnejša za#0",
+          "label": "Premica je počasnejša za",
+          "value": "18,5 %"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 0 s. Najhitrejša je Cikloida s časom 1,003 s; premica je počasnejša za 18,5 %.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "Cikloida",
+        "Cikloida: 1,003 s",
+        "Konec B (izračunan): (3,14; 2)",
+        "Kroglica: 0 s",
+        "Krožni lok",
+        "Krožni lok: 1,0285 s",
+        "Najhitrejša: Cikloida",
+        "Premica",
+        "Premica: 1,189 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "race, t = 0,4",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0,4 s"
+        },
+        {
+          "key": "Konec B (izračunan)#0",
+          "label": "Konec B (izračunan)",
+          "value": "(3,14; 2) m"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,189 s"
+        },
+        {
+          "key": "Čas spusta: Krožni lok (izračunano)#0",
+          "label": "Čas spusta: Krožni lok (izračunano)",
+          "value": "1,0285 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Najhitrejša#0",
+          "label": "Najhitrejša",
+          "value": "Cikloida"
+        },
+        {
+          "key": "Premica je počasnejša za#0",
+          "label": "Premica je počasnejša za",
+          "value": "18,5 %"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 0,4 s. Najhitrejša je Cikloida s časom 1,003 s; premica je počasnejša za 18,5 %.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "Cikloida",
+        "Cikloida: 1,003 s",
+        "Konec B (izračunan): (3,14; 2)",
+        "Kroglica: 0,4 s",
+        "Krožni lok",
+        "Krožni lok: 1,0285 s",
+        "Najhitrejša: Cikloida",
+        "Premica",
+        "Premica: 1,189 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "race, the run ended",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "1,19 s"
+        },
+        {
+          "key": "Konec B (izračunan)#0",
+          "label": "Konec B (izračunan)",
+          "value": "(3,14; 2) m"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,189 s"
+        },
+        {
+          "key": "Čas spusta: Krožni lok (izračunano)#0",
+          "label": "Čas spusta: Krožni lok (izračunano)",
+          "value": "1,0285 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Najhitrejša#0",
+          "label": "Najhitrejša",
+          "value": "Cikloida"
+        },
+        {
+          "key": "Premica je počasnejša za#0",
+          "label": "Premica je počasnejša za",
+          "value": "18,5 %"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 1,19 s. Najhitrejša je Cikloida s časom 1,003 s; premica je počasnejša za 18,5 %. Spust je končan.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "Cikloida",
+        "Cikloida: 1,003 s",
+        "Konec B (izračunan): (3,14; 2)",
+        "Kroglica: 1,19 s",
+        "Krožni lok",
+        "Krožni lok: 1,0285 s",
+        "Najhitrejša: Cikloida",
+        "Premica",
+        "Premica: 1,189 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "race, r = 2, t = 1",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "1 s"
+        },
+        {
+          "key": "Konec B (izračunan)#0",
+          "label": "Konec B (izračunan)",
+          "value": "(6,28; 4) m"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,6816 s"
+        },
+        {
+          "key": "Čas spusta: Krožni lok (izračunano)#0",
+          "label": "Čas spusta: Krožni lok (izračunano)",
+          "value": "1,4545 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,4185 s"
+        },
+        {
+          "key": "Najhitrejša#0",
+          "label": "Najhitrejša",
+          "value": "Cikloida"
+        },
+        {
+          "key": "Premica je počasnejša za#0",
+          "label": "Premica je počasnejša za",
+          "value": "18,5 %"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "2 m"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 1 s. Najhitrejša je Cikloida s časom 1,4185 s; premica je počasnejša za 18,5 %.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "$$B$$",
+        "Cikloida",
+        "Cikloida: 1,4185 s",
+        "Konec B (izračunan): (6,28; 4)",
+        "Kroglica: 1 s",
+        "Krožni lok",
+        "Krožni lok: 1,4545 s",
+        "Najhitrejša: Cikloida",
+        "Premica",
+        "Premica: 1,6816 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "track, t = 0",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0 s"
+        },
+        {
+          "key": "Točka B#0",
+          "label": "Točka B",
+          "value": "(3,25; 2) m"
+        },
+        {
+          "key": "Točka P1#0",
+          "label": "Točka P1",
+          "value": "(0,5; 2) m"
+        },
+        {
+          "key": "Točka P2#0",
+          "label": "Točka P2",
+          "value": "(2; 2,5) m"
+        },
+        {
+          "key": "Stanje tira#0",
+          "label": "Stanje tira",
+          "value": "Tir je dopusten."
+        },
+        {
+          "key": "Čas spusta: Tir (izračunano)#0",
+          "label": "Čas spusta: Tir (izračunano)",
+          "value": "1,0366 s"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,2184 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,0203 s"
+        },
+        {
+          "key": "Kot θ cikloide do konca#0",
+          "label": "Kot θ cikloide do konca",
+          "value": "3,1947 rad"
+        },
+        {
+          "key": "Polmer cikloide#0",
+          "label": "Polmer cikloide",
+          "value": "1,0007 m"
+        },
+        {
+          "key": "Razlika do cikloide (izračunana)#0",
+          "label": "Razlika do cikloide (izračunana)",
+          "value": "0,0163 s (1,6 %)"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 0 s. Čas spusta po tiru je 1,0366 s; cikloida je hitrejša za 0,0163 s (1,6 %). Konec B je (3,25; 2), točka P1 je (0,5; 2), točka P2 je (2; 2,5); drugo število je globina.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "B (3,25; 2)",
+        "Cikloida",
+        "Cikloida: 1,0203 s",
+        "Kroglica: 0 s",
+        "P1 (0,5; 2)",
+        "P2 (2; 2,5)",
+        "Premica",
+        "Premica: 1,2184 s",
+        "Razlika do cikloide: 0,0163 s (1,6 %)",
+        "Tir",
+        "Tir: 1,0366 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "track, bent, cycloid hidden, t = 0,5",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0,5 s"
+        },
+        {
+          "key": "Točka B#0",
+          "label": "Točka B",
+          "value": "(3,25; 2) m"
+        },
+        {
+          "key": "Točka P1#0",
+          "label": "Točka P1",
+          "value": "(0,25; 1,5) m"
+        },
+        {
+          "key": "Točka P2#0",
+          "label": "Točka P2",
+          "value": "(1,5; 2,5) m"
+        },
+        {
+          "key": "Stanje tira#0",
+          "label": "Stanje tira",
+          "value": "Tir je dopusten."
+        },
+        {
+          "key": "Čas spusta: Tir (izračunano)#0",
+          "label": "Čas spusta: Tir (izračunano)",
+          "value": "1,0331 s"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,2184 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,0203 s"
+        },
+        {
+          "key": "Kot θ cikloide do konca#0",
+          "label": "Kot θ cikloide do konca",
+          "value": "3,1947 rad"
+        },
+        {
+          "key": "Polmer cikloide#0",
+          "label": "Polmer cikloide",
+          "value": "1,0007 m"
+        },
+        {
+          "key": "Razlika do cikloide (izračunana)#0",
+          "label": "Razlika do cikloide (izračunana)",
+          "value": "0,0127 s (1,2 %)"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 0,5 s. Čas spusta po tiru je 1,0331 s; cikloida je hitrejša za 0,0127 s (1,2 %). Konec B je (3,25; 2), točka P1 je (0,25; 1,5), točka P2 je (1,5; 2,5); drugo število je globina.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "B (3,25; 2)",
+        "Kroglica: 0,5 s",
+        "P1 (0,25; 1,5)",
+        "P2 (1,5; 2,5)",
+        "Premica",
+        "Premica: 1,2184 s",
+        "Tir",
+        "Tir: 1,0331 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "track, a straight line, t = 0,8",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0,8 s"
+        },
+        {
+          "key": "Točka B#0",
+          "label": "Točka B",
+          "value": "(3; 1,5) m"
+        },
+        {
+          "key": "Točka P1#0",
+          "label": "Točka P1",
+          "value": "(1; 0,5) m"
+        },
+        {
+          "key": "Točka P2#0",
+          "label": "Točka P2",
+          "value": "(2; 1) m"
+        },
+        {
+          "key": "Stanje tira#0",
+          "label": "Stanje tira",
+          "value": "Tir je dopusten."
+        },
+        {
+          "key": "Čas spusta: Tir (izračunano)#0",
+          "label": "Čas spusta: Tir (izračunano)",
+          "value": "1,2365 s"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,2365 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "0,9866 s"
+        },
+        {
+          "key": "Kot θ cikloide do konca#0",
+          "label": "Kot θ cikloide do konca",
+          "value": "3,5084 rad"
+        },
+        {
+          "key": "Polmer cikloide#0",
+          "label": "Polmer cikloide",
+          "value": "0,7758 m"
+        },
+        {
+          "key": "Razlika do cikloide (izračunana)#0",
+          "label": "Razlika do cikloide (izračunana)",
+          "value": "0,2499 s (25,3 %)"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 0,8 s. Čas spusta po tiru je 1,2365 s; cikloida je hitrejša za 0,2499 s (25,3 %). Konec B je (3; 1,5), točka P1 je (1; 0,5), točka P2 je (2; 1); drugo število je globina.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "B (3; 1,5)",
+        "Cikloida",
+        "Cikloida: 0,9866 s",
+        "Kroglica: 0,8 s",
+        "P1 (1; 0,5)",
+        "P2 (2; 1)",
+        "Premica",
+        "Premica: 1,2365 s",
+        "Razlika do cikloide: 0,2499 s (25,3 %)",
+        "Tir",
+        "Tir: 1,2365 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "track, horizontal start (never slides)",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0 s"
+        },
+        {
+          "key": "Točka B#0",
+          "label": "Točka B",
+          "value": "(3,25; 2) m"
+        },
+        {
+          "key": "Točka P1#0",
+          "label": "Točka P1",
+          "value": "(1; 0) m"
+        },
+        {
+          "key": "Točka P2#0",
+          "label": "Točka P2",
+          "value": "(2; 2,5) m"
+        },
+        {
+          "key": "Stanje tira#0",
+          "label": "Stanje tira",
+          "value": "Kroglica na tem tiru ne zdrsne. Čas ni izračunan."
+        },
+        {
+          "key": "Čas spusta: Tir (izračunano)#0",
+          "label": "Čas spusta: Tir (izračunano)",
+          "value": "brez časa"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,2184 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,0203 s"
+        },
+        {
+          "key": "Kot θ cikloide do konca#0",
+          "label": "Kot θ cikloide do konca",
+          "value": "3,1947 rad"
+        },
+        {
+          "key": "Polmer cikloide#0",
+          "label": "Polmer cikloide",
+          "value": "1,0007 m"
+        },
+        {
+          "key": "Razlika do cikloide (izračunana)#0",
+          "label": "Razlika do cikloide (izračunana)",
+          "value": "brez časa"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 0 s. Kroglica na tem tiru ne zdrsne. Čas ni izračunan. Konec B je (3,25; 2), točka P1 je (1; 0), točka P2 je (2; 2,5); drugo število je globina.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "B (3,25; 2)",
+        "Cikloida",
+        "Cikloida: 1,0203 s",
+        "Kroglica: 0 s",
+        "P1 (1; 0)",
+        "P2 (2; 2,5)",
+        "Premica",
+        "Premica: 1,2184 s",
+        "Tir",
+        "Tir: brez časa",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "track, a control point above A",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0 s"
+        },
+        {
+          "key": "Točka B#0",
+          "label": "Točka B",
+          "value": "(3,25; 2) m"
+        },
+        {
+          "key": "Točka P1#0",
+          "label": "Točka P1",
+          "value": "(1; -0,5) m"
+        },
+        {
+          "key": "Točka P2#0",
+          "label": "Točka P2",
+          "value": "(2; 2,5) m"
+        },
+        {
+          "key": "Stanje tira#0",
+          "label": "Stanje tira",
+          "value": "Kontrolna točka leži nad začetkom A; čas računamo le, ko nobena ne leži nad njim. Čas ni izračunan."
+        },
+        {
+          "key": "Čas spusta: Tir (izračunano)#0",
+          "label": "Čas spusta: Tir (izračunano)",
+          "value": "brez časa"
+        },
+        {
+          "key": "Čas spusta: Premica (izračunano)#0",
+          "label": "Čas spusta: Premica (izračunano)",
+          "value": "1,2184 s"
+        },
+        {
+          "key": "Čas spusta: Cikloida (izračunano)#0",
+          "label": "Čas spusta: Cikloida (izračunano)",
+          "value": "1,0203 s"
+        },
+        {
+          "key": "Kot θ cikloide do konca#0",
+          "label": "Kot θ cikloide do konca",
+          "value": "3,1947 rad"
+        },
+        {
+          "key": "Polmer cikloide#0",
+          "label": "Polmer cikloide",
+          "value": "1,0007 m"
+        },
+        {
+          "key": "Razlika do cikloide (izračunana)#0",
+          "label": "Razlika do cikloide (izračunana)",
+          "value": "brez časa"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 0 s. Kontrolna točka leži nad začetkom A; čas računamo le, ko nobena ne leži nad njim. Čas ni izračunan. Konec B je (3,25; 2), točka P1 je (1; -0,5), točka P2 je (2; 2,5); drugo število je globina.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "$$A$$",
+        "B (3,25; 2)",
+        "Cikloida",
+        "Cikloida: 1,0203 s",
+        "Kroglica: 0 s",
+        "P1 (1; -0,5)",
+        "P2 (2; 2,5)",
+        "Premica",
+        "Premica: 1,2184 s",
+        "Tir",
+        "Tir: brez časa",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "tautochrone, t = 0",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0 s"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Kroglica 1: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 1: čas po cikloidi (izračunan)",
+          "value": "θ = 0,3 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 2: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 2: čas po cikloidi (izračunan)",
+          "value": "θ = 1 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 3: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 3: čas po cikloidi (izračunan)",
+          "value": "θ = 2 rad: 1,003 s"
+        },
+        {
+          "key": "Zaprta formula π√(r/g) (izračunana)#0",
+          "label": "Zaprta formula π√(r/g) (izračunana)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 0 s. Vse kroglice na cikloidi pridejo na dno po istem času, 1,003 s.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "3",
+        "Cikloida",
+        "Kroglica 1",
+        "Kroglica 1, θ = 0,3: 1,003 s",
+        "Kroglica 2",
+        "Kroglica 2, θ = 1: 1,003 s",
+        "Kroglica 3",
+        "Kroglica 3, θ = 2: 1,003 s",
+        "Kroglica: 0 s",
+        "Zaprta formula: 1,003 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "tautochrone, t = 0,5",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0,5 s"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Kroglica 1: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 1: čas po cikloidi (izračunan)",
+          "value": "θ = 0,3 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 2: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 2: čas po cikloidi (izračunan)",
+          "value": "θ = 1 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 3: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 3: čas po cikloidi (izračunan)",
+          "value": "θ = 2 rad: 1,003 s"
+        },
+        {
+          "key": "Zaprta formula π√(r/g) (izračunana)#0",
+          "label": "Zaprta formula π√(r/g) (izračunana)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 0,5 s. Vse kroglice na cikloidi pridejo na dno po istem času, 1,003 s.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "3",
+        "Cikloida",
+        "Kroglica 1",
+        "Kroglica 1, θ = 0,3: 1,003 s",
+        "Kroglica 2",
+        "Kroglica 2, θ = 1: 1,003 s",
+        "Kroglica 3",
+        "Kroglica 3, θ = 2: 1,003 s",
+        "Kroglica: 0,5 s",
+        "Zaprta formula: 1,003 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "tautochrone, circular arc shown, t = 0,7",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0,7 s"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Kroglica 1: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 1: čas po cikloidi (izračunan)",
+          "value": "θ = 0,3 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 1: čas po krožnem loku (izračunan)#0",
+          "label": "Kroglica 1: čas po krožnem loku (izračunan)",
+          "value": "1,0745 s"
+        },
+        {
+          "key": "Kroglica 2: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 2: čas po cikloidi (izračunan)",
+          "value": "θ = 1 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 2: čas po krožnem loku (izračunan)#0",
+          "label": "Kroglica 2: čas po krožnem loku (izračunan)",
+          "value": "1,0574 s"
+        },
+        {
+          "key": "Kroglica 3: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 3: čas po cikloidi (izračunan)",
+          "value": "θ = 2 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 3: čas po krožnem loku (izračunan)#0",
+          "label": "Kroglica 3: čas po krožnem loku (izračunan)",
+          "value": "1,0221 s"
+        },
+        {
+          "key": "Zaprta formula π√(r/g) (izračunana)#0",
+          "label": "Zaprta formula π√(r/g) (izračunana)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 0,7 s. Vse kroglice na cikloidi pridejo na dno po istem času, 1,003 s. Časi po krožnem loku: 1,0745 s, 1,0574 s, 1,0221 s.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "1",
+        "2",
+        "2",
+        "3",
+        "3",
+        "Cikloida",
+        "Kroglica 1",
+        "Kroglica 1 po krožnem loku: 1,0745 s",
+        "Kroglica 1, θ = 0,3: 1,003 s",
+        "Kroglica 2",
+        "Kroglica 2 po krožnem loku: 1,0574 s",
+        "Kroglica 2, θ = 1: 1,003 s",
+        "Kroglica 3",
+        "Kroglica 3 po krožnem loku: 1,0221 s",
+        "Kroglica 3, θ = 2: 1,003 s",
+        "Kroglica: 0,7 s",
+        "Krožni lok",
+        "Zaprta formula: 1,003 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "tautochrone, r = 0,25, t = 0,5",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0,5 s"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "0,25 m"
+        },
+        {
+          "key": "Kroglica 1: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 1: čas po cikloidi (izračunan)",
+          "value": "θ = 0,3 rad: 0,5015 s"
+        },
+        {
+          "key": "Kroglica 2: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 2: čas po cikloidi (izračunan)",
+          "value": "θ = 1 rad: 0,5015 s"
+        },
+        {
+          "key": "Kroglica 3: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 3: čas po cikloidi (izračunan)",
+          "value": "θ = 2 rad: 0,5015 s"
+        },
+        {
+          "key": "Zaprta formula π√(r/g) (izračunana)#0",
+          "label": "Zaprta formula π√(r/g) (izračunana)",
+          "value": "0,5015 s"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 0,5 s. Vse kroglice na cikloidi pridejo na dno po istem času, 0,5015 s. Čas je bil omejen na konec spusta, 0,51 s.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "2",
+        "3",
+        "Cikloida",
+        "Kroglica 1",
+        "Kroglica 1, θ = 0,3: 0,5015 s",
+        "Kroglica 2",
+        "Kroglica 2, θ = 1: 0,5015 s",
+        "Kroglica 3",
+        "Kroglica 3, θ = 2: 0,5015 s",
+        "Kroglica: 0,5 s",
+        "Zaprta formula: 0,5015 s",
+        "g = 9,81 m/s²"
+      ]
+    },
+    {
+      "name": "tautochrone, beads at the edges",
+      "rows": [
+        {
+          "key": "Čas#0",
+          "label": "Čas",
+          "value": "0,3 s"
+        },
+        {
+          "key": "Polmer r#0",
+          "label": "Polmer r",
+          "value": "1 m"
+        },
+        {
+          "key": "Kroglica 1: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 1: čas po cikloidi (izračunan)",
+          "value": "θ = 0 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 1: čas po krožnem loku (izračunan)#0",
+          "label": "Kroglica 1: čas po krožnem loku (izračunan)",
+          "value": "1,0764 s"
+        },
+        {
+          "key": "Kroglica 2: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 2: čas po cikloidi (izračunan)",
+          "value": "θ = π: že v najnižji točki"
+        },
+        {
+          "key": "Kroglica 3: čas po cikloidi (izračunan)#0",
+          "label": "Kroglica 3: čas po cikloidi (izračunan)",
+          "value": "θ = 0,5 rad: 1,003 s"
+        },
+        {
+          "key": "Kroglica 3: čas po krožnem loku (izračunan)#0",
+          "label": "Kroglica 3: čas po krožnem loku (izračunan)",
+          "value": "1,0712 s"
+        },
+        {
+          "key": "Zaprta formula π√(r/g) (izračunana)#0",
+          "label": "Zaprta formula π√(r/g) (izračunana)",
+          "value": "1,003 s"
+        },
+        {
+          "key": "Težni pospešek g#0",
+          "label": "Težni pospešek g",
+          "value": "9,81 m/s²"
+        }
+      ],
+      "notes": [
+        "Čas 0,3 s. Vse kroglice na cikloidi pridejo na dno po istem času, 1,003 s. Kroglice, ki so že v najnižji točki: 2. Časi po krožnem loku: 1,0764 s, 1,0712 s.",
+        "Navpična os kaže negativno globino: točka na višini -2 je 2 m pod začetkom A."
+      ],
+      "outputs": [],
+      "captions": [
+        "1",
+        "1",
+        "2",
+        "3",
+        "3",
+        "Cikloida",
+        "Kroglica 1",
+        "Kroglica 1 po krožnem loku: 1,0764 s",
+        "Kroglica 1, θ = 0: 1,003 s",
+        "Kroglica 2",
+        "Kroglica 2: že v najnižji točki",
+        "Kroglica 3",
+        "Kroglica 3 po krožnem loku: 1,0712 s",
+        "Kroglica 3, θ = 0,5: 1,003 s",
+        "Kroglica: 0,3 s",
+        "Krožni lok",
+        "Zaprta formula: 1,003 s",
+        "g = 9,81 m/s²"
+      ]
+    }
+  ]
+}

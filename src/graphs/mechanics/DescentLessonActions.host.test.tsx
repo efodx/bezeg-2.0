@@ -7,6 +7,7 @@ import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
 import {enterNumber} from '../../inputs/testEntry';
 import type {DescentMode, NumericField} from '../../mechanics/trackModel';
+import {runAs} from '../base/writes/writeSource';
 import {DescentGraph} from './DescentGraph';
 
 beforeAll(installBoardShims);
@@ -17,8 +18,13 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
+/** The graph mounted last: the time and radius pucks and the two switch pucks are the learner's writes of it. */
+let current!: DescentGraph;
+const learner = <T,>(work: () => T): T => { let result!: T; act(() => { result = runAs('learner', work); }); return result; };
+
 const mount = (): DescentGraph => {
     const graph = new DescentGraph();
+    current = graph;
     render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     return graph;
 };
@@ -28,10 +34,13 @@ const setMode = (mode: DescentMode): LessonAction => ({kind: 'descent', operatio
 const setTime = (value: number): LessonAction => ({kind: 'descent', operation: 'set-time', t: value});
 const setParams = (params: Omit<ParamsAction, 'kind' | 'operation'>): LessonAction => ({kind: 'descent', operation: 'set-params', ...params});
 const field = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
-const type = (name: NumericField, value: string) => act(() => { enterNumber(field(fieldName(name)), value); });
-const toggle = (key: 'descent_graph_show_cycloid' | 'descent_graph_show_arc') => act(() => { fireEvent.click(field(t(key))); });
+const type = (name: NumericField, value: string) => {
+    if (name === 'radius') learner(() => current.editNumber('radius', Number(value.replace(',', '.')))); // the radius is a puck
+    else act(() => { enterNumber(field(fieldName(name)), value); });
+};
+const toggle = (key: 'descent_graph_show_cycloid' | 'descent_graph_show_arc') => learner(() => current.performAction(key === 'descent_graph_show_cycloid' ? 'show-cycloid' : 'show-arc'));
 const choose = (mode: DescentMode) => act(() => { fireEvent.change(field(t('descent_graph_mode_label')), {target: {value: mode}}); });
-const slide = (value: number) => act(() => { fireEvent.change(screen.getByRole('slider', {name: t('descent_graph_time_label')}), {target: {value: String(value)}}); });
+const slide = (value: number) => learner(() => current.setTime(value)); // the time puck
 const readouts = () => [...document.querySelectorAll('[data-readout]')].map(node => `${node.getAttribute('data-readout')}=${node.querySelector('dd')?.textContent}`);
 const status = () => document.querySelector('[data-descent-status]')?.textContent;
 const stateOf = (graph: DescentGraph) => JSON.parse(JSON.stringify({...graph.state, time: graph.time, playing: graph.playing})) as Record<string, unknown>;

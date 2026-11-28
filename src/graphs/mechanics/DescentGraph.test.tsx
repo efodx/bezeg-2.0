@@ -5,14 +5,16 @@ import {MemoryRouter} from 'react-router-dom';
 import JXG from 'jsxgraph';
 import {expectHandleHitZones} from '../base/handleHitZoneBehaviour';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, settle} from '../base/realGraphTestHarness';
-import {setLanguage, t} from '../../localization';
+import {installBoardShims, puckControl, waitForPucks} from '../base/realGraphTestHarness';
+import {renderMessage, setLanguage, t, type Message} from '../../localization';
+import {runAs} from '../base/writes/writeSource';
+import type {GraphDeclaration} from '../base/declare/graphDeclaration';
 import {enterNumber} from '../../inputs/testEntry';
 import type {TransientState} from '../base/BaseGraph';
 import type {AnimationScheduler} from '../../learning/runtime/animation';
 import {deriveDescent, FIELD_RANGES, type DescentMode, type NumericField, type RaceDerived, type TautochroneDerived} from '../../mechanics/trackModel';
 import {DEFAULT_DESCENT_STATE} from '../../mechanics/trackModel';
-import {DescentGraph, HANDLE_TOUCH_RADIUS, MAX_FRAME_MS, TIME_STEP} from './DescentGraph';
+import {DescentGraph, frameFor, HANDLE_TOUCH_RADIUS, MAX_FRAME_MS, TIME_STEP, type DescentIds} from './DescentGraph';
 
 beforeAll(installBoardShims);
 beforeEach(() => setLanguage('sl'));
@@ -39,8 +41,15 @@ class ObservedGraph extends DescentGraph {
     restore(saved: TransientState | undefined) { this.restoreTransientState(saved); }
 }
 
+/** The graph mounted last: the typed radius and the time are the learner's writes of it, as the pucks make them. */
+let current!: ObservedGraph;
+const learner = <T,>(work: () => T): T => { let result!: T; act(() => { result = runAs('learner', work); }); return result; };
+/** A lesson action or a restored checkpoint writes as the lesson. */
+const lesson = <T,>(work: () => T): T => { let result!: T; act(() => { result = runAs('lesson', work); }); return result; };
+
 function mountGraph(strict = false) {
     const graph = new ObservedGraph();
+    current = graph;
     const tree = <MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>;
     const view = render(strict ? <React.StrictMode>{tree}</React.StrictMode> : tree);
     return {graph, view};
@@ -50,8 +59,17 @@ const field = (label: string) => screen.getByLabelText(label) as HTMLInputElemen
 const readout = (id: string) => document.querySelector(`[data-readout="${id}"] dd`)?.textContent;
 const labelOf = (id: string) => document.querySelector(`[data-readout="${id}"] dt`)?.textContent;
 const press = (label: string) => act(() => { fireEvent.click(screen.getByRole('button', {name: label})); });
-const enter = (label: string, value: string) => act(() => { enterNumber(field(label), value); });
-const slider = () => screen.getByRole('slider', {name: t('descent_graph_time_label')}) as HTMLInputElement;
+/** A typed entry (comma or point). The radius is a puck now, written through the arbiter as the learner; the points and thetas are fields in Orodja. */
+const enter = (label: string, value: string): boolean => {
+    if (label === fieldName('radius')) return learner(() => current.editNumber('radius', Number(value.replace(',', '.'))));
+    act(() => { enterNumber(field(label), value); });
+    return true;
+};
+/** The time puck's own slider (the strip lays out after the first render). */
+const slider = async (): Promise<HTMLElement> => { await waitForPucks('descent-time'); return puckControl('descent-time'); };
+const declared = (graph: ObservedGraph) => graph.getDeclaration() as GraphDeclaration<DescentIds>;
+const legendTexts = (graph: ObservedGraph) => (declared(graph).legend ?? []).map(entry => renderMessage(entry.label));
+const noteTexts = (graph: ObservedGraph) => (declared(graph).notes ?? []).map(note => renderMessage(note.text));
 const status = () => document.querySelector('[data-descent-status]')!.textContent!;
 const live = () => document.querySelector('[data-readout-live]')!.textContent!;
 const noBadText = () => expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
@@ -86,9 +104,7 @@ function dragHandleTo(point: JXG.Point, x: number, y: number) {
 const [END, P1, P2, TH1, TH2, TH3] = [0, 1, 2, 3, 4, 5];
 
 function go(graph: ObservedGraph, time: number): boolean {
-    let accepted = false;
-    act(() => { accepted = graph.setTime(time); });
-    return accepted;
+    return learner(() => graph.setTime(time));
 }
 function run(graph: ObservedGraph, limit = 600) {
     let time = 0;
@@ -142,15 +158,20 @@ describe('mount and the drawing, per mode', () => {
         }
     });
 
-    test('the race names each track and its computed time on the board; the winner and the computed end too', () => {
+    test('the race: the computed times, the winner and the end are declared rows, the tracks are named on the board and in the legend, and no caption repeats a row', () => {
         const {graph} = mountGraph();
         const texts = captionTexts(graph);
-        expect(texts).toContain(t('descent_graph_cap_time_row', {value0: t('descent_graph_name_cycloid'), value1: '1,003 s'}));
-        expect(texts).toContain(t('descent_graph_cap_time_row', {value0: t('descent_graph_name_line'), value1: '1,189 s'}));
-        expect(texts).toContain(t('descent_graph_cap_winner', {value0: t('descent_graph_name_cycloid')}));
-        expect(texts).toContain(t('descent_graph_cap_end_computed', {value0: '3,14', value1: '2'}));
-        expect(texts).toContain(t('descent_graph_cap_units', {value0: '9,81'}));
-        for (const name of ['line', 'arc', 'cycloid'] as const) expect(texts).toContain(t(`descent_graph_name_${name}`));
+        expect(readout('time-cycloid')).toBe('1,003 s');
+        expect(readout('time-line')).toBe('1,189 s');
+        expect(readout('winner')).toBe(t('descent_graph_name_cycloid'));
+        expect(readout('end')).toBe('(3,14; 2) m');
+        expect(readout('gravity')).toBe('9,81 m/s²');
+        expect(noteTexts(graph)[0]).toContain(t('descent_graph_name_cycloid'));
+        for (const name of ['line', 'arc', 'cycloid'] as const) {
+            expect(texts).toContain(t(`descent_graph_name_${name}`));
+            expect(legendTexts(graph)).toContain(t(`descent_graph_name_${name}`));
+        }
+        for (const text of texts) expect(text, 'a caption sentence').not.toMatch(/[:=] /);
         // the start and end tags are point names, typeset
         expect(texts).toEqual(expect.arrayContaining(['$$A$$', '$$B$$']));
     });
@@ -181,7 +202,7 @@ describe('mount and the drawing, per mode', () => {
             expect(cycloid.cycloid.time).toBeLessThan(hand);
             expect(lastOf(drawn[CYCLOID].dataX)).toBeCloseTo(3, 6);
         }
-        expect(captionTexts(graph)).toContain(t('descent_graph_cap_time_row', {value0: t('descent_graph_name_track'), value1: '1,2365 s'}));
+        expect(legendTexts(graph)).toContain(t('descent_graph_name_track'));
     });
 
     test('an inadmissible track shows a status and no time, anywhere: not in the readout, the captions or the sentence', () => {
@@ -195,9 +216,8 @@ describe('mount and the drawing, per mode', () => {
         expect(readout('status')).toMatch(/Čas ni izračunan/);
         expect(readout('time-track')).toBe(t('descent_graph_not_timed'));
         expect(readout('difference')).toBe(t('descent_graph_not_timed'));
-        const texts = captionTexts(graph);
-        expect(texts).toContain(t('descent_graph_cap_no_time_row', {value0: t('descent_graph_name_track')}));
-        expect(texts.some(text => text.startsWith('Razlika do cikloide'))).toBe(false);
+        expect(noteTexts(graph).some(text => text.startsWith('Razlika do cikloide') || text.startsWith('Čas spusta po tiru'))).toBe(false);
+        expect(captionTexts(graph).some(text => text.startsWith('Razlika do cikloide'))).toBe(false);
         expect(go(graph, 0)).toBe(true);
         noBadText();
         enter(label('p2y'), '2');
@@ -206,31 +226,30 @@ describe('mount and the drawing, per mode', () => {
         expect(readout('time-track')).not.toBe(t('descent_graph_not_timed'));
     });
 
-    test('an inadmissible track with the cycloid hidden has no bead: Play gives the no-run reason, the time slider is inert with a range of 0', () => {
+    test('an inadmissible track with the cycloid hidden has no bead: Play gives the no-run reason, the time puck is not declared', () => {
         const {graph} = mountGraph();
         chooseMode('track');
         enter(label('p1y'), '0');
         enter(label('p2y'), '-0,5');
         // The cycloid is still shown: it runs.
         expect(graph.derived().tEnd).toBeGreaterThan(0);
-        act(() => { fireEvent.click(field(t('descent_graph_show_cycloid'))); });
+        act(() => graph.performAction('show-cycloid'));
         expect(graph.state.showCycloid).toBe(false);
         expect(graph.derived().tEnd).toBe(0);
         const reason = t('descent_graph_no_run');
         const play = screen.getByRole('button', {name: t('play')});
         expect(play.getAttribute('aria-disabled') ?? play.getAttribute('disabled')).not.toBeNull();
         expect(document.body.textContent).toContain(reason);
-        expect(slider().getAttribute('aria-disabled')).toBe('true');
-        expect(slider().max).toBe('0');
+        expect((declared(graph).parameters ?? []).map(parameter => parameter.key)).toEqual([]);
         act(() => { fireEvent.click(play); });
         expect(graph.playing).toBe(false);
         expect(graph.clock.requests).toBe(0);
-        act(() => { graph.play(); });
+        learner(() => graph.play());
         expect(graph.playing).toBe(false);
-        // Showing the cycloid again restores the run.
-        act(() => { fireEvent.click(field(t('descent_graph_show_cycloid'))); });
+        // Showing the cycloid again restores the run and the time puck.
+        act(() => graph.performAction('show-cycloid'));
         expect(graph.derived().tEnd).toBeGreaterThan(0);
-        expect(slider().getAttribute('aria-disabled')).toBeNull();
+        expect((declared(graph).parameters ?? []).map(parameter => parameter.key)).toEqual(['descent-time']);
         noBadText();
     });
 
@@ -242,6 +261,7 @@ describe('mount and the drawing, per mode', () => {
         for (const index of [1, 2, 3]) expect(readout(`bead-${index}`)).toContain('1,003 s');
         expect(readout('closed-form')).toBe('1,003 s');
         expect(status()).toContain(t('descent_graph_sentence_taut_equal', {value0: '1,003 s'}));
+        expect(noteTexts(graph)).toContain(t('descent_graph_sentence_taut_equal', {value0: '1,003 s'}));
         const drawn = curves(graph);
         expect(visible(drawn[CYCLOID])).toBe(true);
         expect(visible(drawn[LINE])).toBe(false);
@@ -255,17 +275,18 @@ describe('mount and the drawing, per mode', () => {
         const shown = (point: JXG.Point) => visible(point as unknown as Probe);
         expect(handles.slice(0, 3).some(shown)).toBe(false);
         expect(handles.slice(3).every(shown)).toBe(true);
-        act(() => { fireEvent.click(field(t('descent_graph_show_arc'))); });
+        act(() => graph.performAction('show-arc'));
         expect(graph.state.showArc).toBe(true);
         expect(visible(curves(graph)[GUIDE])).toBe(true);
-        // The guide arc is named wherever it is shown, not only in the race.
+        // The guide arc is named wherever it is shown, not only in the race: on the board and in the legend.
         expect(captionTexts(graph).filter(text => text === t('descent_graph_name_arc'))).toHaveLength(1);
-        act(() => { fireEvent.click(field(t('descent_graph_show_arc'))); });
+        expect(legendTexts(graph)).toContain(t('descent_graph_name_arc'));
+        act(() => graph.performAction('show-arc'));
         expect(captionTexts(graph)).not.toContain(t('descent_graph_name_arc'));
-        act(() => { fireEvent.click(field(t('descent_graph_show_arc'))); });
+        expect(legendTexts(graph)).not.toContain(t('descent_graph_name_arc'));
+        act(() => graph.performAction('show-arc'));
         expect(readout('arc-1')).toMatch(/s$/);
         expect(labelOf('arc-1')).toContain('izračunan');
-        expect(captionTexts(graph).some(text => text.startsWith('Kroglica 1 po krožnem loku'))).toBe(true);
         noBadText();
     });
 
@@ -276,7 +297,7 @@ describe('mount and the drawing, per mode', () => {
         expect(graph.state.theta3).toBe(Math.PI);
         expect(readout('bead-3')).toContain('najnižji');
         expect(status()).toContain(t('descent_graph_sentence_bottom', {value0: '3'}));
-        expect(captionTexts(graph)).toContain(t('descent_graph_cap_bead_row_bottom', {value0: '3'}));
+        expect(readout('bead-3')).toContain('najnižji');
         noBadText();
     });
 });
@@ -298,10 +319,9 @@ describe('tautochrone repairs', () => {
         expect(status()).toContain(t('descent_graph_sentence_taut_equal', {value0: '1,003 s'}));
     });
 
-    test('the board and readout wording: units on g, the bead row from the catalog, handle tags name the bead', () => {
+    test('the readout wording: units on g, the bead row from the catalog, handle tags name the bead', () => {
         const {graph} = mountGraph();
-        expect(t('descent_graph_cap_units', {value0: '9,81'})).toBe('g = 9,81 m/s²');
-        expect(captionTexts(graph)).toContain('g = 9,81 m/s²');
+        expect(readout('gravity')).toBe('9,81 m/s²');
         chooseMode('tautochrone');
         expect(readout('bead-2')).toBe(t('descent_graph_value_bead_row', {value0: '1', value1: 'rad', value2: '1,003 s'}));
         const tags = captionTexts(graph);
@@ -347,9 +367,9 @@ describe('typed input and dragging', () => {
         enter(label('theta3'), '3,1');
         expect([graph.state.theta1, graph.state.theta2, graph.state.theta3]).toEqual([0.5, 2.5, 3.1]);
         chooseMode('race');
-        enter(label('radius'), '2,5');
+        expect(enter(label('radius'), '2,5')).toBe(true);
         expect(graph.state.radius).toBe(2.5);
-        expect(graph.editNumber('radius', 2.5)).toBe(true);
+        expect(learner(() => graph.editNumber('radius', 2.5))).toBe(true);
     });
 
     test('a typed value off the grid or outside the range is refused: never rounded or clamped, the stored value stays and the field says so', () => {
@@ -367,10 +387,17 @@ describe('typed input and dragging', () => {
         expect(graph.state.theta1).toBe(0.3);
         enter(label('theta1'), '0,33');
         expect(graph.state.theta1).toBe(0.3);
-        expect(graph.editNumber('theta2', Math.PI)).toBe(true);
-        expect(graph.editNumber('theta2', 3.12)).toBe(false);
-        expect(graph.editNumber('theta2', Number.NaN)).toBe(false);
-        expect(graph.editNumber('radius' as NumericField, 99)).toBe(false);
+        expect(learner(() => graph.editNumber('theta2', Math.PI))).toBe(true);
+        expect(learner(() => graph.editNumber('theta2', 3.12))).toBe(false);
+        expect(learner(() => graph.editNumber('theta2', Number.NaN))).toBe(false);
+        // The radius puck refuses the same way: a catalog refusal of the arbiter that names the range, the stored value stays.
+        chooseMode('race');
+        for (const bad of [99, 2.55]) {
+            const refused = graph.parameters!.write('descent-radius', bad, 'learner');
+            expect(refused.status, String(bad)).toBe('refused-domain');
+            expect(refused.status === 'refused-domain' ? refused.error.message : '').toContain('Vrednost ni na koraku');
+        }
+        expect(graph.state.radius).toBe(1);
     });
 
     test('dragging a handle snaps to the nearest grid value and clamps into the range; a drag past the edge lands on the edge', () => {
@@ -404,28 +431,30 @@ describe('typed input and dragging', () => {
         expect(graph.state.theta1).toBe(0);
     });
 
-    test('every numeric field, switch and the mode are described by help, and the help states the range; the slider by its range', () => {
-        mountGraph();
+    test('every numeric field, switch and the mode are described by help, and the help states the range; the radius and time pucks by their declared range and unit', async () => {
+        const {graph} = mountGraph();
         const described = (element: HTMLElement) => (element.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean)
             .map(id => document.getElementById(id)?.textContent ?? '').join(' ');
         const slideName = (key: 'descent_graph_radius_label' | 'descent_graph_theta1_label') => screen.getByRole('slider', {name: t(key)}) as HTMLInputElement;
-        // The range is the slider's own `min` and `max` (shown at the ends of the track, control-choice S2); the help states only the meaning.
-        expect(slideName('descent_graph_radius_label').min).toBe('0.25');
-        expect(described(slideName('descent_graph_radius_label'))).toContain('Merjen v metrih.');
+        // The radius is a puck: its range is the declared range and its meaning is the declared unit (the metre); the time puck shows its own bounds and has no help of its own.
+        const radius = declared(graph).parameters!.find(parameter => parameter.key === 'descent-radius') as {min: number; max: number; step: number; unit: Message};
+        expect([radius.min, radius.max, radius.step]).toEqual([FIELD_RANGES.radius.min, FIELD_RANGES.radius.max, FIELD_RANGES.radius.step]);
+        expect(renderMessage(radius.unit)).toBe('m');
+        await waitForPucks('descent-radius');
+        expect(puckControl('descent-radius')).not.toBeNull();
         expect(described(field(t('descent_graph_mode_label'))).length).toBeGreaterThan(10);
-        // The time slider shows its own bounds; its help no longer restates them (control-choice S5).
-        expect(described(slider())).toBe('');
+        expect(described(await slider())).toBe('');
         chooseMode('track');
         // The three points are one list: one row each, named as the board names them, with the depth note shown once below it.
         for (const point of ['b', 'p1', 'p2'] as const) {
             expect(screen.getByRole('group', {name: t(`descent_graph_name_${point}`)})).toBeTruthy();
         }
         expect(document.body.textContent).toContain(t('descent_graph_depth_note'));
-        expect(described(field(t('descent_graph_show_cycloid'))).length).toBeGreaterThan(10);
+        expect(renderMessage(declared(graph).actions!.find(action => action.id === 'show-cycloid')!.help as Message).length).toBeGreaterThan(10);
         chooseMode('tautochrone');
         const thetaHelp = described(slideName('descent_graph_theta1_label'));
         expect(thetaHelp).toContain('Do π prideš s korakom naprej po 3,1');
-        expect(described(field(t('descent_graph_show_arc'))).length).toBeGreaterThan(10);
+        expect(renderMessage(declared(graph).actions!.find(action => action.id === 'show-arc')!.help as Message).length).toBeGreaterThan(10);
     });
 
     test('the depth hint says the vertical axis shows the negative depth; a negative number is written with a true minus', () => {
@@ -473,7 +502,7 @@ describe('playback and the time', () => {
         press(t('pause'));
     });
 
-    test('beads: at t = 0 all stand at the start; at the end of the run each stands at its end; the bead caption names the time', () => {
+    test('beads: at t = 0 all stand at the start; at the end of the run each stands at its end; the time row names the time', () => {
         const {graph} = mountGraph();
         const beads = probes(graph).filter(o => o.elType === 'point' && o.evalVisProp('size') === 5);
         const shown = () => beads.filter(visible);
@@ -482,7 +511,7 @@ describe('playback and the time', () => {
         go(graph, graph.derived().tEnd);
         const ends = shown().map(bead => [bead.X!(), bead.Y!()]);
         for (const [x, y] of ends) { expect(x).toBeCloseTo(Math.PI, 6); expect(y).toBeCloseTo(-2, 6); }
-        expect(captionTexts(graph)).toContain(t('descent_graph_cap_bead', {value0: `${String(graph.derived().tEnd).replace('.', ',')} s`}));
+        expect(readout('time')).toBe(`${String(graph.derived().tEnd).replace('.', ',')} s`);
     });
 
     test('Reset returns to t = 0 and stops; it is unavailable with a reason at t = 0', () => {
@@ -493,7 +522,7 @@ describe('playback and the time', () => {
         expect(screen.getByRole('button', {name: t('reset')}).getAttribute('aria-disabled')).toBe('true');
     });
 
-    test('reduced motion: Play starts no frame loop and says why; the slider still sets the time', () => {
+    test('reduced motion: Play starts no frame loop and says why; the time still takes a written value', () => {
         const {graph} = mountGraph();
         graph.reduced = true;
         go(graph, 0);
@@ -507,22 +536,26 @@ describe('playback and the time', () => {
         expect(reason.textContent).toBe(t('playback_block_reduced_motion_time'));
         expect(reason.closest('[hidden]')).toBeNull();
         expect(screen.getByRole('button', {name: t('play')}).getAttribute('aria-describedby')?.split(' ')).toContain(reason.id);
-        act(() => { fireEvent.change(slider(), {target: {value: '0.5'}}); });
+        expect(go(graph, 0.5)).toBe(true);
         expect(graph.time).toBe(0.5);
+        expect(readout('time')).toBe('0,5 s');
     });
 
-    test('the slider reaches the end, refuses beyond it, has a grid and gives a spoken value with its unit', () => {
+    test('the time puck reaches the end, refuses beyond it, has a grid and gives a spoken value with its unit', async () => {
         const {graph} = mountGraph();
         const end = graph.derived().tEnd;
-        expect(slider().min).toBe('0');
-        expect(Number(slider().max)).toBeCloseTo(end, 6);
-        expect(slider().step).toBe(String(TIME_STEP));
+        const time = declared(graph).parameters![0] as {key: string; min: number; max: number; step: number; unit: Message};
+        expect(time.key).toBe('descent-time');
+        expect(time.min).toBe(0);
+        expect(time.max).toBeCloseTo(end, 6);
+        expect(time.step).toBe(TIME_STEP);
+        expect(renderMessage(time.unit)).toBe('s');
         expect(go(graph, end)).toBe(true);
         expect(go(graph, end + 0.1)).toBe(false);
         expect(go(graph, -0.01)).toBe(false);
         expect(go(graph, Number.NaN)).toBe(false);
         expect(graph.time).toBe(end);
-        expect(slider().getAttribute('aria-valuetext')).toContain(' s');
+        expect((await slider()).getAttribute('aria-valuetext')).toContain(' s');
     });
 
     test('while it plays the live region is silent and the visible readout moves; on pause the live region says the state once', () => {
@@ -544,11 +577,11 @@ describe('playback and the time', () => {
         expect(graph.playing).toBe(false);
         expect(graph.clock.pending()).toBe(false);
         press(t('play'));
-        act(() => { graph.setState({radius: 2}); });
+        lesson(() => graph.setState({radius: 2}));
         expect(graph.playing).toBe(false);
         expect(graph.clock.pending()).toBe(false);
         press(t('play'));
-        act(() => { graph.setState({radius: 2}); });
+        lesson(() => graph.setState({radius: 2}));
         expect(graph.playing).toBe(true);
         chooseMode('track');
         expect(graph.playing).toBe(false);
@@ -581,7 +614,7 @@ describe('playback and the time', () => {
         chooseMode('track');
         expect(graph.time).toBe(0);
         press(t('play'));
-        act(() => graph.restore(saved));
+        lesson(() => graph.restore(saved));
         expect(graph.time).toBe(0.4);
         expect(graph.playing).toBe(false);
         expect(graph.clock.pending()).toBe(false);
@@ -592,7 +625,7 @@ describe('playback and the time', () => {
         (_name, bad) => {
             const {graph} = mountGraph();
             go(graph, 0.5);
-            act(() => graph.restore({descentTime: bad} as unknown as TransientState));
+            lesson(() => graph.restore({descentTime: bad} as unknown as TransientState));
             expect(graph.time).toBe(0);
             expect(graph.playing).toBe(false);
             expect(graph.statusText()).toContain(t('descent_graph_notice_time_refused'));
@@ -601,7 +634,7 @@ describe('playback and the time', () => {
     test('a checkpoint without a time lands at 0 without a notice', () => {
         const {graph} = mountGraph();
         go(graph, 0.5);
-        act(() => graph.restore(undefined));
+        lesson(() => graph.restore(undefined));
         expect(graph.time).toBe(0);
         expect(graph.statusText()).not.toContain(t('descent_graph_notice_time_refused'));
     });
@@ -643,58 +676,27 @@ describe('ownership, rebuild and the derived data', () => {
             const baseline = vi.getTimerCount();
             vi.clearAllTimers();
             const graph = session(false);
-            expect(vi.getTimerCount()).toBe(baseline);
+            // Pausing first leaves the shell's announcement timer pending; unmounting while playing must leave no more than that.
+            expect(vi.getTimerCount()).toBeLessThanOrEqual(baseline);
             expect(graph.clock.pending()).toBe(false);
         } finally {
             vi.useRealTimers();
         }
     });
 
-    test('the opening frame holds the lowest point of the arc and both ends; a board resized after the first frame is framed again, a moved view is kept', () => {
-        vi.useFakeTimers();
-        const original = window.ResizeObserver;
-        const observers: Array<(entries: unknown[]) => void> = [];
-        // jsdom lays nothing out: the board re-reads its container size from these.
-        let canvasHeight = 400;
-        for (const name of ['clientHeight', 'offsetHeight'] as const) Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => canvasHeight});
-        window.ResizeObserver = class {
-            constructor(callback: (entries: unknown[]) => void) { observers.push(callback); }
-            observe() {}
-            unobserve() {}
-            disconnect() {}
-        } as unknown as typeof ResizeObserver;
-        try {
-            const {graph} = mountGraph();
-            const board = graph.liveBoard();
-            const race = deriveDescent(DEFAULT_DESCENT_STATE) as RaceDerived;
-            const margin = (box: number[]) => ({left: 0 - box[0], right: box[2] - race.end[0], top: box[1] - 0, bottom: -box[3] - race.arcCentre});
-            const settle = (height: number) => {
-                canvasHeight = height;
-                board.resizeContainer(600, height, true); // what the session's observer does
-                act(() => { for (const callback of observers) callback([{contentRect: {width: 600, height}}]); });
-                act(() => { vi.advanceTimersByTime(200); });
-            };
-            const inside = () => {
-                const m = margin(board.getBoundingBox());
-                expect(Math.min(m.left, m.right, m.top, m.bottom)).toBeGreaterThan(0.05);
-            };
-            expect(observers.length).toBeGreaterThan(0);
-            inside();
-            settle(300);
-            expect(board.canvasHeight).toBe(300);
-            inside();
-            settle(260);
-            inside();
-            // A view the user moved is not reframed.
-            act(() => { board.setBoundingBox([-5, 4, 5, -4], false); });
-            const moved = board.getBoundingBox();
-            settle(300);
-            expect(board.getBoundingBox()).toEqual(expect.arrayContaining(moved.slice(0, 2)));
-        } finally {
-            window.ResizeObserver = original;
-            canvasHeight = 400;
-            vi.useRealTimers();
-        }
+    test('the frame holds the lowest point of the arc and both ends with room on every side, and it is the followed view (the workspace frames it for the board size)', () => {
+        const {graph} = mountGraph();
+        const race = deriveDescent(DEFAULT_DESCENT_STATE) as RaceDerived;
+        const box = frameFor(graph.state, race);
+        expect(declared(graph).followView).toEqual(box);
+        const margin = {left: 0 - box[0], right: box[2] - race.end[0], top: box[1] - 0, bottom: -box[3] - race.arcCentre};
+        expect(Math.min(margin.left, margin.right, margin.top, margin.bottom)).toBeGreaterThan(0.05);
+        // The frame depends on the radius only: dragging a point in the track mode never moves it.
+        chooseMode('track');
+        const track = frameFor(graph.state, graph.derived());
+        dragHandleTo(graph.handlePoints()[P1], 1, -1);
+        expect(frameFor(graph.state, graph.derived())).toEqual(track);
+        expect(declared(graph).followView).toEqual(track);
     });
 
     test('the y axis writes no number above the start A except in the track mode; the arc name sits below the arc, clear of the axis numbers', () => {
@@ -753,7 +755,7 @@ describe('ownership, rebuild and the derived data', () => {
         act(() => setLanguage('sl'));
         expect(graph.derived()).toBe(before);
         // A field the race does not read (a lesson action may write it) leaves the tracks alone.
-        act(() => { graph.setState({showArc: true, theta1: 0.5}); });
+        lesson(() => graph.setState({showArc: true, theta1: 0.5}));
         expect(graph.derived()).toBe(before);
         expect(graph.derivationCount()).toBe(count);
         enter(label('radius'), '2');
@@ -772,11 +774,12 @@ describe('language', () => {
         act(() => setLanguage('en'));
         expect(document.querySelector(`[aria-label="${t('descent_graph_board_label')}"]`)).not.toBeNull();
         expect(screen.getByLabelText(t('descent_graph_mode_label'))).toBeTruthy();
-        expect(captionTexts(graph)).toContain(t('descent_graph_cap_time_row', {value0: 'Cycloid', value1: '1.003 s'}));
+        expect(legendTexts(graph)).toContain('Cycloid');
+        expect(noteTexts(graph)[0]).toMatch(/Cycloid.*1\.003 s/);
         expect(status()).toMatch(/^Time 0\.5 s\./);
         expect(readout('time-cycloid')).toBe('1.003 s');
         expect(labelOf('time-cycloid')).toBe('Descent time: Cycloid (computed)');
-        expect(captionTexts(graph).join(' ') + status() + document.querySelector('[data-readout="time-cycloid"]')!.textContent).not.toMatch(/\d,\d/);
+        expect(captionTexts(graph).join(' ') + noteTexts(graph).join(' ') + status() + document.querySelector('[data-readout="time-cycloid"]')!.textContent).not.toMatch(/\d,\d/);
         chooseMode('track');
         enter(label('p1y'), '-0.5');
         expect(readout('point-p1')).toBe('(0.5, −0.5) m');
@@ -802,78 +805,12 @@ describe('redraw timing (JSDOM PLACEHOLDER, not a browser measurement)', () => {
             expect(Number.isFinite(median) && Number.isFinite(p95)).toBe(true);
             lines.push(`JSDOM PLACEHOLDER descent drag recompute, ${mode}: n=${times.length} median=${median.toFixed(2)} ms p95=${p95.toFixed(2)} ms (browser measurement owed)`);
         };
-        measure('race', i => { act(() => { graph.editNumber('radius', 0.25 + 0.25 * (i % 12)); }); });
+        measure('race', i => { learner(() => graph.editNumber('radius', 0.25 + 0.25 * (i % 12))); });
         measure('track', i => dragHandleTo(graph.handlePoints()[P1], 0.25 * (i % 20), -(0.25 * (i % 16))));
         measure('tautochrone', i => dragHandleTo(graph.handlePoints()[TH2], 0, -(1 - Math.cos(0.05 * (i % 60)))));
         mkdirSync('.command-logs', {recursive: true});
         writeFileSync('.command-logs/mech02b-redraw.log', `${lines.join('\n')}\n`);
         expect(lines).toHaveLength(3);
         expect(FIELD_RANGES.radius.max).toBe(3);
-    });
-});
-
-describe('the view follows the board size (a board that settles after the first frame)', () => {
-    type SizedBoard = {canvasWidth: number; canvasHeight: number; origin: {scrCoords: number[]}; getBoundingBox(): number[];
-        resizeContainer(width: number, height: number): void; moveOrigin(x: number, y: number): void; update(): void};
-    const callbacks: Array<() => void> = [];
-    const setHeight = (height: number) => {
-        for (const [name, size] of [['clientWidth', 390], ['offsetWidth', 390], ['clientHeight', height], ['offsetHeight', height]] as const) {
-            Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
-        }
-    };
-    beforeEach(() => {
-        callbacks.length = 0;
-        vi.stubGlobal('ResizeObserver', class {
-            // the graph's observer takes no entries; JSXGraph's own does, and the test resizes the board itself
-            constructor(callback: (entries?: unknown[]) => void) { if (callback.length === 0) callbacks.push(callback); }
-            observe() {}
-            unobserve() {}
-            disconnect() {}
-        });
-        setHeight(295);
-    });
-    afterEach(() => {
-        vi.useRealTimers();
-        vi.unstubAllGlobals();
-        for (const [name, size] of [['clientWidth', 600], ['clientHeight', 400], ['offsetWidth', 600], ['offsetHeight', 400]] as const) {
-            Object.defineProperty(HTMLElement.prototype, name, {configurable: true, get: () => size});
-        }
-    });
-
-    /** What the layout does after the mount: the container grows, the board follows (as JSXGraph's own handler), the observers fire. */
-    const settleTo = (board: SizedBoard, height: number, move?: () => void) => {
-        setHeight(height);
-        board.resizeContainer(390, height);
-        move?.();
-        vi.useFakeTimers();
-        callbacks.forEach(callback => callback());
-        act(() => { vi.advanceTimersByTime(400); });
-        vi.useRealTimers();
-    };
-    const near = (actual: number[], expected: number[]) => {
-        expect(actual).toHaveLength(expected.length);
-        actual.forEach((value, index) => expect(value).toBeCloseTo(expected[index], 6));
-    };
-
-    test('an unmoved view is framed again for the settled height: the box Reset gives at that height', async () => {
-        const {graph} = mountGraph();
-        const board = graph.liveBoard() as unknown as SizedBoard;
-        expect(board.canvasHeight).toBe(295);
-        settleTo(board, 547);
-        const settled = [...board.getBoundingBox()];
-        await settle(() => graph.reset());
-        near(settled, board.getBoundingBox());
-    });
-
-    test('a view the user moved is left alone when the board settles', () => {
-        const {graph} = mountGraph();
-        const board = graph.liveBoard() as unknown as SizedBoard;
-        let moved: number[] = [];
-        settleTo(board, 547, () => {
-            board.moveOrigin(board.origin.scrCoords[1] + 40, board.origin.scrCoords[2] + 30);
-            board.update();
-            moved = [...board.getBoundingBox()];
-        });
-        near(board.getBoundingBox(), moved);
     });
 });
