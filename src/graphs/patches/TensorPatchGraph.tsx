@@ -1,4 +1,10 @@
 import type React from "react";
+import {message} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, RangeParameter} from "../base/declare/graphDeclaration";
+import type {Lease, ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {cssColor, MESH_STYLE, markerColor, polylineStyle} from "./surface-view/jsxStyles";
+import {SURFACE_COLORS} from "./surface-view/surfaceStyles";
 import type {GraphSession} from "../base/GraphSession";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import {PatchSelection, TensorPatchDisplayPanel, TensorPatchEditPanel, TensorPatchPanelActions} from "./TensorPatchPanels";
@@ -63,7 +69,32 @@ export interface TensorPatchGraphState extends SurfaceGraphState {
     joinCapstone?: JoinCapstone;
 }
 
-const INSET_BOUNDING_BOX: [number, number, number, number] = [-0.14, 1.14, 1.14, -0.14];
+/** The arbiter keys of the evaluation parameters (u, v), bound only on the Demonstrations that declare the workspace. */
+export const PATCH_PARAMETER_KEYS = {u: "patch-u", v: "patch-v"} as const;
+
+/** The display switches of the tensor workspace, declared as Orodja actions (with `pressed`). */
+const TENSOR_SWITCHES = [
+    ["control-net", "showControlNet", "patch_show_control_net"],
+    ["iso-curves", "showIsoCurves", "patch_show_iso_curves"],
+    ["boundary-curves", "showBoundaryCurves", "patch_show_boundary_curves"],
+    ["shading", "showShading", "patch_show_shading"],
+] as const satisfies ReadonlyArray<readonly [string, PatchVisibility, string]>;
+
+/**
+ * The ids of the tensor workspace declaration (`DeclarationIds`). The evaluation parameters u and v are pucks; the control
+ * points stay the chooser and editor of Orodja (no point-valued parameter kind), the display switches are Orodja actions
+ * and the camera stays the graph's own Orodja panel (a surface view has no view director). No readouts: the panels show none.
+ */
+export type TensorPatchIds = {
+    param: typeof PATCH_PARAMETER_KEYS[PatchDirection];
+    row: never;
+    note: never;
+    legend: "net" | "points" | "iso" | "boundary" | "surface" | "point";
+    section: never;
+    action: typeof TENSOR_SWITCHES[number][0] | "height-mode";
+};
+
+const INSET_BOUNDING_BOX:[number, number, number, number] = [-0.14, 1.14, 1.14, -0.14];
 
 const DEFAULT_ISO_DENSITY: PatchDensity = 8;
 const DEFAULT_SHADING_DENSITY: PatchDensity = 16;
@@ -123,13 +154,57 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
         this.sweeps = new PatchSweeps({
             read: parameter => this.state[parameter],
             range: () => [0, 1],
-            write: (parameter, value) => this.setParameter(parameter, value),
+            write: (parameter, value) => this.sweepWrite(parameter, value),
         }, options.scheduler);
     }
 
-    protected override stopSweeps(): void { this.sweeps.stopAll(); }
+    protected override stopSweeps(): void {
+        this.sweeps.stopAll();
+        this.releaseSweepLease();
+    }
 
-    protected override pauseSweeps(): void { this.sweeps.pauseAll(); }
+    protected override pauseSweeps(): void {
+        this.sweeps.pauseAll();
+        this.releaseSweepLease();
+    }
+
+    // ---- Sweep writes under an animation lease (ADR 0064) ------------------------------------------------------
+
+    /** The lease a running sweep writes its parameter under, while the parameter is bound in the arbiter. */
+    private sweepLease?: {parameter: PatchDirection; lease: Lease};
+
+    /**
+     * A sweep frame's write. Where u and v are bound, the sweep leases its parameter and writes it as `animation`; a learner
+     * or lesson write of that parameter ends the lease and stops the sweep. Elsewhere it is the plain setter.
+     */
+    private sweepWrite(parameter: PatchDirection, value: number): void {
+        const arbiter = this.parameters, key = PATCH_PARAMETER_KEYS[parameter];
+        if (!arbiter || !arbiter.keys().includes(key)) {
+            this.setParameter(parameter, value);
+            return;
+        }
+        if (this.sweepLease?.parameter !== parameter) {
+            this.releaseSweepLease();
+            let lease: Lease | undefined = undefined;
+            lease = arbiter.lease([key], reason => {
+                if (this.sweepLease?.lease === lease) this.sweepLease = undefined;
+                if (reason !== "released") this.sweeps.apply(parameter, "stop");
+            });
+            if (!lease) {
+                // The learner holds the parameter: the sweep does not run over it.
+                this.sweeps.apply(parameter, "stop");
+                return;
+            }
+            this.sweepLease = {parameter, lease};
+        }
+        this.sweepLease.lease.write(key, value);
+    }
+
+    private releaseSweepLease(): void {
+        const held = this.sweepLease;
+        this.sweepLease = undefined;
+        held?.lease.release();
+    }
 
     override getInitialState(): TensorPatchGraphState {
         return {initialized: false, surfaceUnavailable: false, zMode: false, ...stateFromDto(defaultDto())};
@@ -188,6 +263,7 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
                 if (command === "play" || command === "replay") this.setState({showMovingVSection: parameter === "v"});
                 else if (command === "stop" && parameter === "v") this.setState({showMovingVSection: false});
                 this.sweeps.apply(parameter, command);
+                if (command === "stop" || command === "pause") this.releaseSweepLease();
             },
             applyCameraPreset: view => this.applyCameraPreset(view),
             subdivision: () => this.lessonSubdivision(),
@@ -350,6 +426,89 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
         return index < 0 ? undefined : index;
     }
 
+    // ---- Declaration (task 08, surface recipe) -----------------------------------------------------------------
+
+    /**
+     * Whether this Demonstration declares the board workspace. `patch-tensor` and the subclasses converted with it opt in; the
+     * other subclasses (patch-subdivision, patch-joins) stay undeclared, with nothing bound, until their own conversion.
+     */
+    protected declaresTensorWorkspace(): boolean {
+        return this.constructor === TensorPatchGraph;
+    }
+
+    /** u and v, bound to the panel's setter (clamped to [0, 1]), on the Demonstrations that declare the workspace. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        if (!this.declaresTensorWorkspace()) return {};
+        const binding = (parameter: PatchDirection): ParameterBinding => ({
+            read: () => this.state[parameter],
+            apply: (value: unknown) => this.setParameter(parameter, Number(value)),
+        });
+        return {[PATCH_PARAMETER_KEYS.u]: binding("u"), [PATCH_PARAMETER_KEYS.v]: binding("v")};
+    }
+
+    /**
+     * The tensor workspace's part of the declaration: u and v as board pucks (lessons ask the learner to move them while
+     * watching the point and the sections), the legend of what the surface view draws, and the display switches as Orodja
+     * actions. No marks, view or camera: a surface view has no `ViewAdapter`, so cards rely on placement.
+     */
+    protected tensorDeclaration(): GraphDeclaration<TensorPatchIds> {
+        const s = this.state;
+        const parameter = (direction: PatchDirection): RangeParameter<TensorPatchIds["param"]> => ({
+            kind: "range", key: PATCH_PARAMETER_KEYS[direction], label: message(direction === "u" ? "patch_parameter_u" : "patch_parameter_v"),
+            placement: "board", min: 0, max: 1, step: 0.01, maxDecimals: 2,
+        });
+        const legend: LegendEntry<TensorPatchIds>[] = [
+            {id: "surface", label: message("patch_tensor_legend_surface"), kind: "area", object: "surface"},
+            {id: "net", label: message("patch_tensor_legend_net"), kind: "line", object: "net"},
+            {id: "points", label: message("patch_tensor_legend_points"), kind: "point", object: "points"},
+            {id: "iso", label: message("patch_tensor_legend_iso"), kind: "line", object: "iso"},
+            {id: "boundary", label: message("patch_tensor_legend_boundary"), kind: "line", object: "boundary"},
+            {id: "point", label: message("patch_tensor_legend_point"), kind: "point", object: "point"},
+        ];
+        const tools = (id: TensorPatchIds["action"], label: ActionDeclaration["label"], pressed: boolean): ActionDeclaration<TensorPatchIds> =>
+            ({id, label, placement: "tools", tab: "display", section: "display", enabled: true, pressed});
+        const actions: ActionDeclaration<TensorPatchIds>[] = [
+            ...TENSOR_SWITCHES.map(([id, key, label]) => tools(id, message(label), s[key])),
+            tools("height-mode", message("patch_move_height"), s.zMode),
+        ];
+        return {parameters: [parameter("u"), parameter("v")], legend, actions};
+    }
+
+    protected override declaration(): GraphDeclaration | undefined {
+        return this.declaresTensorWorkspace() ? this.tensorDeclaration() : undefined;
+    }
+
+    /** A display switch pressed as the learner: the method the panel's switch calls. A subclass hands the ids it does not own here. */
+    override performAction(id: string): void {
+        const s = this.state;
+        const tensorSwitch = TENSOR_SWITCHES.find(([candidate]) => candidate === id);
+        runAs("learner", () => {
+            if (tensorSwitch !== undefined) this.setVisibility(tensorSwitch[1], !s[tensorSwitch[1]]);
+            else if (id === "height-mode") this.setZMode(!s.zMode);
+            else throw new Error("Unknown action");
+        });
+    }
+
+    /**
+     * What the surface view draws for a legend entry: the colour its renderer gives the role (`jsxStyles`) and whether the
+     * scene holds it now (`buildTensorScene`). The net and its points follow the net switch, the iso and boundary curves and the
+     * shaded mesh theirs; the point S(u, v) is always drawn. Nothing is drawn while the view could not start.
+     */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (!this.declaresTensorWorkspace()) return undefined;
+        const {showControlNet, showIsoCurves, showBoundaryCurves, showShading, surfaceUnavailable} = this.state;
+        const drawn = (color: string, visible = true) => ({color, visible: visible && !surfaceUnavailable});
+        switch (id) {
+            case "surface": return drawn(MESH_STYLE.fill ?? cssColor(SURFACE_COLORS.surface), showShading);
+            case "net": return drawn(polylineStyle("net").stroke, showControlNet);
+            case "points": return drawn(cssColor(SURFACE_COLORS.point), showControlNet);
+            case "iso": return drawn(polylineStyle("iso").stroke, showIsoCurves);
+            case "boundary": return drawn(polylineStyle("boundary").stroke, showBoundaryCurves);
+            case "point": return drawn(markerColor("evaluated"));
+            default: return undefined;
+        }
+    }
+
     // ---- Panels ------------------------------------------------------------------------------------------------
 
     protected readonly panelActions: TensorPatchPanelActions = {
@@ -377,7 +536,12 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
     }
 
     protected override workspaceEdit(): React.ReactNode {
-        return <>{this.unavailableNotice()}<TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} netFirst/></>;
+        return <>{this.unavailableNotice()}<TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} netFirst puckKeys={this.puckKeys()}/></>;
+    }
+
+    /** The u and v keys the board pucks own, on a Demonstration that declares the workspace (the Uredi sliders then give way). */
+    protected puckKeys(): typeof PATCH_PARAMETER_KEYS | undefined {
+        return this.declaresTensorWorkspace() ? PATCH_PARAMETER_KEYS : undefined;
     }
 
     // ---- Parameter-domain inset --------------------------------------------------------------------------------
@@ -420,7 +584,8 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
                 });
             },
             constrain: (u, v) => [clamp(u, 0, 1), clamp(v, 0, 1)],
-            onDrag: (u, v) => this.setParameters(u, v),
+            // A JSXGraph drag is outside the DOM handlers the learner-input tagging sees.
+            onDrag: (u, v) => runAs("learner", () => this.setParameters(u, v)),
             onSessionEnd: () => { if (this.inset === inset) this.inset = undefined; },
         });
         this.inset = inset;

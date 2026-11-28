@@ -2,16 +2,16 @@
  * Surface patch routes, first task first (batch 2): the route's own first task leads its Edit panel; the starting
  * patch and degrees (and, on the joins route, the example pairs) follow.
  */
-import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, mountGraph, puckControl, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../base/realGraphTestHarness';
 import {act} from '@testing-library/react';
 import {appStorage} from '../../storage/appStorage';
 import {setLanguage, t} from '../../localization';
 import {FakeSurfaceView} from './FakeSurfaceView';
-import TensorDeCasteljauGraph from './TensorDeCasteljauGraph';
+import TensorDeCasteljauGraph, {DECASTELJAU_ORDER_KEY} from './TensorDeCasteljauGraph';
 import TensorDerivativesGraph from './TensorDerivativesGraph';
 import TensorJoinGraph from './TensorJoinGraph';
 import TensorSubdivisionGraph from './TensorSubdivisionGraph';
-import TensorPatchGraph from './TensorPatchGraph';
+import TensorPatchGraph, {PATCH_PARAMETER_KEYS} from './TensorPatchGraph';
 import TriangularPatchGraph from './TriangularPatchGraph';
 import CoonsPatchGraph from './CoonsPatchGraph';
 
@@ -20,7 +20,8 @@ beforeAll(installBoardShims);
 beforeEach(() => { appStorage.clear(); setLanguage('sl'); });
 
 type Label = () => string;
-interface Plan {mount: () => ReturnType<typeof mountGraph>; first: Label; later: Label[]}
+/** `pucks`: arbiter keys that are board pucks on the strip; `absent`: their old Edit labels, gone from Edit. */
+interface Plan {mount: () => ReturnType<typeof mountGraph>; first: Label; later: Label[]; pucks?: string[]; absent?: Label[]}
 
 /** The Edit panel's controls in document order, by accessible name. */
 const editControls = (): string[] => {
@@ -34,8 +35,10 @@ const editControls = (): string[] => {
 
 const options = {viewFactory: () => new FakeSurfaceView()};
 const plan: Record<string, Plan> = {
-    'patch-decasteljau': {mount: () => mountGraph(new TensorDeCasteljauGraph(options)), first: () => t('patch_parameter_u'),
-        later: [() => t('patch_parameter_v'), () => t('patch_starting_heading'), () => t('patch_degree_u')]},
+    // u, v and the construction order are board pucks: they live on the puck strip, so the starting patch leads Edit.
+    'patch-decasteljau': {mount: () => mountGraph(new TensorDeCasteljauGraph(options)), first: () => t('patch_starting_heading'),
+        later: [() => t('patch_degree_u')], pucks: [PATCH_PARAMETER_KEYS.u, PATCH_PARAMETER_KEYS.v, DECASTELJAU_ORDER_KEY],
+        absent: [() => t('patch_parameter_u'), () => t('patch_parameter_v'), () => t('patch_decasteljau_order')]},
     'patch-derivatives': {mount: () => mountGraph(new TensorDerivativesGraph(options)), first: () => t('patch_parameter_u'),
         later: [() => t('patch_parameter_v'), () => t('patch_starting_heading'), () => t('patch_degree_u')]},
     'patch-subdivision': {mount: () => mountGraph(new TensorSubdivisionGraph(options)), first: () => t('patch_split_direction'), later: [() => t('patch_starting_heading')]},
@@ -44,12 +47,16 @@ const plan: Record<string, Plan> = {
 };
 
 describe.each(Object.keys(plan))('%s', key => {
-    test('the first task leads the Edit panel', () => {
+    test('the first task leads the Edit panel', async () => {
         plan[key].mount();
+        const pucks = plan[key].pucks ?? [];
+        if (pucks.length > 0) await waitForPucks(pucks[pucks.length - 1]);
         const names = editControls();
         const at = (label: Label) => names.findIndex(name => name.includes(label()));
         expect(at(plan[key].first), names.join(' | ')).toBe(0);
         for (const label of plan[key].later) expect(at(label), label()).toBeGreaterThan(0);
+        for (const label of plan[key].absent ?? []) expect(at(label), names.join(' | ')).toBe(-1);
+        for (const puck of pucks) expect(document.querySelector(`[data-puck-strip] [data-puck-key="${puck}"]`), puck).not.toBeNull();
     });
 });
 
@@ -85,11 +92,16 @@ describe('net-point routes (batch 3)', () => {
         precedes(editor(), t('patch_degree_heading'));
         precedes(editor(), t('patch_point_heading'));
     });
-    test('patches/tensor: the control-point indices lead, starting patch, degrees and u, v follow', () => {
+    test('patches/tensor: the control-point indices lead, starting patch and degrees follow; u, v are board pucks', async () => {
         const {graph} = mountGraph(new TensorPatchGraph(options)) as unknown as {graph: TensorPatchGraph};
+        await waitForPucks(PATCH_PARAMETER_KEYS.v);
         const names = editControls();
         expect(names[0], names.join(' | ')).toContain(t('patch_index_i'));
-        for (const label of [t('patch_starting_heading'), t('patch_degree_u'), t('patch_parameter_u')]) expect(names.findIndex(name => name.includes(label)), label).toBeGreaterThan(0);
+        for (const label of [t('patch_starting_heading'), t('patch_degree_u')]) expect(names.findIndex(name => name.includes(label)), label).toBeGreaterThan(0);
+        // u and v are declared board pucks: they live on the puck strip, not in Edit.
+        for (const label of [t('patch_parameter_u'), t('patch_parameter_v')]) expect(names.findIndex(name => name.includes(label)), names.join(' | ')).toBe(-1);
+        expect(document.querySelector('[data-puck-strip]'), 'puck strip').not.toBeNull();
+        for (const key of [PATCH_PARAMETER_KEYS.u, PATCH_PARAMETER_KEYS.v]) expect(puckControl(key), key).toBeTruthy();
         act(() => graph.selectIndex(1, 2));
         precedes(editor(), t('patch_starting_heading'));
         precedes(editor(), t('patch_point_heading'));

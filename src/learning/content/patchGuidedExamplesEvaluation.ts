@@ -1,4 +1,7 @@
 import type {LessonAction, LessonDefinition, LessonFrame, LessonPatchFixture, LessonPoint3, LessonView3D} from '../model';
+import {frameDeclarer} from '../../graphs/base/declare/graphDeclaration';
+import type {TensorPatchIds} from '../../graphs/patches/TensorPatchGraph';
+import type {DeCasteljauIds} from '../../graphs/patches/TensorDeCasteljauGraph';
 
 export type PatchEvaluationExampleSectionId = 'tensor-decasteljau' | 'properties' | 'tensor-derivatives';
 
@@ -11,9 +14,11 @@ const camera: LessonView3D = {az: 0.72, el: 0.48, distance: 3.4, target: point(0
 const saddleCamera: LessonView3D = {...camera, distance: 4.1, target: point(0.5, 0.5, 0)};
 const deCasteljauCamera: LessonView3D = {...camera, distance: 7, target: point(0.5, 0.5, 2)};
 const affineImageCamera: LessonView3D = {...camera, distance: 13.5, target: point(0.5, 0.5, 5)};
-const frame = (id: string, kind: LessonFrame['kind'], title: LessonFrame['title'], body: LessonFrame['body'], prompt?: LessonFrame['prompt']): LessonFrame => ({
-    id, kind, title, body, ...(prompt ? {prompt} : {}),
+const frame = (id: string, kind: LessonFrame['kind'], title: LessonFrame['title'], body: LessonFrame['body'], prompt?: LessonFrame['prompt'], declare?: LessonFrame['declare']): LessonFrame => ({
+    id, kind, title, body, ...(prompt ? {prompt} : {}), ...(declare ? {declare} : {}),
 });
+const tensorFrame = frameDeclarer<TensorPatchIds>();
+const deCasteljauFrame = frameDeclarer<DeCasteljauIds>();
 const tensor = (m: number, n: number, height: (i: number, j: number) => number): LessonPatchFixture => ({
     kind: 'tensor', m, n,
     net: Array.from({length: (m + 1) * (n + 1)}, (_, k) => {
@@ -47,7 +52,8 @@ const deCasteljau: LessonDefinition = {
     summary: words('Pri isti mreži izračunaj točko najprej po \\(u\\), nato po \\(v\\), in še v obratnem vrstnem redu.', 'For the same net, evaluate first in \\(u\\) then \\(v\\), and then in the reverse order.'),
     steps: [{...scene('order-independence', deCasteljauFixture, 0.25, 0.5, [visibility('decasteljau-scheme')], deCasteljauCamera), frames: [
         frame('order-rows', 'calculation', words('Račun po smeri \\(u\\)', 'Calculation in direction \\(u\\)'), words('Izračun tukaj začne po smeri \\(u\\), ne glede na izbrani vrstni red konstrukcije v prikazu. Mreža ima \\(h_{11}=4\\), druge višine so \\(0\\). Pri \\(u=\\tfrac14\\) je srednja vmesna točka visoka \\(\\tfrac32\\); korak po \\(v=\\tfrac12\\) da \\(S=(\\tfrac14,\\tfrac12,\\tfrac34)\\).', 'The calculation here starts in \\(u\\), independently of the selected construction order in the view. The net has \\(h_{11}=4\\) and all other heights are \\(0\\). At \\(u=\\tfrac14\\), the middle intermediate point has height \\(\\tfrac32\\); the step at \\(v=\\tfrac12\\) gives \\(S=(\\tfrac14,\\tfrac12,\\tfrac34)\\).')),
-        frame('order-columns', 'observation', words('Zamenjaj vrstni red', 'Swap the order'), words('Po \\(v\\) najprej dobimo srednjo točko višine \\(2\\), nato jo utežimo z \\(\\tfrac38\\) v smeri \\(u\\), kar spet da višino \\(\\tfrac34\\). Obe poti končata v isti točki, vmesne točke pa se razlikujejo.', 'Starting in \\(v\\) gives a middle point of height \\(2\\), then the weight \\(\\tfrac38\\) in direction \\(u\\) gives height \\(\\tfrac34\\) again. Both paths end at the same point, while their intermediate points differ.'), words('V demonstraciji preklopi med vrsticami in stolpci. Primerjaj končno označeno točko in vmesno konstrukcijo.', 'In the demonstration, switch between rows and columns. Compare the final marked point and the intermediate construction.')),
+        frame('order-columns', 'observation', words('Zamenjaj vrstni red', 'Swap the order'), words('Po \\(v\\) najprej dobimo srednjo točko višine \\(2\\), nato jo utežimo z \\(\\tfrac38\\) v smeri \\(u\\), kar spet da višino \\(\\tfrac34\\). Obe poti končata v isti točki, vmesne točke pa se razlikujejo.', 'Starting in \\(v\\) gives a middle point of height \\(2\\), then the weight \\(\\tfrac38\\) in direction \\(u\\) gives height \\(\\tfrac34\\) again. Both paths end at the same point, while their intermediate points differ.'), words('V demonstraciji preklopi med vrsticami in stolpci. Primerjaj končno označeno točko in vmesno konstrukcijo.', 'In the demonstration, switch between rows and columns. Compare the final marked point and the intermediate construction.'),
+            deCasteljauFrame({uses: ['patch-decasteljau-order']})),
     ]}],
 };
 
@@ -62,7 +68,8 @@ const properties: LessonDefinition = {
             frame('affine', 'observation', words('Afina preslikava', 'An affine map'), words('Če vse višine preslikamo z \\(z\\mapsto2z+1\\), se izračunana višina središča spremeni iz \\(1\\) v \\(3\\). Razlog je, da se uteži krpe seštejejo v \\(1\\): preslikava kontrolnih točk in preslikava vsake točke krpe se ujemata.', 'If every height is mapped by \\(z\\mapsto2z+1\\), the computed midpoint height changes from \\(1\\) to \\(3\\). The patch weights sum to \\(1\\), so mapping the control points and mapping each patch point give the same result.')),
         ]},
         {...scene('variation-counterexample', saddleFixture, 0.5, 0.5, [visibility('control-net'), visibility('shading')], saddleCamera), frames: [
-            frame('variation', 'observation', words('Meja za krivulje odpove', 'The curve bound fails'), words('Ta bilinearna krpa je \\(S(u,v)=(u,v,(1-2u)(1-2v))\\). Navpična premica skozi \\((\\tfrac12,\\tfrac12)\\) seka krpo v \\((\\tfrac12,\\tfrac12,0)\\), kontrolno žično mrežo pa zgreši, ker so robovi mreže na \\(x=0\\), \\(x=1\\), \\(y=0\\) ali \\(y=1\\). Zato neposredna meja, ki bi štela presečišča s krpo in mrežo, tu ne velja.', 'This bilinear patch is \\(S(u,v)=(u,v,(1-2u)(1-2v))\\). The vertical line through \\((\\tfrac12,\\tfrac12)\\) intersects the patch at \\((\\tfrac12,\\tfrac12,0)\\), but misses the wire control net because its edges lie at \\(x=0\\), \\(x=1\\), \\(y=0\\), or \\(y=1\\). So the direct bound comparing line intersections with the patch and net fails here.'), words('Vključi mrežo in ploskev ter preveri, zakaj presečišča s krpo ni mogoče omejiti s številom presečišč z mrežo.', 'Show the net and patch. Check why the net’s intersection count cannot bound the patch’s count.')),
+            frame('variation', 'observation', words('Meja za krivulje odpove', 'The curve bound fails'), words('Ta bilinearna krpa je \\(S(u,v)=(u,v,(1-2u)(1-2v))\\). Navpična premica skozi \\((\\tfrac12,\\tfrac12)\\) seka krpo v \\((\\tfrac12,\\tfrac12,0)\\), kontrolno žično mrežo pa zgreši, ker so robovi mreže na \\(x=0\\), \\(x=1\\), \\(y=0\\) ali \\(y=1\\). Zato neposredna meja, ki bi štela presečišča s krpo in mrežo, tu ne velja.', 'This bilinear patch is \\(S(u,v)=(u,v,(1-2u)(1-2v))\\). The vertical line through \\((\\tfrac12,\\tfrac12)\\) intersects the patch at \\((\\tfrac12,\\tfrac12,0)\\), but misses the wire control net because its edges lie at \\(x=0\\), \\(x=1\\), \\(y=0\\), or \\(y=1\\). So the direct bound comparing line intersections with the patch and net fails here.'), words('Vključi mrežo in ploskev ter preveri, zakaj presečišča s krpo ni mogoče omejiti s številom presečišč z mrežo.', 'Show the net and patch. Check why the net’s intersection count cannot bound the patch’s count.'),
+                tensorFrame({uses: ['control-net', 'shading'], open: ['tools']})),
             frame('variation-scope', 'calculation', words('Kaj protiprimer pokaže', 'What the counterexample shows'), words('Protiprimer ovrže prav to neposredno pravilo za presečišča s premico in žično mrežo. Ne trdi, da so vse lastnosti zmanjševanja variacije v vseh oblikah napačne; tukaj zadostuje, da mreža zgreši premico, ki seka krpo.', 'The counterexample disproves this direct rule for line intersections with the wire net. It does not claim that every variation-diminishing statement fails in every form; here it is enough that the net misses a line which intersects the patch.')),
         ]},
         {...scene('affine-image', affineFixture, 0.5, 0.5, [visibility('control-net'), visibility('shading')], affineImageCamera), frames: [

@@ -1,13 +1,14 @@
 import {act, fireEvent, render, screen, within} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {GraphHost} from "../base/GraphHost";
-import {installBoardShims, settle} from "../base/realGraphTestHarness";
+import {installBoardShims, puckControl, settle, waitForPucks} from "../base/realGraphTestHarness";
+import {runAs} from "../base/writes/writeSource";
 import {appStorage} from "../../storage/appStorage";
 import {setLanguage, t} from "../../localization";
 import {enterNumber} from "../../inputs/testEntry";
 import {FakeSurfaceView} from "./FakeSurfaceView";
 import {patchFromNet} from "./patchSceneBuilder";
-import TensorPatchGraph from "./TensorPatchGraph";
+import TensorPatchGraph, {PATCH_PARAMETER_KEYS} from "./TensorPatchGraph";
 import type {Xyz} from "./surface-view/surfaceScene";
 
 beforeAll(installBoardShims);
@@ -21,12 +22,14 @@ function mount() {
     return {graph, view, rendered};
 }
 
-type Key = "patch_degree_u" | "patch_degree_v" | "patch_parameter_u" | "patch_parameter_v" | "patch_show_control_net" | "patch_show_iso_curves"
+type Key = "patch_degree_u" | "patch_degree_v" | "patch_show_control_net" | "patch_show_iso_curves"
     | "patch_show_boundary_curves" | "patch_show_shading" | "patch_iso_density" | "patch_shading_density" | "patch_move_height"
     | "patch_view_front" | "patch_view_top" | "patch_view_side" | "patch_view_isometric" | "patch_view_reset"
     | "preset_bilinear_saddle" | "preset_bicubic_dome";
 const select = (label: Key) => screen.getByLabelText<HTMLSelectElement>(t(label));
-const range = (label: Key) => screen.getByLabelText<HTMLInputElement>(t(label));
+/** u and v are board pucks (`patch-u`, `patch-v`): the value a puck shows, and a learner's write through the arbiter as the puck makes it. */
+const puckValue = (direction: "u" | "v") => Number(puckControl(PATCH_PARAMETER_KEYS[direction]).getAttribute("aria-valuenow"));
+const setOnPuck = (graph: TensorPatchGraph, direction: "u" | "v", value: number) => act(() => { graph.parameters!.write(PATCH_PARAMETER_KEYS[direction], value, "learner"); });
 const toggle = (label: Key) => screen.getByLabelText<HTMLInputElement>(t(label));
 const press = (label: Key) => fireEvent.click(screen.getByRole("button", {name: t(label), hidden: true}));
 /** The starting-patch select: the entries are the starting patches in order. */
@@ -55,8 +58,8 @@ function expectControlsToMatch(graph: TensorPatchGraph) {
     const s = graph.state;
     expect(degree("patch_degree_u")).toBe(s.m);
     expect(degree("patch_degree_v")).toBe(s.n);
-    expect(Number(range("patch_parameter_u").value)).toBeCloseTo(s.u, 12);
-    expect(Number(range("patch_parameter_v").value)).toBeCloseTo(s.v, 12);
+    expect(puckValue("u")).toBeCloseTo(s.u, 12);
+    expect(puckValue("v")).toBeCloseTo(s.v, 12);
     expect(toggle("patch_show_control_net").checked).toBe(s.showControlNet);
     expect(toggle("patch_show_iso_curves").checked).toBe(s.showIsoCurves);
     expect(toggle("patch_show_boundary_curves").checked).toBe(s.showBoundaryCurves);
@@ -67,8 +70,9 @@ function expectControlsToMatch(graph: TensorPatchGraph) {
 }
 
 describe("Uredi panel", () => {
-    it("a degree choice changes the net and the reconciled points and net lines", () => {
+    it("a degree choice changes the net and the reconciled points and net lines", async () => {
         const {graph, view} = mount();
+        await waitForPucks(PATCH_PARAMETER_KEYS.v);
         expect(view.last.points).toHaveLength(16);
         setDegree("patch_degree_u", 2);
         expect(graph.state.m).toBe(2);
@@ -90,20 +94,27 @@ describe("Uredi panel", () => {
         expect(graph.state.m).toBe(2);
     });
 
-    it("the u and v sliders move the evaluated marker to S(u,v)", () => {
+    it("the u and v pucks move the evaluated marker to S(u,v); the Uredi sliders give way to them", async () => {
         const {graph, view} = mount();
-        fireEvent.change(range("patch_parameter_u"), {target: {value: "0.25"}});
-        fireEvent.change(range("patch_parameter_v"), {target: {value: "0.8"}});
+        await waitForPucks(PATCH_PARAMETER_KEYS.v);
+        expect(screen.queryAllByLabelText(t("patch_parameter_u")).filter(element => element.tagName === "INPUT")).toEqual([]);
+        expect(screen.getByText(t("patch_tensor_inset_help_pucks"))).toBeTruthy();
+        setOnPuck(graph, "u", 0.25);
+        act(() => { fireEvent.keyDown(puckControl(PATCH_PARAMETER_KEYS.v), {key: "ArrowRight"}); });
+        setOnPuck(graph, "v", 0.8);
         expect(graph.state.u).toBe(0.25);
         expect(graph.state.v).toBe(0.8);
         const expected = evaluated(graph, 0.25, 0.8);
         view.last.markers[0].xyz.forEach((x, k) => expect(x).toBeCloseTo(expected[k], 12));
-        expect(range("patch_parameter_u").min).toBe("0");
-        expect(range("patch_parameter_u").max).toBe("1");
+        expect(puckControl(PATCH_PARAMETER_KEYS.u).getAttribute("aria-valuemin")).toBe("0");
+        expect(puckControl(PATCH_PARAMETER_KEYS.u).getAttribute("aria-valuemax")).toBe("1");
+        act(() => { fireEvent.keyDown(puckControl(PATCH_PARAMETER_KEYS.u), {key: "ArrowRight"}); });
+        expect(graph.state.u).toBeCloseTo(0.26, 12);
     });
 
-    it("a starting patch button imports that default Preset, camera included", () => {
+    it("a starting patch button imports that default Preset, camera included", async () => {
         const {graph, view} = mount();
+        await waitForPucks(PATCH_PARAMETER_KEYS.v);
         startWith("preset_bilinear_saddle");
         expect(graph.state).toMatchObject({m: 1, n: 1});
         expect(view.last.points).toHaveLength(4);
@@ -121,7 +132,7 @@ describe("Uredi panel: starting patch select and degree steppers", () => {
         const {graph} = mount();
         expect([...startingSelect().options].map(option => option.value)).toEqual(["0", "1"]);
         expect(startingSelect().value).toBe("1");
-        act(() => graph.setState({u: 0.2}));
+        act(() => runAs("learner", () => graph.setState({u: 0.2})));
         startWith("preset_bicubic_dome");
         expect(graph.state.u).toBe(0.2);
         act(() => graph.setState({net: graph.state.net.map((row, i) => row.map((point, j) => i === 1 && j === 1 ? [point[0], point[1], point[2] + 1] as Xyz : point))}));
@@ -148,8 +159,9 @@ describe("Uredi panel: starting patch select and degree steppers", () => {
 });
 
 describe("Prikaz panel", () => {
-    it("each element switch removes and restores its elements in the reconciled scene", () => {
+    it("each element switch removes and restores its elements in the reconciled scene", async () => {
         const {graph, view} = mount();
+        await waitForPucks(PATCH_PARAMETER_KEYS.v);
         expect(count(view, "iso")).toBe(18);
         fireEvent.click(toggle("patch_show_iso_curves"));
         expect(graph.state.showIsoCurves).toBe(false);
@@ -172,8 +184,9 @@ describe("Prikaz panel", () => {
         expectControlsToMatch(graph);
     });
 
-    it("the density choices change the iso-curve count and the mesh size", () => {
+    it("the density choices change the iso-curve count and the mesh size", async () => {
         const {graph, view} = mount();
+        await waitForPucks(PATCH_PARAMETER_KEYS.v);
         const meshBefore = view.last.mesh!.faces.length;
         fireEvent.change(select("patch_iso_density"), {target: {value: "16"}});
         expect(graph.state.isoDensity).toBe(16);
@@ -214,10 +227,11 @@ describe("Prikaz panel", () => {
 });
 
 describe("controls follow the store", () => {
-    it("after an external state write, as a lesson scene writes it", () => {
+    it("after an external state write, as a lesson scene writes it", async () => {
         const {graph} = mount();
-        act(() => graph.setState({m: 2, n: 1, net: [[[0, 0, 0], [0, 1, 0]], [[1, 0, 1], [1, 1, 1]], [[2, 0, 0], [2, 1, 0]]],
-            u: 0.1, v: 0.9, showIsoCurves: false, isoDensity: 16, shadingDensity: 8, zMode: true}));
+        await waitForPucks(PATCH_PARAMETER_KEYS.v);
+        act(() => runAs("learner", () => graph.setState({m: 2, n: 1, net: [[[0, 0, 0], [0, 1, 0]], [[1, 0, 1], [1, 1, 1]], [[2, 0, 0], [2, 1, 0]]],
+            u: 0.1, v: 0.9, showIsoCurves: false, isoDensity: 16, shadingDensity: 8, zMode: true})));
         expectControlsToMatch(graph);
         expect(degree("patch_degree_u")).toBe(2);
         expect(toggle("patch_show_iso_curves").checked).toBe(false);
@@ -225,8 +239,9 @@ describe("controls follow the store", () => {
 
     it("after Reset, which brings back the default scene", async () => {
         const {graph} = mount();
+        await waitForPucks(PATCH_PARAMETER_KEYS.v);
         setDegree("patch_degree_u", 1);
-        fireEvent.change(range("patch_parameter_u"), {target: {value: "0.9"}});
+        setOnPuck(graph, "u", 0.9);
         fireEvent.click(toggle("patch_show_shading"));
         await settle(() => graph.reset());
         expect(graph.state).toMatchObject({m: 3, u: 0.5, showShading: true});
@@ -235,8 +250,9 @@ describe("controls follow the store", () => {
 
     it("after a Preset is restored and after a lesson checkpoint is restored", async () => {
         const {graph} = mount();
+        await waitForPucks(PATCH_PARAMETER_KEYS.v);
         setDegree("patch_degree_v", 2);
-        fireEvent.change(range("patch_parameter_v"), {target: {value: "0.2"}});
+        setOnPuck(graph, "v", 0.2);
         fireEvent.click(toggle("patch_show_control_net"));
         graph.presetService!.savePreset({...graph.exportPreset(), id: "mine"});
         const checkpoint = graph.getLessonCapabilities().captureState();
@@ -252,10 +268,11 @@ describe("controls follow the store", () => {
         expectControlsToMatch(graph);
     });
 
-    it("across a language switch: labels change, values do not", () => {
+    it("across a language switch: labels change, values do not", async () => {
         const {graph} = mount();
+        await waitForPucks(PATCH_PARAMETER_KEYS.v);
         setDegree("patch_degree_u", 4);
-        fireEvent.change(range("patch_parameter_u"), {target: {value: "0.3"}});
+        setOnPuck(graph, "u", 0.3);
         fireEvent.click(toggle("patch_show_iso_curves"));
         const before = [t("patch_degree_u"), t("patch_show_iso_curves")];
         act(() => setLanguage("en"));

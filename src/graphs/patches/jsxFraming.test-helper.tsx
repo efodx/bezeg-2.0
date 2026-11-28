@@ -6,6 +6,7 @@
 import {act} from '@testing-library/react';
 import {mountGraph, surfaceViewOf} from '../base/realGraphTestHarness';
 import {createGraph} from '../base/createTestGraph';
+import {runAs} from '../base/writes/writeSource';
 import type {DemonstrationId} from '../../demonstrations';
 import {defaultPatchPresets, defaultTriangularPatchPresets, derivativesStartingPatches, joinStartingScenes, type DefaultPatchPreset} from './patchPresetCollections';
 import type {PatchCollectionPresetData} from './patchDto';
@@ -66,10 +67,11 @@ export function collectFramingCases(): FramingCase[] {
         const fitting = graph as unknown as FittingGraph;
         const tag = (preset: string, what: string): string => `${source.label}/${preset}/${what}`;
         // A plain open is fitted to the host; the default Preset's own (stored) camera is what this case measures.
-        act(() => fitting.importPresetData(fitting.defaultPreset()));
+        // A Preset import writes the declared u, v (and order): the learner's import, tagged as its click would tag it.
+        act(() => runAs('learner', () => fitting.importPresetData(fitting.defaultPreset())));
         cases.push({name: tag('default', 'stored'), scene: last(view), viewports: FRAMING_VIEWPORTS});
         source.presets.forEach((preset, index) => {
-            act(() => fitting.importPresetData(preset.data()));
+            act(() => runAs('learner', () => fitting.importPresetData(preset.data())));
             cases.push({name: tag(preset.name, 'stored'), scene: last(view), viewports: FRAMING_VIEWPORTS});
             // Camera presets and fit-to-host are exercised on the first Preset and on the capstone only, to bound the cost.
             if (index > 0 && preset.name !== 'join-teapot') return;

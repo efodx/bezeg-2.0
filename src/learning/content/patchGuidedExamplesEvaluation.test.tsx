@@ -2,6 +2,7 @@ import {act, render} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import {GraphHost} from '../../graphs/base/GraphHost';
 import {installBoardShims} from '../../graphs/base/realGraphTestHarness';
+import {runAs} from '../../graphs/base/writes/writeSource';
 import {FakeSurfaceView} from '../../graphs/patches/FakeSurfaceView';
 import TensorDeCasteljauGraph from '../../graphs/patches/TensorDeCasteljauGraph';
 import TensorDerivativesGraph from '../../graphs/patches/TensorDerivativesGraph';
@@ -119,7 +120,7 @@ describe('patch evaluation guided examples', () => {
         expectPatchInView(view.last);
         const rows = view.last.markers.find(marker => marker.role === 'evaluated')!.xyz;
         closeVector(rows, expectedRows);
-        act(() => graph.setDecasteljauOrder('columns'));
+        act(() => runAs('learner', () => graph.setDecasteljauOrder('columns')));
         const columns = view.last.markers.find(marker => marker.role === 'evaluated')!.xyz;
         closeVector(columns, expectedColumns);
         closeVector(columns, rows);

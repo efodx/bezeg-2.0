@@ -5,6 +5,7 @@ import {CountSetter} from "../../inputs/CountSetter";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import Slider from "../../inputs/Slider";
 import {currentLanguage, useT} from "../../localization";
+import {PuckOwned, usePuckOwns} from "../base/controls/PuckOwnership";
 import {ReadoutHelp} from "../base/controls/ReadoutParts";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import {PatchPointChooser} from "./PatchPointChooser";
@@ -90,10 +91,12 @@ const startingPatchOptions = (patches: ReadonlyArray<Pick<DerivativesStartingPat
  * of them (`actions.startingPatchIndex`), and choosing the entry already shown does nothing. `pointLocked` is the reason the selected
  * point cannot be edited right now; it replaces the coordinate editor so that nothing is offered that does nothing. `pointFirst` leads
  * with the "Point on the patch" group (a Demonstration whose first task is the u and v pair) and keeps the setup groups after it. `netFirst` leads with the control-point chooser and, once a point is selected, its coordinates (a route whose first task is dragging a net point).
+ * `puckKeys` (a Demonstration that declares the board workspace) are the arbiter keys of u and v: their sliders render nothing while the
+ * board pucks own them, and the inset help names the pucks instead.
  */
-export function TensorPatchEditPanel({state, selection, actions, pointExtra, pointLocked, pointFirst = false, netFirst = false, startingPatches = defaultPatchPresets}: {
+export function TensorPatchEditPanel({state, selection, actions, pointExtra, pointLocked, pointFirst = false, netFirst = false, startingPatches = defaultPatchPresets, puckKeys}: {
     state: TensorPatchPanelState; selection?: PatchSelection; actions: TensorPatchPanelActions; pointExtra?: ReactNode; pointLocked?: string; pointFirst?: boolean; netFirst?: boolean;
-    startingPatches?: ReadonlyArray<Pick<DerivativesStartingPatch, "id" | "name">>;
+    startingPatches?: ReadonlyArray<Pick<DerivativesStartingPatch, "id" | "name">>; puckKeys?: {readonly u: string; readonly v: string};
 }) {
     const t = useT();
     const matching = actions.startingPatchIndex();
@@ -118,13 +121,13 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, poi
     </>;
     const pointGroup =
         <div className="inspector-group"><h3>{t("patch_point_heading")}</h3>
-            <Slider customText={t("patch_parameter_u")} min={0} max={1} step={0.01} value={state.u}
-                    onChange={value => actions.setParameter("u", value)}/>
-            <Slider customText={t("patch_parameter_v")} min={0} max={1} step={0.01} value={state.v}
-                    onChange={value => actions.setParameter("v", value)}/>
+            <PuckOwned param={puckKeys?.u}><Slider customText={t("patch_parameter_u")} min={0} max={1} step={0.01} value={state.u}
+                    onChange={value => actions.setParameter("u", value)}/></PuckOwned>
+            <PuckOwned param={puckKeys?.v}><Slider customText={t("patch_parameter_v")} min={0} max={1} step={0.01} value={state.v}
+                    onChange={value => actions.setParameter("v", value)}/></PuckOwned>
             {pointExtra}
             <ParameterInset attach={actions.setInsetContainer} label={t("patch_parameter_inset_label")}/>
-            <p className="inspector-help">{t("patch_parameter_inset_help")}</p>
+            <InsetHelp puckKeys={puckKeys}/>
         </div>;
     const netGroups = <>
         <div className="inspector-group"><h3>{t("patch_control_point_heading")}</h3>
@@ -151,6 +154,13 @@ export function TensorPatchEditPanel({state, selection, actions, pointExtra, poi
         {!pointFirst && pointGroup}
         {!netFirst && netGroups}
     </>;
+}
+
+/** The inset's help: it names the sliders above, or the board pucks once they own u and v. */
+function InsetHelp({puckKeys}: {puckKeys?: {readonly u: string; readonly v: string}}) {
+    const t = useT();
+    const ownsU = usePuckOwns(puckKeys?.u), ownsV = usePuckOwns(puckKeys?.v);
+    return <p className="inspector-help">{ownsU && ownsV ? t("patch_tensor_inset_help_pucks") : t("patch_parameter_inset_help")}</p>;
 }
 
 const indexOptions = (degree: number) => Array.from({length: degree + 1}, (_, k) => ({value: String(k), text: String(k)}));

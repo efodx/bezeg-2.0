@@ -873,6 +873,19 @@ const SAMPLES: readonly Sample[] = [
             step('revolve, parabola about y, 4 discs', g => { g.setMode('revolve'); g.setSolid('parabola'); g.setAxis('y'); g.setDiscs(4); }),
         ];
     })()},
+    {file: 'patches/__parity__/patch-derivatives.json', demonstration: 'patch-derivatives', states: (() => {
+        type Derivatives = {setParameters(u: number, v: number): void; useStartingPatch(index: number): void; setDegree(direction: 'u' | 'v', degree: number): void};
+        const step = (name: string, apply: (graph: Derivatives) => void): ParityState => ({name, apply: graph => runAs('learner', () => apply(graph as unknown as Derivatives))});
+        return [
+            state('default', {}),
+            step('dome at (0,8; 0,2)', g => g.setParameters(0.8, 0.2)),
+            step('dome at corner (1, 1)', g => g.setParameters(1, 1)),
+            step('bilinear saddle at (0,5; 0,5)', g => { g.useStartingPatch(0); g.setParameters(0.5, 0.5); }),
+            step('collapsed edge, normal undefined', g => g.useStartingPatch(2)),
+            step('parallel corner, normal undefined', g => g.useStartingPatch(3)),
+            step('parallel corner at (0,4; 0,7)', g => g.setParameters(0.4, 0.7)),
+        ];
+    })()},
     {file: 'linear/__parity__/linear-map-basis.json', demonstration: 'linear-map', states: [
         state('basis default', {'linear-map-mode': 'basis'}),
         state('shear', {'linear-map-example': 'shear'}),
