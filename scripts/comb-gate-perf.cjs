@@ -127,7 +127,7 @@ async function runOnce(browser, c) {
         await page.evaluate(readBoard); await page.waitForTimeout(600);
         const s = await page.evaluate(readBoard);
         if (c.throttle) await (await context.newCDPSession(page)).send('Emulation.setCPUThrottlingRate', {rate: c.throttle});
-        let from, to;
+        let from;
         const keyTarget = page.locator('.puck-strip').getByRole('slider', {name: 'Parameter t', exact: true});
         if (c.evolute === 'slider') {
             // The t puck is keyed (0.01 a step), not dragged: from t = 0 right to 1, then back left, one key per frame slot.
