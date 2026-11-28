@@ -1,0 +1,553 @@
+{
+  "graph": "rational-function",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "f(x) = (x + 1)(x - 1) / (x - 2)"
+        },
+        {
+          "key": "Ničle funkcije#0",
+          "label": "Ničle funkcije",
+          "value": "x = -1, x = 1"
+        },
+        {
+          "key": "Luknje#0",
+          "label": "Luknje",
+          "value": "ni lukenj"
+        },
+        {
+          "key": "Pol 1#0",
+          "label": "Pol 1",
+          "value": "x = 2, večkratnost 1: navpična asimptota; predznak se spremeni (levo -∞, desno +∞)"
+        },
+        {
+          "key": "Vodoravna ali poševna asimptota#0",
+          "label": "Vodoravna ali poševna asimptota",
+          "value": "poševna asimptota y = x + 2: stopnja števca (2) je za 1 večja od stopnje imenovalca (1), asimptota je kvocient pri deljenju"
+        },
+        {
+          "key": "Deljenje p/q#0",
+          "label": "Deljenje p/q",
+          "value": "f(x) = x + 2 + r(x)/q(x), kjer je r(x) = 3 (ostanek) in q(x) = (x - 2)"
+        },
+        {
+          "key": "Člen r(x)/q(x) pri x = 10#0",
+          "label": "Člen r(x)/q(x) pri x = 10",
+          "value": "pri x = 10 je r(x)/q(x) = 0,375; za toliko se f(x) razlikuje od asimptote"
+        }
+      ],
+      "notes": [
+        "Vodoravno ali poševno asimptoto lahko graf pri končnem x seka: asimptota pove le, kam se graf približuje, ko |x| narašča. Navpične asimptote graf ne seka. Ničla števca, ki sovpada z ničlo imenovalca, se okrajša in da luknjo, ne pola."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = (x + 1)(x - 1) / (x - 2)",
+        "r(x)/q(x) = 0,375",
+        "stopnja števca 2, imenovalca 1",
+        "x = 2",
+        "y = x + 2"
+      ]
+    },
+    {
+      "name": "hole",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "f(x) = (x + 1)(x - 1) / (x - 1)"
+        },
+        {
+          "key": "Okrajšani ulomek#0",
+          "label": "Okrajšani ulomek",
+          "value": "f(x) = (x + 1)"
+        },
+        {
+          "key": "Ničle funkcije#0",
+          "label": "Ničle funkcije",
+          "value": "x = -1"
+        },
+        {
+          "key": "Luknje#0",
+          "label": "Luknje",
+          "value": "(1; 2): luknja (odpravljiva nezveznost), funkcija tu ni definirana, limita je 2"
+        },
+        {
+          "key": "Poli#0",
+          "label": "Poli",
+          "value": "ni polov"
+        },
+        {
+          "key": "Vodoravna ali poševna asimptota#0",
+          "label": "Vodoravna ali poševna asimptota",
+          "value": "poševna asimptota y = x + 1: stopnja števca (1) je za 1 večja od stopnje imenovalca (0), asimptota je kvocient pri deljenju"
+        },
+        {
+          "key": "Deljenje p/q#0",
+          "label": "Deljenje p/q",
+          "value": "f(x) = x + 1 + r(x)/q(x), kjer je r(x) = 0 (ostanek) in q(x) = 1"
+        },
+        {
+          "key": "Člen r(x)/q(x) pri x = 10#0",
+          "label": "Člen r(x)/q(x) pri x = 10",
+          "value": "pri x = 10 je r(x)/q(x) = 0; za toliko se f(x) razlikuje od asimptote"
+        }
+      ],
+      "notes": [
+        "Vodoravno ali poševno asimptoto lahko graf pri končnem x seka: asimptota pove le, kam se graf približuje, ko |x| narašča. Navpične asimptote graf ne seka. Ničla števca, ki sovpada z ničlo imenovalca, se okrajša in da luknjo, ne pola."
+      ],
+      "outputs": [],
+      "captions": [
+        "(1; 2)",
+        "f(x) = (x + 1)(x - 1) / (x - 1)",
+        "r(x)/q(x) = 0",
+        "stopnja števca 1, imenovalca 0",
+        "y = x + 1"
+      ]
+    },
+    {
+      "name": "horizontal",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "f(x) = 2·(x + 1)(x - 1) / ((x + 2)(x - 2))"
+        },
+        {
+          "key": "Ničle funkcije#0",
+          "label": "Ničle funkcije",
+          "value": "x = -1, x = 1"
+        },
+        {
+          "key": "Luknje#0",
+          "label": "Luknje",
+          "value": "ni lukenj"
+        },
+        {
+          "key": "Pol 1#0",
+          "label": "Pol 1",
+          "value": "x = -2, večkratnost 1: navpična asimptota; predznak se spremeni (levo +∞, desno -∞)"
+        },
+        {
+          "key": "Pol 2#0",
+          "label": "Pol 2",
+          "value": "x = 2, večkratnost 1: navpična asimptota; predznak se spremeni (levo -∞, desno +∞)"
+        },
+        {
+          "key": "Vodoravna ali poševna asimptota#0",
+          "label": "Vodoravna ali poševna asimptota",
+          "value": "vodoravna asimptota y = 2: stopnji števca in imenovalca sta enaki (2 in 2), y je kvocient vodilnih koeficientov"
+        },
+        {
+          "key": "Deljenje p/q#0",
+          "label": "Deljenje p/q",
+          "value": "f(x) = 2 + r(x)/q(x), kjer je r(x) = 6 (ostanek) in q(x) = (x + 2)(x - 2)"
+        },
+        {
+          "key": "Člen r(x)/q(x) pri x = 10#0",
+          "label": "Člen r(x)/q(x) pri x = 10",
+          "value": "pri x = 10 je r(x)/q(x) = 0,0625; za toliko se f(x) razlikuje od asimptote"
+        }
+      ],
+      "notes": [
+        "Vodoravno ali poševno asimptoto lahko graf pri končnem x seka: asimptota pove le, kam se graf približuje, ko |x| narašča. Navpične asimptote graf ne seka. Ničla števca, ki sovpada z ničlo imenovalca, se okrajša in da luknjo, ne pola."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = 2·(x + 1)(x - 1) / ((x + 2)(x - 2))",
+        "r(x)/q(x) = 0,0625",
+        "stopnja števca 2, imenovalca 2",
+        "x = -2",
+        "x = 2",
+        "y = 2"
+      ]
+    },
+    {
+      "name": "double pole",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "f(x) = 4·x / ((x + 2)(x - 1)²)"
+        },
+        {
+          "key": "Ničle funkcije#0",
+          "label": "Ničle funkcije",
+          "value": "x = 0"
+        },
+        {
+          "key": "Luknje#0",
+          "label": "Luknje",
+          "value": "ni lukenj"
+        },
+        {
+          "key": "Pol 1#0",
+          "label": "Pol 1",
+          "value": "x = -2, večkratnost 1: navpična asimptota; predznak se spremeni (levo +∞, desno -∞)"
+        },
+        {
+          "key": "Pol 2#0",
+          "label": "Pol 2",
+          "value": "x = 1, večkratnost 2: navpična asimptota; predznak se ne spremeni (na obeh straneh +∞)"
+        },
+        {
+          "key": "Vodoravna ali poševna asimptota#0",
+          "label": "Vodoravna ali poševna asimptota",
+          "value": "vodoravna asimptota y = 0: stopnja števca (1) je manjša od stopnje imenovalca (3)"
+        },
+        {
+          "key": "Deljenje p/q#0",
+          "label": "Deljenje p/q",
+          "value": "f(x) = 0 + r(x)/q(x), kjer je r(x) = 4x (ostanek) in q(x) = (x + 2)(x - 1)²"
+        },
+        {
+          "key": "Člen r(x)/q(x) pri x = 10#0",
+          "label": "Člen r(x)/q(x) pri x = 10",
+          "value": "pri x = 10 je r(x)/q(x) = 0,0412; za toliko se f(x) razlikuje od asimptote"
+        }
+      ],
+      "notes": [
+        "Vodoravno ali poševno asimptoto lahko graf pri končnem x seka: asimptota pove le, kam se graf približuje, ko |x| narašča. Navpične asimptote graf ne seka. Ničla števca, ki sovpada z ničlo imenovalca, se okrajša in da luknjo, ne pola."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = 4·x / ((x + 2)(x - 1)²)",
+        "r(x)/q(x) = 0,0412",
+        "stopnja števca 1, imenovalca 3",
+        "x = -2",
+        "x = 1",
+        "y = 0",
+        "×2"
+      ]
+    },
+    {
+      "name": "oblique, probe 4",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "f(x) = (x + 1)(x - 1) / (x - 2)"
+        },
+        {
+          "key": "Ničle funkcije#0",
+          "label": "Ničle funkcije",
+          "value": "x = -1, x = 1"
+        },
+        {
+          "key": "Luknje#0",
+          "label": "Luknje",
+          "value": "ni lukenj"
+        },
+        {
+          "key": "Pol 1#0",
+          "label": "Pol 1",
+          "value": "x = 2, večkratnost 1: navpična asimptota; predznak se spremeni (levo -∞, desno +∞)"
+        },
+        {
+          "key": "Vodoravna ali poševna asimptota#0",
+          "label": "Vodoravna ali poševna asimptota",
+          "value": "poševna asimptota y = x + 2: stopnja števca (2) je za 1 večja od stopnje imenovalca (1), asimptota je kvocient pri deljenju"
+        },
+        {
+          "key": "Deljenje p/q#0",
+          "label": "Deljenje p/q",
+          "value": "f(x) = x + 2 + r(x)/q(x), kjer je r(x) = 3 (ostanek) in q(x) = (x - 2)"
+        },
+        {
+          "key": "Člen r(x)/q(x) pri x = 4#0",
+          "label": "Člen r(x)/q(x) pri x = 4",
+          "value": "pri x = 4 je r(x)/q(x) = 1,5; za toliko se f(x) razlikuje od asimptote"
+        }
+      ],
+      "notes": [
+        "Vodoravno ali poševno asimptoto lahko graf pri končnem x seka: asimptota pove le, kam se graf približuje, ko |x| narašča. Navpične asimptote graf ne seka. Ničla števca, ki sovpada z ničlo imenovalca, se okrajša in da luknjo, ne pola."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = (x + 1)(x - 1) / (x - 2)",
+        "r(x)/q(x) = 1,5",
+        "stopnja števca 2, imenovalca 1",
+        "x = 2",
+        "y = x + 2"
+      ]
+    },
+    {
+      "name": "oblique, probe at the pole",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "f(x) = (x + 1)(x - 1) / (x - 2)"
+        },
+        {
+          "key": "Ničle funkcije#0",
+          "label": "Ničle funkcije",
+          "value": "x = -1, x = 1"
+        },
+        {
+          "key": "Luknje#0",
+          "label": "Luknje",
+          "value": "ni lukenj"
+        },
+        {
+          "key": "Pol 1#0",
+          "label": "Pol 1",
+          "value": "x = 2, večkratnost 1: navpična asimptota; predznak se spremeni (levo -∞, desno +∞)"
+        },
+        {
+          "key": "Vodoravna ali poševna asimptota#0",
+          "label": "Vodoravna ali poševna asimptota",
+          "value": "poševna asimptota y = x + 2: stopnja števca (2) je za 1 večja od stopnje imenovalca (1), asimptota je kvocient pri deljenju"
+        },
+        {
+          "key": "Deljenje p/q#0",
+          "label": "Deljenje p/q",
+          "value": "f(x) = x + 2 + r(x)/q(x), kjer je r(x) = 3 (ostanek) in q(x) = (x - 2)"
+        },
+        {
+          "key": "Člen r(x)/q(x) pri x = 2#0",
+          "label": "Člen r(x)/q(x) pri x = 2",
+          "value": "pri x = 2 funkcija ni definirana (pol ali luknja), zato tam člena ni"
+        }
+      ],
+      "notes": [
+        "Vodoravno ali poševno asimptoto lahko graf pri končnem x seka: asimptota pove le, kam se graf približuje, ko |x| narašča. Navpične asimptote graf ne seka. Ničla števca, ki sovpada z ničlo imenovalca, se okrajša in da luknjo, ne pola."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = (x + 1)(x - 1) / (x - 2)",
+        "stopnja števca 2, imenovalca 1",
+        "x = 2",
+        "y = x + 2"
+      ]
+    },
+    {
+      "name": "k -1.5",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "f(x) = -1,5·(x + 1)(x - 1) / (x - 2)"
+        },
+        {
+          "key": "Ničle funkcije#0",
+          "label": "Ničle funkcije",
+          "value": "x = -1, x = 1"
+        },
+        {
+          "key": "Luknje#0",
+          "label": "Luknje",
+          "value": "ni lukenj"
+        },
+        {
+          "key": "Pol 1#0",
+          "label": "Pol 1",
+          "value": "x = 2, večkratnost 1: navpična asimptota; predznak se spremeni (levo +∞, desno -∞)"
+        },
+        {
+          "key": "Vodoravna ali poševna asimptota#0",
+          "label": "Vodoravna ali poševna asimptota",
+          "value": "poševna asimptota y = -1,5x - 3: stopnja števca (2) je za 1 večja od stopnje imenovalca (1), asimptota je kvocient pri deljenju"
+        },
+        {
+          "key": "Deljenje p/q#0",
+          "label": "Deljenje p/q",
+          "value": "f(x) = -1,5x - 3 + r(x)/q(x), kjer je r(x) = -4,5 (ostanek) in q(x) = (x - 2)"
+        },
+        {
+          "key": "Člen r(x)/q(x) pri x = 2#0",
+          "label": "Člen r(x)/q(x) pri x = 2",
+          "value": "pri x = 2 funkcija ni definirana (pol ali luknja), zato tam člena ni"
+        }
+      ],
+      "notes": [
+        "Vodoravno ali poševno asimptoto lahko graf pri končnem x seka: asimptota pove le, kam se graf približuje, ko |x| narašča. Navpične asimptote graf ne seka. Ničla števca, ki sovpada z ničlo imenovalca, se okrajša in da luknjo, ne pola."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = -1,5·(x + 1)(x - 1) / (x - 2)",
+        "stopnja števca 2, imenovalca 1",
+        "x = 2",
+        "y = -1,5x - 3"
+      ]
+    },
+    {
+      "name": "numerator zero onto the pole",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "f(x) = (x + 1)(x - 2) / (x - 2)"
+        },
+        {
+          "key": "Okrajšani ulomek#0",
+          "label": "Okrajšani ulomek",
+          "value": "f(x) = (x + 1)"
+        },
+        {
+          "key": "Ničle funkcije#0",
+          "label": "Ničle funkcije",
+          "value": "x = -1"
+        },
+        {
+          "key": "Luknje#0",
+          "label": "Luknje",
+          "value": "(2; 3): luknja (odpravljiva nezveznost), funkcija tu ni definirana, limita je 3"
+        },
+        {
+          "key": "Poli#0",
+          "label": "Poli",
+          "value": "ni polov"
+        },
+        {
+          "key": "Vodoravna ali poševna asimptota#0",
+          "label": "Vodoravna ali poševna asimptota",
+          "value": "poševna asimptota y = x + 1: stopnja števca (1) je za 1 večja od stopnje imenovalca (0), asimptota je kvocient pri deljenju"
+        },
+        {
+          "key": "Deljenje p/q#0",
+          "label": "Deljenje p/q",
+          "value": "f(x) = x + 1 + r(x)/q(x), kjer je r(x) = 0 (ostanek) in q(x) = 1"
+        },
+        {
+          "key": "Člen r(x)/q(x) pri x = 2#0",
+          "label": "Člen r(x)/q(x) pri x = 2",
+          "value": "pri x = 2 funkcija ni definirana (pol ali luknja), zato tam člena ni"
+        }
+      ],
+      "notes": [
+        "Vodoravno ali poševno asimptoto lahko graf pri končnem x seka: asimptota pove le, kam se graf približuje, ko |x| narašča. Navpične asimptote graf ne seka. Ničla števca, ki sovpada z ničlo imenovalca, se okrajša in da luknjo, ne pola."
+      ],
+      "outputs": [],
+      "captions": [
+        "(2; 3)",
+        "f(x) = (x + 1)(x - 2) / (x - 2)",
+        "stopnja števca 1, imenovalca 0",
+        "y = x + 1"
+      ]
+    },
+    {
+      "name": "denominator zero added",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "f(x) = (x + 1)(x - 1) / (x(x - 2))"
+        },
+        {
+          "key": "Ničle funkcije#0",
+          "label": "Ničle funkcije",
+          "value": "x = -1, x = 1"
+        },
+        {
+          "key": "Luknje#0",
+          "label": "Luknje",
+          "value": "ni lukenj"
+        },
+        {
+          "key": "Pol 1#0",
+          "label": "Pol 1",
+          "value": "x = 0, večkratnost 1: navpična asimptota; predznak se spremeni (levo -∞, desno +∞)"
+        },
+        {
+          "key": "Pol 2#0",
+          "label": "Pol 2",
+          "value": "x = 2, večkratnost 1: navpična asimptota; predznak se spremeni (levo -∞, desno +∞)"
+        },
+        {
+          "key": "Vodoravna ali poševna asimptota#0",
+          "label": "Vodoravna ali poševna asimptota",
+          "value": "vodoravna asimptota y = 1: stopnji števca in imenovalca sta enaki (2 in 2), y je kvocient vodilnih koeficientov"
+        },
+        {
+          "key": "Deljenje p/q#0",
+          "label": "Deljenje p/q",
+          "value": "f(x) = 1 + r(x)/q(x), kjer je r(x) = 2x - 1 (ostanek) in q(x) = x(x - 2)"
+        },
+        {
+          "key": "Člen r(x)/q(x) pri x = 2#0",
+          "label": "Člen r(x)/q(x) pri x = 2",
+          "value": "pri x = 2 funkcija ni definirana (pol ali luknja), zato tam člena ni"
+        }
+      ],
+      "notes": [
+        "Vodoravno ali poševno asimptoto lahko graf pri končnem x seka: asimptota pove le, kam se graf približuje, ko |x| narašča. Navpične asimptote graf ne seka. Ničla števca, ki sovpada z ničlo imenovalca, se okrajša in da luknjo, ne pola."
+      ],
+      "outputs": [],
+      "captions": [
+        "f(x) = (x + 1)(x - 1) / (x(x - 2))",
+        "stopnja števca 2, imenovalca 2",
+        "x = 0",
+        "x = 2",
+        "y = 1"
+      ]
+    },
+    {
+      "name": "no asymptote",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "f(x) = (x + 1)(x - 1) / (x(x - 1)(x - 2)³)"
+        },
+        {
+          "key": "Okrajšani ulomek#0",
+          "label": "Okrajšani ulomek",
+          "value": "f(x) = (x + 1) / (x(x - 2)³)"
+        },
+        {
+          "key": "Ničle funkcije#0",
+          "label": "Ničle funkcije",
+          "value": "x = -1"
+        },
+        {
+          "key": "Luknje#0",
+          "label": "Luknje",
+          "value": "(1; -2): luknja (odpravljiva nezveznost), funkcija tu ni definirana, limita je -2"
+        },
+        {
+          "key": "Pol 1#0",
+          "label": "Pol 1",
+          "value": "x = 0, večkratnost 1: navpična asimptota; predznak se spremeni (levo +∞, desno -∞)"
+        },
+        {
+          "key": "Pol 2#0",
+          "label": "Pol 2",
+          "value": "x = 2, večkratnost 3: navpična asimptota; predznak se spremeni (levo -∞, desno +∞)"
+        },
+        {
+          "key": "Vodoravna ali poševna asimptota#0",
+          "label": "Vodoravna ali poševna asimptota",
+          "value": "vodoravna asimptota y = 0: stopnja števca (1) je manjša od stopnje imenovalca (4)"
+        },
+        {
+          "key": "Deljenje p/q#0",
+          "label": "Deljenje p/q",
+          "value": "f(x) = 0 + r(x)/q(x), kjer je r(x) = x + 1 (ostanek) in q(x) = x(x - 2)³"
+        },
+        {
+          "key": "Člen r(x)/q(x) pri x = 2#0",
+          "label": "Člen r(x)/q(x) pri x = 2",
+          "value": "pri x = 2 funkcija ni definirana (pol ali luknja), zato tam člena ni"
+        }
+      ],
+      "notes": [
+        "Vodoravno ali poševno asimptoto lahko graf pri končnem x seka: asimptota pove le, kam se graf približuje, ko |x| narašča. Navpične asimptote graf ne seka. Ničla števca, ki sovpada z ničlo imenovalca, se okrajša in da luknjo, ne pola."
+      ],
+      "outputs": [],
+      "captions": [
+        "(1; -2)",
+        "f(x) = (x + 1)(x - 1) / (x(x - 1)(x - 2)³)",
+        "stopnja števca 1, imenovalca 4",
+        "x = 0",
+        "x = 2",
+        "y = 0",
+        "×3"
+      ]
+    }
+  ]
+}

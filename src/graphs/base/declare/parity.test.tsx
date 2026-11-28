@@ -1440,6 +1440,42 @@ const SAMPLES: readonly Sample[] = [
             {name: 'sin, A -1.5, omega 3, phi -pi/4, B -1', apply: run(g => { g.setFunction('sin'); g.setAmplitude(-1.5); g.setOmega(3); g.setPhase(-Math.PI / 4); g.setMidline(-1); })},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/polynomial-zeros.json', demonstration: 'polynomial-zeros', states: (() => {
+        type PolySetters = {setExample(id: string): void; setZeroPosition(index: number, value: number): void; setMultiplicity(index: number, value: number): void;
+            addZero(): void; removeZero(index: number): void; setK(value: number): void; setDerivativeVisible(visible: boolean): void};
+        const run = (edit: (graph: PolySetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as PolySetters)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'simple zero -3', apply: run(g => { g.setExample('default'); g.setZeroPosition(0, -3); })},
+            {name: 'triple', apply: run(g => g.setExample('triple'))},
+            {name: 'degree five', apply: run(g => g.setExample('degree-five'))},
+            {name: 'k -1', apply: run(g => { g.setExample('default'); g.setK(-1); })},
+            {name: 'multiplicity 3', apply: run(g => { g.setExample('default'); g.setMultiplicity(0, 3); })},
+            {name: 'zeros merged', apply: run(g => { g.setExample('default'); g.setZeroPosition(0, 1); })},
+            {name: 'zero added', apply: run(g => { g.setExample('default'); g.addZero(); })},
+            {name: 'zeros removed', apply: run(g => { g.setExample('default'); g.removeZero(1); g.removeZero(0); })},
+            {name: 'derivative shown', apply: run(g => { g.setExample('default'); g.setDerivativeVisible(true); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/rational-function.json', demonstration: 'rational-function', states: (() => {
+        type RationalSetters = {setExample(id: string): void; setK(value: number): void; setProbe(value: number): void;
+            setZeroPosition(part: 'numerator' | 'denominator', index: number, value: number): void;
+            setMultiplicity(part: 'numerator' | 'denominator', index: number, value: number): void;
+            addZero(part: 'numerator' | 'denominator'): void; removeZero(part: 'numerator' | 'denominator', index: number): void};
+        const run = (edit: (graph: RationalSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as RationalSetters)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'hole', apply: run(g => g.setExample('hole'))},
+            {name: 'horizontal', apply: run(g => g.setExample('horizontal'))},
+            {name: 'double pole', apply: run(g => g.setExample('double-pole'))},
+            {name: 'oblique, probe 4', apply: run(g => { g.setExample('oblique'); g.setProbe(4); })},
+            {name: 'oblique, probe at the pole', apply: run(g => { g.setExample('oblique'); g.setProbe(2); })},
+            {name: 'k -1.5', apply: run(g => { g.setExample('oblique'); g.setK(-1.5); })},
+            {name: 'numerator zero onto the pole', apply: run(g => { g.setExample('oblique'); g.setZeroPosition('numerator', 1, 2); })},
+            {name: 'denominator zero added', apply: run(g => { g.setExample('oblique'); g.addZero('denominator'); })},
+            {name: 'no asymptote', apply: run(g => { g.setExample('oblique'); g.addZero('denominator'); g.addZero('denominator'); g.setMultiplicity('denominator', 0, 3); })},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/continuity.json', demonstration: 'continuity', accepted: continuityAccepted, states: (() => {
         const run = (value: number): ParityState['apply'] => graph => { runAs('learner', () => (graph as unknown as {setParameter(value: number): void}).setParameter(value)); };
         return [

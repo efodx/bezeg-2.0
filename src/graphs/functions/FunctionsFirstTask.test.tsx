@@ -42,12 +42,12 @@ const routes: Record<string, () => BaseGraph<BaseGraphState>> = {
 /** `first` is a label prefix of the first control; `later` are label prefixes of controls the plan places after it. */
 const plan: Record<string, {first: Label; later: Label[]}> = {
     transformations: {first: () => t('function_transformation_c_label'), later: [() => t('function_transformation_a_label'), () => t('function_transformation_b_label'), () => t('function_transformation_base_label')]},
-    'rational-functions': {first: () => t('rational_function_numerator'), later: [() => t('rational_function_k_label'), () => t('rational_function_probe_label'), () => t('rational_function_example_label')]},
+    'rational-functions': {first: () => t('rational_function_numerator'), later: [() => t('rational_function_k_label'), () => t('rational_function_example_label')]},
     'geometric-series': {first: () => t('series_terms_label'), later: [() => t('series_a_label'), () => t('series_example_label')]},
     conics: {first: () => t('conic_phi_label'), later: [() => t('conic_ell_label'), () => t('conic_example_label')]},
     waves: {first: () => 'action:play-pause', later: [() => t('waves_graph_mode_label')]},
     'function-inverse': {first: () => t('function_inverse_x0_label'), later: [() => 'action:toggle-inverse', () => 'action:toggle-tangent', () => t('function_inverse_restriction_label')]},
-    'polynomial-zeros': {first: () => t('zero_list_position_label', {value0: 1}), later: [() => t('zero_list_multiplicity_label', {value0: 1}), () => 'action:add-zero', () => t('polynomial_zeros_example_label'), () => t('polynomial_zeros_k_label'), () => 'action:toggle-derivative']},
+    'polynomial-zeros': {first: () => t('zero_list_position_label', {value0: 1}), later: [() => t('zero_list_multiplicity_label', {value0: 1}), () => 'action:add-zero', () => t('polynomial_zeros_example_label'), () => t('polynomial_zeros_k_label')]},
 };
 
 /** The Edit panel's controls in document order, by accessible name. */
@@ -135,6 +135,18 @@ describe.each(Object.keys(routes))('%s', key => {
             for (const label of [t('waves_graph_a1_sum_label'), t('waves_graph_p1_label'), t('waves_graph_a2_label'), t('waves_graph_p2_label'), t('waves_graph_f_both_label'), t('waves_graph_show_phasors')]) {
                 expect(edit.some(name => name.startsWith(label)), edit.join(' | ')).toBe(false);
             }
+        }
+        if (key === 'polynomial-zeros') {
+            // the derivative switch is a board puck: on the strip, not in Edit; the zero list leads Edit, then k and the example
+            await waitForPucks('derivative');
+            expect(puckOrder(), puckOrder().join(' | ')).toContain('derivative');
+            expect(editControls()).not.toContain('action:toggle-derivative');
+        }
+        if (key === 'rational-functions') {
+            // the probe x is a board puck: on the strip, not in Edit; the zero lists lead Edit, then k and the example
+            await waitForPucks('probe');
+            expect(puckOrder(), puckOrder().join(' | ')).toContain('probe');
+            expect(editControls().some(name => name.startsWith(t('rational_function_probe_label')))).toBe(false);
         }
         const names = editControls();
         const at = (label: Label) => names.findIndex(name => name.startsWith(label()));

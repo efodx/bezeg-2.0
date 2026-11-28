@@ -103,9 +103,11 @@ test('typed values make a hole through the fields, an example switch and the pro
 
     act(() => { fireEvent.change(screen.getByLabelText('Primer'), {target: {value: 'horizontal'}}); });
     expect(readout('asymptote')).toMatch(/vodoravna asimptota/);
-    const probe = field('Točka x za ostanek');
-    act(() => { enterNumber(probe, '5'); });
+    // the probe x is a board puck: its slider left Orodja and the write goes through the declared parameter
+    expect(screen.queryByLabelText((name: string) => name.startsWith('Točka x za ostanek'))).toBeNull();
+    act(() => { graph.parameters!.write('probe', 5, 'learner'); });
     expect(graph.modelNow().probe).toBe(5);
+    expect(readout('remainder')).toMatch(/^pri x = 5/);
 });
 
 test('both languages: labels and readouts follow a live language switch', () => {

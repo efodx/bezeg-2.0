@@ -125,9 +125,12 @@ test('example switch, derivative toggle and the arrow key step in the zero field
     act(() => { fireEvent.change(screen.getByLabelText('Primer'), {target: {value: 'degree-five'}}); });
     expect(graph.modelNow()).toEqual(polynomialExampleModel('degree-five'));
     expect(readout('degree')).toMatch(/^5 /);
-    act(() => { fireEvent.click(screen.getByRole('button', {name: 'Pokaži odvod p′'})); });
+    // the derivative switch is a board puck (an action): it leaves Orodja and the declaration carries its state
+    expect(screen.queryByRole('button', {name: 'Pokaži odvod p′'})).toBeNull();
+    expect(graph.getDeclaration()?.actions?.[0]).toMatchObject({id: 'derivative', pressed: false});
+    act(() => { graph.performAction('derivative'); });
     expect(graph.modelNow().derivativeVisible).toBe(true);
-    expect(screen.getByRole('button', {name: 'Skrij odvod p′'})).toBeInTheDocument();
+    expect(graph.getDeclaration()?.actions?.[0]).toMatchObject({id: 'derivative', pressed: true});
     act(() => { fireEvent.keyDown(field('Ničla 1: položaj x'), {key: 'ArrowUp'}); });
     expect(graph.modelNow().zeros[0].z).toBeCloseTo(-2.9, 9);
 });
@@ -150,7 +153,7 @@ test('Reset and an imported Preset restore controls and board objects', async ()
     expect(field('Ničla 3: položaj x').value).toBe('2');
     expect(field('Koeficient k').value).toBe('0,2');
     expect(graph.glidersNow()[2].X()).toBeCloseTo(2, 9);
-    expect(screen.getByRole('button', {name: 'Skrij odvod p′'})).toBeInTheDocument();
+    expect(graph.getDeclaration()?.actions?.[0]).toMatchObject({id: 'derivative', pressed: true});
     expect(boardObjects(graph)).toBe(baseline);
 
     await settle(() => graph.reset()); // the host Reset (the local Reset button was removed)

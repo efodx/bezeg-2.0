@@ -1,10 +1,13 @@
 import React from "react";
 import {guard, guardField} from "../base/controls/guard";
-import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, LABEL_STYLE, mathTextHtml} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, FunctionPanel, LABEL_STYLE, mathTextHtml} from "./BaseFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t, useT} from "../../localization";
+import {currentLanguage, message, Message, messageNumber, t, useT} from "../../localization";
+import {formulaMessage, joinedMessage} from "./formulaMessage";
 import {formatNumber, MINUS_SIGN} from "../../analysis/format";
 import {PlotPoint, plotPieces, POLY_BOUNDS} from "../../analysis/schoolFunctions";
 import {MAX_POLY_DEGREE, polyValue} from "../../analysis/polynomial";
@@ -22,6 +25,16 @@ import {GraphPalette} from "../styles/GraphPalette";
 import {functionPresetCollections} from "./functionPresetCollections";
 import {TransientState} from "../base/BaseGraph";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
+
+/**
+ * The ids of the rational function declaration: the probe x is a board puck (the remainder step moves it); the zeros are board gliders and
+ * two row editors in Orodja, k and the example stay in Orodja (setup). The legend names what is drawn.
+ */
+export type RationalFunctionIds = {
+    param: "probe";
+    row: "rule" | "reduced" | "zeros" | "holes" | "poles" | "pole-0" | "pole-1" | "pole-2" | "pole-3" | "pole-4" | "asymptote" | "division" | "remainder";
+    note: "asymptote-crossing"; legend: "curve" | "numerator-zero" | "denominator-zero" | "hole" | "asymptote"; section: never; action: never;
+};
 
 /** Step of the arrow keys in the k field and of the probe slider. */
 const K_STEP = 0.5;
@@ -56,6 +69,8 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
     private readonly notices = new ZeroListNoticeStore<RationalNotice>();
     private readonly factsOf = this.modelCache((model: RationalFunctionModel) => rationalFacts(model));
     private gliders: Record<RationalPart, JXG.Point[]> = {numerator: [], denominator: []};
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
     /** Set when a drag merged its zero away: the rest of that drag is ignored, as the dragged glider no longer stands for a zero. */
     private dragMerged = false;
 
@@ -176,7 +191,7 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
         return {x, y};
     }
 
-    private curve(samples: () => { x: number[]; y: number[] }, attributes: object): void {
+    private curve(samples: () => { x: number[]; y: number[] }, attributes: object): JXG.GeometryElement {
         const curve = this.own(this.board.create("curve", [[], []], {highlight: false, fixed: true, ...attributes})) as unknown as {
             updateDataArray: () => void; dataX: number[]; dataY: number[];
         };
@@ -185,6 +200,7 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
             curve.dataX = x;
             curve.dataY = y;
         };
+        return curve as unknown as JXG.GeometryElement;
     }
 
     /** The asymptote as slope and intercept (horizontal: slope 0), or undefined when there is none. */
@@ -205,8 +221,8 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
     }
 
     /** A dashed straight line through two points given as functions. */
-    private dashedLine(from: () => [number, number], to: () => [number, number], visible: () => boolean): void {
-        this.own(this.board.create("line", [[() => from()[0], () => from()[1]], [() => to()[0], () => to()[1]]], {
+    private dashedLine(from: () => [number, number], to: () => [number, number], visible: () => boolean): JXG.GeometryElement {
+        return this.own(this.board.create("line", [[() => from()[0], () => from()[1]], [() => to()[0], () => to()[1]]], {
             straightFirst: true, straightLast: true, dash: ASYMPTOTE_DASH, strokeColor: GraphPalette.comparisonCurve, strokeWidth: this.displayStrokeWidth,
             highlight: false, fixed: true, visible,
         }));
@@ -232,7 +248,7 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
         const pole = () => this.factsOf(this.model).poles[index];
         const present = () => pole() !== undefined;
         const left = () => this.poleLabelLeft(pole()?.x ?? 0);
-        this.dashedLine(() => [pole()?.x ?? 0, 0], () => [pole()?.x ?? 0, 1], present);
+        this.drawn.set(`pole-${index}`, this.dashedLine(() => [pole()?.x ?? 0, 0], () => [pole()?.x ?? 0, 1], present));
         this.label(() => {
             const [, top, , bottom] = this.board.getBoundingBox();
             return [(pole()?.x ?? 0) + (left() ? -5 : 5) / this.board.unitX, top - (0.05 + 0.06 * index) * (top - bottom)];
@@ -244,11 +260,12 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
         const hole = () => this.factsOf(this.model).analysis.holes[index];
         const present = () => hole() !== undefined;
         const strokeWidth = () => Math.max(2, this.displaySettings.strokeWidth * 0.9);
-        this.own(this.board.create("point", [() => hole()?.x ?? 0, () => hole()?.y ?? 0], {
+        const ring = this.own(this.board.create("point", [() => hole()?.x ?? 0, () => hole()?.y ?? 0], {
             ...this.styles.point.fixed, name: "", withLabel: false, highlight: false, size: () => Math.max(4, this.displaySettings.pointSize),
             fillColor: GraphPalette.boardSurface, highlightFillColor: GraphPalette.boardSurface, strokeColor: GraphPalette.primaryCurve,
             highlightStrokeColor: GraphPalette.primaryCurve, strokeWidth, visible: present,
         }));
+        this.drawn.set(`hole-${index}`, ring as JXG.GeometryElement);
         this.label(() => [(hole()?.x ?? 0) + 8 / this.board.unitX, (hole()?.y ?? 0) + 8 / this.board.unitY], () => {
             const language = currentLanguage();
             return t("rational_function_board_point", {value0: formatNumber(hole()?.x ?? 0, language, 4), value1: formatNumber(hole()?.y ?? 0, language, 4)});
@@ -310,10 +327,15 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
             ...this.styles.point.fixed, name: "rational-probe", withLabel: false, highlight: false, size: () => Math.max(3, this.displaySettings.pointSize * 0.8),
             fillColor: GraphPalette.constructionAccent, highlightFillColor: GraphPalette.constructionAccent, strokeColor: GraphPalette.constructionAccent, visible: shown,
         }));
-        this.label(() => [this.model.probe + 6 / this.board.unitX, (onAsymptote() + onCurve()) / 2], () => {
+        // In the right part of the view the label goes left of the probe, so it never slides under the readouts card.
+        const flipped = () => {
+            const [left, , right] = this.board.getBoundingBox();
+            return this.model.probe > left + 0.6 * (right - left);
+        };
+        this.label(() => [this.model.probe + (flipped() ? -6 : 6) / this.board.unitX, (onAsymptote() + onCurve()) / 2 - (flipped() ? 16 : 0) / this.board.unitY], () => {
             const term = this.factsOf(this.model).probe.remainderTerm;
             return t("rational_function_board_remainder", {value0: formatNumber(term ?? 0, currentLanguage(), 4)});
-        }, shown, "left", "middle");
+        }, shown, () => flipped() ? "right" : "left", "middle");
     }
 
     /**
@@ -358,16 +380,15 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
     }
 
     protected createScene(): void {
-        const facts = () => this.factsOf(this.model);
         for (let index = 0; index < MAX_FEATURES; index++) this.poleObjects(index);
-        this.dashedLine(() => [0, this.asymptoteLine()?.intercept ?? 0], () => [1, (this.asymptoteLine()?.slope ?? 0) + (this.asymptoteLine()?.intercept ?? 0)],
-            () => this.asymptoteLine() !== undefined);
+        this.drawn.set("asymptote", this.dashedLine(() => [0, this.asymptoteLine()?.intercept ?? 0], () => [1, (this.asymptoteLine()?.slope ?? 0) + (this.asymptoteLine()?.intercept ?? 0)],
+            () => this.asymptoteLine() !== undefined));
         this.label(() => this.asymptoteLabelSpot() ?? [0, 0], () => {
             const line = this.asymptoteLine();
             return line ? asymptoteEquationText(line.slope, line.intercept, currentLanguage()) : "";
         }, () => this.asymptoteLabelSpot() !== undefined, "right", "bottom");
 
-        this.curve(() => this.plotted(), {strokeColor: GraphPalette.primaryCurve, strokeWidth: this.displayStrokeWidth});
+        this.drawn.set("curve", this.curve(() => this.plotted(), {strokeColor: GraphPalette.primaryCurve, strokeWidth: this.displayStrokeWidth}));
         this.probeObjects();
         for (let index = 0; index < MAX_FEATURES; index++) this.holeObjects(index);
         // The denominator's gliders first, so a numerator zero sitting on one (a hole) stays the one that can be grabbed.
@@ -375,20 +396,9 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
             denominator: Array.from({length: MAX_POLY_DEGREE}, (_, index) => this.glider("denominator", index)),
             numerator: Array.from({length: MAX_POLY_DEGREE}, (_, index) => this.glider("numerator", index)),
         };
+        this.drawn.set("numerator-zero", this.gliders.numerator[0]);
+        this.drawn.set("denominator-zero", this.gliders.denominator[0]);
         this.syncSceneToModel();
-
-        // The rule, and the statement that there is no asymptote, stay on the board (projection needs them).
-        this.caption("bottom-right", [
-            {
-                text: () => {
-                    const {numerator, denominator} = rationalSpecsOf(this.model);
-                    return rationalRuleText(numerator, denominator, currentLanguage());
-                },
-                scale: 1.2,
-            },
-            {text: () => t("rational_function_board_degrees", {value0: facts().degreeNumerator, value1: facts().degreeDenominator}), minBoardWidth: 520},
-            {text: () => t("rational_function_board_no_asymptote"), visible: () => facts().analysis.asymptote.kind === "none"},
-        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -402,58 +412,58 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
 
     protected override onSceneRemoved(): void {
         this.gliders = {numerator: [], denominator: []};
+        this.drawn.clear();
         this.dragMerged = false;
     }
 
     // ---- Texts (shared by the board and the inspector) -----------------------------------------------------------------
 
-    private number(value: number): string {
-        return formatNumber(value, currentLanguage(), 4);
+    private number(value: number) {
+        return messageNumber(value, 4);
     }
 
-    private position(value: number): string {
-        return formatNumber(value, currentLanguage(), ZERO_GRID_DECIMALS);
+    private position(value: number) {
+        return messageNumber(value, ZERO_GRID_DECIMALS);
     }
 
     private infinity(direction: "up" | "down"): string {
         return direction === "up" ? "+∞" : `${MINUS_SIGN}∞`;
     }
 
-    private zerosText(facts: RationalFacts): string {
-        if (facts.zeros.length === 0) return t("rational_function_zeros_none");
-        return facts.zeros.map(zero => zero.m === 1
-            ? `x = ${this.position(zero.z)}`
-            : t("rational_function_zero_item_multiple", {value0: this.position(zero.z), value1: zero.m})).join(", ");
+    private zerosMessage(facts: RationalFacts): Message {
+        if (facts.zeros.length === 0) return message("rational_function_zeros_none");
+        return joinedMessage(facts.zeros.map(zero => zero.m === 1
+            ? message("function_formula_join", {value0: "x = ", value1: this.position(zero.z)})
+            : message("rational_function_zero_item_multiple", {value0: this.position(zero.z), value1: zero.m})), ", ");
     }
 
-    private holesText(facts: RationalFacts): string {
-        if (facts.analysis.holes.length === 0) return t("rational_function_holes_none");
-        return facts.analysis.holes.map(hole => t("rational_function_hole_value", {
+    private holesMessage(facts: RationalFacts): Message {
+        if (facts.analysis.holes.length === 0) return message("rational_function_holes_none");
+        return joinedMessage(facts.analysis.holes.map(hole => message("rational_function_hole_value", {
             value0: this.position(hole.x), value1: this.number(hole.y), value2: this.number(hole.y),
-        })).join("; ");
+        })), "; ");
     }
 
-    private poleText(pole: RationalFacts["poles"][number]): string {
+    private poleMessage(pole: RationalFacts["poles"][number]): Message {
         const params = {value0: this.position(pole.x), value1: pole.multiplicity};
         if (pole.signChanges) {
-            return t("rational_function_pole_odd", {...params, value2: this.infinity(pole.left), value3: this.infinity(pole.right)});
+            return message("rational_function_pole_odd", {...params, value2: this.infinity(pole.left), value3: this.infinity(pole.right)});
         }
-        return t("rational_function_pole_even", {...params, value2: this.infinity(pole.left)});
+        return message("rational_function_pole_even", {...params, value2: this.infinity(pole.left)});
     }
 
-    private asymptoteText(facts: RationalFacts): string {
+    private asymptoteMessage(facts: RationalFacts): Message {
         const degrees = {value0: facts.degreeNumerator, value1: facts.degreeDenominator};
         const asymptote = facts.analysis.asymptote;
         if (asymptote.kind === "oblique") {
-            return t("rational_function_asymptote_oblique", {...degrees, value2: asymptoteEquationText(asymptote.slope, asymptote.intercept, currentLanguage())});
+            return message("rational_function_asymptote_oblique", {...degrees, value2: formulaMessage(asymptoteEquationText(asymptote.slope, asymptote.intercept, "en"))});
         }
         if (asymptote.kind === "horizontal") {
-            const equation = asymptoteEquationText(0, asymptote.y, currentLanguage());
             return facts.degreeNumerator === facts.degreeDenominator
-                ? t("rational_function_asymptote_horizontal_equal", {...degrees, value2: equation})
-                : t("rational_function_asymptote_horizontal_zero", degrees);
+                ? message("rational_function_asymptote_horizontal_equal", {...degrees, value2: formulaMessage(asymptoteEquationText(0, asymptote.y, "en"))})
+                : message("rational_function_asymptote_horizontal_zero", degrees);
         }
-        return t("rational_function_asymptote_none", degrees);
+        return message("rational_function_asymptote_none", degrees);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -488,57 +498,96 @@ export class RationalFunctionGraph extends BaseFunctionGraph<RationalFunctionMod
                               options={options} onChange={next => { if (next !== "custom") guard(this.refusals, () => this.setExample(next)); }}/>
                 <Slider customText={t("rational_function_k_label")} value={state.k} min={POLY_BOUNDS.k[0]} max={POLY_BOUNDS.k[1]} step={K_STEP} decimals={4}
                              rejectedHint={t("rational_function_k_hint", kRange)} onChange={next => guardField(this.refusals, () => this.setK(next))}/>
-                <Slider customText={t("rational_function_probe_label")} min={PROBE_BOUNDS[0]} max={PROBE_BOUNDS[1]} step={PROBE_STEP} value={state.probe}
+                <PuckOwned param="probe"><Slider customText={t("rational_function_probe_label")} min={PROBE_BOUNDS[0]} max={PROBE_BOUNDS[1]} step={PROBE_STEP} value={state.probe}
                         help={t("rational_function_probe_help")} rejectedHint={t("rational_function_probe_hint", probeRange)}
-                        onChange={next => guardField(this.refusals, () => this.setProbe(next))}/>
+                        onChange={next => guardField(this.refusals, () => this.setProbe(next))}/></PuckOwned>
             </div>
         </>;
     }
 
-    protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "curve", color: GraphPalette.primaryCurve, label: t("rational_function_legend_curve"), kind: "line"},
-            {id: "numerator-zero", color: GraphPalette.constructionAccent, label: t("rational_function_legend_numerator_zero"), kind: "dot"},
-            {id: "denominator-zero", color: GraphPalette.comparisonCurve, label: t("rational_function_legend_denominator_zero"), kind: "cross"},
-            {id: "hole", color: GraphPalette.primaryCurve, label: t("rational_function_legend_hole"), kind: "ring"},
-            {id: "asymptote", color: GraphPalette.comparisonCurve, label: t("rational_function_legend_asymptote"), kind: "dashed-line"},
-        ]}/>;
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** The probe x is the one declared parameter (ADR 0064): the existing validated setter, so a value outside the bounds is refused. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {probe: {read: () => this.model.probe, apply: (value: number) => this.setProbe(value)}};
     }
 
-    protected renderReadout(): React.ReactNode {
+    /**
+     * The common declaration (rows, the note, view marks), the probe x as a board puck (the remainder step moves it), and the legend of what
+     * is drawn: the entries of the zero gliders, the holes and the asymptotes exist only while the board shows them.
+     */
+    protected override declaration(): GraphDeclaration {
+        const facts = this.factsOf(this.model);
+        const drawnAsymptote = this.asymptoteLine() !== undefined || facts.poles.length > 0;
+        return {
+            ...this.commonDeclaration(),
+            parameters: [
+                {key: "probe", kind: "range", label: message("rational_function_probe_name"), symbol: "x", help: message("rational_function_probe_help"), placement: "board",
+                    min: PROBE_BOUNDS[0], max: PROBE_BOUNDS[1], step: PROBE_STEP, maxDecimals: 1},
+            ],
+            legend: [
+                {id: "curve", label: message("rational_function_legend_curve"), kind: "line", object: "curve"},
+                ...(this.model.numerator.length > 0 ? [{id: "numerator-zero" as const, label: message("rational_function_legend_numerator_zero"), kind: "point" as const, object: "numerator-zero"}] : []),
+                ...(this.model.denominator.length > 0 ? [{id: "denominator-zero" as const, label: message("rational_function_legend_denominator_zero"), kind: "cross" as const, object: "denominator-zero"}] : []),
+                ...(facts.analysis.holes.length > 0 ? [{id: "hole" as const, label: message("rational_function_legend_hole"), kind: "ring" as const, object: "hole-0"}] : []),
+                ...(drawnAsymptote ? [{id: "asymptote" as const, label: message("rational_function_legend_asymptote"), kind: "dashed" as const, object: "asymptote"}] : []),
+            ],
+        };
+    }
+
+    /** The asymptote entry names the horizontal or oblique line, or the first vertical asymptote when there is only that. */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id === "asymptote" && this.asymptoteLine() === undefined ? "pole-0" : id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const property = id.endsWith("-zero") ? "fillcolor" : "strokecolor";
+        return {color: String(element.evalVisProp(property)), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /** Declared by the base (task 08): the readout rows, the note and the plotted function; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
-        const facts = rationalFacts(model);
-        const language = currentLanguage();
+        const facts = this.factsOf(model);
         const {numerator, denominator} = rationalSpecsOf(model);
         const {analysis} = facts;
-        const rows = [
-            {id: "rule", label: t("rational_function_readout_rule"), value: rationalRuleText(numerator, denominator, language)},
+        const rows: FunctionPanel["rows"][number][] = [
+            {id: "rule", name: message("rational_function_readout_rule"), value: formulaMessage(rationalRuleText(numerator, denominator, "en"))},
             ...(facts.cancelled ? [{
-                id: "reduced", label: t("rational_function_readout_reduced"),
-                value: rationalRuleText(analysis.reducedNumerator, analysis.reducedDenominator, language),
+                id: "reduced", name: message("rational_function_readout_reduced"),
+                value: formulaMessage(rationalRuleText(analysis.reducedNumerator, analysis.reducedDenominator, "en")),
             }] : []),
-            {id: "zeros", label: t("rational_function_readout_zeros"), value: this.zerosText(facts)},
-            {id: "holes", label: t("rational_function_readout_holes"), value: this.holesText(facts)},
+            {id: "zeros", name: message("rational_function_readout_zeros"), value: this.zerosMessage(facts)},
+            {id: "holes", name: message("rational_function_readout_holes"), value: this.holesMessage(facts)},
             ...(facts.poles.length === 0
-                ? [{id: "poles", label: t("rational_function_readout_poles"), value: t("rational_function_poles_none")}]
-                : facts.poles.map((pole, index) => ({id: `pole-${index}`, label: t("rational_function_readout_pole", {value0: index + 1}), value: this.poleText(pole)}))),
-            {id: "asymptote", label: t("rational_function_readout_asymptote"), value: this.asymptoteText(facts)},
+                ? [{id: "poles", name: message("rational_function_readout_poles"), value: message("rational_function_poles_none")}]
+                : facts.poles.map((pole, index) => ({id: `pole-${index}`, name: message("rational_function_readout_pole", {value0: index + 1}), value: this.poleMessage(pole)}))),
+            {id: "asymptote", name: message("rational_function_readout_asymptote"), value: this.asymptoteMessage(facts)},
         ];
         if (analysis.asymptote.kind !== "none") {
             rows.push({
-                id: "division", label: t("rational_function_readout_division"),
-                value: t("rational_function_division_value", {
-                    value0: coefficientsText(analysis.quotient, language), value1: coefficientsText(analysis.remainder, language),
-                    value2: productText(analysis.reducedDenominator, language),
+                id: "division", name: message("rational_function_readout_division"),
+                value: message("rational_function_division_value", {
+                    value0: formulaMessage(coefficientsText(analysis.quotient, "en")), value1: formulaMessage(coefficientsText(analysis.remainder, "en")),
+                    value2: formulaMessage(productText(analysis.reducedDenominator, "en")),
                 }),
             }, {
-                id: "remainder", label: t("rational_function_readout_remainder", {value0: this.number(model.probe)}),
+                id: "remainder", name: message("rational_function_readout_remainder", {value0: messageNumber(model.probe, 4)}),
                 value: facts.probe.remainderTerm === undefined
-                    ? t("rational_function_remainder_undefined", {value0: this.number(model.probe)})
-                    : t("rational_function_remainder_value", {value0: this.number(model.probe), value1: this.number(facts.probe.remainderTerm)}),
+                    ? message("rational_function_remainder_undefined", {value0: messageNumber(model.probe, 4)})
+                    : message("rational_function_remainder_value", {value0: messageNumber(model.probe, 4), value1: messageNumber(facts.probe.remainderTerm, 4)}),
             });
         }
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={t("rational_function_note")}/>;
+        return {
+            rows,
+            notes: [{id: "asymptote-crossing", text: message("rational_function_note")}],
+            plotted: x => this.valueAt(x),
+            must: [...model.numerator, ...model.denominator].map(zero => ({x: zero.z, y: 0})).concat(analysis.holes.map(hole => ({x: hole.x, y: hole.y}))),
+        };
+    }
+
+    protected renderReadout(): React.ReactNode {
+        return this.renderDeclaredReadout();
     }
 }
 

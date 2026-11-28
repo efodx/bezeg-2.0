@@ -9,9 +9,14 @@
  */
 import type {LessonAction, LessonViewBox} from '../model';
 import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {PolynomialZerosIds} from '../../graphs/functions/PolynomialZerosGraph';
+import type {RationalFunctionIds} from '../../graphs/functions/RationalFunctionGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
-const frame = (id: string, kind: GuidedLessonFrameKind): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const polynomialFrame = frameDeclarer<PolynomialZerosIds>();
+const rationalFrame = frameDeclarer<RationalFunctionIds>();
 
 interface StepContent {
     readonly id: string;
@@ -24,14 +29,17 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** The rows a step's explanation and calculation frames highlight, and the controls its observation frame asks the learner to use. */
+    readonly declare?: FrameDeclaration;
+    readonly observe?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, observe, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
-        frame(`${content.id}-explanation`, 'explanation'),
-        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-explanation`, 'explanation', declare),
+        ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation', declare)] : []),
+        frame(`${content.id}-observation`, 'observation', observe ?? declare),
     ],
 });
 
@@ -136,6 +144,7 @@ const polynomialLesson: GuidedLesson = {
             formulaIds: ['poly-product'],
             observationPrompt: text('Napovej predznak levo od \\(-2\\), med \\(-2\\) in \\(1\\) ter desno od \\(1\\), nato preveri.', 'Predict the sign to the left of \\(-2\\), between \\(-2\\) and \\(1\\), and to the right of \\(1\\), then check.'),
             expectedObservations: [text('Levo od \\(-2\\) je graf pod osjo \\(x\\), med \\(-2\\) in \\(1\\) ter desno od \\(1\\) pa nad njo; predznak se spremeni le v \\(-2\\).', 'To the left of \\(-2\\) the graph is below the \\(x\\)-axis, between \\(-2\\) and \\(1\\) and to the right of \\(1\\) it is above it; the sign changes only at \\(-2\\).')],
+            declare: polynomialFrame({highlight: ['rule']}),
             scene: polynomialScene('poly-signs-default', 'default', [], false,
                 'Polinom \\((x+2)(x-1)^2\\): \\(k=1\\), enojna ničla \\(-2\\), dvojna ničla \\(1\\); odvod je skrit.',
                 'The polynomial \\((x+2)(x-1)^2\\): \\(k=1\\), a simple zero \\(-2\\), a double zero \\(1\\); the derivative is hidden.'),
@@ -151,6 +160,7 @@ const polynomialLesson: GuidedLesson = {
             formulaIds: ['poly-product'],
             observationPrompt: text('Povleci enojno ničlo in preveri, da graf vedno seka os \\(x\\) v njej.', 'Drag the simple zero and check that the graph always crosses the \\(x\\)-axis at it.'),
             expectedObservations: [text('V enojni ničli \\(-3\\) graf preide s spodnje strani osi \\(x\\) na zgornjo, v dvojni ničli \\(1\\) pa ostane nad osjo.', 'At the simple zero \\(-3\\) the graph passes from below the \\(x\\)-axis to above it, at the double zero \\(1\\) it stays above the axis.')],
+            declare: polynomialFrame({highlight: ['zero-0', 'zero-1']}),
             scene: polynomialScene('poly-simple-crosses', 'default', [{slot: 1, z: -3}], false,
                 'Polinom \\((x+3)(x-1)^2\\): enojna ničla \\(-3\\), dvojna ničla \\(1\\), \\(k=1\\); odvod je skrit.',
                 'The polynomial \\((x+3)(x-1)^2\\): a simple zero \\(-3\\), a double zero \\(1\\), \\(k=1\\); the derivative is hidden.'),
@@ -167,6 +177,7 @@ const polynomialLesson: GuidedLesson = {
             workedExampleId: 'poly-default-derivative',
             observationPrompt: text('Poišči, kje prikazani odvod seka os \\(x\\), in preveri, katera od teh točk je ničla polinoma.', 'Find where the shown derivative crosses the \\(x\\)-axis and check which of those points is a zero of the polynomial.'),
             expectedObservations: [text('Odvod seka os \\(x\\) v \\(-1\\) in v \\(1\\); le \\(x=1\\) je ničla polinoma, dvojna, in tam se graf dotakne osi \\(x\\).', 'The derivative crosses the \\(x\\)-axis at \\(-1\\) and at \\(1\\); only \\(x=1\\) is a zero of the polynomial, a double one, and there the graph touches the \\(x\\)-axis.')],
+            declare: polynomialFrame({highlight: ['zero-1']}),
             scene: polynomialScene('poly-double-touches', 'default', [], true,
                 'Polinom \\((x+2)(x-1)^2\\) z enojno ničlo \\(-2\\) in dvojno ničlo \\(1\\), \\(p^{\\prime}(1)=0\\); odvod \\(p^{\\prime}\\) je viden.',
                 'The polynomial \\((x+2)(x-1)^2\\) with the simple zero \\(-2\\) and the double zero \\(1\\), \\(p^{\\prime}(1)=0\\); the derivative \\(p^{\\prime}\\) is visible.'),
@@ -182,6 +193,7 @@ const polynomialLesson: GuidedLesson = {
             formulaIds: ['poly-product'],
             observationPrompt: text('Primerjaj graf okoli \\(x=1\\) z grafom dvojne ničle: ali ostane graf na isti strani osi \\(x\\)?', 'Compare the graph around \\(x=1\\) with the graph of a double zero: does the graph stay on the same side of the \\(x\\)-axis?'),
             expectedObservations: [text('Graf preide od spodaj navzgor skozi \\(x=1\\), tam je raven in ima vodoravno tangento; odvod se v \\(1\\) dotakne osi \\(x\\).', 'The graph passes from below to above through \\(x=1\\), is flat there and has a horizontal tangent; the derivative touches the \\(x\\)-axis at \\(1\\).')],
+            declare: polynomialFrame({highlight: ['zero-0']}),
             scene: polynomialScene('poly-triple-flat', 'triple', [], true,
                 'Polinom \\((x-1)^3\\): trojna ničla \\(1\\), \\(k=1\\), \\(p^{\\prime}(1)=0\\); odvod je viden.',
                 'The polynomial \\((x-1)^3\\): a triple zero \\(1\\), \\(k=1\\), \\(p^{\\prime}(1)=0\\); the derivative is visible.'),
@@ -197,6 +209,7 @@ const polynomialLesson: GuidedLesson = {
             formulaIds: ['poly-product'],
             observationPrompt: text('Poišči, katera ničla seka os \\(x\\) in kateri se je graf le dotakne, ter preveri konca grafa.', 'Find which zero crosses the \\(x\\)-axis and which ones only touch it, and check the two ends of the graph.'),
             expectedObservations: [text('Graf seka os \\(x\\) le v \\(-3\\) in se je dotika v \\(-1\\) in \\(2\\); levi konec je spodaj, desni zgoraj.', 'The graph crosses the \\(x\\)-axis only at \\(-3\\) and touches it at \\(-1\\) and \\(2\\); the left end is down and the right end is up.')],
+            declare: polynomialFrame({highlight: ['degree', 'end']}),
             scene: polynomialScene('poly-degree-five', 'degree-five', [], false,
                 'Polinom \\(0{,}2\\,(x+3)(x+1)^2(x-2)^2\\): ničle \\(-3\\), \\(-1\\), \\(2\\) z večkratnostmi \\(1\\), \\(2\\), \\(2\\), stopnja \\(5\\); odvod je skrit.',
                 'The polynomial \\(0.2\\,(x+3)(x+1)^2(x-2)^2\\): zeros \\(-3\\), \\(-1\\), \\(2\\) with multiplicities \\(1\\), \\(2\\), \\(2\\), degree \\(5\\); the derivative is hidden.'),
@@ -213,6 +226,7 @@ const polynomialLesson: GuidedLesson = {
             workedExampleId: 'poly-default-intercept',
             observationPrompt: text('Preberi presečišče z osjo \\(y\\) z grafa in ga primerjaj z izračunanim.', 'Read the \\(y\\)-intercept off the graph and compare it with the computed one.'),
             expectedObservations: [text('Prikazano presečišče z osjo \\(y\\) je \\(p(0)=2\\), enako kot izračun \\(1\\cdot2\\cdot1\\).', 'The displayed \\(y\\)-intercept is \\(p(0)=2\\), equal to the computation \\(1\\cdot2\\cdot1\\).')],
+            declare: polynomialFrame({highlight: ['y-intercept']}),
             scene: polynomialScene('poly-intercept-default', 'default', [], false,
                 'Polinom \\((x+2)(x-1)^2\\), \\(k=1\\), z ničlama \\(-2\\) in \\(1\\): presečišče z osjo \\(y\\) je \\(p(0)=2\\); odvod je skrit.',
                 'The polynomial \\((x+2)(x-1)^2\\), \\(k=1\\), with zeros \\(-2\\) and \\(1\\): the \\(y\\)-intercept is \\(p(0)=2\\); the derivative is hidden.'),
@@ -228,6 +242,8 @@ const polynomialLesson: GuidedLesson = {
             formulaIds: ['poly-product', 'poly-intercept'],
             observationPrompt: text('Poskusi dvojno ničlo \\(2\\) povleči na dvojno ničlo \\(-1\\). Nato povleci enojno ničlo \\(-3\\) na \\(-1\\) in preveri, kaj se zgodi z večkratnostjo in stopnjo.', 'Try dragging the double zero \\(2\\) onto the double zero \\(-1\\). Then drag the simple zero \\(-3\\) onto \\(-1\\) and check what happens to the multiplicity and the degree.'),
             expectedObservations: [text('Združitev dveh dvojnih ničel bi dala večkratnost \\(4\\), zato je zavrnjena z razlogom in graf ostane enak. Enojna in dvojna ničla pa se združita v trojno ničlo pri \\(-1\\), kjer graf seka os \\(x\\) ravno, stopnja ostane \\(5\\).', 'Merging two double zeros would give multiplicity \\(4\\), so it is refused with a reason and the graph stays as it was. The simple and the double zero do merge into a triple zero at \\(-1\\), where the graph crosses the \\(x\\)-axis flatly, and the degree stays \\(5\\).')],
+            declare: polynomialFrame({highlight: ['degree', 'end']}),
+            observe: polynomialFrame({highlight: ['degree', 'end'], uses: ['derivative']}),
             scene: polynomialScene('poly-explore-free', 'degree-five', [], true,
                 'Polinom \\(0{,}2\\,(x+3)(x+1)^2(x-2)^2\\) stopnje \\(5\\); odvod je viden, vse je prosto za raziskovanje.',
                 'The polynomial \\(0.2\\,(x+3)(x+1)^2(x-2)^2\\) of degree \\(5\\); the derivative is visible and everything is free to explore.'),
@@ -355,6 +371,7 @@ const rationalLesson: GuidedLesson = {
             formulaIds: ['rat-fraction'],
             observationPrompt: text('Napovej, kam gre graf levo in kam desno od \\(x=2\\), nato preveri in poglej, ali se pri \\(2\\) graf poveže.', 'Predict where the graph goes to the left and to the right of \\(x=2\\), then check and see whether the graph is joined at \\(2\\).'),
             expectedObservations: [text('Levo od \\(2\\) graf pada proti \\(-\\infty\\), desno od \\(2\\) pa pada z \\(+\\infty\\); pri \\(x=2\\) je navpična asimptota in graf je ne prečka.', 'To the left of \\(2\\) the graph falls towards \\(-\\infty\\), to the right of \\(2\\) it comes down from \\(+\\infty\\); at \\(x=2\\) there is a vertical asymptote and the graph does not cross it.')],
+            declare: rationalFrame({highlight: ['pole-0', 'asymptote']}),
             scene: rationalScene('rat-pole-oblique', 'oblique', [], 10,
                 'Funkcija \\(\\frac{x^2-1}{x-2}\\): ničli \\(-1\\) in \\(1\\), pol \\(2\\) (enojen, predznak se spremeni); poševna asimptota \\(y=x+2\\).',
                 'The function \\(\\frac{x^2-1}{x-2}\\): zeros \\(-1\\) and \\(1\\), a pole \\(2\\) (simple, the sign changes); the oblique asymptote \\(y=x+2\\).'),
@@ -371,6 +388,7 @@ const rationalLesson: GuidedLesson = {
             workedExampleId: 'rat-hole-value',
             observationPrompt: text('Poišči prazen krožec na grafu in preberi njegovi koordinati; nato pol povleci nazaj na \\(2\\) in poglej, kaj se zgodi z luknjo.', 'Find the open circle on the graph and read its coordinates; then drag the pole back to \\(2\\) and see what happens to the hole.'),
             expectedObservations: [text('Graf je premica \\(y=x+1\\) z manjkajočo točko \\((1;2)\\), ki je označena kot luknja; ko pol odmakneš z \\(1\\), je luknja spet pol.', 'The graph is the line \\(y=x+1\\) with the point \\((1,2)\\) missing, marked as a hole; when you move the pole away from \\(1\\), the hole is a pole again.')],
+            declare: rationalFrame({highlight: ['reduced', 'holes']}),
             scene: rationalScene('rat-hole-cancel', 'oblique', [{name: 'rational-denominator-1', z: 1}], 10,
                 'Funkcija \\(\\frac{x^2-1}{x-1}=x+1\\) za \\(x\\ne1\\): luknja v \\((1;2)\\), pola ni; edina ničla je \\(-1\\).',
                 'The function \\(\\frac{x^2-1}{x-1}=x+1\\) for \\(x\\ne1\\): a hole at \\((1,2)\\), no pole; the only zero is \\(-1\\).'),
@@ -386,6 +404,7 @@ const rationalLesson: GuidedLesson = {
             formulaIds: ['rat-fraction'],
             observationPrompt: text('Poišči vse navpične asimptote in luknje in jih primerjaj z ničlama imenovalca \\(-2\\) in \\(2\\).', 'Find all the vertical asymptotes and holes and compare them with the zeros \\(-2\\) and \\(2\\) of the denominator.'),
             expectedObservations: [text('Navpična asimptota je samo pri \\(-2\\); pri \\(2\\) je luknja v \\((2;1{,}5)\\), graf pa se tam nadaljuje brez skoka v neskončnost.', 'The vertical asymptote is only at \\(-2\\); at \\(2\\) there is a hole at \\((2,1.5)\\) and the graph goes on there without running off to infinity.')],
+            declare: rationalFrame({highlight: ['zeros', 'pole-0']}),
             scene: rationalScene('rat-vertical-reduced', 'horizontal', [{name: 'rational-numerator-2', z: 2}], 10,
                 'Funkcija \\(\\frac{2(x+1)(x-2)}{(x+2)(x-2)}\\): pol \\(-2\\), luknja v \\((2;1{,}5)\\), ničla \\(-1\\); vodoravna asimptota \\(y=2\\).',
                 'The function \\(\\frac{2(x+1)(x-2)}{(x+2)(x-2)}\\): a pole \\(-2\\), a hole at \\((2,1.5)\\), a zero \\(-1\\); the horizontal asymptote \\(y=2\\).'),
@@ -401,6 +420,7 @@ const rationalLesson: GuidedLesson = {
             formulaIds: ['rat-division'],
             observationPrompt: text('Preberi vodoravno asimptoto s črtkane črte in jo primerjaj s kvocientom vodilnih koeficientov.', 'Read the horizontal asymptote off the dashed line and compare it with the quotient of the leading coefficients.'),
             expectedObservations: [text('Črtkana črta je pri \\(y=2\\), kar je \\(\\frac21\\); na grafu pri \\(x=10\\) je vrednost nad asimptoto za \\(0{,}0625\\).', 'The dashed line is at \\(y=2\\), which is \\(\\frac21\\); on the graph at \\(x=10\\) the value is above the asymptote by \\(0.0625\\).')],
+            declare: rationalFrame({highlight: ['asymptote']}),
             scene: rationalScene('rat-degrees-horizontal', 'horizontal', [], 10,
                 'Funkcija \\(\\frac{2x^2-2}{x^2-4}\\): ničli \\(-1\\), \\(1\\), pola \\(-2\\), \\(2\\); vodoravna asimptota \\(y=2\\), pri \\(x=10\\) je \\(f(10)=2{,}0625\\).',
                 'The function \\(\\frac{2x^2-2}{x^2-4}\\): zeros \\(-1\\), \\(1\\), poles \\(-2\\), \\(2\\); the horizontal asymptote \\(y=2\\), at \\(x=10\\) we have \\(f(10)=2.0625\\).'),
@@ -416,6 +436,8 @@ const rationalLesson: GuidedLesson = {
             formulaIds: ['rat-division'],
             observationPrompt: text('Premakni drsnik za \\(x\\) z \\(10\\) proti polu \\(2\\) in nazaj proti \\(10\\) ter opazuj, kako se spreminja razdalja do asimptote.', 'Move the slider for \\(x\\) from \\(10\\) towards the pole \\(2\\) and back towards \\(10\\), and watch how the distance to the asymptote changes.'),
             expectedObservations: [text('Pri \\(x=10\\) je razlika do asimptote \\(0{,}375\\); bolj ko se \\(x\\) oddaljuje od pola \\(2\\), manjši je člen \\(\\frac{3}{x-2}\\) po absolutni vrednosti.', 'At \\(x=10\\) the difference from the asymptote is \\(0.375\\); the farther \\(x\\) is from the pole \\(2\\), the smaller the term \\(\\frac{3}{x-2}\\) is in absolute value.')],
+            declare: rationalFrame({highlight: ['division', 'remainder']}),
+            observe: rationalFrame({highlight: ['division', 'remainder'], uses: ['probe']}),
             scene: rationalScene('rat-remainder-probe', 'oblique', [], 10,
                 'Funkcija \\(x+2+\\frac{3}{x-2}\\): asimptota \\(y=x+2\\), pri \\(x=10\\) je člen z ostankom \\(0{,}375\\) in \\(f(10)=12{,}375\\).',
                 'The function \\(x+2+\\frac{3}{x-2}\\): the asymptote \\(y=x+2\\), at \\(x=10\\) the remainder term is \\(0.375\\) and \\(f(10)=12.375\\).'),
@@ -431,6 +453,7 @@ const rationalLesson: GuidedLesson = {
             formulaIds: ['rat-fraction'],
             observationPrompt: text('Primerjaj graf levo in desno od polov \\(-2\\) in \\(1\\) ter poišči, kje graf seka asimptoto \\(y=0\\).', 'Compare the graph to the left and to the right of the poles \\(-2\\) and \\(1\\), and find where the graph crosses the asymptote \\(y=0\\).'),
             expectedObservations: [text('Pri \\(-2\\) graf preide z zgornje na spodnjo stran, pri \\(1\\) ostane nad osjo na obeh straneh; asimptoto \\(y=0\\) graf seka v \\(x=0\\).', 'At \\(-2\\) the graph passes from the upper to the lower side, at \\(1\\) it stays above the axis on both sides; the graph crosses the asymptote \\(y=0\\) at \\(x=0\\).')],
+            declare: rationalFrame({highlight: ['pole-0', 'pole-1']}),
             scene: rationalScene('rat-double-pole-signs', 'double-pole', [], 10,
                 'Funkcija \\(\\frac{4x}{(x+2)(x-1)^2}\\): ničla \\(0\\), pol \\(-2\\) (enojen, predznak se spremeni), pol \\(1\\) (dvojen, predznak se ne spremeni); vodoravna asimptota \\(y=0\\).',
                 'The function \\(\\frac{4x}{(x+2)(x-1)^2}\\): a zero \\(0\\), a pole \\(-2\\) (simple, the sign changes), a pole \\(1\\) (double, the sign does not change); the horizontal asymptote \\(y=0\\).'),
@@ -446,6 +469,8 @@ const rationalLesson: GuidedLesson = {
             formulaIds: ['rat-fraction', 'rat-division'],
             observationPrompt: text('Povleci ničlo \\(-1\\) števca na pol \\(2\\), nato jo odmakni in primerjaj luknjo s polom.', 'Drag the zero \\(-1\\) of the numerator onto the pole \\(2\\), then move it away and compare the hole with the pole.'),
             expectedObservations: [text('Na polu \\(2\\) nastane luknja v \\((2;1)\\) in navpične asimptote ni; ko ničlo odmakneš, je pol spet navpična asimptota.', 'On the pole \\(2\\) a hole appears at \\((2,1)\\) and there is no vertical asymptote; when you move the zero away, the pole is a vertical asymptote again.')],
+            declare: rationalFrame({highlight: ['asymptote']}),
+            observe: rationalFrame({highlight: ['asymptote'], uses: ['probe']}),
             scene: rationalScene('rat-explore-free', 'oblique', [], 10,
                 'Funkcija \\(\\frac{x^2-1}{x-2}\\) s polom \\(2\\) in poševno asimptoto \\(y=x+2\\); vse je prosto za raziskovanje.',
                 'The function \\(\\frac{x^2-1}{x-2}\\) with the pole \\(2\\) and the oblique asymptote \\(y=x+2\\); everything is free to explore.'),

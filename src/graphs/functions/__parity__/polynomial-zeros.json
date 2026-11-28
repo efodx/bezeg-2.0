@@ -1,0 +1,437 @@
+{
+  "graph": "polynomial-zeros",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "p(x) = (x + 2)(x - 1)²"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "3 (vsota večkratnosti: 1 + 2)"
+        },
+        {
+          "key": "Obnašanje v neskončnosti#0",
+          "label": "Obnašanje v neskončnosti",
+          "value": "pri x → -∞ gre p(x) → -∞, pri x → +∞ gre p(x) → +∞. Ker je k > 0 in je stopnja liha"
+        },
+        {
+          "key": "Presečišče z osjo y#0",
+          "label": "Presečišče z osjo y",
+          "value": "p(0) = 2"
+        },
+        {
+          "key": "Ničla 1#0",
+          "label": "Ničla 1",
+          "value": "x = -2, večkratnost 1: graf seka os x"
+        },
+        {
+          "key": "Ničla 2#0",
+          "label": "Ničla 2",
+          "value": "x = 1, večkratnost 2: graf se dotika osi x, p′(1) = 0"
+        }
+      ],
+      "notes": [
+        "Stopnja je vsota večkratnosti ničel. Presečišče z osjo y je p(0) = k·∏(-zᵢ)^mᵢ. Pri lihi večkratnosti graf os x seka, pri sodi se je dotika."
+      ],
+      "outputs": [],
+      "captions": [
+        "p(x) = (x + 2)(x - 1)²",
+        "stopnja 3",
+        "×2"
+      ]
+    },
+    {
+      "name": "simple zero -3",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "p(x) = (x + 3)(x - 1)²"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "3 (vsota večkratnosti: 1 + 2)"
+        },
+        {
+          "key": "Obnašanje v neskončnosti#0",
+          "label": "Obnašanje v neskončnosti",
+          "value": "pri x → -∞ gre p(x) → -∞, pri x → +∞ gre p(x) → +∞. Ker je k > 0 in je stopnja liha"
+        },
+        {
+          "key": "Presečišče z osjo y#0",
+          "label": "Presečišče z osjo y",
+          "value": "p(0) = 3"
+        },
+        {
+          "key": "Ničla 1#0",
+          "label": "Ničla 1",
+          "value": "x = -3, večkratnost 1: graf seka os x"
+        },
+        {
+          "key": "Ničla 2#0",
+          "label": "Ničla 2",
+          "value": "x = 1, večkratnost 2: graf se dotika osi x, p′(1) = 0"
+        }
+      ],
+      "notes": [
+        "Stopnja je vsota večkratnosti ničel. Presečišče z osjo y je p(0) = k·∏(-zᵢ)^mᵢ. Pri lihi večkratnosti graf os x seka, pri sodi se je dotika."
+      ],
+      "outputs": [],
+      "captions": [
+        "p(x) = (x + 3)(x - 1)²",
+        "stopnja 3",
+        "×2"
+      ]
+    },
+    {
+      "name": "triple",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "p(x) = (x - 1)³"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "3 (vsota večkratnosti: 3)"
+        },
+        {
+          "key": "Obnašanje v neskončnosti#0",
+          "label": "Obnašanje v neskončnosti",
+          "value": "pri x → -∞ gre p(x) → -∞, pri x → +∞ gre p(x) → +∞. Ker je k > 0 in je stopnja liha"
+        },
+        {
+          "key": "Presečišče z osjo y#0",
+          "label": "Presečišče z osjo y",
+          "value": "p(0) = -1"
+        },
+        {
+          "key": "Ničla 1#0",
+          "label": "Ničla 1",
+          "value": "x = 1, večkratnost 3: graf seka os x in je tam raven, p′(1) = 0"
+        }
+      ],
+      "notes": [
+        "Stopnja je vsota večkratnosti ničel. Presečišče z osjo y je p(0) = k·∏(-zᵢ)^mᵢ. Pri lihi večkratnosti graf os x seka, pri sodi se je dotika."
+      ],
+      "outputs": [],
+      "captions": [
+        "p(x) = (x - 1)³",
+        "stopnja 3",
+        "×3"
+      ]
+    },
+    {
+      "name": "degree five",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "p(x) = 0,2·(x + 3)(x + 1)²(x - 2)²"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "5 (vsota večkratnosti: 1 + 2 + 2)"
+        },
+        {
+          "key": "Obnašanje v neskončnosti#0",
+          "label": "Obnašanje v neskončnosti",
+          "value": "pri x → -∞ gre p(x) → -∞, pri x → +∞ gre p(x) → +∞. Ker je k > 0 in je stopnja liha"
+        },
+        {
+          "key": "Presečišče z osjo y#0",
+          "label": "Presečišče z osjo y",
+          "value": "p(0) = 2,4"
+        },
+        {
+          "key": "Ničla 1#0",
+          "label": "Ničla 1",
+          "value": "x = -3, večkratnost 1: graf seka os x"
+        },
+        {
+          "key": "Ničla 2#0",
+          "label": "Ničla 2",
+          "value": "x = -1, večkratnost 2: graf se dotika osi x, p′(-1) = 0"
+        },
+        {
+          "key": "Ničla 3#0",
+          "label": "Ničla 3",
+          "value": "x = 2, večkratnost 2: graf se dotika osi x, p′(2) = 0"
+        }
+      ],
+      "notes": [
+        "Stopnja je vsota večkratnosti ničel. Presečišče z osjo y je p(0) = k·∏(-zᵢ)^mᵢ. Pri lihi večkratnosti graf os x seka, pri sodi se je dotika."
+      ],
+      "outputs": [],
+      "captions": [
+        "p(x) = 0,2·(x + 3)(x + 1)²(x - 2)²",
+        "stopnja 5",
+        "×2",
+        "×2"
+      ]
+    },
+    {
+      "name": "k -1",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "p(x) = -(x + 2)(x - 1)²"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "3 (vsota večkratnosti: 1 + 2)"
+        },
+        {
+          "key": "Obnašanje v neskončnosti#0",
+          "label": "Obnašanje v neskončnosti",
+          "value": "pri x → -∞ gre p(x) → +∞, pri x → +∞ gre p(x) → -∞. Ker je k < 0 in je stopnja liha"
+        },
+        {
+          "key": "Presečišče z osjo y#0",
+          "label": "Presečišče z osjo y",
+          "value": "p(0) = -2"
+        },
+        {
+          "key": "Ničla 1#0",
+          "label": "Ničla 1",
+          "value": "x = -2, večkratnost 1: graf seka os x"
+        },
+        {
+          "key": "Ničla 2#0",
+          "label": "Ničla 2",
+          "value": "x = 1, večkratnost 2: graf se dotika osi x, p′(1) = 0"
+        }
+      ],
+      "notes": [
+        "Stopnja je vsota večkratnosti ničel. Presečišče z osjo y je p(0) = k·∏(-zᵢ)^mᵢ. Pri lihi večkratnosti graf os x seka, pri sodi se je dotika."
+      ],
+      "outputs": [],
+      "captions": [
+        "p(x) = -(x + 2)(x - 1)²",
+        "stopnja 3",
+        "×2"
+      ]
+    },
+    {
+      "name": "multiplicity 3",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "p(x) = (x + 2)³(x - 1)²"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "5 (vsota večkratnosti: 3 + 2)"
+        },
+        {
+          "key": "Obnašanje v neskončnosti#0",
+          "label": "Obnašanje v neskončnosti",
+          "value": "pri x → -∞ gre p(x) → -∞, pri x → +∞ gre p(x) → +∞. Ker je k > 0 in je stopnja liha"
+        },
+        {
+          "key": "Presečišče z osjo y#0",
+          "label": "Presečišče z osjo y",
+          "value": "p(0) = 8"
+        },
+        {
+          "key": "Ničla 1#0",
+          "label": "Ničla 1",
+          "value": "x = -2, večkratnost 3: graf seka os x in je tam raven, p′(-2) = 0"
+        },
+        {
+          "key": "Ničla 2#0",
+          "label": "Ničla 2",
+          "value": "x = 1, večkratnost 2: graf se dotika osi x, p′(1) = 0"
+        }
+      ],
+      "notes": [
+        "Stopnja je vsota večkratnosti ničel. Presečišče z osjo y je p(0) = k·∏(-zᵢ)^mᵢ. Pri lihi večkratnosti graf os x seka, pri sodi se je dotika."
+      ],
+      "outputs": [],
+      "captions": [
+        "p(x) = (x + 2)³(x - 1)²",
+        "stopnja 5",
+        "×2",
+        "×3"
+      ]
+    },
+    {
+      "name": "zeros merged",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "p(x) = (x - 1)³"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "3 (vsota večkratnosti: 3)"
+        },
+        {
+          "key": "Obnašanje v neskončnosti#0",
+          "label": "Obnašanje v neskončnosti",
+          "value": "pri x → -∞ gre p(x) → -∞, pri x → +∞ gre p(x) → +∞. Ker je k > 0 in je stopnja liha"
+        },
+        {
+          "key": "Presečišče z osjo y#0",
+          "label": "Presečišče z osjo y",
+          "value": "p(0) = -1"
+        },
+        {
+          "key": "Ničla 1#0",
+          "label": "Ničla 1",
+          "value": "x = 1, večkratnost 3: graf seka os x in je tam raven, p′(1) = 0"
+        }
+      ],
+      "notes": [
+        "Stopnja je vsota večkratnosti ničel. Presečišče z osjo y je p(0) = k·∏(-zᵢ)^mᵢ. Pri lihi večkratnosti graf os x seka, pri sodi se je dotika."
+      ],
+      "outputs": [],
+      "captions": [
+        "p(x) = (x - 1)³",
+        "stopnja 3",
+        "×3"
+      ]
+    },
+    {
+      "name": "zero added",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "p(x) = (x + 2)x(x - 1)²"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "4 (vsota večkratnosti: 1 + 1 + 2)"
+        },
+        {
+          "key": "Obnašanje v neskončnosti#0",
+          "label": "Obnašanje v neskončnosti",
+          "value": "pri x → -∞ gre p(x) → +∞, pri x → +∞ gre p(x) → +∞. Ker je k > 0 in je stopnja soda"
+        },
+        {
+          "key": "Presečišče z osjo y#0",
+          "label": "Presečišče z osjo y",
+          "value": "p(0) = 0"
+        },
+        {
+          "key": "Ničla 1#0",
+          "label": "Ničla 1",
+          "value": "x = -2, večkratnost 1: graf seka os x"
+        },
+        {
+          "key": "Ničla 2#0",
+          "label": "Ničla 2",
+          "value": "x = 0, večkratnost 1: graf seka os x"
+        },
+        {
+          "key": "Ničla 3#0",
+          "label": "Ničla 3",
+          "value": "x = 1, večkratnost 2: graf se dotika osi x, p′(1) = 0"
+        }
+      ],
+      "notes": [
+        "Stopnja je vsota večkratnosti ničel. Presečišče z osjo y je p(0) = k·∏(-zᵢ)^mᵢ. Pri lihi večkratnosti graf os x seka, pri sodi se je dotika."
+      ],
+      "outputs": [],
+      "captions": [
+        "p(x) = (x + 2)x(x - 1)²",
+        "stopnja 4",
+        "×2"
+      ]
+    },
+    {
+      "name": "zeros removed",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "p(x) = 1"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "0 (vsota večkratnosti: 0)"
+        },
+        {
+          "key": "Obnašanje v neskončnosti#0",
+          "label": "Obnašanje v neskončnosti",
+          "value": "graf je vodoravna premica (stopnja 0)"
+        },
+        {
+          "key": "Presečišče z osjo y#0",
+          "label": "Presečišče z osjo y",
+          "value": "p(0) = 1"
+        }
+      ],
+      "notes": [
+        "Stopnja je vsota večkratnosti ničel. Presečišče z osjo y je p(0) = k·∏(-zᵢ)^mᵢ. Pri lihi večkratnosti graf os x seka, pri sodi se je dotika."
+      ],
+      "outputs": [],
+      "captions": [
+        "p(x) = 1",
+        "stopnja 0"
+      ]
+    },
+    {
+      "name": "derivative shown",
+      "rows": [
+        {
+          "key": "Pravilo#0",
+          "label": "Pravilo",
+          "value": "p(x) = (x + 2)(x - 1)²"
+        },
+        {
+          "key": "Stopnja#0",
+          "label": "Stopnja",
+          "value": "3 (vsota večkratnosti: 1 + 2)"
+        },
+        {
+          "key": "Obnašanje v neskončnosti#0",
+          "label": "Obnašanje v neskončnosti",
+          "value": "pri x → -∞ gre p(x) → -∞, pri x → +∞ gre p(x) → +∞. Ker je k > 0 in je stopnja liha"
+        },
+        {
+          "key": "Presečišče z osjo y#0",
+          "label": "Presečišče z osjo y",
+          "value": "p(0) = 2"
+        },
+        {
+          "key": "Ničla 1#0",
+          "label": "Ničla 1",
+          "value": "x = -2, večkratnost 1: graf seka os x"
+        },
+        {
+          "key": "Ničla 2#0",
+          "label": "Ničla 2",
+          "value": "x = 1, večkratnost 2: graf se dotika osi x, p′(1) = 0"
+        }
+      ],
+      "notes": [
+        "Stopnja je vsota večkratnosti ničel. Presečišče z osjo y je p(0) = k·∏(-zᵢ)^mᵢ. Pri lihi večkratnosti graf os x seka, pri sodi se je dotika."
+      ],
+      "outputs": [],
+      "captions": [
+        "p(x) = (x + 2)(x - 1)²",
+        "stopnja 3",
+        "×2"
+      ]
+    }
+  ]
+}

@@ -1,19 +1,22 @@
 import React from "react";
 import {guard, guardField} from "../base/controls/guard";
-import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import {PuckOwnedGroup} from "../base/controls/PuckOwnership";
+import {runAs} from "../base/writes/writeSource";
 import Slider from "../../inputs/Slider";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
-import {currentLanguage, t} from "../../localization";
-import {formatNumber, MINUS_SIGN, NumberLanguage} from "../../analysis/format";
+import {currentLanguage, message, messageNumber, t} from "../../localization";
+import {formatNumber, MINUS_SIGN} from "../../analysis/format";
 import {PlotPoint, plotPieces, POLY_BOUNDS} from "../../analysis/schoolFunctions";
-import {MAX_POLY_DEGREE, polyDerivativeValue} from "../../analysis/polynomial";
+import {MAX_POLY_DEGREE, polyDerivativeValue, polyValue} from "../../analysis/polynomial";
 import {
     addPolynomialZero, choosePolynomialExample, DEFAULT_POLYNOMIAL_ZEROS_MODEL, exampleOfPolynomial, movePolynomialZero, POLYNOMIAL_EXAMPLE_IDS,
     PolynomialExampleId, polynomialExampleModel, PolynomialFacts, polynomialFacts, PolynomialZerosEdit, PolynomialZerosModel,
     polynomialSpecOf, removePolynomialZero, setPolynomialK, setPolynomialMultiplicity,
 } from "../../analysis/polynomialZerosModel";
 import {ZERO_GRID_DECIMALS} from "../../analysis/zeroListModel";
+import {formulaMessage} from "./formulaMessage";
 import {polynomialProductText, polynomialRuleText, polynomialZerosEditMessage} from "./polynomialZerosMessages";
 import {noticeOfEvent, ZeroListEditor, ZeroListNoticeStore, ZeroListNoticeView, zeroListNoticeText} from "./ZeroListEditor";
 import {GraphPalette} from "../styles/GraphPalette";
@@ -21,6 +24,15 @@ import {functionPresetCollections} from "./functionPresetCollections";
 import {TransientState} from "../base/BaseGraph";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
 import {RevealButton} from "../../inputs/RevealButton";
+
+/**
+ * The ids of the polynomial zeros declaration: the derivative is a switch puck (the lesson steps compare p with p'); the zeros are board
+ * gliders and a row editor in Orodja, k and the example stay in Orodja (setup). The legend names the drawn curves and the zero gliders.
+ */
+export type PolynomialZerosIds = {
+    param: never; row: "rule" | "degree" | "end" | "y-intercept" | "zero-0" | "zero-1" | "zero-2" | "zero-3" | "zero-4"; note: "degree-rule";
+    legend: "curve" | "derivative" | "zero"; section: never; action: "derivative";
+};
 
 /** Step of the arrow keys in the k field. */
 const K_STEP = 0.5;
@@ -42,6 +54,8 @@ const DERIVATIVE_DASH = 2;
 export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel> {
     private readonly notices = new ZeroListNoticeStore();
     private gliders: JXG.Point[] = [];
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
     /** Set when a drag merged its zero away: the rest of that drag is ignored, as the dragged glider no longer stands for a zero. */
     private dragMerged = false;
 
@@ -164,7 +178,7 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
         return {x, y};
     }
 
-    private curve(samples: () => { x: number[]; y: number[] }, attributes: object): void {
+    private curve(samples: () => { x: number[]; y: number[] }, attributes: object): JXG.GeometryElement {
         const curve = this.own(this.board.create("curve", [[], []], {highlight: false, fixed: true, ...attributes})) as unknown as {
             updateDataArray: () => void; dataX: number[]; dataY: number[];
         };
@@ -173,6 +187,7 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
             curve.dataX = x;
             curve.dataY = y;
         };
+        return curve as unknown as JXG.GeometryElement;
     }
 
     /**
@@ -218,18 +233,13 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
         const strokeWidth = () => this.displaySettings.strokeWidth;
 
         // Layers, lowest first: the derivative, the polynomial, the zero gliders (each with its multiplicity label).
-        this.curve(() => this.derivativeSamples(), {
+        this.drawn.set("derivative", this.curve(() => this.derivativeSamples(), {
             strokeColor: GraphPalette.referenceCurve, dash: DERIVATIVE_DASH, strokeWidth, visible: () => model().derivativeVisible,
-        });
-        this.curve(() => this.plotted(), {strokeColor: GraphPalette.primaryCurve, strokeWidth});
+        }));
+        this.drawn.set("curve", this.curve(() => this.plotted(), {strokeColor: GraphPalette.primaryCurve, strokeWidth}));
         this.gliders = Array.from({length: MAX_POLY_DEGREE}, (_, index) => this.glider(index));
+        this.drawn.set("zero", this.gliders[0]);
         this.syncSceneToModel();
-
-        // The rule and the degree stay on the board (projection needs them).
-        this.caption("bottom-right", [
-            {text: () => polynomialRuleText(polynomialSpecOf(model()), currentLanguage()), scale: 1.2},
-            {text: () => t("polynomial_zeros_board_degree", {value0: polynomialFacts(model()).degree}), minBoardWidth: 520},
-        ]);
     }
 
     protected override syncSceneToModel(): void {
@@ -241,34 +251,30 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
 
     protected override onSceneRemoved(): void {
         this.gliders = [];
+        this.drawn.clear();
         this.dragMerged = false;
     }
 
-    // ---- Texts (shared by the board and the inspector) -----------------------------------------------------------------
-
-    private number(value: number, language: NumberLanguage = currentLanguage()): string {
-        return formatNumber(value, language, 4);
-    }
-
-    private position(value: number): string {
-        return formatNumber(value, currentLanguage(), ZERO_GRID_DECIMALS);
-    }
+    // ---- Texts ----------------------------------------------------------------------------------------------------------
 
     private infinity(direction: "up" | "down"): string {
         return direction === "up" ? "+∞" : `${MINUS_SIGN}∞`;
     }
 
-    private endText(facts: PolynomialFacts): string {
-        if (facts.end.kind === "constant") return t("polynomial_zeros_end_constant");
-        const parity = t(facts.degree % 2 === 0 ? "polynomial_zeros_parity_even" : "polynomial_zeros_parity_odd");
-        return `${t("polynomial_zeros_end_value", {value0: this.infinity(facts.end.left), value1: this.infinity(facts.end.right)})}. `
-            + t("polynomial_zeros_end_reason", {value0: this.model.k > 0 ? ">" : "<", value1: parity});
+    /** The end behaviour: its two sentences (the infinities and the reason) joined by the catalog. */
+    private endMessage(facts: PolynomialFacts) {
+        if (facts.end.kind === "constant") return message("polynomial_zeros_end_constant");
+        const parity = facts.degree % 2 === 0 ? message("polynomial_zeros_parity_even") : message("polynomial_zeros_parity_odd");
+        return message("polynomial_zeros_end_full", {
+            value0: message("polynomial_zeros_end_value", {value0: this.infinity(facts.end.left), value1: this.infinity(facts.end.right)}),
+            value1: message("polynomial_zeros_end_reason", {value0: this.model.k > 0 ? ">" : "<", value1: parity}),
+        });
     }
 
-    private zeroText(zero: PolynomialFacts["zeros"][number]): string {
-        const params = {value0: this.position(zero.z), value1: zero.m};
-        if (!zero.crosses) return t("polynomial_zeros_zero_touches", params);
-        return t(zero.derivativeVanishes ? "polynomial_zeros_zero_crosses_flat" : "polynomial_zeros_zero_crosses", params);
+    private zeroMessage(zero: PolynomialFacts["zeros"][number]) {
+        const params = {value0: messageNumber(zero.z, ZERO_GRID_DECIMALS), value1: zero.m};
+        if (!zero.crosses) return message("polynomial_zeros_zero_touches", params);
+        return zero.derivativeVanishes ? message("polynomial_zeros_zero_crosses_flat", params) : message("polynomial_zeros_zero_crosses", params);
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -299,36 +305,71 @@ export class PolynomialZerosGraph extends BaseFunctionGraph<PolynomialZerosModel
                 <Slider customText={t("polynomial_zeros_k_label")} value={state.k} min={POLY_BOUNDS.k[0]} max={POLY_BOUNDS.k[1]} step={K_STEP} decimals={4}
                              rejectedHint={t("polynomial_zeros_k_hint", kRange)} onChange={next => guardField(this.refusals, () => this.setK(next))}/>
             </div>
-            <div className="convexity-actions" role="group" aria-label={t("polynomial_zeros_actions_label")}>
+            <PuckOwnedGroup params={["derivative"]} className="convexity-actions" role="group" aria-label={t("polynomial_zeros_actions_label")}>
                 <RevealButton action="toggle-derivative" revealed={state.derivativeVisible} showLabel={t("polynomial_zeros_derivative_show")} hideLabel={t("polynomial_zeros_derivative_hide")}
                               onToggle={() => this.setDerivativeVisible(!this.model.derivativeVisible)}/>
-            </div>
+            </PuckOwnedGroup>
         </>;
     }
 
-    protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "curve", color: GraphPalette.primaryCurve, label: t("polynomial_zeros_legend_curve"), kind: "line"},
-            ...(this.model.derivativeVisible ? [{id: "derivative", color: GraphPalette.referenceCurve, label: t("polynomial_zeros_legend_derivative"), kind: "dashed-line" as const}] : []),
-            {id: "zero", color: GraphPalette.constructionAccent, label: t("polynomial_zeros_legend_zero"), kind: "dot"},
-        ]}/>;
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /**
+     * The common declaration (rows, the note, view marks), the legend of the drawn curves and zero gliders, and the derivative switch as
+     * a board puck: the steps that compare p with its derivative flip it (poly-double-touches, poly-triple-flat, poly-explore-free).
+     * The zeros stay board gliders and the row editor of Orodja (a list of values), k and the example are setup in Orodja.
+     */
+    protected override declaration(): GraphDeclaration {
+        const derivativeVisible = this.model.derivativeVisible;
+        return {
+            ...this.commonDeclaration(),
+            legend: [
+                {id: "curve", label: message("polynomial_zeros_legend_curve"), kind: "line", object: "curve"},
+                ...(derivativeVisible ? [{id: "derivative" as const, label: message("polynomial_zeros_legend_derivative"), kind: "dashed" as const, object: "derivative"}] : []),
+                ...(this.model.zeros.length > 0 ? [{id: "zero" as const, label: message("polynomial_zeros_legend_zero"), kind: "point" as const, object: "zero"}] : []),
+            ],
+            actions: [
+                {id: "derivative", label: message("polynomial_zeros_derivative_name"), help: message("polynomial_zeros_derivative_show"), placement: "board", enabled: true,
+                    pressed: derivativeVisible, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "derivative") runAs("learner", () => this.setDerivativeVisible(!this.model.derivativeVisible));
+        else throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp(id === "zero" ? "fillcolor" : "strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /** Declared by the base (task 08): the readout rows, the note and the plotted polynomial; the readout panel is drawn from the same data. */
+    protected override functionPanel(): FunctionPanel {
+        const facts = polynomialFacts(this.model);
+        const sum = facts.spec.zeros.length === 0 ? "0" : facts.spec.zeros.map(zero => zero.m).join(" + ");
+        return {
+            rows: [
+                {id: "rule", name: message("polynomial_zeros_readout_rule"), value: formulaMessage(polynomialRuleText(facts.spec, "en"))},
+                {id: "degree", name: message("polynomial_zeros_readout_degree"), value: message("polynomial_zeros_degree_value", {value0: facts.degree, value1: sum})},
+                {id: "end", name: message("polynomial_zeros_readout_end"), value: this.endMessage(facts)},
+                {id: "y-intercept", name: message("polynomial_zeros_readout_y_intercept"), value: message("polynomial_zeros_y_intercept_value", {value0: messageNumber(facts.yIntercept, 4)})},
+                ...facts.zeros.map((zero, index) => ({
+                    id: `zero-${index}`, name: message("polynomial_zeros_readout_zero", {value0: index + 1}), value: this.zeroMessage(zero),
+                })),
+            ],
+            notes: [{id: "degree-rule", text: message("polynomial_zeros_note")}],
+            plotted: x => polyValue(facts.spec, x),
+            must: facts.spec.zeros.map(zero => ({x: zero.z, y: 0})),
+        };
     }
 
     protected renderReadout(): React.ReactNode {
-        const model = this.model;
-        const facts = polynomialFacts(model);
-        const language = currentLanguage();
-        const sum = facts.spec.zeros.length === 0 ? "0" : facts.spec.zeros.map(zero => zero.m).join(" + ");
-        const rows = [
-            {id: "rule", label: t("polynomial_zeros_readout_rule"), value: polynomialRuleText(facts.spec, language)},
-            {id: "degree", label: t("polynomial_zeros_readout_degree"), value: t("polynomial_zeros_degree_value", {value0: facts.degree, value1: sum})},
-            {id: "end", label: t("polynomial_zeros_readout_end"), value: this.endText(facts)},
-            {id: "y-intercept", label: t("polynomial_zeros_readout_y_intercept"), value: t("polynomial_zeros_y_intercept_value", {value0: this.number(facts.yIntercept)})},
-            ...facts.zeros.map((zero, index) => ({
-                id: `zero-${index}`, label: t("polynomial_zeros_readout_zero", {value0: index + 1}), value: this.zeroText(zero),
-            })),
-        ];
-        return <FunctionReadout title={t("function_readouts")} rows={rows} note={t("polynomial_zeros_note")}/>;
+        return this.renderDeclaredReadout();
     }
 }
 
