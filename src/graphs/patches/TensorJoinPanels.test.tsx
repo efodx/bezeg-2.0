@@ -7,11 +7,12 @@
 import {act, fireEvent, render, screen, within} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {GraphHost} from "../base/GraphHost";
-import {installBoardShims, settle} from "../base/realGraphTestHarness";
+import {chooseOnPuckNow, installBoardShims, puckControl, settle, typePuck} from "../base/realGraphTestHarness";
+import {runAs} from "../base/writes/writeSource";
 import {appStorage} from "../../storage/appStorage";
 import {renderMessage, setLanguage, t} from "../../localization";
 import {FakeSurfaceView} from "./FakeSurfaceView";
-import TensorJoinGraph from "./TensorJoinGraph";
+import TensorJoinGraph, {JOIN_ALPHA_KEY, JOIN_MODE_KEY} from "./TensorJoinGraph";
 import {JoinReportPanel, joinReportCase} from "./TensorJoinPanels";
 import {joinStartingScenes, patchPresetCollections} from "./patchPresetCollections";
 import {classifyJoin} from "./tensorJoins";
@@ -29,7 +30,13 @@ function mount() {
     return {graph, view};
 }
 
-const modeSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_mode"));
+/** Writes of the declared mode and ratio run as the learner, as the controls do (values unchanged). */
+const learner = (write: () => void) => act(() => runAs("learner", write));
+/** The mode is a choice puck on the board: its checked segment, and a learner click on a segment. */
+const modeValue = () => puckControl(JOIN_MODE_KEY).querySelector("[role=\"radio\"][aria-checked=\"true\"]")!.getAttribute("data-value");
+const chooseMode = (mode: string) => chooseOnPuckNow(JOIN_MODE_KEY, mode);
+/** In G1 the ratio is a range puck (the Orodja slider is gone); outside G1 the disabled slider stays in Orodja. */
+const alphaPuck = () => puckControl(JOIN_ALPHA_KEY);
 const alphaSlider = () => screen.getByLabelText<HTMLInputElement>(t("patch_join_alpha"));
 const alphaField = () => screen.getByRole<HTMLInputElement>("spinbutton", {name: t("number_field_label", {value0: t("patch_join_alpha")})});
 const state = () => document.querySelector('[data-readout="state"] dd')!.textContent;
@@ -37,7 +44,7 @@ const note = () => document.querySelector('[data-readout-note]')!.textContent!;
 /** The paragraph the alpha slider points at with aria-describedby (its help, which carries the reason while disabled). */
 const alphaDescription = () => alphaSlider().getAttribute("aria-describedby")!.split(" ")
     .map(id => document.getElementById(id)!.textContent!).join(" ");
-const degreeField = (key: "patch_join_b_degree_u" | "patch_join_b_degree_v") => within(screen.getByRole("group", {name: t(key)})).getByRole<HTMLInputElement>("spinbutton");
+const degreeField = (key: "patch_join_b_degree_u" | "patch_join_b_degree_v") => within(screen.getByRole("group", {name: t(key), hidden: true})).getByRole<HTMLInputElement>("spinbutton", {hidden: true});
 const degreeU = () => degreeField("patch_join_b_degree_u");
 const degreeV = () => degreeField("patch_join_b_degree_v");
 const rowSelect = () => screen.getByLabelText<HTMLSelectElement>(t("patch_join_b_index_i"));
@@ -57,7 +64,7 @@ describe("a mode that the pair already satisfies says so", () => {
         const before = netsOf(graph);
         expect(graph.joinReport()).toMatchObject({c1: true, derivativeGap: 0});
         for (const next of ["none", "c0", "c1"] as const) {
-            act(() => graph.setJoinContinuity(next));
+            learner(() => graph.setJoinContinuity(next));
             expect(netsOf(graph)).toBe(before);
             expect(modeNote()).toBe(t(next === "c1" ? "patch_join_mode_satisfied" : "patch_join_mode_kept"));
         }
@@ -65,7 +72,7 @@ describe("a mode that the pair already satisfies says so", () => {
 
     it("has no note in G1, where the mode moves B", () => {
         const {graph} = mount();
-        act(() => graph.setJoinContinuity("g1"));
+        learner(() => graph.setJoinContinuity("g1"));
         expect(modeNote()).toBeUndefined();
     });
 });
@@ -73,7 +80,7 @@ describe("a mode that the pair already satisfies says so", () => {
 describe("mode select and the report", () => {
     it("starts C1 and the report says so", () => {
         const {graph} = mount();
-        expect(modeSelect().value).toBe("c1");
+        expect(modeValue()).toBe("c1");
         expect(state()).toBe(t("patch_join_state_c1"));
         expect(graph.joinReport()).toMatchObject({c0: true, c1: true});
     });
@@ -81,23 +88,23 @@ describe("mode select and the report", () => {
     it("switching the mode rederives B and updates the report text", () => {
         const {graph} = mount();
         const c1Text = note();
-        fireEvent.change(modeSelect(), {target: {value: "g1"}});
+        chooseMode("g1");
         expect(graph.state.joinContinuity).toBe("g1");
         expect(state()).toBe(t("patch_join_state_g1"));
         expect(note()).toBe(t("patch_join_report_g1", {value0: "2"}));
         expect(note()).not.toBe(c1Text);
-        enterNumber(alphaSlider(), "1");
+        typePuck(JOIN_ALPHA_KEY, "1");
         expect(state()).toBe(t("patch_join_state_c1"));
-        fireEvent.change(modeSelect(), {target: {value: "c0"}});
-        act(() => { graph.selectBIndex(1, 1); graph.setSelectedCoordinates([4.5, 0.2, 3]); });
+        chooseMode("c0");
+        learner(() => { graph.selectBIndex(1, 1); graph.setSelectedCoordinates([4.5, 0.2, 3]); });
         expect(state()).toBe(t("patch_join_state_c0"));
         expect(note()).toBe(t("patch_join_report_c0"));
     });
 
     it("none with a gap says the patches do not join and names the gap", () => {
         const {graph} = mount();
-        fireEvent.change(modeSelect(), {target: {value: "none"}});
-        act(() => { graph.selectBIndex(0, 0); graph.setSelectedCoordinates([3.5, -1.5, 1]); });
+        chooseMode("none");
+        learner(() => { graph.selectBIndex(0, 0); graph.setSelectedCoordinates([3.5, -1.5, 1]); });
         const gap = graph.joinReport().positionGap;
         expect(gap).toBeGreaterThan(0.1);
         expect(state()).toBe(t("patch_join_state_none"));
@@ -106,23 +113,22 @@ describe("mode select and the report", () => {
 });
 
 describe("the ratio alpha", () => {
-    it("is disabled outside G1 with the reason, and enabled in G1 without it", () => {
+    it("is disabled in Orodja outside G1 with the reason, and a puck in G1", () => {
         const {graph} = mount();
         for (const mode of ["none", "c0", "c1"] as const) {
-            fireEvent.change(modeSelect(), {target: {value: mode}});
+            chooseMode(mode);
+            expect(alphaPuck()).toBeNull();
             expect(alphaSlider().getAttribute("aria-disabled")).toBe("true");
             expect(alphaField().getAttribute("aria-disabled")).toBe("true");
             expect(alphaDescription()).toContain(t("patch_join_alpha_disabled"));
         }
-        fireEvent.change(modeSelect(), {target: {value: "g1"}});
-        expect(alphaSlider().getAttribute("aria-disabled")).toBeNull();
-        expect(alphaField().getAttribute("aria-disabled")).toBeNull();
-        expect(alphaDescription()).not.toContain(t("patch_join_alpha_disabled"));
-        expect(alphaDescription()).toContain(t("patch_join_alpha_help"));
-        enterNumber(alphaField(), "1,5");
+        chooseMode("g1");
+        expect(screen.queryByRole("spinbutton", {name: t("number_field_label", {value0: t("patch_join_alpha")})})).toBeNull();
+        expect(alphaPuck().getAttribute("aria-disabled")).toBeNull();
+        typePuck(JOIN_ALPHA_KEY, "1,5");
         expect(graph.state.joinAlpha).toBeCloseTo(1.5, 12);
-        expect(alphaSlider().min).toBe("0.25");
-        expect(alphaSlider().max).toBe("4");
+        expect(alphaPuck().getAttribute("aria-valuemin")).toBe("0.25");
+        expect(alphaPuck().getAttribute("aria-valuemax")).toBe("4");
     });
 });
 
@@ -140,7 +146,7 @@ describe("patch B", () => {
         expect(bEditor()).toBeNull();
         expect(derivedNote()!.textContent).toBe(t("patch_join_b_derived_note", {value0: "Q₁₂"}));
         expect(derivedNote()!.getAttribute("role")).toBeNull();
-        act(() => graph.setSelectedCoordinates([9, 9, 9]));
+        learner(() => graph.setSelectedCoordinates([9, 9, 9]));
         expect(graph.state.netB).toBe(before);
         expect(graph.bNet()[1][2]).not.toEqual([9, 9, 9]);
     });
@@ -154,11 +160,11 @@ describe("patch B", () => {
         expect(derivedNote()).toBeNull();
         enterNumber(screen.getByRole("spinbutton", {name: "Q₂₁, x"}), "7");
         expect(graph.bNet()[2][1][0]).toBe(7);
-        fireEvent.change(modeSelect(), {target: {value: "c0"}});
+        chooseMode("c0");
         enterNumber(rowSelect(), "1");
         expect(graph.selectedBIndex()).toEqual([1, 1]);
         expect(derivedNote()).toBeNull();
-        fireEvent.change(modeSelect(), {target: {value: "none"}});
+        chooseMode("none");
         enterNumber(rowSelect(), "0");
         expect(graph.selectedBIndex()).toEqual([0, 1]);
     });
@@ -168,10 +174,10 @@ describe("patch B", () => {
         enterNumber(rowSelect(), "0");
         enterNumber(columnSelect(), "0");
         expect(derivedNote()).not.toBeNull();
-        act(() => graph.selectIndex(1, 1));
+        learner(() => graph.selectIndex(1, 1));
         expect(derivedNote()).toBeNull();
         // Leaving the A selection again must not bring the old explanation back.
-        act(() => graph.selectIndex(undefined, undefined));
+        learner(() => graph.selectIndex(undefined, undefined));
         expect(derivedNote()).toBeNull();
     });
 
@@ -183,7 +189,7 @@ describe("patch B", () => {
         enterNumber(degreeV(), "2");
         expect(graph.state).toMatchObject({n: 2, nB: 2});
         expect(degreeGroup()).toContain(t("patch_join_b_degree_shared"));
-        fireEvent.change(modeSelect(), {target: {value: "none"}});
+        chooseMode("none");
         expect(degreeGroup()).toContain(t("patch_join_b_degree_free"));
         expect(degreeGroup()).not.toContain(t("patch_join_b_degree_shared"));
         enterNumber(degreeV(), "4");
@@ -238,7 +244,7 @@ describe("report wording", () => {
         expect(sl).toContain("odvoda S_u pa nista enaka");
         expect(sl).toMatch(/faktor\s+α\* = 2/);
         expect(sl).not.toMatch(/\bsta enaka/);
-        act(() => setLanguage("en"));
+        learner(() => setLanguage("en"));
         const en = note();
         expect(en).toContain("the tangent planes coincide along the boundary");
         expect(en).toContain("the derivatives S_u are not equal");
@@ -253,7 +259,7 @@ describe("report wording", () => {
         useScene("join-c0-kink");
         expect(note()).toContain("ni C1 in ni G1");
         expect(note()).not.toContain("tangentni ravnini ob robu sovpadata");
-        act(() => setLanguage("en"));
+        learner(() => setLanguage("en"));
         expect(note()).toContain("neither C1 nor G1");
     });
 
@@ -272,7 +278,7 @@ describe("report wording", () => {
         expect(text).toContain("tangentni ravnini");
         expect(text).toContain("ni C1 in ni G1 s stalnim razmerjem");
         expect(text).not.toContain("ostri rob.");
-        act(() => setLanguage("en"));
+        learner(() => setLanguage("en"));
         expect(rendered.container.querySelector('[data-readout-note]')!.textContent).toContain("neither C1 nor G1 with a constant ratio");
     });
 
@@ -310,10 +316,10 @@ describe("Reset, Preset restore and language", () => {
     it("Reset restores the default C1 scene", async () => {
         const {graph} = mount();
         useScene("join-g1");
-        act(() => { graph.setJoinV(0.8); graph.setBDegree("u", 2); });
+        learner(() => { graph.setJoinV(0.8); graph.setBDegree("u", 2); });
         await settle(() => graph.reset());
         expect(graph.state).toMatchObject({joinContinuity: "c1", joinAlpha: 2, joinV: 0.5, m: 3, n: 3, mB: 3, nB: 3});
-        expect(modeSelect().value).toBe("c1");
+        expect(modeValue()).toBe("c1");
         expect(alphaSlider().getAttribute("aria-disabled")).toBe("true");
         expect(degreeU().value).toBe("3");
         expect(state()).toBe(t("patch_join_state_c1"));
@@ -322,7 +328,7 @@ describe("Reset, Preset restore and language", () => {
     it("a saved Preset restores mode, ratio, joinV and B", async () => {
         const {graph} = mount();
         useScene("join-g1");
-        act(() => { graph.setJoinAlpha(1.5); graph.setJoinV(0.2); graph.setBDegree("u", 2); });
+        learner(() => { graph.setJoinAlpha(1.5); graph.setJoinV(0.2); graph.setBDegree("u", 2); });
         const saved = {net: graph.state.net, netB: graph.bNet()};
         graph.presetService!.savePreset({...graph.exportPreset(), id: "mine"});
         useScene("join-c0-kink");
@@ -331,8 +337,8 @@ describe("Reset, Preset restore and language", () => {
         expect(graph.state).toMatchObject({joinContinuity: "g1", joinAlpha: 1.5, joinV: 0.2, mB: 2});
         expect(graph.state.net).toEqual(saved.net);
         expect(graph.bNet()).toEqual(saved.netB);
-        expect(modeSelect().value).toBe("g1");
-        expect(alphaField().value).toBe("1,5");
+        expect(modeValue()).toBe("g1");
+        expect(alphaPuck().getAttribute("aria-valuenow")).toBe("1.5");
         expect(degreeU().value).toBe("2");
         expect(state()).toBe(t("patch_join_state_g1"));
     });
@@ -340,11 +346,11 @@ describe("Reset, Preset restore and language", () => {
     it("a saved teapot Preset restores the capstone scene, camera and read-only panel", async () => {
         const {graph, view} = mount();
         useScene("join-teapot");
-        act(() => graph.setCameraAngle("az", 61));
+        learner(() => graph.setCameraAngle("az", 61));
         const savedCamera = {...graph.state.camera, target: [...graph.state.camera.target]};
         graph.presetService!.savePreset({...graph.exportPreset(), id: "teapot-mine"});
 
-        act(() => graph.useDefaultPair());
+        learner(() => graph.useDefaultPair());
         expect(graph.state.joinCapstone).toBeUndefined();
         await settle(() => graph.selectPreset("teapot-mine"));
 
@@ -372,7 +378,7 @@ describe("Reset, Preset restore and language", () => {
 
         expect(graph.state.joinCapstone).toBeUndefined();
         expect(graph.state).toMatchObject({joinContinuity: "c1", joinAlpha: 2, joinV: 0.5, m: 3, n: 3, mB: 3, nB: 3});
-        expect(modeSelect().value).toBe("c1");
+        expect(modeValue()).toBe("c1");
         expect(degreeU().value).toBe("3");
         expect(document.querySelector(".patch-join-degree")).toBeTruthy();
         expect(view.last.interaction.editable).toBe(true);
@@ -384,16 +390,16 @@ describe("Reset, Preset restore and language", () => {
         const {graph} = mount();
         useScene("join-g1");
         const heading = t("patch_join_report_heading");
-        act(() => setLanguage("en"));
+        learner(() => setLanguage("en"));
         expect(t("patch_join_report_heading")).not.toBe(heading);
         expect(screen.getByText(t("patch_join_report_heading"))).toBeTruthy();
         expect(screen.getByText(t("patch_join_heading"))).toBeTruthy();
         expect(state()).toBe("G1, not C1");
         expect(note()).toBe(t("patch_join_report_g1", {value0: "2"}));
-        expect(alphaDescription()).not.toContain(t("patch_join_alpha_disabled"));
-        expect(modeSelect().value).toBe("g1");
+        expect(alphaPuck().getAttribute("aria-disabled")).toBeNull();
+        expect(modeValue()).toBe("g1");
         expect(graph.state.joinAlpha).toBe(2);
-        act(() => setLanguage("sl"));
+        learner(() => setLanguage("sl"));
         expect(state()).toBe("G1, ne C1");
     });
 
@@ -410,12 +416,12 @@ describe("Reset, Preset restore and language", () => {
         expect(screen.queryByLabelText(t("patch_show_iso_curves"))).toBeNull();
         expect(screen.getByLabelText(t("patch_show_boundary_curves"))).toBeTruthy();
         expect(screen.getByLabelText(t("patch_show_shading"))).toBeTruthy();
-        act(() => setLanguage("en"));
+        learner(() => setLanguage("en"));
         expect(screen.getByText(t("patch_join_capstone_heading"))).toBeTruthy();
         expect(screen.getByText(t("patch_join_capstone_text"))).toBeTruthy();
         fireEvent.click(document.querySelector<HTMLButtonElement>("[data-join-capstone-back]")!);
         expect(graph.state.joinCapstone).toBeUndefined();
-        expect(modeSelect().value).toBe("c1");
+        expect(modeValue()).toBe("c1");
         expect(view.last.points.filter(point => point.id.startsWith('b-'))).toHaveLength(16);
     });
 });
@@ -456,7 +462,7 @@ describe("patch-joins Preset collection", () => {
         const old = JSON.parse(JSON.stringify(graph.exportPresetData()));
         for (const key of ["joinContinuity", "joinAlpha", "joinV", "mB", "nB", "netB"]) delete old[0][1].state[key];
         expect("data" in collection.check(old)).toBe(true);
-        act(() => graph.importPresetData(old));
+        learner(() => graph.importPresetData(old));
         expect(graph.state).toMatchObject({joinContinuity: "c1", joinAlpha: 2, joinV: 0.5, mB: 3, nB: 3});
         expect(graph.joinReport()).toMatchObject({c0: true, c1: true});
     });
@@ -496,7 +502,7 @@ describe("patch-joins Preset collection", () => {
         expect(renderMessage(alpha)).toBe("razmerje α mora biti število med 0,25 in 4");
         expect(renderMessage(capstone)).toContain("joinCapstone");
         expect(renderMessage(capstone)).toContain("teapot");
-        act(() => setLanguage("en"));
+        learner(() => setLanguage("en"));
         expect(renderMessage(alpha)).toBe("the ratio α must be a number between 0.25 and 4");
         expect(renderMessage(incomplete)).toBe("patch B needs mB, nB and netB together");
         expect(renderMessage(capstone)).toContain("joinCapstone");

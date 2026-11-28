@@ -6,6 +6,7 @@ import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import Slider from "../../inputs/Slider";
 import {currentLanguage, useT} from "../../localization";
 import {ReadoutHelp} from "../base/controls/ReadoutParts";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import {PatchPointChooser} from "./PatchPointChooser";
 import {PatchPointEditor} from "./PatchPointEditor";
@@ -51,9 +52,11 @@ export function JoinCapstonePanel({onBack}: {onBack: () => void}) {
  * The "Join" group of Uredi: the continuity mode, the ratio `alpha` (usable only in G1, with the reason stated otherwise)
  * and the `v` of the boundary point where the two cross-boundary arrows are drawn.
  */
-export function JoinModeControls({mode, alpha, joinV, report, onMode, onAlpha, onJoinV}: {
+export function JoinModeControls({mode, alpha, joinV, report, onMode, onAlpha, onJoinV, puckKeys}: {
     mode: JoinContinuity; alpha: number; joinV: number; report: JoinReport;
     onMode: (mode: JoinContinuity) => void; onAlpha: (alpha: number) => void; onJoinV: (v: number) => void;
+    /** The arbiter keys of the mode and the ratio on a declared board: a board puck that owns one leaves its control out here. */
+    puckKeys?: {mode: string; alpha: string};
 }) {
     const t = useT();
     const options = [
@@ -64,12 +67,16 @@ export function JoinModeControls({mode, alpha, joinV, report, onMode, onAlpha, o
     // Loosening a pair that already is C1 moves nothing; the panel says so instead of leaving the board looking unresponsive.
     const modeNote = !g1 && joinReportCase(report) === "c1" ? t(mode === "c1" ? "patch_join_mode_satisfied" : "patch_join_mode_kept") : undefined;
     return <div className="inspector-group patch-join-controls"><h3>{t("patch_join_heading")}</h3>
-        <ChoiceSelect label={t("patch_join_mode")} value={mode} options={options} help={t("patch_join_mode_help")}
-                      onChange={next => onMode(next === "c0" || next === "c1" || next === "g1" ? next : "none")}/>
+        <PuckOwned param={puckKeys?.mode}>
+            <ChoiceSelect label={t("patch_join_mode")} value={mode} options={options} help={t("patch_join_mode_help")}
+                          onChange={next => onMode(next === "c0" || next === "c1" || next === "g1" ? next : "none")}/>
+        </PuckOwned>
         {modeNote && <ReadoutHelp hooks={{"data-patch-note": "join-mode"}}>{modeNote}</ReadoutHelp>}
-        <Slider customText={t("patch_join_alpha")} min={JOIN_ALPHA_RANGE.min} max={JOIN_ALPHA_RANGE.max} step={0.05} value={alpha}
-                unavailableReason={g1 ? undefined : t("patch_join_alpha_disabled")} help={t("patch_join_alpha_help")}
-                onChange={onAlpha}/>
+        <PuckOwned param={g1 ? puckKeys?.alpha : undefined}>
+            <Slider customText={t("patch_join_alpha")} min={JOIN_ALPHA_RANGE.min} max={JOIN_ALPHA_RANGE.max} step={0.05} value={alpha}
+                    unavailableReason={g1 ? undefined : t("patch_join_alpha_disabled")} help={t("patch_join_alpha_help")}
+                    onChange={onAlpha}/>
+        </PuckOwned>
         <Slider customText={t("patch_join_v")} min={0} max={1} step={0.01} value={joinV} help={t("patch_join_v_help")} onChange={onJoinV}/>
     </div>;
 }
@@ -161,7 +168,7 @@ export function joinReportCase(report: JoinReport): JoinReportCase {
     return report.maxNormalAngle !== undefined && report.maxNormalAngle <= COINCIDENT_PLANES_ANGLE ? "c0-planes" : "c0";
 }
 
-const STATE_KEYS = {
+export const STATE_KEYS = {
     "no-c0": "patch_join_state_none", vanish: "patch_join_state_vanish", c1: "patch_join_state_c1",
     g1: "patch_join_state_g1", "c0-no-ratio": "patch_join_state_c0", "c0-planes": "patch_join_state_c0_planes", c0: "patch_join_state_c0",
 } as const satisfies Record<JoinReportCase, "patch_join_state_none" | "patch_join_state_vanish" | "patch_join_state_c1" | "patch_join_state_g1" | "patch_join_state_c0" | "patch_join_state_c0_planes">;

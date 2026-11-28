@@ -6,29 +6,33 @@ import Slider from "../../inputs/Slider";
 import {RefusalChannel, RefusalNotice} from "../../inputs/RefusalChannel";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {currentLanguage, useT} from "../../localization";
+import {PuckOwned} from "../base/controls/PuckOwnership";
 import {ReadoutHelp} from "../base/controls/ReadoutParts";
 import {FunctionReadout} from "../functions/FunctionReadout";
 import type {PatchDirection} from "../../bezeg/impl/patch/tensor-product-bezier-patch";
 import type {PieceCorrespondence} from "./TensorSubdivisionScene";
 import {SUBDIVISION_RANGE} from "./tensorSubdivision";
 
-const tupleText = (values: readonly number[], language: NumberLanguage): string => {
+export const tupleText = (values: readonly number[], language: NumberLanguage): string => {
     const parts = values.map(value => formatNumber(value, language, 3));
     return language === "sl" ? `(${parts.join("; ")})` : `(${parts.join(", ")})`;
 };
 
-/** The "Splitting" group of Uredi: the direction and the position `u0` or `v0` of the cut; says how to edit the original points. */
-export function SubdivisionSplitControls({direction, value, showPieces, onDirection, onValue}: {
+/**
+ * The "Splitting" group of Uredi: the direction and the position `u0` or `v0` of the cut; says how to edit the original points.
+ * With `puckKey` (the arbiter key of the position, a board puck) the position slider gives way to the puck.
+ */
+export function SubdivisionSplitControls({direction, value, showPieces, onDirection, onValue, puckKey}: {
     direction: PatchDirection; value: number; showPieces: boolean;
-    onDirection: (direction: PatchDirection) => void; onValue: (value: number) => void;
+    onDirection: (direction: PatchDirection) => void; onValue: (value: number) => void; puckKey?: string;
 }) {
     const t = useT();
     const options = [{value: "u", text: t("patch_split_direction_u")}, {value: "v", text: t("patch_split_direction_v")}];
     return <div className="inspector-group patch-split-controls"><h3>{t("patch_split_heading")}</h3>
         <ChoiceSelect label={t("patch_split_direction")} value={direction} options={options}
                       onChange={next => onDirection(next === "v" ? "v" : "u")}/>
-        <Slider customText={t(direction === "u" ? "patch_split_value_u" : "patch_split_value_v")} min={SUBDIVISION_RANGE.min} max={SUBDIVISION_RANGE.max}
-                step={0.01} value={value} onChange={onValue}/>
+        <PuckOwned param={puckKey}><Slider customText={t(direction === "u" ? "patch_split_value_u" : "patch_split_value_v")} min={SUBDIVISION_RANGE.min} max={SUBDIVISION_RANGE.max}
+                step={0.01} value={value} onChange={onValue}/></PuckOwned>
         <p className="inspector-help">{t("patch_split_help")}</p>
         {showPieces && <ReadoutHelp hooks={{"data-patch-note": "split-locked"}}>{t("patch_pieces_locked")}</ReadoutHelp>}
     </div>;

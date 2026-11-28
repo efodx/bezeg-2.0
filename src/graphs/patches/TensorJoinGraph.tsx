@@ -1,9 +1,15 @@
 import type React from "react";
 import type {PresetCollection} from "../base/presets/PresetCollection";
-import {buildJoinScene, joinPointId, parseJoinPointId} from "./TensorJoinScene";
-import {JoinBDegreeControls, JoinBPointControls, JoinCapstonePanel, JoinModeControls, JoinReportPanel, JoinScenesControls} from "./TensorJoinPanels";
+import type {ChoiceParameter, GraphDeclaration, LegendEntry, RangeParameter, ReadoutRow} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import {formatNumber} from "../../analysis/format";
+import {currentLanguage, message} from "../../localization";
+import {polylineStyle} from "./surface-view/jsxStyles";
+import {buildJoinScene, joinArrows, joinPointId, parseJoinPointId} from "./TensorJoinScene";
+import {JoinBDegreeControls, JoinBPointControls, JoinCapstonePanel, JoinModeControls, joinReportCase, JoinReportPanel, JoinScenesControls, STATE_KEYS} from "./TensorJoinPanels";
 import {TensorPatchDisplayPanel, TensorPatchEditPanel} from "./TensorPatchPanels";
-import TensorPatchGraph, {MAX_PATCH_DEGREE, MIN_PATCH_DEGREE, netWithDegree, type PatchDirection, TensorPatchGraphState} from "./TensorPatchGraph";
+import TensorPatchGraph, {MAX_PATCH_DEGREE, MIN_PATCH_DEGREE, netWithDegree, type PatchDirection, TensorPatchGraphState, type TensorPatchIds} from "./TensorPatchGraph";
 import {isJoinCapstone, PatchCollectionPresetData, PatchStateDto, Point3Dto, TensorPatchDto, tensorPatchToDto} from "./patchDto";
 import {defaultPatchPresets, joinStartingScenes, patchPresetCollections} from "./patchPresetCollections";
 import {patchFromNet} from "./patchSceneBuilder";
@@ -21,6 +27,23 @@ const isJoinContinuity = (value: unknown): value is JoinContinuity => JOIN_CONTI
 export const DEFAULT_JOIN_CONTINUITY: JoinContinuity = "c1";
 export const DEFAULT_JOIN_ALPHA = 2;
 export const DEFAULT_JOIN_V = 0.5;
+
+/** The arbiter keys of the join mode and the G1 ratio alpha (board pucks). */
+export const JOIN_MODE_KEY = "patch-join-mode";
+export const JOIN_ALPHA_KEY = "patch-join-alpha";
+
+/**
+ * The ids of the joins declaration: the mode and ratio pucks, the join report's rows and note, the legend of both nets, the
+ * shared boundary and the arrows, and the tensor display switches.
+ */
+export type JoinIds = {
+    param: TensorPatchIds["param"] | typeof JOIN_MODE_KEY | typeof JOIN_ALPHA_KEY;
+    row: "state" | "position-gap" | "derivative-gap" | "normal-angle" | "alpha-star";
+    note: "report";
+    legend: TensorPatchIds["legend"] | "net-b" | "seam" | "arrow-a" | "arrow-b";
+    section: never;
+    action: TensorPatchIds["action"];
+};
 
 /** The `state` of a `patch-joins` Preset: `PatchStateDto` with patch `B` (`netB` row-major, `(mB + 1) * (nB + 1)` points) and the join settings. */
 export type JoinStateDto = PatchStateDto;
@@ -321,6 +344,120 @@ export default class TensorJoinGraph extends TensorPatchGraph {
         return {...patch, ...joinedPatch(patch.net, netB, mode, this.alpha())};
     }
 
+    // ---- Declaration -------------------------------------------------------------------------------------------
+
+    protected override declaresTensorWorkspace(): boolean {
+        return true;
+    }
+
+    /** The mode and the ratio, bound to the panel's setters; an unknown mode or a ratio outside `JOIN_ALPHA_RANGE` is refused. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            ...super.parameterBindings(),
+            [JOIN_MODE_KEY]: {
+                read: () => this.mode(),
+                apply: (value: unknown) => {
+                    if (!isJoinContinuity(value)) throw new DomainError(message("invalid_patch_join_continuity"));
+                    this.setJoinContinuity(value);
+                },
+            },
+            [JOIN_ALPHA_KEY]: {
+                read: () => this.alpha(),
+                apply: (value: unknown) => {
+                    const number = Number(value);
+                    if (!Number.isFinite(number) || number < JOIN_ALPHA_RANGE.min || number > JOIN_ALPHA_RANGE.max) throw new DomainError(message("invalid_patch_join_alpha"));
+                    this.setJoinAlpha(number);
+                },
+            },
+        };
+    }
+
+    /**
+     * The join mode as a choice puck (the chapter prompt "izberi način C1 in nato G1") and, in G1 only, the ratio alpha as a range
+     * puck (the same prompt "G1 z alpha = 2" and `prompt_patch_joins_g1` "spreminjaj razmerje alpha"); the join report as the
+     * readout and its sentence as the note; the legend of both nets, the shared boundary and the two arrows; the display
+     * switches as Orodja actions. u, v (no step asks to move them here), the join v, the scenes, B's degrees and points stay in
+     * Orodja. The read-only capstone declares no parameter or readout: the teapot is only rotated.
+     */
+    protected override declaration(): GraphDeclaration<JoinIds> {
+        const base = this.tensorDeclaration();
+        const baseLegend = (id: TensorPatchIds["legend"]) => base.legend?.find(entry => entry.id === id);
+        type JoinLegendKey = "patch_join_legend_net_a" | "patch_join_legend_net_b" | "patch_join_legend_seam" | "patch_join_legend_arrow_a" | "patch_join_legend_arrow_b";
+        const legendEntry = (id: JoinIds["legend"], label: JoinLegendKey, kind: LegendEntry["kind"]): LegendEntry<JoinIds> =>
+            ({id, label: message(label), kind, object: id});
+        const actions = base.actions;
+        if (this.capstone()) {
+            return {legend: [baseLegend("surface"), baseLegend("boundary")].filter(entry => entry !== undefined), actions};
+        }
+        const mode = this.mode();
+        const modeParameter: ChoiceParameter<JoinIds["param"]> = {
+            kind: "choice", key: JOIN_MODE_KEY, label: message("patch_join_mode"), placement: "board", puck: true,
+            options: JOIN_CONTINUITIES.map(value => ({value, label: message(`patch_join_mode_${value}`), short: message(`patch_join_mode_short_${value}`)})),
+        };
+        const alphaParameter: RangeParameter<JoinIds["param"]> = {
+            kind: "range", key: JOIN_ALPHA_KEY, label: message("patch_join_alpha"), placement: "board",
+            min: JOIN_ALPHA_RANGE.min, max: JOIN_ALPHA_RANGE.max, step: 0.05, maxDecimals: 2,
+        };
+        const report = this.joinReport();
+        const kind = joinReportCase(report);
+        const language = currentLanguage();
+        const number = (value: number) => formatNumber(value, language, 3);
+        const formatted = (text: string) => ({kind: "formatted" as const, text});
+        const rows: ReadoutRow<JoinIds>[] = [
+            {id: "state", name: message("patch_join_report_state"), value: message(STATE_KEYS[kind])},
+            {id: "position-gap", name: message("patch_join_report_position_gap"), value: formatted(number(report.positionGap))},
+            {id: "derivative-gap", name: message("patch_join_report_derivative_gap"), value: formatted(number(report.derivativeGap))},
+            {id: "normal-angle", name: message("patch_join_report_normal_angle"),
+                value: report.maxNormalAngle === undefined ? message("patch_join_report_undefined") : formatted(`${number(report.maxNormalAngle * 180 / Math.PI)}°`)},
+            {id: "alpha-star", name: message("patch_join_report_alpha_star"), value: report.alphaStar === undefined ? message("patch_join_report_undefined") : formatted(number(report.alphaStar))},
+        ];
+        const note = kind === "no-c0" ? message("patch_join_report_no_c0", {value0: number(report.positionGap)})
+            : kind === "vanish" ? message("patch_join_report_vanish")
+            : kind === "c1" ? message("patch_join_report_c1", {value0: number(report.derivativeGap)})
+            : kind === "g1" ? message("patch_join_report_g1", {value0: number(report.alphaStar ?? 0)})
+            : kind === "c0-no-ratio" ? message("patch_join_report_c0_no_ratio")
+            : kind === "c0-planes" ? message("patch_join_report_c0_planes") : message("patch_join_report_c0");
+        const legend: LegendEntry<JoinIds>[] = [
+            ...[baseLegend("surface")].filter(entry => entry !== undefined),
+            legendEntry("net", "patch_join_legend_net_a", "line"), legendEntry("net-b", "patch_join_legend_net_b", "dashed"),
+            ...(["points", "iso", "boundary"] as const).map(baseLegend).filter(entry => entry !== undefined),
+            legendEntry("seam", "patch_join_legend_seam", "line"),
+            legendEntry("arrow-a", "patch_join_legend_arrow_a", "line"), legendEntry("arrow-b", "patch_join_legend_arrow_b", "line"),
+            ...[baseLegend("point")].filter(entry => entry !== undefined),
+        ];
+        return {
+            parameters: [modeParameter, ...(mode === "g1" ? [alphaParameter] : [])],
+            readouts: [{id: "report", title: message("patch_join_report_heading"), rows}],
+            notes: [{id: "report", text: note, tone: "muted"}],
+            legend,
+            actions,
+        };
+    }
+
+    /**
+     * B's net follows the net switch like A's; the shared boundary is always drawn; each arrow while its derivative at the join
+     * v is not zero. The capstone draws only the teapot's surfaces and boundaries.
+     */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const {showControlNet, surfaceUnavailable} = this.state;
+        if (this.capstone() && id !== "surface" && id !== "boundary") return undefined;
+        const drawn = (role: Parameters<typeof polylineStyle>[0], visible: boolean) => ({color: polylineStyle(role).stroke, visible: visible && !surfaceUnavailable});
+        const arrows = () => joinArrows(this.state.net, this.bNet(), this.state.joinV ?? DEFAULT_JOIN_V);
+        const nonZero = (vector: Xyz) => vector.some(value => value !== 0);
+        switch (id) {
+            case "net-b": return drawn("net-2", showControlNet);
+            case "seam": return drawn("highlight", true);
+            case "arrow-a": { const a = arrows(); return drawn("vector-u", a.drawScale > 0 && nonZero(a.derivativeA)); }
+            case "arrow-b": { const a = arrows(); return drawn("vector-v", a.drawScale > 0 && nonZero(a.derivativeB)); }
+            default: return super.drawnObject(id);
+        }
+    }
+
+    /** No u, v pucks on this board: the Uredi sliders stay. */
+    protected override puckKeys(): undefined {
+        return undefined;
+    }
+
     // ---- Panels ------------------------------------------------------------------------------------------------
 
     protected override workspaceEdit(): React.ReactNode {
@@ -329,8 +466,9 @@ export default class TensorJoinGraph extends TensorPatchGraph {
         return <>
             {this.unavailableNotice()}
             <JoinModeControls mode={this.mode()} alpha={this.alpha()} joinV={this.state.joinV ?? DEFAULT_JOIN_V} report={this.joinReport()}
-                              onMode={mode => this.setJoinContinuity(mode)} onAlpha={alpha => this.setJoinAlpha(alpha)} onJoinV={v => this.setJoinV(v)}/>
-            <JoinReportPanel report={this.joinReport()}/>
+                              onMode={mode => this.setJoinContinuity(mode)} onAlpha={alpha => this.setJoinAlpha(alpha)} onJoinV={v => this.setJoinV(v)}
+                              puckKeys={{mode: JOIN_MODE_KEY, alpha: JOIN_ALPHA_KEY}}/>
+            <div data-declared-panel=""><JoinReportPanel report={this.joinReport()}/></div>
             <JoinScenesControls scenes={joinStartingScenes} current={this.joinSceneIndex()} onUse={index => this.useJoinScene(index)}/>
             <JoinBDegreeControls mode={this.mode()} mB={netB.length - 1} nB={netB[0].length - 1} onDegree={(direction, degree) => this.setBDegree(direction, degree)}/>
             <TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} startingPatches={this.startingPatches()}/>

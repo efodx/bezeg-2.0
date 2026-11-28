@@ -7,15 +7,15 @@ import {act, fireEvent, render, screen} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {formatNumber} from "../../analysis/format";
 import {GraphHost} from "../base/GraphHost";
-import {installBoardShims, settle} from "../base/realGraphTestHarness";
+import {installBoardShims, puckControl, settle, waitForPucks} from "../base/realGraphTestHarness";
+import {runAs} from "../base/writes/writeSource";
 import {appStorage} from "../../storage/appStorage";
 import {renderMessage, setLanguage, t} from "../../localization";
 import {FakeSurfaceView} from "./FakeSurfaceView";
-import TensorSubdivisionGraph from "./TensorSubdivisionGraph";
+import TensorSubdivisionGraph, {SPLIT_VALUE_KEY} from "./TensorSubdivisionGraph";
 import {patchPresetCollections} from "./patchPresetCollections";
 import {patchFromNet} from "./patchSceneBuilder";
 import type {Xyz} from "./surface-view/surfaceScene";
-import {enterNumber} from '../../inputs/testEntry';
 
 beforeAll(installBoardShims);
 beforeEach(() => appStorage.clear());
@@ -28,8 +28,11 @@ function mount() {
     return {graph, view, rendered};
 }
 
-const slider = (key: "patch_split_value_u" | "patch_split_value_v") => screen.getByLabelText<HTMLInputElement>(t(key));
-const field = (key: "patch_split_value_u" | "patch_split_value_v") => screen.getByRole<HTMLInputElement>("spinbutton", {name: t("number_field_label", {value0: t(key)})});
+/** Writes of declared parameters (u, v, the split) run as the learner, as the controls do (values unchanged). */
+const learner = (write: () => void) => act(() => runAs("learner", write));
+/** The split position is a board puck (the Uredi slider gives way to it). */
+const splitPuck = () => puckControl(SPLIT_VALUE_KEY);
+const splitOnPuck = (graph: TensorSubdivisionGraph, value: number) => act(() => { graph.parameters!.write(SPLIT_VALUE_KEY, value, "learner"); });
 const direction = () => screen.getByLabelText<HTMLSelectElement>(t("patch_split_direction"));
 const elevateButton = (axis: "u" | "v") => document.querySelector<HTMLButtonElement>(`[data-elevate="${axis}"]`)!;
 const unavailable = (axis: "u" | "v") => elevateButton(axis).getAttribute("aria-disabled") === "true";
@@ -47,40 +50,45 @@ const shown = (values: readonly number[], language: "sl" | "en") => {
 };
 
 describe("split controls", () => {
-    it("starts as the bicubic dome split at u0 = 0.4 with the pieces shown", () => {
+    it("starts as the bicubic dome split at u0 = 0.4 with the pieces shown", async () => {
         const {graph, view} = mount();
+        await waitForPucks(SPLIT_VALUE_KEY);
         expect(graph.state).toMatchObject({m: 3, n: 3, subdivisionDirection: "u", subdivisionValue: 0.4, showPieces: true});
         expect(direction().value).toBe("u");
-        expect(slider("patch_split_value_u").value).toBe("0.4");
+        expect(splitPuck().getAttribute("aria-valuenow")).toBe("0.4");
+        // The puck owns the position: no Uredi slider for it.
+        expect(screen.queryByLabelText(t("patch_split_value_u"))).toBeNull();
         expect(piecesSwitch().checked).toBe(true);
         expect(view.last.polylines.some(line => line.id.startsWith("piece-r-"))).toBe(true);
     });
 
-    it("the direction select, the slider and the number field write the split and the scene follows", () => {
+    it("the direction select and the puck write the split and the scene follows", async () => {
         const {graph, view} = mount();
-        enterNumber(slider("patch_split_value_u"), "0.7");
+        await waitForPucks(SPLIT_VALUE_KEY);
+        splitOnPuck(graph, 0.7);
         expect(graph.state.subdivisionValue).toBeCloseTo(0.7, 12);
-        enterNumber(field("patch_split_value_u"), "0,25");
+        expect(splitPuck().getAttribute("aria-valuenow")).toBe("0.7");
+        splitOnPuck(graph, 0.25);
         expect(graph.state.subdivisionValue).toBeCloseTo(0.25, 12);
         fireEvent.change(direction(), {target: {value: "v"}});
         expect(graph.state.subdivisionDirection).toBe("v");
-        // The slider is now the v0 slider and shows the same stored value.
-        expect(slider("patch_split_value_v").value).toBe("0.25");
-        expect(screen.queryByLabelText(t("patch_split_value_u"))).toBeNull();
+        // The puck now names v0 and shows the same stored value.
+        expect(splitPuck().getAttribute("aria-valuenow")).toBe("0.25");
+        expect(screen.queryByLabelText(t("patch_split_value_v"))).toBeNull();
         const split = view.last.polylines.find(line => line.id === "split-curve")!;
         // S(., 0.25) is the cut curve for direction v: its first point is S(0, 0.25).
         const expected = eval3(graph, 0, 0.25);
         expect(split.points[0].map((c, k) => Math.abs(c - expected[k]))).toEqual([0, 0, 0].map(() => expect.closeTo(0, 9)));
     });
 
-    it("keeps the split inside 0.05 to 0.95", () => {
+    it("keeps the split inside 0.05 to 0.95", async () => {
         const {graph} = mount();
-        const input = slider("patch_split_value_u");
-        expect(input.min).toBe("0.05");
-        expect(input.max).toBe("0.95");
-        act(() => graph.setSubdivisionValue(0.99));
+        await waitForPucks(SPLIT_VALUE_KEY);
+        expect(splitPuck().getAttribute("aria-valuemin")).toBe("0.05");
+        expect(splitPuck().getAttribute("aria-valuemax")).toBe("0.95");
+        learner(() => graph.setSubdivisionValue(0.99));
         expect(graph.state.subdivisionValue).toBe(0.95);
-        act(() => graph.setSubdivisionValue(0.01));
+        learner(() => graph.setSubdivisionValue(0.01));
         expect(graph.state.subdivisionValue).toBe(0.05);
     });
 
@@ -100,7 +108,7 @@ describe("editing the original points", () => {
         expect(lockedNotice()!.textContent).toBe(t("patch_pieces_locked"));
         expect(t("patch_pieces_locked")).toContain(t("patch_show_pieces"));
         const before = graph.state.net;
-        act(() => { graph.selectIndex(1, 1); graph.setSelectedCoordinates([9, 9, 9]); });
+        learner(() => { graph.selectIndex(1, 1); graph.setSelectedCoordinates([9, 9, 9]); });
         expect(graph.state.net).toBe(before);
     });
 
@@ -110,7 +118,7 @@ describe("editing the original points", () => {
         const pointLocked = () => document.querySelector('[data-patch-note="point-locked"]');
         // Selected before the pieces were switched off, and while they are shown.
         fireEvent.click(piecesSwitch());
-        act(() => graph.selectIndex(1, 1));
+        learner(() => graph.selectIndex(1, 1));
         expect(editor()).not.toBeNull();
         expect(pointLocked()).toBeNull();
         fireEvent.click(piecesSwitch());
@@ -118,7 +126,7 @@ describe("editing the original points", () => {
         expect(editor()).toBeNull();
         expect(screen.queryByRole("spinbutton", {name: /^P[₀-₉]+, x$/})).toBeNull();
         expect(pointLocked()!.textContent).toBe(t("patch_pieces_locked"));
-        act(() => graph.selectIndex(2, 0));
+        learner(() => graph.selectIndex(2, 0));
         expect(editor()).toBeNull();
         fireEvent.click(piecesSwitch());
         expect(editor()).not.toBeNull();
@@ -129,7 +137,7 @@ describe("editing the original points", () => {
         const {graph} = mount();
         fireEvent.click(piecesSwitch());
         expect(lockedNotice()).toBeNull();
-        act(() => { graph.selectIndex(1, 1); graph.setSelectedCoordinates([9, 9, 9]); });
+        learner(() => { graph.selectIndex(1, 1); graph.setSelectedCoordinates([9, 9, 9]); });
         expect(graph.state.net[1][1]).toEqual([9, 9, 9]);
     });
 });
@@ -159,7 +167,7 @@ describe("degree elevation", () => {
         const net = graph.state.net;
         fireEvent.click(elevateButton("u"));
         expect(graph.state.net).toBe(net);
-        act(() => graph.setDegree("u", 3));
+        learner(() => graph.setDegree("u", 3));
         expect(unavailable("u")).toBe(false);
         expect(reason("u")).toBeNull();
     });
@@ -184,7 +192,7 @@ describe("correspondence readout", () => {
     it.each([[0.5, 0.5, 0.4, "u"], [0.2, 0.7, 0.4, "u"], [0.4, 0.3, 0.4, "u"], [0.9, 0.15, 0.3, "v"], [0.35, 0.1, 0.6, "v"]] as const)(
         "(u, v) = (%s, %s), split %s in %s: shows the piece, the local parameters and equal points", (u, v, split, axis) => {
             const {graph} = mount();
-            act(() => { graph.setSubdivisionDirection(axis); graph.setSubdivisionValue(split); graph.setParameters(u, v); });
+            learner(() => { graph.setSubdivisionDirection(axis); graph.setSubdivisionValue(split); graph.setParameters(u, v); });
             const found = graph.correspondence();
             expect(readout("piece")).toBe(t(found.location.piece === "left" ? "patch_correspondence_left" : "patch_correspondence_right"));
             expect(readout("local")).toBe(shown([found.location.u, found.location.v], "sl"));
@@ -196,17 +204,17 @@ describe("correspondence readout", () => {
 
     it("uses a decimal comma in Slovenian and a point in English, and names the piece in both", () => {
         const {graph} = mount();
-        act(() => graph.setParameters(0.5, 0.5));
+        learner(() => graph.setParameters(0.5, 0.5));
         expect(readout("local")).toBe("(0,167; 0,5)");
         expect(readout("piece")).toBe("drugi del S_R");
-        act(() => setLanguage("en"));
+        learner(() => setLanguage("en"));
         expect(readout("local")).toBe("(0.167, 0.5)");
         expect(readout("piece")).toBe("second piece S_R");
     });
 
     it("moves to the first piece when u crosses the split", () => {
         const {graph} = mount();
-        act(() => graph.setParameters(0.3, 0.5));
+        learner(() => graph.setParameters(0.3, 0.5));
         expect(readout("piece")).toBe(t("patch_correspondence_left"));
         expect(readout("local")).toBe("(0,75; 0,5)");
     });
@@ -215,7 +223,7 @@ describe("correspondence readout", () => {
 describe("Reset, Preset restore and language", () => {
     it("Reset restores the default split and pieces, and clears the elevation ghost", async () => {
         const {graph, view} = mount();
-        act(() => { graph.setSubdivisionDirection("v"); graph.setSubdivisionValue(0.8); graph.setShowPieces(false); graph.elevate("u"); });
+        learner(() => { graph.setSubdivisionDirection("v"); graph.setSubdivisionValue(0.8); graph.setShowPieces(false); graph.elevate("u"); });
         expect(view.last.polylines.some(line => line.id.startsWith("ghost-"))).toBe(true);
         await settle(() => graph.reset());
         expect(graph.state).toMatchObject({m: 3, n: 3, subdivisionDirection: "u", subdivisionValue: 0.4, showPieces: true});
@@ -226,23 +234,24 @@ describe("Reset, Preset restore and language", () => {
 
     it("a saved Preset restores the split fields and shows no ghost", async () => {
         const {graph, view} = mount();
-        act(() => { graph.setSubdivisionDirection("v"); graph.setSubdivisionValue(0.8); graph.setShowPieces(false); });
+        learner(() => { graph.setSubdivisionDirection("v"); graph.setSubdivisionValue(0.8); graph.setShowPieces(false); });
         graph.presetService!.savePreset({...graph.exportPreset(), id: "mine"});
-        act(() => { graph.setSubdivisionDirection("u"); graph.setSubdivisionValue(0.2); graph.setShowPieces(true); graph.elevate("v"); });
+        learner(() => { graph.setSubdivisionDirection("u"); graph.setSubdivisionValue(0.2); graph.setShowPieces(true); graph.elevate("v"); });
         expect(view.last.polylines.some(line => line.id.startsWith("ghost-"))).toBe(true);
         await settle(() => graph.selectPreset("mine"));
         expect(graph.state).toMatchObject({subdivisionDirection: "v", subdivisionValue: 0.8, showPieces: false, n: 3});
         expect(direction().value).toBe("v");
-        expect(slider("patch_split_value_v").value).toBe("0.8");
+        await waitForPucks(SPLIT_VALUE_KEY);
+        expect(splitPuck().getAttribute("aria-valuenow")).toBe("0.8");
         expect(piecesSwitch().checked).toBe(false);
         expect(view.last.polylines.some(line => line.id.startsWith("ghost-"))).toBe(false);
     });
 
     it("a language switch relabels the controls and keeps the state", () => {
         const {graph} = mount();
-        act(() => { graph.setSubdivisionValue(0.6); graph.elevate("u"); });
+        learner(() => { graph.setSubdivisionValue(0.6); graph.elevate("u"); });
         const heading = t("patch_split_heading");
-        act(() => setLanguage("en"));
+        learner(() => setLanguage("en"));
         expect(t("patch_split_heading")).not.toBe(heading);
         expect(screen.getByText(t("patch_split_heading"))).toBeTruthy();
         expect(screen.getByText(t("patch_elevate_heading"))).toBeTruthy();
@@ -265,7 +274,7 @@ describe("patch-subdivision Preset collection", () => {
     it("is keyed patch-subdivision and takes the graph's own export", () => {
         expect(collection.key).toBe("patch-subdivision");
         const {graph} = mount();
-        act(() => { graph.setSubdivisionDirection("v"); graph.setSubdivisionValue(0.65); graph.setShowPieces(false); });
+        learner(() => { graph.setSubdivisionDirection("v"); graph.setSubdivisionValue(0.65); graph.setShowPieces(false); });
         const data = JSON.parse(JSON.stringify(graph.exportPresetData()));
         expect(data[0][1].state).toMatchObject({subdivisionDirection: "v", subdivisionValue: 0.65, showPieces: false});
         expect("data" in collection.check(data)).toBe(true);
@@ -280,11 +289,11 @@ describe("patch-subdivision Preset collection", () => {
 
     it("loads an older tensor Preset without the split fields with the defaults", () => {
         const {graph} = mount();
-        act(() => { graph.setSubdivisionDirection("v"); graph.setSubdivisionValue(0.8); graph.setShowPieces(false); });
+        learner(() => { graph.setSubdivisionDirection("v"); graph.setSubdivisionValue(0.8); graph.setShowPieces(false); });
         const old = JSON.parse(JSON.stringify(graph.exportPresetData()));
         for (const key of ["subdivisionDirection", "subdivisionValue", "showPieces"]) delete old[0][1].state[key];
         expect("data" in collection.check(old)).toBe(true);
-        act(() => graph.importPresetData(old));
+        learner(() => graph.importPresetData(old));
         expect(graph.state).toMatchObject({subdivisionDirection: "u", subdivisionValue: 0.4, showPieces: true});
     });
 
@@ -309,7 +318,7 @@ describe("patch-subdivision Preset collection", () => {
         const direction = rejected({subdivisionDirection: "w"})!;
         expect(renderMessage(value)).toBe("mesto delitve mora biti število med 0,05 in 0,95");
         expect(renderMessage(direction)).toBe("smer delitve mora biti u ali v");
-        act(() => setLanguage("en"));
+        learner(() => setLanguage("en"));
         expect(renderMessage(value)).toBe("the split position must be a number between 0.05 and 0.95");
         expect(renderMessage(direction)).toBe("the split direction must be u or v");
     });

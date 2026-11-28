@@ -893,6 +893,48 @@ const SAMPLES: readonly Sample[] = [
             step('parallel corner at (0,4; 0,7)', g => g.setParameters(0.4, 0.7)),
         ];
     })()},
+    {file: 'patches/__parity__/patch-subdivision.json', demonstration: 'patch-subdivision', states: (() => {
+        type Subdivision = {
+            setParameters(u: number, v: number): void; useStartingPatch(index: number): void; setSubdivisionDirection(direction: 'u' | 'v'): void;
+            setSubdivisionValue(value: number): void; setShowPieces(show: boolean): void; elevate(direction: 'u' | 'v'): void;
+        };
+        const step = (name: string, apply: (graph: Subdivision) => void): ParityState => ({name, apply: graph => runAs('learner', () => apply(graph as unknown as Subdivision))});
+        return [
+            state('default', {}),
+            step('(u, v) = (0,2; 0,7), first piece', g => g.setParameters(0.2, 0.7)),
+            step('split at u0 = 0,15, second piece', g => g.setSubdivisionValue(0.15)),
+            step('split in v at v0 = 0,8', g => { g.setSubdivisionDirection('v'); g.setSubdivisionValue(0.8); }),
+            step('elevated in u, pieces hidden, (u, v) = (0,9; 0,1)', g => { g.elevate('u'); g.setShowPieces(false); g.setParameters(0.9, 0.1); }),
+            step('bilinear saddle at (0,5; 0,5), split in u at 0,5', g => { g.useStartingPatch(0); g.setSubdivisionDirection('u'); g.setSubdivisionValue(0.5); g.setParameters(0.5, 0.5); }),
+        ];
+    })()},
+    {file: 'patches/__parity__/patch-joins.json', demonstration: 'patch-joins', states: (() => {
+        type Joins = {setJoinContinuity(mode: 'none' | 'c0' | 'c1' | 'g1'): void; setJoinAlpha(alpha: number): void; setJoinV(v: number): void; useJoinScene(index: number): void};
+        const step = (name: string, apply: (graph: Joins) => void): ParityState => ({name, apply: graph => runAs('learner', () => apply(graph as unknown as Joins))});
+        return [
+            state('default', {}),
+            step('G1 with alpha 2', g => g.setJoinContinuity('g1')),
+            step('G1 with alpha 0,5, join v 0,2', g => { g.setJoinAlpha(0.5); g.setJoinV(0.2); }),
+            step('C1', g => g.setJoinContinuity('c1')),
+            step('C0 kink scene', g => g.useJoinScene(2)),
+            step('teapot capstone', g => g.useJoinScene(3)),
+        ];
+    })()},
+    {file: 'patches/__parity__/patch-triangular.json', demonstration: 'patch-triangular', states: (() => {
+        type Triangular = {
+            setParameters(u: number, v: number): void; selectIndex(index: readonly [number, number, number] | undefined): void;
+            setDegree(degree: number): void; useStartingPatch(index: number): void;
+        };
+        const step = (name: string, apply: (graph: Triangular) => void): ParityState => ({name, apply: graph => runAs('learner', () => apply(graph as unknown as Triangular))});
+        return [
+            state('default', {}),
+            step('(u, v) = (0,2; 0,5)', g => g.setParameters(0.2, 0.5)),
+            step('edge w = 0 at (0,6; 0,4)', g => g.setParameters(0.6, 0.4)),
+            step('control point (1, 1, 1) selected at (0,2; 0,5)', g => { g.setParameters(0.2, 0.5); g.selectIndex([1, 1, 1]); }),
+            step('control point (2, 0, 1) selected', g => g.selectIndex([2, 0, 1])),
+            step('degree 2, point (1, 0, 1), (u, v) = (0,1; 0,1)', g => { g.setDegree(2); g.selectIndex([1, 0, 1]); g.setParameters(0.1, 0.1); }),
+        ];
+    })()},
     {file: 'linear/__parity__/linear-map-basis.json', demonstration: 'linear-map', states: [
         state('basis default', {'linear-map-mode': 'basis'}),
         state('shear', {'linear-map-example': 'shear'}),

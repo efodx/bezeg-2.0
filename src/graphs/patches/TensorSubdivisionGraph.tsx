@@ -3,9 +3,14 @@ import type {TransientState} from "../base/BaseGraph";
 import type {PresetCollection} from "../base/presets/PresetCollection";
 import type {PatchDirection} from "../../bezeg/impl/patch/tensor-product-bezier-patch";
 import {withSubdivisionPieces, pieceCorrespondence, type PieceCorrespondence} from "./TensorSubdivisionScene";
-import {t} from "../../localization";
-import TensorPatchGraph, {TensorPatchGraphState} from "./TensorPatchGraph";
-import {SubdivisionElevateControls, SubdivisionReadout, SubdivisionSplitControls, SubdivisionVisibilityControls} from "./TensorSubdivisionPanels";
+import {currentLanguage, message, t} from "../../localization";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, RangeParameter, ReadoutRow} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {DomainError} from "../functions/BaseFunctionGraph";
+import {polylineStyle} from "./surface-view/jsxStyles";
+import TensorPatchGraph, {TensorPatchGraphState, TensorPatchIds} from "./TensorPatchGraph";
+import {SubdivisionElevateControls, SubdivisionReadout, SubdivisionSplitControls, SubdivisionVisibilityControls, tupleText} from "./TensorSubdivisionPanels";
 import {TensorPatchDisplayPanel, TensorPatchEditPanel} from "./TensorPatchPanels";
 import {PatchCollectionPresetData, PatchStateDto, Point3Dto} from "./patchDto";
 import {defaultPatchPresets, type DerivativesStartingPatch, derivativesStartingPatches, patchPresetCollections} from "./patchPresetCollections";
@@ -17,6 +22,30 @@ import type {ScenePolyline, SurfaceScene, Xyz} from "./surface-view/surfaceScene
 
 export const DEFAULT_SUBDIVISION_DIRECTION: PatchDirection = "u";
 export const DEFAULT_SUBDIVISION_VALUE = 0.4;
+
+/** The arbiter key of the split position `u0` or `v0` (a board puck). */
+export const SPLIT_VALUE_KEY = "patch-split-value";
+
+/** The Orodja actions of the subdivision: id, the elevation direction or the pieces switch, label. */
+const ELEVATE_ACTIONS = [["elevate-u", "u", "patch_elevate_u"], ["elevate-v", "v", "patch_elevate_v"]] as const;
+
+/** The legend entries the subdivision adds (id, also the drawn object's id), with the scene role each one is drawn in. */
+const SUBDIVISION_LEGEND = [
+    ["piece-left", "net", "line", "patch_pieces_legend_left"],
+    ["piece-right", "net-2", "line", "patch_pieces_legend_right"],
+    ["split", "highlight", "line", "patch_pieces_legend_split"],
+    ["ghost", "compare", "dashed", "patch_pieces_legend_ghost"],
+] as const;
+
+/** The tensor workspace's ids plus the split position, the correspondence rows and note, the pieces' legend and the subdivision actions. */
+export type SubdivisionIds = {
+    param: TensorPatchIds["param"] | typeof SPLIT_VALUE_KEY;
+    row: "piece" | "local" | "piece-point" | "point";
+    note: "correspondence";
+    legend: TensorPatchIds["legend"] | typeof SUBDIVISION_LEGEND[number][0];
+    section: never;
+    action: TensorPatchIds["action"] | typeof ELEVATE_ACTIONS[number][0] | "show-pieces";
+};
 
 const isDirection = (value: unknown): value is PatchDirection => value === "u" || value === "v";
 const clampValue = (value: number) => clamp(value, SUBDIVISION_RANGE.min, SUBDIVISION_RANGE.max);
@@ -185,6 +214,93 @@ export default class TensorSubdivisionGraph extends TensorPatchGraph {
             || s.subdivisionValue !== previous.subdivisionValue || s.showPieces !== previous.showPieces;
     }
 
+    // ---- Declaration -------------------------------------------------------------------------------------------
+
+    protected override declaresTensorWorkspace(): boolean {
+        return true;
+    }
+
+    /** The split position, bound to the panel's setter; a value outside `SUBDIVISION_RANGE` is refused. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            ...super.parameterBindings(),
+            [SPLIT_VALUE_KEY]: {
+                read: () => this.state.subdivisionValue ?? DEFAULT_SUBDIVISION_VALUE,
+                apply: (value: unknown) => {
+                    const number = Number(value);
+                    if (!Number.isFinite(number) || number < SUBDIVISION_RANGE.min || number > SUBDIVISION_RANGE.max) {
+                        throw new DomainError(message("invalid_patch_subdivision_value"));
+                    }
+                    this.setSubdivisionValue(number);
+                },
+            },
+        };
+    }
+
+    /**
+     * The tensor workspace (u, v pucks: the readout says on which piece and at which local parameters S(u, v) lies, read while
+     * moving them) plus the split position as a board puck (the chapter prompt and `prompt_patch_subdivision_pieces` ask the
+     * learner to set the split and compare the piece nets), the correspondence readout and note, the pieces' legend, and the
+     * elevation and pieces switch as Orodja actions. The split direction (a setup choice) stays in Orodja undeclared.
+     */
+    protected override declaration(): GraphDeclaration<SubdivisionIds> {
+        const base = this.tensorDeclaration();
+        const s = this.state;
+        const direction = s.subdivisionDirection ?? DEFAULT_SUBDIVISION_DIRECTION;
+        const language = currentLanguage();
+        const {location, point: piecePoint} = this.correspondence();
+        const point = patchFromNet(s.net).eval(s.u, s.v);
+        const tuple = (values: readonly number[]) => ({kind: "formatted" as const, text: tupleText(values, language)});
+        const split: RangeParameter<SubdivisionIds["param"]> = {
+            kind: "range", key: SPLIT_VALUE_KEY, label: message("patch_split_puck"), symbol: direction === "u" ? "u_0" : "v_0",
+            placement: "board", min: SUBDIVISION_RANGE.min, max: SUBDIVISION_RANGE.max, step: 0.01, maxDecimals: 2,
+        };
+        const rows: ReadoutRow<SubdivisionIds>[] = [
+            {id: "piece", name: message("patch_correspondence_piece"), value: message(location.piece === "left" ? "patch_correspondence_left" : "patch_correspondence_right")},
+            {id: "local", name: message("patch_correspondence_local"), value: tuple([location.u, location.v])},
+            {id: "piece-point", name: message("patch_correspondence_piece_point"), value: tuple(piecePoint)},
+            {id: "point", symbol: "S(u, v)", value: tuple([point.X(), point.Y(), point.Z?.() ?? 0]), legend: "point"},
+        ];
+        const tools = (id: SubdivisionIds["action"], label: ActionDeclaration["label"], tab: "edit" | "display", section: string, enabled: boolean, pressed?: boolean): ActionDeclaration<SubdivisionIds> =>
+            ({id, label, placement: "tools", tab, section, enabled, ...(pressed === undefined ? {} : {pressed})});
+        const legend: LegendEntry<SubdivisionIds>[] = [...base.legend ?? [],
+            ...SUBDIVISION_LEGEND.map(([id, , kind, label]) => ({id, label: message(label), kind, object: id}))];
+        return {
+            ...base,
+            parameters: [...base.parameters ?? [], split],
+            readouts: [{id: "correspondence", title: message("patch_correspondence_heading"), rows}],
+            notes: [{id: "correspondence", text: message("patch_correspondence_note"), tone: "muted"}],
+            legend,
+            actions: [...base.actions ?? [],
+                ...ELEVATE_ACTIONS.map(([id, elevation, label]) => tools(id, message(label), "edit", "elevate", this.canElevateIn(elevation))),
+                tools("show-pieces", message("patch_show_pieces"), "display", "display", true, s.showPieces ?? true)],
+        };
+    }
+
+    override performAction(id: string): void {
+        const elevation = ELEVATE_ACTIONS.find(([candidate]) => candidate === id);
+        if (elevation !== undefined) return runAs("learner", () => this.elevate(elevation[1]));
+        if (id === "show-pieces") return runAs("learner", () => this.setShowPieces(!(this.state.showPieces ?? true)));
+        super.performAction(id);
+    }
+
+    /**
+     * While the pieces are shown, the original net and its points give way to the two piece nets (net switch on) and the split
+     * curve; the ghost of the previous net is drawn while it is current and the net switch is on.
+     */
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const {showControlNet, surfaceUnavailable} = this.state;
+        const pieces = this.state.showPieces ?? true;
+        if (id === "net" || id === "points") {
+            const drawn = super.drawnObject(id);
+            return drawn === undefined ? undefined : {...drawn, visible: drawn.visible && !pieces};
+        }
+        const entry = SUBDIVISION_LEGEND.find(([candidate]) => candidate === id);
+        if (entry === undefined) return super.drawnObject(id);
+        const held = entry[0] === "split" ? pieces : entry[0] === "ghost" ? this.currentGhost() !== undefined && showControlNet : pieces && showControlNet;
+        return {color: polylineStyle(entry[1]).stroke, visible: held && !surfaceUnavailable};
+    }
+
     // ---- Panels ------------------------------------------------------------------------------------------------
 
     protected override workspaceEdit(): React.ReactNode {
@@ -195,10 +311,11 @@ export default class TensorSubdivisionGraph extends TensorPatchGraph {
             {this.unavailableNotice()}
             <SubdivisionSplitControls direction={subdivisionDirection ?? DEFAULT_SUBDIVISION_DIRECTION} value={subdivisionValue ?? DEFAULT_SUBDIVISION_VALUE}
                                       showPieces={showPieces ?? true} onDirection={direction => this.setSubdivisionDirection(direction)}
-                                      onValue={value => this.setSubdivisionValue(value)}/>
+                                      onValue={value => this.setSubdivisionValue(value)} puckKey={SPLIT_VALUE_KEY}/>
             <SubdivisionElevateControls canElevateU={this.canElevateIn("u")} canElevateV={this.canElevateIn("v")} onElevate={direction => this.elevate(direction)}/>
             <TensorPatchEditPanel state={this.state} selection={this.selection()} actions={this.panelActions} startingPatches={this.startingPatches()}
-                                  pointExtra={<SubdivisionReadout correspondence={correspondence} point={[point.X(), point.Y(), point.Z?.() ?? 0]}/>}
+                                  puckKeys={this.puckKeys()}
+                                  pointExtra={<div data-declared-panel=""><SubdivisionReadout correspondence={correspondence} point={[point.X(), point.Y(), point.Z?.() ?? 0]}/></div>}
                                   pointLocked={(showPieces ?? true) ? t("patch_pieces_locked") : undefined}/>
         </>;
     }

@@ -92,12 +92,4 @@ describe('Tensor patch declaration', () => {
         act(() => (graph as unknown as {setSurfaceState(patch: {surfaceUnavailable: boolean}): void}).setSurfaceState({surfaceUnavailable: true}));
         for (const id of LEGEND) expect(graph.drawnObject(id)!.visible, id).toBe(false);
     });
-
-    test.each(['patch-subdivision', 'patch-joins'] as const)('%s, a subclass converted in its own lane, stays undeclared', id => {
-        const graph = createGraph(id) as unknown as TensorPatchGraph;
-        mountGraph(graph as never);
-        expect(graph.getDeclaration()).toBeUndefined();
-        expect(graph.parameters).toBeUndefined();
-        expect(graph.drawnObject('net')).toBeUndefined();
-    });
 });

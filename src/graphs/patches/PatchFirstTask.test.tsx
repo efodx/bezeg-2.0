@@ -9,7 +9,7 @@ import {setLanguage, t} from '../../localization';
 import {FakeSurfaceView} from './FakeSurfaceView';
 import TensorDeCasteljauGraph, {DECASTELJAU_ORDER_KEY} from './TensorDeCasteljauGraph';
 import TensorDerivativesGraph from './TensorDerivativesGraph';
-import TensorJoinGraph from './TensorJoinGraph';
+import TensorJoinGraph, {JOIN_MODE_KEY} from './TensorJoinGraph';
 import TensorSubdivisionGraph from './TensorSubdivisionGraph';
 import TensorPatchGraph, {PATCH_PARAMETER_KEYS} from './TensorPatchGraph';
 import TriangularPatchGraph from './TriangularPatchGraph';
@@ -44,8 +44,9 @@ const plan: Record<string, Plan> = {
         later: [() => t('patch_starting_heading'), () => t('patch_degree_u')], pucks: [PATCH_PARAMETER_KEYS.u, PATCH_PARAMETER_KEYS.v],
         absent: [() => t('patch_parameter_u'), () => t('patch_parameter_v')]},
     'patch-subdivision': {mount: () => mountGraph(new TensorSubdivisionGraph(options)), first: () => t('patch_split_direction'), later: [() => t('patch_starting_heading')]},
-    'patch-joins': {mount: () => mountGraph(new TensorJoinGraph(options)), first: () => t('patch_join_mode'),
-        later: [() => t('patch_join_scenes_heading'), () => t('patch_starting_heading')]},
+    // The join mode is a board puck; the ratio alpha (a puck too once G1 is chosen, here with the reason it is unavailable) leads Edit.
+    'patch-joins': {mount: () => mountGraph(new TensorJoinGraph(options)), first: () => t('patch_join_alpha'),
+        later: [() => t('patch_join_scenes_heading'), () => t('patch_starting_heading')], pucks: [JOIN_MODE_KEY], absent: [() => t('patch_join_mode')]},
 };
 
 describe.each(Object.keys(plan))('%s', key => {

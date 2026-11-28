@@ -2,6 +2,7 @@ import {act, render} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {GraphHost} from "../base/GraphHost";
 import {installBoardShims} from "../base/realGraphTestHarness";
+import {runAs} from "../base/writes/writeSource";
 import {appStorage} from "../../storage/appStorage";
 import {setLanguage} from "../../localization";
 import {FakeSurfaceView} from "./FakeSurfaceView";
@@ -24,8 +25,11 @@ function mount() {
     return {graph, view};
 }
 
+/** Writes of the declared mode and ratio run as the learner, as the controls do (values unchanged). */
+const learner = (write: () => void) => act(() => runAs("learner", write));
+
 const drag = (view: FakeSurfaceView, pointId: string, xyz: Xyz) => view.emit({kind: "point", pointId, xyz, phase: "move"});
-const mode = (graph: TensorJoinGraph, next: JoinContinuity) => act(() => graph.setJoinContinuity(next));
+const mode = (graph: TensorJoinGraph, next: JoinContinuity) => learner(() => graph.setJoinContinuity(next));
 const report = (graph: TensorJoinGraph) => classifyJoin(graph.state.net, graph.bNet());
 const add = (a: Xyz, b: Xyz): Xyz => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 
@@ -88,7 +92,7 @@ describe("the report classifies the displayed nets, whatever mode produced them"
         mode(graph, "g1");
         expect(report(graph)).toMatchObject({c0: true, c1: false, g1: true});
         expect(report(graph).alphaStar).toBeCloseTo(2, 9);
-        act(() => graph.setJoinAlpha(1));
+        learner(() => graph.setJoinAlpha(1));
         expect(report(graph)).toMatchObject({c1: true, g1: true});
         expect(report(graph).alphaStar).toBeCloseTo(1, 9);
         mode(graph, "c1");
@@ -107,7 +111,7 @@ describe("editing A re-derives B in the same write", () => {
     it.each([["c0", 1], ["c1", 1], ["g1", 3]] as const)("%s (alpha %d): B's derived rows follow an A point and a B point stays", (joinMode, alpha) => {
         const {graph, view} = mount();
         mode(graph, joinMode);
-        act(() => graph.setJoinAlpha(alpha));
+        learner(() => graph.setJoinAlpha(alpha));
         const untouched = graph.bNet()[2][1];
         const before = view.scenes.length;
         drag(view, "p-3-1", [2.8, -0.5, 2.4]);
@@ -172,7 +176,7 @@ describe("B's derived points cannot be moved", () => {
         const {graph, view} = mount();
         view.emit({kind: "select", pointId: "b-3-1"});
         expect(view.last.points.filter(p => p.selected).map(p => p.id)).toEqual(["b-3-1"]);
-        act(() => graph.setSelectedCoordinates([6, 0, 0]));
+        learner(() => graph.setSelectedCoordinates([6, 0, 0]));
         expect(graph.bNet()[3][1]).toEqual([6, 0, 0]);
     });
 });
@@ -180,29 +184,29 @@ describe("B's derived points cannot be moved", () => {
 describe("degrees", () => {
     it("shares the v degree outside none: changing n changes both nets, in either patch's control", () => {
         const {graph} = mount();
-        act(() => graph.setDegree("v", 2));
+        learner(() => graph.setDegree("v", 2));
         expect(graph.state).toMatchObject({n: 2, nB: 2, m: 3, mB: 3});
         expect(report(graph)).toMatchObject({c1: true, matchedDegree: 2});
-        act(() => graph.setBDegree("v", 1));
+        learner(() => graph.setBDegree("v", 1));
         expect(graph.state).toMatchObject({n: 1, nB: 1});
         expect(report(graph).c1).toBe(true);
-        act(() => graph.setBDegree("v", 4));
+        learner(() => graph.setBDegree("v", 4));
         expect(graph.state).toMatchObject({n: 4, nB: 4});
         expect(report(graph).c1).toBe(true);
         expect(graph.bNet().every(row => row.length === 5) && graph.state.net.every(row => row.length === 5)).toBe(true);
     });
     it("keeps the u degrees independent, and B's own u degree re-derives its rows", () => {
         const {graph} = mount();
-        act(() => graph.setBDegree("u", 2));
+        learner(() => graph.setBDegree("u", 2));
         expect(graph.state).toMatchObject({m: 3, mB: 2});
         expect(graph.bNet()).toHaveLength(3);
         expect(report(graph)).toMatchObject({c0: true, c1: true});
-        act(() => graph.setDegree("u", 4));
+        learner(() => graph.setDegree("u", 4));
         expect(graph.state).toMatchObject({m: 4, mB: 2});
         const [, row1] = expectedRows(graph, 1);
         graph.bNet()[1].forEach((p, j) => p.forEach((value, c) => expect(value).toBeCloseTo(row1[j][c], 12)));
         expect(report(graph).c1).toBe(true);
-        act(() => graph.setBDegree("u", 1));
+        learner(() => graph.setBDegree("u", 1));
         expect(graph.bNet()).toHaveLength(2);
         expect(report(graph).c1).toBe(true);
     });
@@ -210,20 +214,20 @@ describe("degrees", () => {
         const {graph} = mount();
         mode(graph, "none");
         const before = graph.bNet();
-        act(() => graph.setBDegree("v", 2));
+        learner(() => graph.setBDegree("v", 2));
         expect(graph.state).toMatchObject({n: 3, nB: 2});
         expect(graph.bNet().every(row => row.length === 3)).toBe(true);
-        act(() => graph.setDegree("v", 4));
+        learner(() => graph.setDegree("v", 4));
         expect(graph.state).toMatchObject({n: 4, nB: 2});
         expect(graph.bNet()).not.toBe(before);
         const stored = graph.bNet();
-        act(() => graph.setJoinAlpha(3));
+        learner(() => graph.setJoinAlpha(3));
         expect(graph.bNet()).toEqual(stored);
     });
     it("ignores invalid degrees", () => {
         const {graph} = mount();
         const before = graph.state;
-        act(() => { graph.setBDegree("u", 0); graph.setBDegree("v", 5); graph.setBDegree("u", 2.5); graph.setBDegree("u", 3); });
+        learner(() => { graph.setBDegree("u", 0); graph.setBDegree("v", 5); graph.setBDegree("u", 2.5); graph.setBDegree("u", 3); });
         expect(graph.state).toBe(before);
     });
     it("switching from none with unequal v degrees elevates the lower net without changing either surface", () => {
@@ -232,7 +236,7 @@ describe("degrees", () => {
         const quadA: Xyz[][] = Array.from({length: 4}, (_, i) => Array.from({length: 3}, (_, j): Xyz => [i, j - 1, Math.sin(i + j)]));
         const cubicB = enforceJoin(patchFromNet(quadA).elevate("v").getControlNet().map(row => row.map((p): Xyz => [p.X(), p.Y(), p.Z?.() ?? 0])),
             Array.from({length: 4}, (_, i) => Array.from({length: 4}, (_, j): Xyz => [3 + i, j - 1.5, Math.cos(i - j)])), "c1");
-        act(() => graph.importPresetData(dtoOf(quadA, cubicB, {joinContinuity: "none"})));
+        learner(() => graph.importPresetData(dtoOf(quadA, cubicB, {joinContinuity: "none"})));
         expect(graph.state).toMatchObject({n: 2, nB: 3, joinContinuity: "none"});
         const [beforeA, beforeB] = [samples(graph.state.net), samples(graph.bNet())];
         mode(graph, "c1");
@@ -248,7 +252,7 @@ describe("degrees", () => {
         const quadA: Xyz[][] = Array.from({length: 4}, (_, i) => Array.from({length: 3}, (_, j): Xyz => [i, j - 1, Math.sin(i + j)]));
         const elevatedA = patchFromNet(quadA).elevate("v").getControlNet().map(row => row.map((p): Xyz => [p.X(), p.Y(), p.Z?.() ?? 0]));
         const base = enforceJoin(quadA, quadB, "c1");
-        act(() => graph.importPresetData(dtoOf(elevatedA, base, {joinContinuity: "none"})));
+        learner(() => graph.importPresetData(dtoOf(elevatedA, base, {joinContinuity: "none"})));
         expect(graph.state).toMatchObject({n: 3, nB: 2});
         const [beforeA, beforeB] = [samples(graph.state.net), samples(graph.bNet())];
         mode(graph, "c1");
@@ -264,12 +268,12 @@ describe("mode, ratio and readout parameter", () => {
         mode(graph, "g1");
         const [, row1] = expectedRows(graph, 2);
         graph.bNet()[1].forEach((p, j) => p.forEach((value, c) => expect(value).toBeCloseTo(row1[j][c], 12)));
-        act(() => graph.setJoinAlpha(100));
+        learner(() => graph.setJoinAlpha(100));
         expect(graph.state.joinAlpha).toBe(4);
-        act(() => graph.setJoinAlpha(0));
+        learner(() => graph.setJoinAlpha(0));
         expect(graph.state.joinAlpha).toBe(0.25);
         const state = graph.state;
-        act(() => graph.setJoinAlpha(Number.NaN));
+        learner(() => graph.setJoinAlpha(Number.NaN));
         expect(graph.state).toBe(state);
         const [, row1b] = expectedRows(graph, 0.25);
         graph.bNet()[1].forEach((p, j) => p.forEach((value, c) => expect(value).toBeCloseTo(row1b[j][c], 12)));
@@ -277,19 +281,19 @@ describe("mode, ratio and readout parameter", () => {
     it("moves the cross-boundary arrows with joinV, clamps it and ignores a non-finite value", () => {
         const {graph, view} = mount();
         const startOfArrow = () => view.last.polylines.find(item => item.id === "join-su-a-shaft")!.points[0];
-        act(() => graph.setJoinV(0));
+        learner(() => graph.setJoinV(0));
         expect(startOfArrow()).toEqual(graph.state.net[3][0]);
-        act(() => graph.setJoinV(7));
+        learner(() => graph.setJoinV(7));
         expect(graph.state.joinV).toBe(1);
         expect(startOfArrow()).toEqual(graph.state.net[3][3]);
-        act(() => graph.setJoinV(-3));
+        learner(() => graph.setJoinV(-3));
         expect(graph.state.joinV).toBe(0);
-        act(() => graph.setJoinV(Number.NaN));
+        learner(() => graph.setJoinV(Number.NaN));
         expect(graph.state.joinV).toBe(0);
     });
     it("leaves the parameter of S(u, v) on A alone", () => {
         const {graph} = mount();
-        act(() => graph.setJoinV(0.9));
+        learner(() => graph.setJoinV(0.9));
         expect(graph.state.v).toBe(0.5);
     });
 });
@@ -298,7 +302,7 @@ describe("Presets and starting patches", () => {
     it("round-trips the join state through the exported data", () => {
         const {graph, view} = mount();
         mode(graph, "g1");
-        act(() => { graph.setJoinAlpha(1.5); graph.setJoinV(0.2); });
+        learner(() => { graph.setJoinAlpha(1.5); graph.setJoinV(0.2); });
         drag(view, "b-3-2", [6, 0.5, 1]);
         const data = graph.exportPresetData();
         const dto = exportedDto(graph);
@@ -306,8 +310,8 @@ describe("Presets and starting patches", () => {
         expect(state).toMatchObject({joinContinuity: "g1", joinAlpha: 1.5, joinV: 0.2, mB: 3, nB: 3});
         expect(state.netB).toHaveLength(16);
         const saved = {net: graph.state.net, netB: graph.bNet()};
-        act(() => { graph.setJoinContinuity("none"); graph.setJoinAlpha(3); drag(view, "p-3-3", [0, 0, 0]); });
-        act(() => graph.importPresetData(data));
+        learner(() => { graph.setJoinContinuity("none"); graph.setJoinAlpha(3); drag(view, "p-3-3", [0, 0, 0]); });
+        learner(() => graph.importPresetData(data));
         expect(graph.state).toMatchObject({joinContinuity: "g1", joinAlpha: 1.5, joinV: 0.2});
         expect(graph.state.net).toEqual(saved.net);
         expect(graph.bNet()).toEqual(saved.netB);
@@ -317,10 +321,10 @@ describe("Presets and starting patches", () => {
         const state: JoinStateDto = exportedDto(graph).state ?? {};
         const dto = exportedDto(graph);
         const badB = graph.bNet().map(row => row.map((p): Xyz => add(p, [0, 0, 1])));
-        act(() => graph.importPresetData(dtoOf(graph.state.net, badB, {...state, joinContinuity: "c1"})));
+        learner(() => graph.importPresetData(dtoOf(graph.state.net, badB, {...state, joinContinuity: "c1"})));
         expect(report(graph)).toMatchObject({c0: true, c1: true});
         expect(graph.bNet()[3]).toEqual(badB[3]);
-        act(() => graph.importPresetData([["TensorProductBezierPatch", {m: dto.m, n: dto.n, net: dto.net}]]));
+        learner(() => graph.importPresetData([["TensorProductBezierPatch", {m: dto.m, n: dto.n, net: dto.net}]]));
         expect(graph.state).toMatchObject({joinContinuity: "c1", joinAlpha: 2, joinV: 0.5, mB: 3, nB: 3});
         expect(report(graph).c1).toBe(true);
         expect(view.last.points.filter(p => p.id.startsWith("b-"))).toHaveLength(16);
@@ -330,15 +334,15 @@ describe("Presets and starting patches", () => {
         const dto = exportedDto(graph);
         const baseState: JoinStateDto = dto.state ?? {};
         const wrong: JoinStateDto = {...dto.state, joinContinuity: "c9" as JoinContinuity, /* an imported file is not type checked */ netB: baseState.netB?.slice(1), joinAlpha: Number.NaN, joinV: 12};
-        act(() => graph.importPresetData([["TensorProductBezierPatch", {...dto, state: wrong}]]));
+        learner(() => graph.importPresetData([["TensorProductBezierPatch", {...dto, state: wrong}]]));
         expect(graph.state).toMatchObject({joinContinuity: "c1", joinAlpha: 2, joinV: 1, mB: 3, nB: 3});
         expect(graph.bNet()).toHaveLength(4);
     });
     it("a starting patch replaces A, keeps the mode, ratio and joinV, and joins a continuation of it", () => {
         const {graph, view} = mount();
         mode(graph, "g1");
-        act(() => { graph.setJoinAlpha(1.5); graph.setJoinV(0.8); });
-        act(() => graph.useStartingPatch(0));
+        learner(() => { graph.setJoinAlpha(1.5); graph.setJoinV(0.8); });
+        learner(() => graph.useStartingPatch(0));
         expect(graph.state).toMatchObject({joinContinuity: "g1", joinAlpha: 1.5, joinV: 0.8});
         expect(report(graph).g1).toBe(true);
         expect(report(graph).alphaStar).toBeCloseTo(1.5, 9);
@@ -348,8 +352,8 @@ describe("Presets and starting patches", () => {
     it("Reset-style default data loads back to the starting state", () => {
         const {graph} = mount();
         const initial = graph.state;
-        act(() => graph.setJoinContinuity("none"));
-        act(() => graph.importPresetData(graph.defaultPreset()));
+        learner(() => graph.setJoinContinuity("none"));
+        learner(() => graph.importPresetData(graph.defaultPreset()));
         expect(graph.state.net).toEqual(initial.net);
         expect(graph.bNet()).toEqual(initial.netB);
         expect(graph.state).toMatchObject({joinContinuity: "c1", joinAlpha: 2, joinV: 0.5});
@@ -358,7 +362,7 @@ describe("Presets and starting patches", () => {
     it("restores, exports and exits the teapot Preset without exposing editable points", () => {
         const {graph, view} = mount();
         const capstone = joinStartingScenes.find(scene => scene.id === "join-teapot")!.data();
-        act(() => graph.importPresetData(capstone));
+        learner(() => graph.importPresetData(capstone));
         expect(graph.state.joinCapstone).toBe("teapot");
         expect(graph.presetCollection()).toBe(patchPresetCollections["patch-joins"]);
         expect(view.last.interaction.editable).toBe(false);
@@ -368,7 +372,7 @@ describe("Presets and starting patches", () => {
         expect(exportedDto(graph).state?.joinCapstone).toBe("teapot");
         expect("data" in patchPresetCollections["patch-joins"].check(graph.exportPresetData())).toBe(true);
         const previousNet = graph.state.net;
-        act(() => {
+        learner(() => {
             graph.setJoinContinuity("g1");
             graph.setJoinAlpha(3);
             graph.setBDegree("u", 2);
@@ -378,7 +382,7 @@ describe("Presets and starting patches", () => {
         });
         expect(graph.state.net).toBe(previousNet);
         expect(graph.state.joinCapstone).toBe("teapot");
-        act(() => graph.useDefaultPair());
+        learner(() => graph.useDefaultPair());
         expect(graph.state.joinCapstone).toBeUndefined();
         expect(view.last.points.filter(point => point.id.startsWith("b-")).length).toBeGreaterThan(0);
     });

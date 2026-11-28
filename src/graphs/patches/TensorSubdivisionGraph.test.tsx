@@ -7,6 +7,7 @@ import {MemoryRouter} from "react-router-dom";
 import {GraphHost} from "../base/GraphHost";
 import type {TransientState} from "../base/BaseGraph";
 import {installBoardShims, settle} from "../base/realGraphTestHarness";
+import {runAs} from "../base/writes/writeSource";
 import {appStorage} from "../../storage/appStorage";
 import {FakeSurfaceView} from "./FakeSurfaceView";
 import TensorSubdivisionGraph from "./TensorSubdivisionGraph";
@@ -15,6 +16,9 @@ import type {Xyz} from "./surface-view/surfaceScene";
 
 beforeAll(installBoardShims);
 beforeEach(() => appStorage.clear());
+
+/** Writes of declared parameters (u, v, the split) run as the learner, as the controls do (values unchanged). */
+const learner = (write: () => void) => act(() => runAs("learner", write));
 
 class ExposedGraph extends TensorSubdivisionGraph {
     capture(): TransientState { return this.captureTransientState(); }
@@ -35,7 +39,7 @@ const sample = (net: Xyz[][], u: number, v: number): Xyz => {
     return [p.X(), p.Y(), p.Z?.() ?? 0];
 };
 const GRID: ReadonlyArray<readonly [number, number]> = [[0, 0], [0.2, 0.7], [0.5, 0.5], [0.9, 0.1], [1, 1]];
-const drag = (view: FakeSurfaceView, pointId: string, xyz: Xyz) => act(() => view.emit({kind: "point", pointId, xyz, phase: "move"}));
+const drag = (view: FakeSurfaceView, pointId: string, xyz: Xyz) => learner(() => view.emit({kind: "point", pointId, xyz, phase: "move"}));
 
 describe("starting scene and split settings", () => {
     it("starts as the bicubic dome split in u at 0.4 with the pieces shown, read-only", () => {
@@ -54,21 +58,21 @@ describe("starting scene and split settings", () => {
         const {graph, view} = mount();
         const split = () => view.last.polylines.find(l => l.id === "split-curve")!.points[0];
         const before = split();
-        act(() => graph.setSubdivisionValue(0.7));
+        learner(() => graph.setSubdivisionValue(0.7));
         expect(graph.state.subdivisionValue).toBe(0.7);
         expect(split()).not.toEqual(before);
-        act(() => graph.setSubdivisionValue(0));
+        learner(() => graph.setSubdivisionValue(0));
         expect(graph.state.subdivisionValue).toBe(0.05);
-        act(() => graph.setSubdivisionValue(3));
+        learner(() => graph.setSubdivisionValue(3));
         expect(graph.state.subdivisionValue).toBe(0.95);
-        act(() => { graph.setSubdivisionValue(Number.NaN); graph.setSubdivisionValue(Infinity); });
+        learner(() => { graph.setSubdivisionValue(Number.NaN); graph.setSubdivisionValue(Infinity); });
         expect(graph.state.subdivisionValue).toBe(0.95);
-        act(() => graph.setSubdivisionDirection("v"));
+        learner(() => graph.setSubdivisionDirection("v"));
         near(view.last.polylines.find(l => l.id === "split-curve")!.points[0], sample(graph.state.net, 0, 0.95));
     });
     it("showPieces off restores the inherited tensor scene: net, points, editable", () => {
         const {graph, view} = mount();
-        act(() => graph.setShowPieces(false));
+        learner(() => graph.setShowPieces(false));
         const scene = view.last;
         expect(scene.points).toHaveLength(16);
         expect(scene.interaction.editable).toBe(true);
@@ -81,15 +85,15 @@ describe("starting scene and split settings", () => {
         const net = graph.state.net;
         drag(view, "p-1-1", [9, 9, 9]);
         expect(graph.state.net).toBe(net);
-        act(() => graph.setShowPieces(false));
+        learner(() => graph.setShowPieces(false));
         drag(view, "p-1-1", [9, 9, 9]);
         expect(graph.state.net[1][1]).toEqual([9, 9, 9]);
     });
     it("a starting patch replaces the net and keeps the split the student chose", () => {
         const {graph} = mount();
-        act(() => { graph.setSubdivisionDirection("v"); graph.setSubdivisionValue(0.8); graph.setShowPieces(false); });
+        learner(() => { graph.setSubdivisionDirection("v"); graph.setSubdivisionValue(0.8); graph.setShowPieces(false); });
         const net = graph.state.net;
-        act(() => graph.useStartingPatch(0));
+        learner(() => graph.useStartingPatch(0));
         expect(graph.state.net).not.toBe(net);
         expect(graph.state).toMatchObject({m: 1, n: 1, subdivisionDirection: "v", subdivisionValue: 0.8, showPieces: false});
     });
@@ -98,7 +102,7 @@ describe("starting scene and split settings", () => {
 describe("correspondence", () => {
     it.each([[0.1, 0.5, "left"], [0.4, 0.5, "left"], [0.8, 0.2, "right"]] as const)("S(%s, %s) is on the %s piece and equals the original point", (u, v, piece) => {
         const {graph} = mount();
-        act(() => graph.setParameters(u, v));
+        learner(() => graph.setParameters(u, v));
         const result = graph.correspondence();
         expect(result.location.piece).toBe(piece);
         near(result.point, sample(graph.state.net, u, v));
@@ -108,20 +112,20 @@ describe("correspondence", () => {
 describe("Preset state", () => {
     it("exports the split settings and imports them back, clamped and defaulted", () => {
         const {graph} = mount();
-        act(() => { graph.setSubdivisionDirection("v"); graph.setSubdivisionValue(0.6); graph.setShowPieces(false); });
+        learner(() => { graph.setSubdivisionDirection("v"); graph.setSubdivisionValue(0.6); graph.setShowPieces(false); });
         const data = JSON.parse(JSON.stringify(graph.exportPresetData()));
         expect(data[0][1].state).toMatchObject({subdivisionDirection: "v", subdivisionValue: 0.6, showPieces: false});
         const other = mount();
-        act(() => other.graph.importPresetData(data));
+        learner(() => other.graph.importPresetData(data));
         expect(other.graph.state).toMatchObject({subdivisionDirection: "v", subdivisionValue: 0.6, showPieces: false});
         data[0][1].state.subdivisionValue = 7;
-        act(() => other.graph.importPresetData(data));
+        learner(() => other.graph.importPresetData(data));
         expect(other.graph.state.subdivisionValue).toBe(0.95);
         data[0][1].state = {...data[0][1].state, subdivisionDirection: "w", subdivisionValue: "x", showPieces: 1};
-        act(() => other.graph.importPresetData(data));
+        learner(() => other.graph.importPresetData(data));
         expect(other.graph.state).toMatchObject({subdivisionDirection: "u", subdivisionValue: 0.4, showPieces: true});
         delete data[0][1].state;
-        act(() => other.graph.importPresetData(data));
+        learner(() => other.graph.importPresetData(data));
         expect(other.graph.state).toMatchObject({subdivisionDirection: "u", subdivisionValue: 0.4, showPieces: true});
     });
 });
@@ -130,7 +134,7 @@ describe("elevation", () => {
     it.each(["u", "v"] as const)("elevating in %s raises that degree, leaves the surface and the shading mesh unchanged and keeps a ghost of the old net", direction => {
         const {graph, view} = mount();
         const before = graph.state.net, meshBefore = view.last.mesh!.positions;
-        act(() => graph.elevate(direction));
+        learner(() => graph.elevate(direction));
         expect(graph.state.m).toBe(direction === "u" ? 4 : 3);
         expect(graph.state.n).toBe(direction === "v" ? 4 : 3);
         expect(graph.state.net).toHaveLength(graph.state.m + 1);
@@ -148,21 +152,21 @@ describe("elevation", () => {
     });
     it("is unavailable at degree 4: nothing changes", () => {
         const {graph} = mount();
-        act(() => graph.elevate("u"));
+        learner(() => graph.elevate("u"));
         expect(graph.canElevateIn("u")).toBe(false);
         expect(graph.canElevateIn("v")).toBe(true);
         const net = graph.state.net;
-        act(() => graph.elevate("u"));
+        learner(() => graph.elevate("u"));
         expect(graph.state.net).toBe(net);
         expect(graph.state.m).toBe(4);
-        act(() => graph.elevate("v"));
+        learner(() => graph.elevate("v"));
         expect(graph.state).toMatchObject({m: 4, n: 4});
-        act(() => { graph.elevate("v"); graph.elevate("u"); });
+        learner(() => { graph.elevate("v"); graph.elevate("u"); });
         expect(graph.state).toMatchObject({m: 4, n: 4});
     });
     it("a second elevation in one tick shows the net before that elevation", () => {
         const {graph, view} = mount();
-        act(() => { graph.elevate("u"); graph.elevate("v"); });
+        learner(() => { graph.elevate("u"); graph.elevate("v"); });
         expect(graph.state).toMatchObject({m: 4, n: 4});
         expect(ghostLines(view)).toHaveLength(5 + 4);
     });
@@ -170,7 +174,7 @@ describe("elevation", () => {
     describe("the ghost is cleared by", () => {
         const withGhost = () => {
             const mounted = mount();
-            act(() => { mounted.graph.setShowPieces(false); mounted.graph.elevate("u"); });
+            learner(() => { mounted.graph.setShowPieces(false); mounted.graph.elevate("u"); });
             expect(ghostLines(mounted.view).length).toBeGreaterThan(0);
             return mounted;
         };
@@ -181,12 +185,12 @@ describe("elevation", () => {
         });
         it("a degree change", () => {
             const {graph, view} = withGhost();
-            act(() => graph.setDegree("v", 2));
+            learner(() => graph.setDegree("v", 2));
             expect(ghostLines(view)).toEqual([]);
         });
         it("a starting patch", () => {
             const {graph, view} = withGhost();
-            act(() => graph.useStartingPatch(1));
+            learner(() => graph.useStartingPatch(1));
             expect(ghostLines(view)).toEqual([]);
         });
         it("a Preset load", async () => {
@@ -196,7 +200,7 @@ describe("elevation", () => {
             const {subdivisionDirection, subdivisionValue, showPieces, ...rest} = JSON.parse(JSON.stringify(dto.state));
             void subdivisionDirection; void subdivisionValue; void showPieces;
             graph.presetService!.savePreset({...graph.exportPreset(), id: "mine", data: [[type, {...dto, state: rest}]]});
-            act(() => graph.elevate("v"));
+            learner(() => graph.elevate("v"));
             expect(ghostLines(view)).not.toEqual([]);
             await settle(() => graph.selectPreset("mine"));
             expect(graph.state.m).toBe(4);
@@ -215,23 +219,23 @@ describe("elevation", () => {
             const {graph} = mount();
             expect(graph.capture().elevationGhost).toBeUndefined();
             const before = graph.state.net;
-            act(() => graph.elevate("v"));
+            learner(() => graph.elevate("v"));
             const saved = graph.capture();
             expect(saved.elevationGhost).toEqual(before);
             const other = mount();
-            act(() => { other.graph.importPresetData(graph.exportPresetData()); other.graph.restore(JSON.parse(JSON.stringify(saved))); other.graph.setSubdivisionValue(0.5); });
+            learner(() => { other.graph.importPresetData(graph.exportPresetData()); other.graph.restore(JSON.parse(JSON.stringify(saved))); other.graph.setSubdivisionValue(0.5); });
             expect(ghostLines(other.view)).toHaveLength(8);
         });
         it("ignores an invalid captured ghost", () => {
             const {graph, view} = mount();
-            act(() => graph.restore({elevationGhost: [[1, 2, 3]]}));
-            act(() => graph.setSubdivisionValue(0.5));
+            learner(() => graph.restore({elevationGhost: [[1, 2, 3]]}));
+            learner(() => graph.setSubdivisionValue(0.5));
             expect(ghostLines(view)).toEqual([]);
             expect(graph.capture().elevationGhost).toBeUndefined();
         });
         it("a ghost whose net has changed is not captured", () => {
             const {graph, view} = mount();
-            act(() => { graph.setShowPieces(false); graph.elevate("u"); });
+            learner(() => { graph.setShowPieces(false); graph.elevate("u"); });
             drag(view, "p-0-0", [5, 5, 5]);
             expect(graph.capture().elevationGhost).toBeUndefined();
         });

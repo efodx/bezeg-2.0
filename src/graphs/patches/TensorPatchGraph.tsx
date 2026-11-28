@@ -429,8 +429,8 @@ export default class TensorPatchGraph extends BaseSurfaceGraph<TensorPatchGraphS
     // ---- Declaration (task 08, surface recipe) -----------------------------------------------------------------
 
     /**
-     * Whether this Demonstration declares the board workspace. `patch-tensor` and the subclasses converted with it opt in; the
-     * other subclasses (patch-subdivision, patch-joins) stay undeclared, with nothing bound, until their own conversion.
+     * Whether this Demonstration declares the board workspace. `patch-tensor` declares it; a subclass opts in by overriding this
+     * (patch-subdivision, patch-joins and the other converted subclasses do); one that does not stays undeclared, with nothing bound.
      */
     protected declaresTensorWorkspace(): boolean {
         return this.constructor === TensorPatchGraph;

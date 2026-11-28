@@ -1,0 +1,114 @@
+{
+  "graph": "patch-triangular",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "w#0",
+          "label": "w",
+          "value": "0,33"
+        }
+      ],
+      "notes": [
+        "Parameter w je določen z u in v, zato ga ne nastavljaš neposredno. Parametra u in v skupaj ne smeta preseči 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "(u, v) = (0,2; 0,5)",
+      "rows": [
+        {
+          "key": "w#0",
+          "label": "w",
+          "value": "0,3"
+        }
+      ],
+      "notes": [
+        "Parameter w je določen z u in v, zato ga ne nastavljaš neposredno. Parametra u in v skupaj ne smeta preseči 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "edge w = 0 at (0,6; 0,4)",
+      "rows": [
+        {
+          "key": "w#0",
+          "label": "w",
+          "value": "0"
+        }
+      ],
+      "notes": [
+        "Parameter w je določen z u in v, zato ga ne nastavljaš neposredno. Parametra u in v skupaj ne smeta preseči 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "control point (1, 1, 1) selected at (0,2; 0,5)",
+      "rows": [
+        {
+          "key": "Utež točke P₁₁₁#0",
+          "label": "Utež točke P₁₁₁",
+          "value": "0,18"
+        },
+        {
+          "key": "w#0",
+          "label": "w",
+          "value": "0,3"
+        }
+      ],
+      "notes": [
+        "Utež, s katero ta točka prispeva k točki S(u, v, w): Bernsteinov polinom v treh spremenljivkah n!/(i! j! k!) · u^i · v^j · w^k. Vse uteži skupaj dajo 1.",
+        "Parameter w je določen z u in v, zato ga ne nastavljaš neposredno. Parametra u in v skupaj ne smeta preseči 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "control point (2, 0, 1) selected",
+      "rows": [
+        {
+          "key": "Utež točke P₂₀₁#0",
+          "label": "Utež točke P₂₀₁",
+          "value": "0,036"
+        },
+        {
+          "key": "w#0",
+          "label": "w",
+          "value": "0,3"
+        }
+      ],
+      "notes": [
+        "Utež, s katero ta točka prispeva k točki S(u, v, w): Bernsteinov polinom v treh spremenljivkah n!/(i! j! k!) · u^i · v^j · w^k. Vse uteži skupaj dajo 1.",
+        "Parameter w je določen z u in v, zato ga ne nastavljaš neposredno. Parametra u in v skupaj ne smeta preseči 1."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "degree 2, point (1, 0, 1), (u, v) = (0,1; 0,1)",
+      "rows": [
+        {
+          "key": "Utež točke P₁₀₁#0",
+          "label": "Utež točke P₁₀₁",
+          "value": "0,16"
+        },
+        {
+          "key": "w#0",
+          "label": "w",
+          "value": "0,8"
+        }
+      ],
+      "notes": [
+        "Utež, s katero ta točka prispeva k točki S(u, v, w): Bernsteinov polinom v treh spremenljivkah n!/(i! j! k!) · u^i · v^j · w^k. Vse uteži skupaj dajo 1.",
+        "Parameter w je določen z u in v, zato ga ne nastavljaš neposredno. Parametra u in v skupaj ne smeta preseči 1."
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}
