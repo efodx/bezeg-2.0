@@ -120,7 +120,8 @@ export type DescentIds = {
 export function frameFor(state: DescentState, derived: DescentDerived): [number, number, number, number] {
     switch (derived.mode) {
         case "race": return frameAround(0, derived.end[0], 0, Math.max(derived.end[1], derived.arcSweep >= Math.PI / 2 ? derived.arcCentre : 0));
-        case "track": return frameAround(0, 6, -2, 4.9);
+        // The left edge leaves room for the tag of a point dragged to the left of A: the lesson card covers the board there.
+        case "track": return frameAround(-1.2, 6, -2, 4.9);
         case "tautochrone": return frameAround(Math.min(0, derived.bottom[0] - 3.5 * state.radius), derived.bottom[0], 0, derived.bottom[1]);
     }
 }

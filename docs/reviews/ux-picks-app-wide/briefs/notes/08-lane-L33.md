@@ -41,3 +41,9 @@ Edited: `DescentGraph.tsx`, `parity.test.tsx`, `fragments/index.ts`. New: `mecha
 - graph-check (l33-gc2.log, route /bezeg-2.0/curve-geometry/descent, base :4483): contract, parity, declaration (11), shared (12), probe, fuzz pass; golden FAILS as expected (handler re-records).
 - Shots: `.command-logs/l33-steps.cjs` (own Playwright walk, since `just shot` cannot step lessons) -> `.command-logs/l33-shots/{mc1,mc2,mc3}-{1440,1280}-s*.png`, log l33-steps.log: no "Prizora ni mogoče pripraviti" on any frame; viewed mc1 s3 and mc2/mc3 at 1280: tracks, tags, key points visible, card left of A.
 - `just build` then `just smoke-lesson mechanics-descent --port 4391 --workers=1`: passed (l33-smoke.log).
+
+# Session 4 (mc2 P1 tag against the lesson card)
+- Cause: track frame `frameAround(0, 6, ...)` put A at the left edge, so the P1 tag (left of the point) ran under the left lesson card (1440x900 s2, s3, s8-s10; against it at 1280x720).
+- Fix: `DescentGraph.tsx` `frameFor` track case now `frameAround(-1.2, 6, -2, 4.9)` (about 1.2 m of extra left room; mathematics untouched).
+- Before: mc2-1440 s2 tag cut ",25; 1,5)" at the card edge; after: s2, s10 (1440) and s3, s8 (1280) show the whole tag clear of the card. Shots `.command-logs/l33-shots/mc2-*` (before copies `.command-logs/l33-before/`).
+- Checks: `just unit src/graphs/mechanics src/learning/content` passed (l33-unit4.log); eslint clean (l33-lint4.log); tsc clean (l33-tsc4.log); golden check passed (l33-golden4.log, 10 s).
