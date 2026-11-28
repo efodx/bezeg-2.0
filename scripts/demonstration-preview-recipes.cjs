@@ -58,7 +58,7 @@ const targets = {
     'linear-program': ['Default feasible region x + 2y <= 8, 3x + y <= 9 with its vertices, the objective direction handle, the dashed line at k = 9, the optimum line and the walk, with the vertices below the reserved legend band', [], [-2.25, 8.625, 11.25, 0.375]],
     // The contour-map graph frames its own scene (the contour board beside the surface panel, the legend rows at the top left); the recipe sets no window. The LS1 and LS2 cards open on the bowl at c = 1 with the probe at (0,6; 0,8); the card is the contour board, the surface view is a separate panel.
     'contour-map': ['Default bowl x^2 + y^2 with three level sets from c = 0.375 (radii 0.61, 1.17, 1.54, clear of the tick numbers) and the probe at (0.6, 0.8), level-sets mode, contour board only', [field('Vrednost c', 0.375, 'number'), field('Število nivojnic', 3, 'number'), {kind: 'touch-board'}], [-4.58, 2.8, 4.58, -2.8]],
-    'recursion-growth': ['Arithmetic sequence a1 = 3, d = 2 as the six bars of the lesson card with the marked term and the caption rows; the window leaves room for a6 up to 33', [button('Zmanjšaj število', 4)], [-0.7, 36, 7.2, -4]],
+    'recursion-growth': ['Arithmetic sequence a1 = 3, d = 2 as the six bars of the lesson card with the marked term and the caption rows; the window leaves room for a6 up to 33', [field('Število členov n', 6, 'number')], [-0.7, 36, 7.2, -4]],
     'recursion-cobweb': ['Cobweb board at its default: the line y = 0.5 x + 1, the diagonal, the start handle and the fixed point with eight steps of the web drawn; the window is close on the web around x* = 2 (the web is a few units wide)', [button('Naslednji korak', 8)], [-2.5, 3.2, 4.5, -1.5]],
     'prob-simulation': ['Default Galton board of 10 rows with p = 1/2, seed 42 and 100 balls dropped: the pegs, the bars of the binomial law and the heap', [field('Število kroglic', 100, 'number')], [-1.6, 0.42, 11.6, -0.4]],
     'curve-envelope': ['Default curve with sixteen de Casteljau lines enveloping the curve, the highlighted line and its touching point at t = 0.5', [], [-0.203, 0.93, 1.203, 0.07]],
@@ -84,8 +84,8 @@ const targets = {
     'function-inverse': ['Default function and its inverse mirrored over y = x with the point P and its mirror', [], [-4, 9, 11, -4]],
     continuity: ['Actual jump and distinct open and closed endpoints', [], [-2.3, 4.3, 3.2, -1]],
     derivative: ['Distinct tangent and nearby secant on the original quadratic', [toggle('Prikaži tangento (natančna mejna premica)')], [-0.4, 5, 2.5, -1]],
-    'definite-integral': ['Six coarse left rectangles distinguish approximation from integrand', [field('Število podintervalov n', 6)], [-0.3, 4.8, 2.4, -0.5]],
-    'area-between-curves': ['Both intersections and the genuine shaded region', [field('Meja b', 3.2, 'number')], [0.1, 5, 3.9, -0.5]],
+    'definite-integral': ['Six coarse left rectangles distinguish approximation from integrand', [field('Podintervali n', 6)], [-0.3, 4.8, 2.4, -0.5]],
+    'area-between-curves': ['Both intersections and the genuine shaded region', [field('Druga meja b', 3.2, 'number')], [0.1, 5, 3.9, -0.5]],
     'arc-length': ['Original arc and visibly coarse two-segment approximation', [], [-0.4, 2, 3.6, -0.7]],
     'root-finding': ['Default Newton tangent step on the quadratic example with the start and the next iterate', [button('Naslednji korak')], [-4.5, 6, 4.5, -3]],
     quadrature: ['Default two-subinterval trapezoid on sin with the error visible against the exact area', [], [-1, 2.6, 4.8, -1.8]],
@@ -101,7 +101,7 @@ const targets = {
     'uniform-convergence': ['Original power sequence, limit and epsilon band at n=5', [toggle('Supremum')], [-0.08, 1.1, 0.9, -0.15]],
     'phase-portrait': ['Default linear system with the stable node of the matrix -E, one seed trajectory and the two eigen-direction lines', [], [-5.8, 4.4, 5.8, -4.4]],
     'logistic-map': ['Default map at r = 2.9 with the diagonal, the cobweb, the fixed point and the bifurcation diagram with its cursor, with room under the axis for the caption column', [], [-0.1, 1.15, 2.9, -1.3]],
-    'unit-circle': ['Unit circle at the angle 0 (the opening of the radian lesson) with the sine trace unrolled to its right, framed to show the whole circle and a full turn of the trace', [field('Kot θ (°)', 0)], [-1.6, 3, 8.3, -3.1]],
+    'unit-circle': ['Unit circle at the angle 0 (the opening of the radian lesson) with the sine trace unrolled to its right, framed to show the whole circle and a full turn of the trace', [field('Kot θ', 0)], [-1.6, 3, 8.3, -3.1]],
     'triangle-solver': ['Default sides-mode triangle A = (0, 0), B = (7, 0), C = (2, 4) with the cosine-rule length bars to its right and the correction readout under them', [], [-1.5, 7.2, 16.5, -3.9]],
     // The lessons' handles lie in x from -3 to 5 and y from -2 to 5 (the foot and the arc caption included); the window keeps the 840:520 aspect.
     'line-geometry': ['Default line mode with the line through P and Q, the handles and the construction of the active mode, framed around the lesson points', [], [-7, 6.5, 8.5, -3.1]],

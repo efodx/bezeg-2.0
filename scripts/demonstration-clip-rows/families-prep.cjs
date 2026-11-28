@@ -4,7 +4,7 @@ module.exports = [
     {
         id: 'unit-circle',
         motion: 'parameter-sweep',
-        control: {kind: 'slider', label: 'Kot θ (°)', step: 1},
+        control: {kind: 'slider', label: 'Kot θ', step: 0.5},
         // The poster scene is the angle 0 of the radian lesson. The angle goes round to 270 degrees (three quadrants) and back.
         path: [0, 135, 270, 135, 0],
         lessonQuote: 'Nastavi kot z drsnikom ali ga povleci po krožnici',
@@ -68,7 +68,7 @@ module.exports = [
     {
         id: 'linear-program',
         motion: 'parameter-sweep',
-        control: {kind: 'slider', label: 'Vrednost k premice cilja', step: 1},
+        control: {kind: 'slider', label: 'Vrednost k', step: 1},
         // The poster scene is the default region. The line of the objective slides to the largest value of k (the optimum vertex) and back.
         path: [9, 15, 9, -1, 9],
         lessonQuote: 'Premakni premico cilja, dokler je ne ujameš v enem samem oglišču',
@@ -183,7 +183,7 @@ module.exports = [
     {
         id: 'complex-euler',
         motion: 'parameter-sweep',
-        control: {kind: 'slider', label: 'Kot θ (stopinje)', step: 1},
+        control: {kind: 'slider', label: 'Kot θ', step: 1},
         // The poster scene is the default theta = 30 degrees with the velocity arrow. The angle runs to 360 (the point goes once round the unit circle, 330 degrees past the poster) and back.
         path: [30, 360, 30],
         lessonQuote: 'Spreminjaj kot \\(\\theta\\) in kotno hitrost \\(\\omega\\)',

@@ -7,7 +7,7 @@
 // the evolute point E moves; a failed assertion fails the run.
 // Env: PERF_RUNS (3), PERF_RUNS_THROTTLED (5), PERF_STEPS (150), PERF_DRAG_MS (2000), PERF_ONLY (comma-separated substrings of case names),
 // PERF_OUT or --json path.
-const {puckControl, openTools} = require('./puck-control.cjs');
+const {puckControl, openTools, setPuckValue} = require('./puck-control.cjs');
 const baseUrl = (process.env.PREVIEW_BASE_URL || 'http://127.0.0.1:4314/bezeg-2.0').replace(/\/$/, '');
 const runs = Number(process.env.PERF_RUNS || 3), runsThrottled = Number(process.env.PERF_RUNS_THROTTLED || 5);
 const steps = Number(process.env.PERF_STEPS || 150), dragMs = Number(process.env.PERF_DRAG_MS || 2000);
@@ -128,10 +128,11 @@ async function runOnce(browser, c) {
         const s = await page.evaluate(readBoard);
         if (c.throttle) await (await context.newCDPSession(page)).send('Emulation.setCPUThrottlingRate', {rate: c.throttle});
         let from, to;
+        const keyTarget = page.locator('.puck-strip').getByRole('slider', {name: 'Parameter t', exact: true});
         if (c.evolute === 'slider') {
-            const box = await page.getByRole('slider', {name: 'Parameter t'}).boundingBox();
-            if (!box) throw new Error('no t slider');
-            from = [box.x + box.width * 0.1, box.y + box.height / 2]; to = [box.x + box.width * 0.9, box.y + box.height / 2];
+            // The t puck is keyed (0.01 a step), not dragged: from t = 0 right to 1, then back left, one key per frame slot.
+            await setPuckValue(page, 'Parameter t', 0);
+            await keyTarget.focus();
         } else {
             if (!s.pts.length) throw new Error('no reachable draggable point');
             const grab = c.kind === 'cubic' || c.evolute ? s.pts[s.pts.length - 1] : s.pts[Math.floor(s.pts.length / 2)];
@@ -139,21 +140,19 @@ async function runOnce(browser, c) {
             from = [s.rect[0] + grab.x, s.rect[1] + grab.y];
             c.path = f => [from[0] + span * Math.sin(2 * Math.PI * 0.75 * f), from[1] + span * (1 - Math.cos(2 * Math.PI * 0.75 * f))];
         }
-        const pathAt = c.evolute === 'slider' ? f => [from[0] + (to[0] - from[0]) * f, from[1]] : c.path;
+        const pathAt = c.evolute === 'slider' ? null : c.path;
         await startSampling(page);
-        await page.mouse.move(from[0], from[1]);
-        await page.mouse.down();
+        if (pathAt) { await page.mouse.move(from[0], from[1]); await page.mouse.down(); }
         const s0 = await page.evaluate(snapshot); assertStart(c, s0);
         const t0 = await page.evaluate(() => performance.now());
         for (let i = 1; i <= steps; i++) {
-            const [x, y] = pathAt(i / steps);
-            await page.mouse.move(x, y);
+            if (pathAt) { const [x, y] = pathAt(i / steps); await page.mouse.move(x, y); } else await keyTarget.press(i > 100 ? 'ArrowLeft' : 'ArrowRight');
             await page.waitForTimeout(dragMs / steps);
         }
         const t1 = await page.evaluate(() => performance.now());
         const s1 = await page.evaluate(snapshot);
         assertEnd(c, s0, s1);
-        await page.mouse.up();
+        if (pathAt) await page.mouse.up();
         const perf = await stopSampling(page);
         const samples = intervals(perf.stamps, t0, t1).slice(WARMUP);
         if (samples.length < MIN_SAMPLES) throw new Error(`only ${samples.length} frame samples`);

@@ -9,6 +9,7 @@ const clipRows = require('./demonstration-clip-rows/index.cjs');
 const {captureRow} = require('./demonstration-clip-rows/_driver.cjs');
 const {validateRow} = require('./demonstration-clip-rows/_schema.cjs');
 const {numberFieldLocator} = require('./number-field-locator.cjs');
+const {puckControl, revealInTools} = require('./puck-control.cjs');
 const {stillColourPixel} = require('./demonstration-clip-rows/_jump.cjs');
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const motionIds = ['repeated-subdivision','bisection','bezier','affine','elevation','rational-elevation','decasteljau','decasteljau-alternative','derivative','farin','weighted-parameterization','complex-multiplication','accumulation','ph-cubic','ph-quintic','subdivision','spline-g1','trigonometric-functions','darboux','definite-integral', ...patchSurfaceMotion.surfaceMotionIds, ...clipRows.rowIds];
@@ -1149,8 +1150,8 @@ const motionSpecs = {
     },
     'definite-integral': {
         mode: 'discrete-exact-steps',
-        // The range "Število podintervalov n" (1..150) is set on a fresh route per checkpoint with a keyboard range action; the recipe's n = 6 is the first checkpoint.
-        control: {label: 'Število podintervalov n', kind: 'range'},
+        // The count "Podintervali n" (1..150) is set on a fresh route per checkpoint with a keyboard range action; the recipe's n = 6 is the first checkpoint.
+        control: {label: 'Podintervali n', kind: 'range'},
         // Measured on the diagnostic capture: CRF 10 (encoder default) gave 90071 bytes, under the 300 KiB ceiling, so no encoder change was needed.
         encoderBudget: 'CRF 10 (encoder default): 90071 bytes measured on the diagnostic capture, under the 300 KiB ceiling',
         schedule: {kind: 'discrete-steps', checkpoints: steppedClips['definite-integral'].checkpoints, holds: refinementHolds, resetFrame: 84,
@@ -1704,11 +1705,13 @@ async function captureSweep(browser, d, spec, directory, baseUrl, presentBoard) 
         // The range is inside the animation panel behind the inspector tabs; reveal it as applyAction does.
         if (spec.sweep.revealControl) await spec.sweep.revealControl(page);
         let control=page.getByLabel(spec.control.label,{exact:true}).and(page.locator('input'));// a CountSetter's group carries the same name
+        // A converted graph keeps the control on the board as a puck of the same name (its Locator stand-in takes the same calls).
+        if(await control.count()===0)control=await puckControl(page,'range',spec.control.label)||control;
         assert.equal(await control.count(),1,`Unsupported or ambiguous range control: ${spec.control.label}`);
-        for(const tab of ['Prikaz','Uredi']){if(await control.isVisible())break;await page.getByRole('button',{name:tab,exact:true}).click();}
+        if(!control.isPuck&&!await revealInTools(page,control))for(const tab of ['Prikaz','Uredi']){if(await control.isVisible())break;await page.getByRole('button',{name:tab,exact:true}).click();}
         assert.ok(await control.isVisible(),`Range control ${spec.control.label} is still hidden after revealing the inspector tabs`);
-        const rangeId=await control.getAttribute('id');
-        let range=page.locator(`[id=${JSON.stringify(rangeId)}]`);
+        const rangeId=control.isPuck?null:await control.getAttribute('id');
+        let range=rangeId?page.locator(`[id=${JSON.stringify(rangeId)}]`):control;
         // A Slider's exact field takes the typed value; the range stays the element that is read back.
         const typed=spec.control.kind === 'number' ? await numberFieldLocator(page,spec.control.label,range) : range;
         const {sweep}=spec;
@@ -1850,7 +1853,7 @@ async function generateMotions(browser, demonstrations, output, baseUrl, present
                     if(id==='darboux') {
                         for(let press=0;press<darbouxPressCount(n);press++){const action={kind:'button',label:'Zgosti razdelitev (n → 2n)'};await applyAction(page,action);actions.push(action);}
                     } else {
-                        const action={kind:'range',label:'Število podintervalov n',value:n};await applyAction(page,action);actions.push(action);
+                        const action={kind:'range',label:'Podintervali n',value:n};await applyAction(page,action);actions.push(action);
                     }
                     record({checkpoint:n,actions,...await captureHold(page,d,recipes[id].framing.window,presentBoard,directory,firstFrame,stepped.holds[i])});
                     firstFrame+=stepped.holds[i];

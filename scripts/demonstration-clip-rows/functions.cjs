@@ -12,7 +12,7 @@ module.exports = [
     {
         id: 'function-inverse',
         motion: 'parameter-sweep',
-        control: {kind: 'number', label: 'Točka P: abscisa x₀', step: 0.1},
+        control: {kind: 'number', label: 'Abscisa točke P x0', step: 0.1},
         // The poster scene is x^2 on x>=0 with P=(2,4). The field moves P along the parabola (the lesson's P drag); x0 stays inside 0..2.8 and off 0, where the mirrored tangent has no slope.
         path: [2, 0.2, 2, 2.7, 2],
         lessonQuote: 'Povleci \\(P\\), zamenjaj omejitev, premakni osnovo in vsakič preveri, da sta koordinati zrcalne točke zamenjani in da je zmnožek smernih koeficientov \\(1\\).',

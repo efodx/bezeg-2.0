@@ -188,7 +188,7 @@ function createAnalysisMotionSpecs(helpers = {}) {
                 }, {kind: 'range'}),
         },
         'area-between-curves': {
-            ...schedule('Meja b', 3.2, [3.2, 2, 3.2], 0.01, 4,
+            ...schedule('Druga meja b', 3.2, [3.2, 2, 3.2], 0.01, 4,
                 page => observeBoard(page, samples(0.1, 3.9)),
                 (sample, previous, first) => {
                     const b = input(sample), xs = sample.observed.curves.flatMap(c => c.samples.map(p => p.x));

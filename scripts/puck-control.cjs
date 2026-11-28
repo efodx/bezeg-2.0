@@ -30,7 +30,7 @@ function numberPuck(page, found) {
         isPuck: true,
         count: async () => 1,
         isVisible: () => locator.isVisible(),
-        getAttribute: async () => null,
+        getAttribute: name => locator.getAttribute(name),
         inputValue: async () => String(parseNumber(await locator.getAttribute('aria-valuenow'))),
         focus: () => locator.focus(),
         press: (key, options) => key === 'Tab' ? Promise.resolve() : locator.press(key, options),

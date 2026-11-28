@@ -90,7 +90,7 @@ async function runOnce(browser, c) {
         await page.waitForFunction(() => window.JXG && Object.values(window.JXG.boards).length > 0, null, {timeout: 20000});
         await page.waitForTimeout(2000);
         // d is a board puck (typed entry); the samples slider and the two switches sit in the folded Orodja card, which is opened first.
-        const distance = page.getByRole('slider', {name: 'Razdalja d'});
+        const distance = page.locator('.puck-strip').getByRole('slider', {name: 'Razdalja d', exact: true});
         await setPuckValue(page, 'Razdalja d', START_D);
         await openTools(page);
         await page.getByRole('slider', {name: 'Število vzorcev vzporednice'}).fill(String(c.samples));
@@ -102,12 +102,10 @@ async function runOnce(browser, c) {
         if (c.throttle) await (await context.newCDPSession(page)).send('Emulation.setCPUThrottlingRate', {rate: c.throttle});
         let pathAt, from;
         if (c.gesture === 'slider') {
-            const box = await distance.boundingBox();
-            if (!box) throw new Error('no d slider');
-            // Across d = -1, from about -2 to about -0.3: the cusps move, then vanish.
-            const y = box.y + box.height / 2, left = box.x + box.width * 0.15, right = box.x + box.width * 0.45;
-            from = [left, y];
-            pathAt = f => [left + (right - left) * f, y];
+            // The puck is driven by keyboard (ArrowRight = +0.01), not by a pointer drag: from d = -2 across the cusps' range, one step per frame slot.
+            await setPuckValue(page, 'Razdalja d', -2);
+            await distance.focus();
+            pathAt = null;
         } else {
             if (!s.pts.length) throw new Error('no reachable draggable point');
             const grab = s.pts[s.pts.length - 1], span = s.size[1] * 0.12;
@@ -115,19 +113,17 @@ async function runOnce(browser, c) {
             pathAt = f => [from[0] + span * Math.sin(2 * Math.PI * 0.75 * f), from[1] + span * (1 - Math.cos(2 * Math.PI * 0.75 * f))];
         }
         await startSampling(page);
-        await page.mouse.move(from[0], from[1]);
-        await page.mouse.down();
+        if (pathAt) { await page.mouse.move(from[0], from[1]); await page.mouse.down(); }
         const s0 = await page.evaluate(snapshot); assertStart(c, s0);
         const t0 = await page.evaluate(() => performance.now());
         for (let i = 1; i <= steps; i++) {
-            const [x, y] = pathAt(i / steps);
-            await page.mouse.move(x, y);
+            if (pathAt) { const [x, y] = pathAt(i / steps); await page.mouse.move(x, y); } else await distance.press('ArrowRight');
             await page.waitForTimeout(dragMs / steps);
         }
         const t1 = await page.evaluate(() => performance.now());
         const s1 = await page.evaluate(snapshot);
         assertEnd(c, s0, s1);
-        await page.mouse.up();
+        if (pathAt) await page.mouse.up();
         const perf = await stopSampling(page);
         const samples = intervals(perf.stamps, t0, t1).slice(WARMUP);
         if (samples.length < MIN_SAMPLES) throw new Error(`only ${samples.length} frame samples`);

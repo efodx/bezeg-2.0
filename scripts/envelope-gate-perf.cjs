@@ -2,8 +2,8 @@
 //   node scripts/envelope-gate-perf.cjs [--json out.json]     // PREVIEW_BASE_URL defaults to http://127.0.0.1:4314/bezeg-2.0
 // No injection: the real page is driven through its own controls (sliders "Število premic" and "Parameter t", the middle control point).
 // Method of comb-gate-perf.cjs: rAF sampling only inside the interaction, warm-up dropped, time spent inside board.update, median over runs, cases interleaved.
-// Every case asserts it is real: the family curve (the data curve of stroke width 1) holds two finite points per requested line and changes during the
-// gesture, or for the t slider the highlighted line (stroke width 3) does; a failed assertion fails the run.
+// Every case asserts it is real: the family curve (the data curves of stroke width 1, eight bands) hold two finite points per requested line and changes during the
+// gesture, or for the t slider the highlighted line (stroke width 4) does; a failed assertion fails the run.
 // Env: PERF_RUNS (3), PERF_RUNS_THROTTLED (3), PERF_STEPS (150), PERF_DRAG_MS (2000), PERF_ONLY (comma-separated substrings of case names), PERF_OUT or --json path.
 const {setPuckValue} = require('./puck-control.cjs');
 const baseUrl = (process.env.PREVIEW_BASE_URL || 'http://127.0.0.1:4314/bezeg-2.0').replace(/\/$/, '');
@@ -45,12 +45,13 @@ const readBoard = () => {
 const snapshot = () => {
     const boards = Object.values(window.JXG.boards), bd = boards[boards.length - 1];
     const curves = Object.values(bd.objects).filter(o => o.elType === 'curve' && Object.prototype.hasOwnProperty.call(o, 'updateDataArray'));
-    const finite = curve => {
+    // The family is eight bands (data curves of stroke width 1), read together in band order; the highlighted line is the width-4 curve.
+    const finite = list => {
         const xs = [], ys = [];
-        for (let i = 0; curve && i < (curve.dataX || []).length; i++) if (Number.isFinite(curve.dataX[i]) && Number.isFinite(curve.dataY[i])) { xs.push(curve.dataX[i]); ys.push(curve.dataY[i]); }
+        for (const curve of list) for (let i = 0; i < (curve.dataX || []).length; i++) if (Number.isFinite(curve.dataX[i]) && Number.isFinite(curve.dataY[i])) { xs.push(curve.dataX[i]); ys.push(curve.dataY[i]); }
         return {n: xs.length, xs, ys};
     };
-    return {...finite(curves.find(o => o.visProp.strokewidth === 1)), line: finite(curves.find(o => o.visProp.strokewidth === 3))};
+    return {...finite(curves.filter(o => o.visProp.strokewidth === 1)), line: finite(curves.filter(o => o.visProp.strokewidth === 4))};
 };
 const shift = (a, b) => {
     if (a.n !== b.n) return Infinity;
@@ -92,7 +93,7 @@ async function runOnce(browser, c) {
         await page.waitForFunction(() => window.JXG && Object.values(window.JXG.boards).length > 0, null, {timeout: 20000});
         await page.waitForTimeout(2000);
         // The line count is a count puck (a typed entry, a stepper, no drag track); t is a range puck.
-        const parameter = page.getByRole('slider', {name: 'Parameter t'});
+        const parameter = page.locator('.puck-strip').getByRole('slider', {name: 'Parameter t'});
         await setPuckValue(page, 'Število premic', c.lines);
         const count = page.getByRole('spinbutton', {name: 'Število premic', exact: true});
         await page.waitForTimeout(500);
@@ -101,11 +102,9 @@ async function runOnce(browser, c) {
         if (c.throttle) await (await context.newCDPSession(page)).send('Emulation.setCPUThrottlingRate', {rate: c.throttle});
         let pathAt, from;
         if (c.gesture === 't') {
-            const box = await parameter.boundingBox();
-            if (!box) throw new Error('no slider');
-            const y = box.y + box.height / 2, left = box.x + box.width * (c.gesture === 't' ? 0.15 : 0.5), right = box.x + box.width * (c.gesture === 't' ? 0.85 : 0.95);
-            from = [left, y];
-            pathAt = f => [left + (right - left) * f, y];
+            // The t puck is driven by keyboard (0.01 a step): from t = 0 right to 1, then back left, one key per frame slot.
+            await setPuckValue(page, 'Parameter t', 0);
+            await parameter.focus();
         } else if (c.gesture === 'point') {
             if (!s.pts.length) throw new Error('the middle control point is not reachable');
             const grab = s.pts[0], span = s.size[1] * 0.12;
@@ -113,13 +112,14 @@ async function runOnce(browser, c) {
             pathAt = f => [from[0] + span * Math.sin(2 * Math.PI * 0.75 * f), from[1] + span * (1 - Math.cos(2 * Math.PI * 0.75 * f))];
         }
         await startSampling(page);
-        // The count puck cannot be dragged: its gesture steps it up with the arrow key, at the same pace as the other drags.
-        const keyed = c.gesture === 'count';
-        if (keyed) await count.focus(); else { await page.mouse.move(from[0], from[1]); await page.mouse.down(); }
+        // The count and t pucks are keyed, not dragged: the count steps up with ArrowRight, t sweeps right then back, at the same pace as the other drags.
+        const keyed = c.gesture === 'count' || c.gesture === 't';
+        if (c.gesture === 'count') await count.focus(); else if (keyed) await parameter.focus();
+        if (!keyed) { await page.mouse.move(from[0], from[1]); await page.mouse.down(); }
         const s0 = await page.evaluate(snapshot); assertStart(c, s0);
         const t0 = await page.evaluate(() => performance.now());
         for (let i = 1; i <= steps; i++) {
-            if (keyed) await page.keyboard.press('ArrowRight');
+            if (keyed) await page.keyboard.press(c.gesture === 't' && i > 100 ? 'ArrowLeft' : 'ArrowRight');
             else { const [x, y] = pathAt(i / steps); await page.mouse.move(x, y); }
             await page.waitForTimeout(dragMs / steps);
         }
