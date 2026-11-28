@@ -41,8 +41,6 @@
       ],
       "outputs": [],
       "captions": [
-        "p(x) = (x + 2)(x - 1)²",
-        "stopnja 3",
         "×2"
       ]
     },
@@ -85,8 +83,6 @@
       ],
       "outputs": [],
       "captions": [
-        "p(x) = (x + 3)(x - 1)²",
-        "stopnja 3",
         "×2"
       ]
     },
@@ -124,8 +120,6 @@
       ],
       "outputs": [],
       "captions": [
-        "p(x) = (x - 1)³",
-        "stopnja 3",
         "×3"
       ]
     },
@@ -173,8 +167,6 @@
       ],
       "outputs": [],
       "captions": [
-        "p(x) = 0,2·(x + 3)(x + 1)²(x - 2)²",
-        "stopnja 5",
         "×2",
         "×2"
       ]

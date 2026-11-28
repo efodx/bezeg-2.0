@@ -46,9 +46,7 @@
       ],
       "outputs": [],
       "captions": [
-        "f(x) = (x + 1)(x - 1) / (x - 2)",
         "r(x)/q(x) = 0,375",
-        "stopnja števca 2, imenovalca 1",
         "x = 2",
         "y = x + 2"
       ]
@@ -103,9 +101,7 @@
       "outputs": [],
       "captions": [
         "(1; 2)",
-        "f(x) = (x + 1)(x - 1) / (x - 1)",
         "r(x)/q(x) = 0",
-        "stopnja števca 1, imenovalca 0",
         "y = x + 1"
       ]
     },
@@ -159,9 +155,7 @@
       "outputs": [],
       "captions": [
         "(2; 1,5)",
-        "f(x) = 2·(x + 1)(x - 2) / ((x + 2)(x - 2))",
         "r(x)/q(x) = -0,1667",
-        "stopnja števca 1, imenovalca 1",
         "x = -2",
         "y = 2"
       ]
@@ -215,9 +209,7 @@
       ],
       "outputs": [],
       "captions": [
-        "f(x) = 2·(x + 1)(x - 1) / ((x + 2)(x - 2))",
         "r(x)/q(x) = 0,0625",
-        "stopnja števca 2, imenovalca 2",
         "x = -2",
         "x = 2",
         "y = 2"
@@ -272,9 +264,7 @@
       ],
       "outputs": [],
       "captions": [
-        "f(x) = 4·x / ((x + 2)(x - 1)²)",
         "r(x)/q(x) = 0,0412",
-        "stopnja števca 1, imenovalca 3",
         "x = -2",
         "x = 1",
         "y = 0",
