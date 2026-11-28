@@ -7,12 +7,15 @@
  * is a readout of the graph (probed, .command-logs/solids-b/probe.txt and probe2-sv3.txt) or exact arithmetic in the same step. The one-height comparison is an illustration; the argument
  * is that the shear moves each horizontal slice sideways as a whole.
  */
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {SolidsIds} from '../../graphs/solids/solidsDeclaration';
 import type {LessonAction} from '../model';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 /** The lesson text is written once with decimal commas in math (`{,}`); the English text gets decimal points. */
 const text = (sl: string, en: string): LocalizedText => ({sl, en: en.replace(/\{,\}/g, '.')});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<SolidsIds>();
 
 interface StepContent {
     readonly id: string;
@@ -24,13 +27,15 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights and which pucks its text asks for (task 08). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', declare),
     ],
 });
 
@@ -85,16 +90,17 @@ const formulas: readonly FormulaBlock[] = [
 const sv3Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'sv3-stack', order: 1,
+        declare: f({highlight: ['volume-0', 'volume-1'], uses: ['solids-shear']}),
         title: text('Sklad plošč in poševni sklad', 'A stack of slabs and a slanted stack'),
         purpose: text('Napovedati, kaj se zgodi s prostornino sklada, ko ga poševno potisnemo.', 'Predicting what happens to the volume of a stack when it is pushed slanted.'),
         explanation: text(
-            'Štiristrana prizma z osnovno ploskvijo \\(2\\times2\\) in višino \\(3\\) je razrezana na vodoravne plošče. Graf kaže dva sklada: prvi je raven, drugi je njegova kopija, ki jo drsnik Strižba pomika vstran. Zdaj je Strižba \\(0\\), zato sta oba sklada ravna in enaka. Vrstici Prostornina sta tako enaki že zato, napoved pa se ne nanaša na to stanje. Zapiši napoved: ali se prostornina poševnega sklada spremeni, ko Strižbo nastaviš na \\(1{,}5\\)? Utemelji ploščo za ploščo: kaj se zgodi z vsako ploščo, ko jo premakneš vstran?',
-            'The square prism with a \\(2\\times2\\) base and height \\(3\\) is cut into horizontal slabs. The graph shows two stacks: the first is straight, the second is its copy, which the slider Shear moves sideways. Now Shear is \\(0\\), so both stacks are straight and equal. The two Volume rows are equal for that reason alone, and the prediction does not concern this state. Write down a prediction: does the volume of the slanted stack change when you set Shear to \\(1{,}5\\)? Give the reason slab by slab: what happens to each slab when you push it sideways?',
+            'Štiristrana prizma z osnovno ploskvijo \\(2\\times2\\) in višino \\(3\\) je razrezana na vodoravne plošče. Graf kaže dva sklada: prvi je raven, drugi je njegova kopija, ki jo krmilnik Strižba pomika vstran. Zdaj je Strižba \\(0\\), zato sta oba sklada ravna in enaka. Vrstici Prostornina sta tako enaki že zato, napoved pa se ne nanaša na to stanje. Zapiši napoved: ali se prostornina poševnega sklada spremeni, ko Strižbo nastaviš na \\(1{,}5\\)? Utemelji ploščo za ploščo: kaj se zgodi z vsako ploščo, ko jo premakneš vstran?',
+            'The square prism with a \\(2\\times2\\) base and height \\(3\\) is cut into horizontal slabs. The graph shows two stacks: the first is straight, the second is its copy, which the Shear control moves sideways. Now Shear is \\(0\\), so both stacks are straight and equal. The two Volume rows are equal for that reason alone, and the prediction does not concern this state. Write down a prediction: does the volume of the slanted stack change when you set Shear to \\(1{,}5\\)? Give the reason slab by slab: what happens to each slab when you push it sideways?',
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Z drsnikom Strižba nastavi \\(1{,}5\\) in preberi vrstice Prostornina: ravno telo in Prostornina: poševno telo (mreža in natančno). Primerjaj z napovedjo in opiši, kaj se je zgodilo s ploščami.',
-            'Set the slider Shear to \\(1{,}5\\) and read the rows Volume: straight solid and Volume: oblique solid (mesh and exact). Compare with your prediction and describe what happened to the slabs.',
+            'S krmilnikom Strižba nastavi \\(1{,}5\\) in preberi vrstice Prostornina: ravno telo in Prostornina: poševno telo (mreža in natančno). Primerjaj z napovedjo in opiši, kaj se je zgodilo s ploščami.',
+            'Set the Shear control to \\(1{,}5\\) and read the rows Volume: straight solid and Volume: oblique solid (mesh and exact). Compare with your prediction and describe what happened to the slabs.',
         ),
         expectedObservations: [text(
             'Pri Strižbi \\(1{,}5\\) so vse štiri vrstice Prostornina še vedno \\(12\\), čeprav je drugi sklad poševen: obrisi plošč so premaknjeni vstran, vsaka plošča je enako velika kot prej. Pod odčitki se pokaže opomba o strižbi.',
@@ -106,6 +112,7 @@ const sv3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv3-shear', order: 2,
+        declare: f({highlight: ['slice-0', 'slice-1'], uses: ['solids-shear']}),
         title: text('Strižba na obe strani', 'Shearing both ways'),
         purpose: text('Preizkusiti napoved še pri drugih strižbah.', 'Testing the prediction at other shears.'),
         explanation: text(
@@ -127,6 +134,7 @@ const sv3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv3-slices', order: 3,
+        declare: f({highlight: ['height', 'slice-0', 'slice-1'], uses: ['solids-shear', 'solids-cursor']}),
         title: text('Rezino za rezino', 'Slice by slice'),
         purpose: text('Ločiti ponazoritev na eni višini od argumenta za vse višine.', 'Telling an illustration at one height from an argument for all heights.'),
         explanation: text(
@@ -135,8 +143,8 @@ const sv3Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Strižbo nastavi na \\(3\\). Nato z drsnikom Višina primerjane rezine nastavi \\(25\\) in \\(75\\) in pri vsaki višini preberi Višina rezin in obe vrstici Ploščina rezine.',
-            'Set Shear to \\(3\\). Then set the slider Height of the compared slice to \\(25\\) and \\(75\\) and at each height read Height of the slices and both Slice area rows.',
+            'Strižbo nastavi na \\(3\\). Nato s krmilnikom Višina rezine nastavi \\(25\\) in \\(75\\) in pri vsaki višini preberi Višina rezin in obe vrstici Ploščina rezine.',
+            'Set Shear to \\(3\\). Then set the Slice height control to \\(25\\) and \\(75\\) and at each height read Height of the slices and both Slice area rows.',
         ),
         expectedObservations: [
             text(
@@ -154,16 +162,17 @@ const sv3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv3-failing', order: 4,
+        declare: f({highlight: ['slice-0', 'slice-1', 'failing'], uses: ['solids-cursor']}),
         title: text('Stožec in valj', 'A cone and a cylinder'),
         purpose: text('Preizkusiti, kaj sledi, če se ploščini rezin razlikujeta.', 'Testing what follows when the slice areas differ.'),
         explanation: text(
-            'Graf zdaj kaže stožec (levo) in valj (desno) z enako višino \\(4\\) in enakim polmerom osnovne ploskve \\(3\\). Drsnika Strižba pri tem paru ni (telesi se ne strižeta). Vrh stožca je zgoraj. Pri \\(50\\,\\%\\) višine vrstici Ploščina rezine kažeta približno \\(7{,}04841\\) in \\(28{,}19366\\), torej je rezina stožca četrtina rezine valja. Zapiši napoved: kolikšen del ploščine rezine valja je ploščina rezine stožca pri \\(25\\,\\%\\) in pri \\(75\\,\\%\\) višine? Utemelji s polmerom rezine stožca, ki se proti vrhu enakomerno manjša.',
-            'The graph now shows a cone (left) and a cylinder (right) of the same height \\(4\\) and the same base radius \\(3\\). There is no Shear slider for this pair (the solids are not sheared). The apex of the cone is at the top. At \\(50\\,\\%\\) of the height the Slice area rows show about \\(7{,}04841\\) and \\(28{,}19366\\), so the slice of the cone is a quarter of the slice of the cylinder. Write down a prediction: what fraction of the slice area of the cylinder is the slice area of the cone at \\(25\\,\\%\\) and at \\(75\\,\\%\\) of the height? Give the reason by the radius of the slice of the cone, which shrinks evenly towards the apex.',
+            'Graf zdaj kaže stožec (levo) in valj (desno) z enako višino \\(4\\) in enakim polmerom osnovne ploskve \\(3\\). Krmilnika Strižba pri tem paru ni (telesi se ne strižeta). Vrh stožca je zgoraj. Pri \\(50\\,\\%\\) višine vrstici Ploščina rezine kažeta približno \\(7{,}04841\\) in \\(28{,}19366\\), torej je rezina stožca četrtina rezine valja. Zapiši napoved: kolikšen del ploščine rezine valja je ploščina rezine stožca pri \\(25\\,\\%\\) in pri \\(75\\,\\%\\) višine? Utemelji s polmerom rezine stožca, ki se proti vrhu enakomerno manjša.',
+            'The graph now shows a cone (left) and a cylinder (right) of the same height \\(4\\) and the same base radius \\(3\\). There is no Shear control for this pair (the solids are not sheared). The apex of the cone is at the top. At \\(50\\,\\%\\) of the height the Slice area rows show about \\(7{,}04841\\) and \\(28{,}19366\\), so the slice of the cone is a quarter of the slice of the cylinder. Write down a prediction: what fraction of the slice area of the cylinder is the slice area of the cone at \\(25\\,\\%\\) and at \\(75\\,\\%\\) of the height? Give the reason by the radius of the slice of the cone, which shrinks evenly towards the apex.',
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Višino primerjane rezine nastavi na \\(25\\) in \\(75\\) ter pri vsaki preberi obe vrstici Ploščina rezine in izračunaj razmerje. Nato se vprašaj: kaj lahko iz primerjave rezin sklepaš o prostorninah, ko sta ploščini različni? Preberi vrstici Prostornina: stožec (natančno) in Prostornina: valj (natančno) ter opombo pod odčitki.',
-            'Set the height of the compared slice to \\(25\\) and \\(75\\), read both Slice area rows at each and compute the ratio. Then ask: what can you conclude about the volumes from comparing slices when the areas differ? Read the rows Volume: cone (exact) and Volume: cylinder (exact) and the note under the readouts.',
+            'S krmilnikom Višina rezine nastavi \\(25\\) in \\(75\\) ter pri vsaki preberi obe vrstici Ploščina rezine in izračunaj razmerje. Nato se vprašaj: kaj lahko iz primerjave rezin sklepaš o prostorninah, ko sta ploščini različni? Preberi vrstici Prostornina: stožec (natančno) in Prostornina: valj (natančno) ter opombo pod odčitki.',
+            'Set the Slice height control to \\(25\\) and \\(75\\), read both Slice area rows at each and compute the ratio. Then ask: what can you conclude about the volumes from comparing slices when the areas differ? Read the rows Volume: cone (exact) and Volume: cylinder (exact) and the note under the readouts.',
         ),
         expectedObservations: [
             text(
@@ -181,6 +190,7 @@ const sv3Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv3-free', order: 5,
+        declare: f({highlight: ['volume-0', 'volume-1', 'slice-0'], uses: ['solids-discs', 'solids-shear', 'solids-cursor']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Sami preizkusiti, kaj štetje plošč, strižba in izbira telesa spremenijo.', 'Trying what the number of slabs, the shear and the choice of solid change.'),
         explanation: text(
@@ -189,8 +199,8 @@ const sv3Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['solids-cavalieri'],
         observationPrompt: text(
-            'Preizkusi Število plošč, Strižbo, Višino primerjane rezine in izbiro Telo (kocka, štiristrana prizma, stožec). Pri vsaki spremembi preberi vrstice Prostornina in Ploščina rezine ter se vprašaj, katera predpostavka pravila velja.',
-            'Try Number of slabs, Shear, Height of the compared slice and the choice of Solid (cube, square prism, cone). After each change read the Volume and Slice area rows and ask which hypothesis of the principle holds.',
+            'Preizkusi Število plošč, Strižbo, krmilnik Višina rezine in izbiro Telo (kocka, štiristrana prizma, stožec). Pri vsaki spremembi preberi vrstice Prostornina in Ploščina rezine ter se vprašaj, katera predpostavka pravila velja.',
+            'Try Number of slabs, Shear, the Slice height control and the choice of Solid (cube, square prism, cone). After each change read the Volume and Slice area rows and ask which hypothesis of the principle holds.',
         ),
         expectedObservations: [text(
             'Število plošč spremeni le število obrisov plošč: vrstice Prostornina ostanejo enake. Pri kocki in prizmi strižba ne spremeni ne ploščine rezine ne prostornine; pri stožcu in valju ploščini rezin nista enaki in pravilo ne pove nič o prostorninah.',
@@ -211,7 +221,7 @@ const sources: GuidedLesson['sources'] = [
 ];
 
 const edgeCases: readonly LocalizedText[] = [
-    text('Strižba je na mreži \\(0{,}25\\) od \\(-3\\) do \\(3\\); pri stožcu in valju je ni. Višina primerjane rezine je od \\(2{,}5\\,\\%\\) do \\(97{,}5\\,\\%\\) v korakih \\(2{,}5\\,\\%\\); Število plošč je od \\(1\\) do \\(60\\).', 'Shear is on the grid \\(0{,}25\\) from \\(-3\\) to \\(3\\); the cone and cylinder pair has none. The height of the compared slice runs from \\(2{,}5\\,\\%\\) to \\(97{,}5\\,\\%\\) in steps of \\(2{,}5\\,\\%\\); Number of slabs runs from \\(1\\) to \\(60\\).'),
+    text('Strižba je na mreži \\(0{,}25\\) od \\(-3\\) do \\(3\\); pri stožcu in valju je ni. Krmilnik Višina rezine je od \\(2{,}5\\,\\%\\) do \\(97{,}5\\,\\%\\) v korakih \\(2{,}5\\,\\%\\); Število plošč je od \\(1\\) do \\(60\\).', 'Shear is on the grid \\(0{,}25\\) from \\(-3\\) to \\(3\\); the cone and cylinder pair has none. The Slice height control runs from \\(2{,}5\\,\\%\\) to \\(97{,}5\\,\\%\\) in steps of \\(2{,}5\\,\\%\\); Number of slabs runs from \\(1\\) to \\(60\\).'),
     text('Prostornine mreže stožca in valja so malo pod natančnimi, ker mreža nadomesti krog z včrtanim \\(48\\)-kotnikom.', 'The mesh volumes of the cone and the cylinder are slightly below the exact ones, because the mesh replaces the circle with an inscribed \\(48\\)-gon.'),
 ];
 
@@ -300,11 +310,12 @@ const sv4Formulas: readonly FormulaBlock[] = [
 const sv4Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'sv4-cube', order: 1,
+        declare: f({highlight: ['volume-mesh', 'volume-exact']}),
         title: text('Kocka in tri piramide', 'The cube and three pyramids'),
         purpose: text('Napovedati prostornino ene piramide, ki je del kocke.', 'Predicting the volume of one pyramid that is a part of the cube.'),
         explanation: text(
-            'Graf kaže enotsko kocko (rob \\(1\\)) v načinu Prostornina telesa; stikalo Razreži kocko na tri piramide je izklopljeno. Kocko je mogoče razrezati na tri skladne piramide s skupnim vrhom \\((1,1,1)\\); njihove osnovne ploskve so ploskve kocke \\(x=0\\), \\(y=0\\) in \\(z=0\\). Vsaka ima osnovno ploskev ploščine \\(B=1\\) in višino \\(h=1\\) (razdalja vrha od ravnine osnovne ploskve), prizma z isto osnovno ploskvijo in višino pa ima prostornino \\(B\\cdot h=1\\). Zapiši napoved: kolikšna je prostornina ene od teh treh piramid in kako se primerja z \\(B\\cdot h\\)? Utemelji brez formule za prostornino piramide.',
-            'The graph shows the unit cube (edge \\(1\\)) in the mode Volume of a solid; the switch Cut the cube into three pyramids is off. The cube can be cut into three congruent pyramids with the common apex \\((1,1,1)\\); their bases are the faces \\(x=0\\), \\(y=0\\) and \\(z=0\\) of the cube. Each has a base of area \\(B=1\\) and height \\(h=1\\) (the distance of the apex from the plane of the base), and the prism with the same base and height has volume \\(B\\cdot h=1\\). Write down a prediction: what is the volume of one of these three pyramids and how does it compare with \\(B\\cdot h\\)? Give a reason without the formula for the volume of a pyramid.',
+            'Graf kaže enotsko kocko (rob \\(1\\)) v načinu Prostornina telesa; krmilnik Tri piramide je izklopljen. Kocko je mogoče razrezati na tri skladne piramide s skupnim vrhom \\((1,1,1)\\); njihove osnovne ploskve so ploskve kocke \\(x=0\\), \\(y=0\\) in \\(z=0\\). Vsaka ima osnovno ploskev ploščine \\(B=1\\) in višino \\(h=1\\) (razdalja vrha od ravnine osnovne ploskve), prizma z isto osnovno ploskvijo in višino pa ima prostornino \\(B\\cdot h=1\\). Zapiši napoved: kolikšna je prostornina ene od teh treh piramid in kako se primerja z \\(B\\cdot h\\)? Utemelji brez formule za prostornino piramide.',
+            'The graph shows the unit cube (edge \\(1\\)) in the mode Volume of a solid; the Three pyramids control is off. The cube can be cut into three congruent pyramids with the common apex \\((1,1,1)\\); their bases are the faces \\(x=0\\), \\(y=0\\) and \\(z=0\\) of the cube. Each has a base of area \\(B=1\\) and height \\(h=1\\) (the distance of the apex from the plane of the base), and the prism with the same base and height has volume \\(B\\cdot h=1\\). Write down a prediction: what is the volume of one of these three pyramids and how does it compare with \\(B\\cdot h\\)? Give a reason without the formula for the volume of a pyramid.',
         ),
         formulaIds: [],
         observationPrompt: text(
@@ -316,37 +327,39 @@ const sv4Steps: readonly GuidedLessonStep[] = [
             'Both rows show \\(1\\), the volume of the whole cube. The graph does not show the volume of a single pyramid yet; you check it in the next step.',
         )],
         scene: solidsVolumeScene('sv4-cube-scene', SV4_CUBE,
-            'Kocka, način Prostornina telesa, stikalo izklopljeno: obe prostornini \\(1\\).',
-            'Cube, mode Volume of a solid, switch off: both volumes \\(1\\).'),
+            'Kocka, način Prostornina telesa, Tri piramide izklopljeno: obe prostornini \\(1\\).',
+            'Cube, mode Volume of a solid, Three pyramids off: both volumes \\(1\\).'),
     }),
     step({
         id: 'sv4-split', order: 2,
+        declare: f({uses: ['pyramids']}),
         title: text('Kocka, razrezana na piramide', 'The cube cut into pyramids'),
         purpose: text('Primerjati napoved z odčitki treh piramid.', 'Comparing the prediction with the readouts of the three pyramids.'),
         explanation: text(
-            'Stikalo Razreži kocko na tri piramide je še izklopljeno. Ko ga vklopiš, graf nariše tri piramide, vsako pomaknjeno navzven za četrtino njene višine, in vsaki prikaže prostornino mreže. Zapiši še eno napoved: ali premik navzven spremeni prostornino katere od piramid in kaj bo kazala vrstica Vsota prostornin treh piramid v primerjavi s prostornino kocke \\(1\\)? Utemelji.',
-            'The switch Cut the cube into three pyramids is still off. When you turn it on, the graph draws three pyramids, each pulled outward by a quarter of its height, and shows the mesh volume of each. Write down one more prediction: does the move outward change the volume of any pyramid, and what will the row Sum of the three pyramid volumes show compared with the volume \\(1\\) of the cube? Give a reason.',
+            'Krmilnik Tri piramide je še izklopljen. Ko ga vklopiš, graf nariše tri piramide, vsako pomaknjeno navzven za četrtino njene višine, in vsaki prikaže prostornino mreže. Zapiši še eno napoved: ali premik navzven spremeni prostornino katere od piramid in kaj bo kazala vrstica Vsota prostornin treh piramid v primerjavi s prostornino kocke \\(1\\)? Utemelji.',
+            'The Three pyramids control is still off. When you turn it on, the graph draws three pyramids, each pulled outward by a quarter of its height, and shows the mesh volume of each. Write down one more prediction: does the move outward change the volume of any pyramid, and what will the row Sum of the three pyramid volumes show compared with the volume \\(1\\) of the cube? Give a reason.',
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Vklopi stikalo Razreži kocko na tri piramide. Preberi vrstice Piramida 1: prostornina mreže, Piramida 2 in Piramida 3 ter Vsota prostornin treh piramid; primerjaj z obema napovedma.',
-            'Turn on the switch Cut the cube into three pyramids. Read the rows Pyramid 1: volume (mesh), Pyramid 2 and Pyramid 3, and Sum of the three pyramid volumes; compare with both predictions.',
+            'Vklopi krmilnik Tri piramide. Preberi vrstice Piramida 1: prostornina mreže, Piramida 2 in Piramida 3 ter Vsota prostornin treh piramid; primerjaj z obema napovedma.',
+            'Turn on the Three pyramids control. Read the rows Pyramid 1: volume (mesh), Pyramid 2 and Pyramid 3, and Sum of the three pyramid volumes; compare with both predictions.',
         ),
         expectedObservations: [text(
             'Vsaka od treh piramid ima prostornino mreže približno \\(0{,}33333\\) (to je \\(\\tfrac13\\), zaokroženo), vsota treh pa je \\(1\\), prostornina kocke. Premik navzven prostornin ne spremeni: vsaka piramida je le pomaknjena, ne spremenjena. Tri enake prostornine z vsoto \\(1\\) so tri tretjine, a ali so piramide res skladne in kocko res napolnijo, pokaže šele naslednji korak.',
             'Each of the three pyramids has a mesh volume of about \\(0{,}33333\\) (that is \\(\\tfrac13\\), rounded), and the sum of the three is \\(1\\), the volume of the cube. The move outward changes no volume: each pyramid is only moved, not changed. Three equal volumes with sum \\(1\\) are three thirds, but whether the pyramids really are congruent and really fill the cube is shown only in the next step.',
         )],
         scene: solidsVolumeScene('sv4-split-scene', SV4_CUBE,
-            'Kocka, način Prostornina telesa, stikalo izklopljeno: obe prostornini \\(1\\).',
-            'Cube, mode Volume of a solid, switch off: both volumes \\(1\\).'),
+            'Kocka, način Prostornina telesa, Tri piramide izklopljeno: obe prostornini \\(1\\).',
+            'Cube, mode Volume of a solid, Three pyramids off: both volumes \\(1\\).'),
     }),
     step({
         id: 'sv4-argument', order: 3,
+        declare: f({highlight: ['pyramid-0', 'pyramids-sum']}),
         title: text('Zakaj so piramide skladne', 'Why the pyramids are congruent'),
         purpose: text('Ločiti odčitek od argumenta, da so piramide skladne in kocko napolnijo brez prekrivanja.', 'Telling a readout from the argument that the pyramids are congruent and fill the cube without overlap.'),
         explanation: text(
-            'Zdaj so piramide razmaknjene in odčitki so vrednosti mreže. To je odčitek, ne argument; tudi opomba pod odčitki in pomoč stikala to le trdita. Točka \\((0{,}5;\\,0{,}2;\\,0{,}9)\\) leži v kocki. Zapiši napoved: v kateri od treh piramid (osnovna ploskev \\(x=0\\), \\(y=0\\) ali \\(z=0\\)) leži? Ali lahko kaka točka kocke leži v dveh piramidah ali v nobeni? In kako bi pokazal, da sta dve od piramid skladni?',
-            'Now the pyramids are pulled apart and the readouts are mesh values. That is a readout, not an argument; the note under the readouts and the help of the switch only assert it too. The point \\((0{,}5;\\,0{,}2;\\,0{,}9)\\) lies in the cube. Write down a prediction: in which of the three pyramids (base \\(x=0\\), \\(y=0\\) or \\(z=0\\)) does it lie? Can a point of the cube lie in two pyramids, or in none? And how would you show that two of the pyramids are congruent?',
+            'Zdaj so piramide razmaknjene in odčitki so vrednosti mreže. To je odčitek, ne argument; tudi opomba pod odčitki in pomoč krmilnika to le trdita. Točka \\((0{,}5;\\,0{,}2;\\,0{,}9)\\) leži v kocki. Zapiši napoved: v kateri od treh piramid (osnovna ploskev \\(x=0\\), \\(y=0\\) ali \\(z=0\\)) leži? Ali lahko kaka točka kocke leži v dveh piramidah ali v nobeni? In kako bi pokazal, da sta dve od piramid skladni?',
+            'Now the pyramids are pulled apart and the readouts are mesh values. That is a readout, not an argument; the note under the readouts and the help of the control only assert it too. The point \\((0{,}5;\\,0{,}2;\\,0{,}9)\\) lies in the cube. Write down a prediction: in which of the three pyramids (base \\(x=0\\), \\(y=0\\) or \\(z=0\\)) does it lie? Can a point of the cube lie in two pyramids, or in none? And how would you show that two of the pyramids are congruent?',
         ),
         formulaIds: [],
         observationPrompt: text(
@@ -368,8 +381,8 @@ const sv4Steps: readonly GuidedLessonStep[] = [
             ),
         ],
         scene: solidsVolumeScene('sv4-argument-scene', SV4_SPLIT,
-            'Kocka, način Prostornina telesa, stikalo vklopljeno: Piramida 1, 2, 3 po približno \\(0{,}33333\\), vsota \\(1\\).',
-            'Cube, mode Volume of a solid, switch on: Pyramid 1, 2, 3 about \\(0{,}33333\\) each, sum \\(1\\).'),
+            'Kocka, način Prostornina telesa, Tri piramide vklopljeno: Piramida 1, 2, 3 po približno \\(0{,}33333\\), vsota \\(1\\).',
+            'Cube, mode Volume of a solid, Three pyramids on: Pyramid 1, 2, 3 about \\(0{,}33333\\) each, sum \\(1\\).'),
     }),
     step({
         id: 'sv4-square-pyramid', order: 4,
@@ -385,15 +398,16 @@ const sv4Steps: readonly GuidedLessonStep[] = [
             'In the choice Solid pick Square pyramid (the mode Volume of a solid stays). Read both Volume rows and compare them with your prediction.',
         ),
         expectedObservations: [text(
-            'Obe vrstici kažeta približno \\(21{,}33333\\), natančno \\(\\tfrac{64}{3}\\): \\(B=16\\), \\(h=4\\) in \\(\\tfrac13\\cdot16\\cdot4=\\tfrac{64}{3}\\). Formula velja tudi za piramido z vrhom nad središčem, kar je skladno z razširitvijo iz prejšnjega koraka; en primer to potrjuje, ne dokazuje. Stikalo Razreži kocko na tri piramide je zdaj nedostopno, ker velja le za kocko.',
-            'Both rows show about \\(21{,}33333\\), exactly \\(\\tfrac{64}{3}\\): \\(B=16\\), \\(h=4\\) and \\(\\tfrac13\\cdot16\\cdot4=\\tfrac{64}{3}\\). The formula holds for a pyramid with the apex above the centre as well, which agrees with the extension in the previous step; one example confirms it, it does not prove it. The switch Cut the cube into three pyramids is now unavailable, because it applies to the cube only.',
+            'Obe vrstici kažeta približno \\(21{,}33333\\), natančno \\(\\tfrac{64}{3}\\): \\(B=16\\), \\(h=4\\) in \\(\\tfrac13\\cdot16\\cdot4=\\tfrac{64}{3}\\). Formula velja tudi za piramido z vrhom nad središčem, kar je skladno z razširitvijo iz prejšnjega koraka; en primer to potrjuje, ne dokazuje. Krmilnika Tri piramide zdaj ni, ker velja le za kocko.',
+            'Both rows show about \\(21{,}33333\\), exactly \\(\\tfrac{64}{3}\\): \\(B=16\\), \\(h=4\\) and \\(\\tfrac13\\cdot16\\cdot4=\\tfrac{64}{3}\\). The formula holds for a pyramid with the apex above the centre as well, which agrees with the extension in the previous step; one example confirms it, it does not prove it. The Three pyramids control is gone now, because it applies to the cube only.',
         )],
         scene: solidsVolumeScene('sv4-square-pyramid-scene', SV4_SPLIT,
-            'Kocka, način Prostornina telesa, stikalo vklopljeno: Piramida 1, 2, 3 po približno \\(0{,}33333\\), vsota \\(1\\).',
-            'Cube, mode Volume of a solid, switch on: Pyramid 1, 2, 3 about \\(0{,}33333\\) each, sum \\(1\\).'),
+            'Kocka, način Prostornina telesa, Tri piramide vklopljeno: Piramida 1, 2, 3 po približno \\(0{,}33333\\), vsota \\(1\\).',
+            'Cube, mode Volume of a solid, Three pyramids on: Pyramid 1, 2, 3 about \\(0{,}33333\\) each, sum \\(1\\).'),
     }),
     step({
         id: 'sv4-cone', order: 5,
+        declare: f({highlight: ['disc-sum', 'volume-exact'], uses: ['solids-discs']}),
         title: text('Stožec kot sklad diskov', 'The cone as a stack of discs'),
         purpose: text('Napovedati, kako se vsota diskov približuje prostornini.', 'Predicting how the disc sum approaches the volume.'),
         explanation: text(
@@ -402,8 +416,8 @@ const sv4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['solids-disc-sum'],
         observationPrompt: text(
-            'Z drsnikom Število diskov nastavi \\(10\\) in nato \\(60\\). Pri vsaki nastavitvi preberi vrstico Vsota diskov in jo primerjaj z vrstico Prostornina (natančno).',
-            'With the slider Number of discs set \\(10\\) and then \\(60\\). At each setting read the row Sum of discs and compare it with the row Volume (exact).',
+            'S krmilnikom Število diskov nastavi \\(10\\) in nato \\(60\\). Pri vsaki nastavitvi preberi vrstico Vsota diskov in jo primerjaj z vrstico Prostornina (natančno).',
+            'With the Number of discs control set \\(10\\) and then \\(60\\). At each setting read the row Sum of discs and compare it with the row Volume (exact).',
         ),
         expectedObservations: [
             text(
@@ -411,8 +425,8 @@ const sv4Steps: readonly GuidedLessonStep[] = [
                 'The sum of the discs is about \\(37{,}11006\\) at \\(4\\), \\(37{,}60486\\) at \\(10\\) and \\(37{,}69649\\) at \\(60\\) discs: it grows and stays below \\(12\\pi\\approx37{,}69911\\), and the gap shrinks. For this cone that is so because \\(x^2\\) is a convex function and the midpoint rule underestimates it; that does not hold for every function.',
             ),
             text(
-                'Natančna vrednost se ujema s formulo \\(\\tfrac13Bh\\) za \\(B=9\\pi\\), \\(h=4\\): \\(12\\pi\\). Vrstica Prostornina (mreža) ostane približno \\(37{,}59154\\), ne glede na število diskov: to je prostornina mreže z včrtanim \\(48\\)-kotnikom, ne vsota diskov. Drsnik ne ponuja več kot \\(60\\) diskov.',
-                'The exact value agrees with the formula \\(\\tfrac13Bh\\) for \\(B=9\\pi\\), \\(h=4\\): \\(12\\pi\\). The row Volume (mesh) stays at about \\(37{,}59154\\) whatever the number of discs: that is the volume of the mesh with an inscribed \\(48\\)-gon, not the disc sum. The slider offers no more than \\(60\\) discs.',
+                'Natančna vrednost se ujema s formulo \\(\\tfrac13Bh\\) za \\(B=9\\pi\\), \\(h=4\\): \\(12\\pi\\). Vrstica Prostornina (mreža) ostane približno \\(37{,}59154\\), ne glede na število diskov: to je prostornina mreže z včrtanim \\(48\\)-kotnikom, ne vsota diskov. Krmilnik ne ponuja več kot \\(60\\) diskov.',
+                'The exact value agrees with the formula \\(\\tfrac13Bh\\) for \\(B=9\\pi\\), \\(h=4\\): \\(12\\pi\\). The row Volume (mesh) stays at about \\(37{,}59154\\) whatever the number of discs: that is the volume of the mesh with an inscribed \\(48\\)-gon, not the disc sum. The control offers no more than \\(60\\) discs.',
             ),
         ],
         scene: solidsVolumeScene('sv4-cone-scene', SV4_CONE,
@@ -421,6 +435,7 @@ const sv4Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv4-free', order: 6,
+        declare: f({highlight: ['volume-exact', 'disc-sum'], uses: ['solids-axis', 'solids-discs']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Sami preizkusiti, kaj os vrtenja, število diskov in izbira telesa spremenijo.', 'Trying what the axis, the number of discs and the choice of solid change.'),
         explanation: text(
@@ -429,8 +444,8 @@ const sv4Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Preizkusi Os vrtenja (os x, os y) in Število diskov (od \\(1\\) do \\(60\\)); v načinu Prostornina telesa poskusi še druga telesa in stikalo Razreži kocko na tri piramide. Pri vsaki spremembi preberi vrstice Prostornina in vsoto ter primerjaj z napovedjo.',
-            'Try Axis of rotation (x-axis, y-axis) and Number of discs (from \\(1\\) to \\(60\\)); in the mode Volume of a solid try the other solids and the switch Cut the cube into three pyramids. After each change read the Volume rows and the sum and compare with your prediction.',
+            'Preizkusi Os vrtenja (os x, os y) in Število diskov (od \\(1\\) do \\(60\\)); v načinu Prostornina telesa poskusi še druga telesa in krmilnik Tri piramide. Pri vsaki spremembi preberi vrstice Prostornina in vsoto ter primerjaj z napovedjo.',
+            'Try Axis of rotation (x-axis, y-axis) and Number of discs (from \\(1\\) to \\(60\\)); in the mode Volume of a solid try the other solids and the Three pyramids control. After each change read the Volume rows and the sum and compare with your prediction.',
         ),
         expectedObservations: [text(
             'Pri osi y je natančna prostornina \\(32\\pi\\approx100{,}53096\\), vsota obročev pa približno \\(101{,}31636\\) pri \\(4\\), \\(100{,}65663\\) pri \\(10\\) in \\(100{,}53446\\) pri \\(60\\): zdaj je vsota nad natančno vrednostjo in se ji približuje od zgoraj. Smer napake sredinskega pravila je torej odvisna od telesa: pri tem liku pod pri osi \\(x\\), nad pri osi \\(y\\).',
@@ -451,7 +466,7 @@ const sv4Sources: GuidedLesson['sources'] = [
 ];
 
 const sv4EdgeCases: readonly LocalizedText[] = [
-    text('Stikalo Razreži kocko na tri piramide velja le za kocko v načinu Prostornina telesa; pri drugih telesih in načinih je nedostopno. Število diskov je od \\(1\\) do \\(60\\); \\(100\\) diskov ni na voljo.', 'The switch Cut the cube into three pyramids applies only to the cube in the mode Volume of a solid; it is unavailable for other solids and modes. Number of discs runs from \\(1\\) to \\(60\\); \\(100\\) discs are not available.'),
+    text('Krmilnik Tri piramide velja le za kocko v načinu Prostornina telesa; pri drugih telesih in načinih ga ni. Število diskov je od \\(1\\) do \\(60\\); \\(100\\) diskov ni na voljo.', 'The Three pyramids control applies only to the cube in the mode Volume of a solid; other solids and modes do not show it. Number of discs runs from \\(1\\) to \\(60\\); \\(100\\) discs are not available.'),
     text('Prostornina mreže stožca je malo pod natančno, ker mreža nadomesti krog z včrtanim \\(48\\)-kotnikom.', 'The mesh volume of the cone is slightly below the exact one, because the mesh replaces the circle with an inscribed \\(48\\)-gon.'),
 ];
 

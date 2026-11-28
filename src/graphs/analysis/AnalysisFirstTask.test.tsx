@@ -137,13 +137,8 @@ describe('solids chooser', () => {
         const modeSelect = labelled(t('solids_graph_mode'))(root);
         const solidSelect = labelled(t('solids_graph_solid'))(root);
         expect(controls.slice(0, 2)).toEqual([modeSelect, solidSelect]);
-        if (mode === 'section') {
-            const offset = labelled(t('solids_graph_offset'))(root);
-            // A slider's own value box comes before its handle, so the controls between the chooser and the offset belong to the offset.
-            const slider = offset.closest('.slider-field') ?? offset.parentElement!;
-            for (const control of controls.slice(2, controls.indexOf(offset))) expect(slider.contains(control)).toBe(true);
-            expect(slider.contains(controls[2])).toBe(true);
-        }
+        // The plane offset and normal are pucks on the board (task 08 lane L53), so Edit holds only the chooser before the camera sliders.
+        if (mode === 'section') expect(within(root).queryAllByLabelText(new RegExp(`^${t('solids_graph_offset')}`))).toEqual([]);
     });
 });
 

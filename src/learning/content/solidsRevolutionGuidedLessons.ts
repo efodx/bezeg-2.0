@@ -5,12 +5,15 @@
  * state before the change it asks for. Every number the text quotes is a readout of the graph (probed, .command-logs/solids-c/probe.txt and probe2.txt) or exact arithmetic in the
  * same step. The mesh row is the volume of the drawn mesh (48-gon sections, a profile of chords) and is never the disc sum.
  */
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {SolidsIds} from '../../graphs/solids/solidsDeclaration';
 import type {LessonAction} from '../model';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText} from './guidedLessons';
 
 /** The lesson text is written once with decimal commas in math (`{,}`); the English text gets decimal points. */
 const text = (sl: string, en: string): LocalizedText => ({sl, en: en.replace(/\{,\}/g, '.')});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<SolidsIds>();
 
 interface StepContent {
     readonly id: string;
@@ -22,13 +25,15 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights and which pucks its text asks for (task 08). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', declare),
     ],
 });
 
@@ -130,6 +135,7 @@ const sv5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv5-discs', order: 2,
+        declare: f({highlight: ['disc-sum', 'volume-exact'], uses: ['solids-discs']}),
         title: text('Vrtenina kot sklad diskov', 'The solid of revolution as a stack of discs'),
         purpose: text(
             'Napovedati, kako se vsota prostornin diskov spreminja s številom diskov.',
@@ -141,8 +147,8 @@ const sv5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: ['solids-revolution-disc-sum'],
         observationPrompt: text(
-            'Z drsnikom Število diskov nastavi \\(5\\) in nato \\(60\\). Pri vsaki nastavitvi preberi vrstico Vsota diskov in jo primerjaj z vrstico Prostornina (natančno) ter z napovedjo.',
-            'With the slider Number of discs set \\(5\\) and then \\(60\\). At each setting read the row Sum of discs and compare it with the row Volume (exact) and with your prediction.',
+            'S krmilnikom Število diskov nastavi \\(5\\) in nato \\(60\\). Pri vsaki nastavitvi preberi vrstico Vsota diskov in jo primerjaj z vrstico Prostornina (natančno) ter z napovedjo.',
+            'With the Number of discs control set \\(5\\) and then \\(60\\). At each setting read the row Sum of discs and compare it with the row Volume (exact) and with your prediction.',
         ),
         expectedObservations: [
             text(
@@ -160,6 +166,7 @@ const sv5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv5-integral', order: 3,
+        declare: f({highlight: ['disc-sum', 'volume-exact'], uses: ['solids-discs']}),
         title: text('Natančna prostornina: integral', 'The exact volume: the integral'),
         purpose: text(
             'Napovedati, kako se vsota diskov za drugo funkcijo primerja z natančno prostornino.',
@@ -190,6 +197,7 @@ const sv5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv5-sphere', order: 4,
+        declare: f({highlight: ['disc-sum'], uses: ['solids-discs']}),
         title: text('Krogla: napaka na drugo stran', 'The sphere: the error on the other side'),
         purpose: text(
             'Razložiti, na kateri strani natančne vrednosti je vsota diskov pri krogli, in napovedati, kako hitro se razlika manjša.',
@@ -201,8 +209,8 @@ const sv5Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Z drsnikom Število diskov nastavi \\(60\\) in preberi vrstico Vsota diskov. Nato poskusi še \\(2\\) in \\(10\\) diskov in opazuj, na kateri strani natančne vrednosti je vsota.',
-            'With the slider Number of discs set \\(60\\) and read the row Sum of discs. Then try \\(2\\) and \\(10\\) discs and watch on which side of the exact value the sum lies.',
+            'S krmilnikom Število diskov nastavi \\(60\\) in preberi vrstico Vsota diskov. Nato poskusi še \\(2\\) in \\(10\\) diskov in opazuj, na kateri strani natančne vrednosti je vsota.',
+            'With the Number of discs control set \\(60\\) and read the row Sum of discs. Then try \\(2\\) and \\(10\\) discs and watch on which side of the exact value the sum lies.',
         ),
         expectedObservations: [
             text(
@@ -220,6 +228,7 @@ const sv5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv5-axis', order: 5,
+        declare: f({highlight: ['volume-exact', 'disc-sum'], uses: ['solids-axis']}),
         title: text('Izbira osi vrtenja', 'The choice of the axis of rotation'),
         purpose: text(
             'Napovedati, kako izbira osi vrtenja spremeni prostornino vrtenine istega območja.',
@@ -254,6 +263,7 @@ const sv5Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv5-free', order: 6,
+        declare: f({highlight: ['volume-mesh', 'volume-exact', 'disc-sum'], uses: ['solids-axis', 'solids-discs']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text(
             'Sami preizkusiti, kaj izbira telesa, osi in števila diskov spremeni.',

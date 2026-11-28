@@ -249,7 +249,7 @@ describe('SV3 (Cavalieri): scenes, prompted actions, labels and quoted numbers',
             const straight = t('solids_graph_name_straight');
             const shear = t('solids_graph_shear');
             const area = t('solids_graph_row_slice_area', {value0: straight}).replace(/:.*$/, '');
-            const heightLabel = t('solids_graph_cursor').replace(/ \(.*$/, '');
+            const heightLabel = t('solids_decl_cursor_name');
             const volume = (name: string) => t('solids_graph_row_volume_of_mesh', {value0: name}).replace(/ \(.*$/, '');
             return [
                 ['sv3-stack', shear, t('solids_graph_shear')],
@@ -257,7 +257,7 @@ describe('SV3 (Cavalieri): scenes, prompted actions, labels and quoted numbers',
                 ['sv3-shear', shear, t('solids_graph_shear')],
                 ['sv3-shear', area, t('solids_graph_row_slice_area', {value0: sheared})],
                 ['sv3-slices', t('solids_graph_row_slice_height'), t('solids_graph_row_slice_height')],
-                ['sv3-slices', heightLabel, t('solids_graph_cursor')],
+                ['sv3-slices', heightLabel, t('solids_decl_cursor_name')],
                 ['sv3-failing', area, t('solids_graph_row_slice_area', {value0: t('solids_graph_name_cone')})],
                 ['sv3-free', t('solids_graph_slabs'), t('solids_graph_slabs')],
                 ['sv3-free', t('solids_graph_solid'), t('solids_graph_solid')],
@@ -274,7 +274,7 @@ describe('SV3 (Cavalieri): scenes, prompted actions, labels and quoted numbers',
                         expect({id, phrase, inPrompt: `${stepOf(id).explanation[language]} ${stepOf(id).observationPrompt[language]}`.includes(phrase)}).toEqual({id, phrase, inPrompt: true});
                         expect({id, phrase, inCatalog: label.includes(phrase)}).toEqual({id, phrase, inCatalog: true});
                     }
-                    for (const control of [t('solids_graph_shear'), t('solids_graph_cursor'), t('solids_graph_slabs'), t('solids_graph_solid')]) expect({control, shown: page.includes(control)}).toEqual({control, shown: true});
+                    for (const control of [t('solids_graph_shear'), t('solids_decl_cursor_name'), t('solids_graph_slabs'), t('solids_graph_solid')]) expect({control, shown: page.includes(control)}).toEqual({control, shown: true});
                     m.restore();
                 } finally {
                     m.mounted.view.unmount();
@@ -648,14 +648,14 @@ describe('SV4 (pyramid and cone volumes): scenes, prompted actions, labels and q
             const exact = t('solids_graph_row_exact_volume');
             const modeVolume = t('solids_graph_mode_volume');
             return [
-                ['sv4-cube', mesh], ['sv4-cube', exact], ['sv4-cube', modeVolume], ['sv4-cube', t('solids_graph_pyramids')],
-                ['sv4-split', t('solids_graph_pyramids')], ['sv4-split', pyramidRow(1)], ['sv4-split', first('solids_graph_row_pyramid', 2)], ['sv4-split', first('solids_graph_row_pyramid', 3)], ['sv4-split', sum],
+                ['sv4-cube', mesh], ['sv4-cube', exact], ['sv4-cube', modeVolume], ['sv4-cube', t('solids_decl_pyramids_name')],
+                ['sv4-split', t('solids_decl_pyramids_name')], ['sv4-split', pyramidRow(1)], ['sv4-split', first('solids_graph_row_pyramid', 2)], ['sv4-split', first('solids_graph_row_pyramid', 3)], ['sv4-split', sum],
                 ['sv4-argument', first('solids_graph_row_pyramid', 1)], ['sv4-argument', sum],
                 ['sv4-square-pyramid', t('solids_graph_solid')], ['sv4-square-pyramid', t('solids_graph_solid_square-pyramid')], ['sv4-square-pyramid', mesh], ['sv4-square-pyramid', exact],
                 ['sv4-square-pyramid', modeVolume],
                 ['sv4-cone', t('solids_graph_discs')], ['sv4-cone', discsRow], ['sv4-cone', exact],
                 ['sv4-free', t('solids_graph_axis')], ['sv4-free', t('solids_graph_axis_x')], ['sv4-free', t('solids_graph_axis_y')], ['sv4-free', washersRow], ['sv4-free', t('solids_graph_discs')],
-                ['sv4-free', t('solids_graph_pyramids')], ['sv4-free', modeVolume],
+                ['sv4-free', t('solids_decl_pyramids_name')], ['sv4-free', modeVolume],
             ];
         };
         for (const language of LANGUAGES) {
@@ -669,7 +669,7 @@ describe('SV4 (pyramid and cone volumes): scenes, prompted actions, labels and q
                     expect({mesh: step4('sv4-cone').expectedObservations.map(o => o[language]).join(' ').includes(t('solids_graph_row_mesh_volume'))}).toEqual({mesh: true});
                     m.scene('sv4-cube');
                     const volumePage = pageText();
-                    for (const label of [t('solids_graph_mode'), t('solids_graph_solid'), t('solids_graph_pyramids'), t('solids_graph_row_mesh_volume'), t('solids_graph_row_exact_volume')]) expect({label, shown: volumePage.includes(label)}).toEqual({label, shown: true});
+                    for (const label of [t('solids_graph_mode'), t('solids_graph_solid'), t('solids_decl_pyramids_name'), t('solids_graph_row_mesh_volume'), t('solids_graph_row_exact_volume')]) expect({label, shown: volumePage.includes(label)}).toEqual({label, shown: true});
                     m.scene('sv4-argument');
                     for (const [i, label] of [1, 2, 3].map(n => [n, t('solids_graph_row_pyramid', {value0: n})] as const)) expect({i, label, shown: readoutLabel(`pyramid-${i - 1}`)}).toEqual({i, label, shown: label});
                     expect({sum: readoutLabel('pyramids-sum')}).toEqual({sum: t('solids_graph_row_pyramids_sum')});

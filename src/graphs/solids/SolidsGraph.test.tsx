@@ -3,19 +3,20 @@ import {readFileSync, readdirSync} from 'node:fs';
 import {MemoryRouter} from 'react-router-dom';
 import {afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
 import {formatNumber} from '../../analysis/format';
-import {enterNumber} from '../../inputs/testEntry';
 import {renderMessage, setLanguage, t} from '../../localization';
 import {en} from '../../localization/en';
 import {sl} from '../../localization/sl';
 import {isClosed, type Solid} from '../../solids/solid';
 import {DEFAULT_SOLIDS_STATE, MODES, MODE_SOLIDS, SOLID_IDS, type SolidsMode} from '../../solids/solidsModel';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, typePuck, waitForPucks} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {FakeSurfaceView} from '../patches/FakeSurfaceView';
 import {assertFiniteScene} from '../patches/surface-view/surfaceScene';
 import {SolidsDisplayPanel} from './SolidsPanels';
 import {fitCameraTo} from '../patches/surface-view/surfaceMath';
 import SolidsGraph from './SolidsGraph';
+import {SOLIDS_CURSOR_KEY, SOLIDS_DISCS_KEY, SOLIDS_NORMAL_KEYS, SOLIDS_OFFSET_KEY, SOLIDS_SHEAR_KEY} from './solidsDeclaration';
 import {solidsPresetCollection} from './solidsPresetCollection';
 import {drawSolids} from './solidsScene';
 
@@ -50,6 +51,9 @@ const field = (name: string) => screen.getByRole<HTMLInputElement>('spinbutton',
 
 /** Every triangle of the scene mesh, to check it is drawn from closed solids only (the drawing keeps the solids). */
 const setMode = (graph: SolidsGraph, mode: SolidsMode) => act(() => graph.setMode(mode));
+/** A write of a declared value outside a puck (the old panel's setter calls) is the learner's. */
+const learn = (change: () => void) => act(() => runAs('learner', change));
+const pressPuck = (key: string, press: string) => act(() => { fireEvent.keyDown(puckControl(key), {key: press}); });
 const drawnSolids = (graph: SolidsGraph): readonly Solid[] => drawSolids(graph.state).solids;
 
 describe('mount, state change, unmount', () => {
@@ -65,7 +69,7 @@ describe('mount, state change, unmount', () => {
     it('rebuilds the mesh when the plane moves, and reuses the drawing when only the camera moves', () => {
         const {graph, view} = mount();
         const first = view.last;
-        act(() => graph.setOffset(3));
+        learn(() => graph.setOffset(3));
         expect(view.last.revision).toBeGreaterThan(first.revision);
         expect(view.last.mesh).not.toBe(first.mesh);
         const moved = view.last;
@@ -79,12 +83,12 @@ describe('mount, state change, unmount', () => {
     it('draws the solids once for a geometry and not again for an orbit, a view reset or a rerender', () => {
         const {graph} = mount();
         const draws = () => vi.mocked(drawSolids).mock.calls.length;
-        act(() => graph.setOffset(3));
+        learn(() => graph.setOffset(3));
         const base = draws();
         act(() => { graph.setCameraAngle('az', 30); graph.setCameraAngle('el', 20); graph.applyCameraPreset('top'); });
         act(() => graph.resetView());
         expect(draws(), 'the camera is not a geometry field').toBe(base);
-        act(() => graph.setOffset(4));
+        learn(() => graph.setOffset(4));
         expect(draws(), 'a plane move draws again, once for the scene and the readouts').toBe(base + 1);
     });
 
@@ -101,7 +105,7 @@ describe('the four modes draw only closed meshes (acceptance 1, 2)', () => {
     const cases: Array<[SolidsMode, string]> = MODES.flatMap(mode => MODE_SOLIDS[mode].map((solid): [SolidsMode, string] => [mode, solid]));
     it.each(cases)('%s of %s: closed solids, a finite scene', (mode, solid) => {
         const {graph, view} = mount();
-        act(() => graph.setState({mode, solid: solid as typeof SOLID_IDS[number]}));
+        learn(() => graph.setState({mode, solid: solid as typeof SOLID_IDS[number]}));
         for (const drawn of drawnSolids(graph)) expect(isClosed(drawn), `${mode} ${solid}`).toBe(true);
         expect(drawnSolids(graph).length).toBeGreaterThan(0);
         expect(view.last.mesh!.faces.length).toBeGreaterThan(0);
@@ -110,7 +114,7 @@ describe('the four modes draw only closed meshes (acceptance 1, 2)', () => {
 
     it('draws no mesh for an empty section and still keeps a finite scene', () => {
         const {graph, view} = mount();
-        act(() => graph.setState({normal: [1, 1, 1], offset: 100}));
+        learn(() => graph.setState({normal: [1, 1, 1], offset: 100}));
         assertFiniteScene(view.last);
         for (const drawn of drawnSolids(graph)) expect(isClosed(drawn)).toBe(true);
     });
@@ -127,9 +131,9 @@ describe('the four modes draw only closed meshes (acceptance 1, 2)', () => {
         expect(graph.state.mode).toBe('stack'); // the cone is the failing pair
         act(() => graph.setMode('revolve'));
         expect(graph.state.solid).toBe('cone');
-        act(() => graph.setAxis('y'));
+        learn(() => graph.setAxis('y'));
         expect(graph.state.axis).toBe('y');
-        act(() => graph.setSolid('sphere'));
+        learn(() => graph.setSolid('sphere'));
         expect(graph.state).toMatchObject({mode: 'revolve', axis: 'x'});
         act(() => graph.setMode('nonsense' as SolidsMode));
         expect(graph.state.mode).toBe('revolve');
@@ -145,116 +149,107 @@ describe('the four modes draw only closed meshes (acceptance 1, 2)', () => {
     });
 });
 
-describe('the integer sliders and fields', () => {
+// The lesson controls are pucks on the board (`SolidsGraph.declaration`); their Orodja sliders give way to them.
+describe('the pucks: keyboard steps, typed snaps and refusals', () => {
 
-    it('steps the disc count by keyboard in the field and on the range', () => {
+    it('steps the disc count by keyboard on its puck and never leaves 1 to 60', async () => {
         const {graph} = mount();
         setMode(graph, 'revolve');
-        const name = t('solids_graph_discs');
+        await waitForPucks(SOLIDS_DISCS_KEY);
         expect(graph.state.discs).toBe(10);
-        fireEvent.keyDown(field(name), {key: 'ArrowUp'});
+        pressPuck(SOLIDS_DISCS_KEY, 'ArrowUp');
         expect(graph.state.discs).toBe(11);
-        fireEvent.keyDown(field(name), {key: 'ArrowDown'});
-        fireEvent.keyDown(field(name), {key: 'ArrowDown'});
+        pressPuck(SOLIDS_DISCS_KEY, 'ArrowDown');
+        pressPuck(SOLIDS_DISCS_KEY, 'ArrowDown');
         expect(graph.state.discs).toBe(9);
-        fireEvent.keyDown(slider(name), {key: 'PageUp'});
-        expect(graph.state.discs).toBe(19);
-        fireEvent.keyDown(slider(name), {key: 'PageDown'});
-        expect(graph.state.discs).toBe(9);
-        fireEvent.keyDown(slider(name), {key: 'ArrowUp', shiftKey: true});
-        expect(graph.state.discs).toBe(19);
-        fireEvent.keyDown(slider(name), {key: 'PageUp'});
-        fireEvent.keyDown(slider(name), {key: 'PageUp'});
-        fireEvent.keyDown(slider(name), {key: 'PageUp'});
-        fireEvent.keyDown(slider(name), {key: 'PageUp'});
-        expect(graph.state.discs, 'the maximum is 60 and is never passed').toBe(59);
-        fireEvent.keyDown(slider(name), {key: 'PageUp'});
+        pressPuck(SOLIDS_DISCS_KEY, 'End');
         expect(graph.state.discs).toBe(60);
-        fireEvent.keyDown(slider(name), {key: 'ArrowUp', shiftKey: true});
-        expect(graph.state.discs).toBe(60);
-        expect(slider(name).min).toBe('1');
-        expect(slider(name).max).toBe('60');
-        fireEvent.change(slider(name), {target: {value: '1'}}); // a touch drag to the minimum
+        pressPuck(SOLIDS_DISCS_KEY, 'ArrowUp');
+        expect(graph.state.discs, 'the maximum is 60 and is never passed').toBe(60);
+        pressPuck(SOLIDS_DISCS_KEY, 'Home');
         expect(graph.state.discs).toBe(1);
+        pressPuck(SOLIDS_DISCS_KEY, 'ArrowDown');
+        expect(graph.state.discs).toBe(1);
+        expect(puckControl(SOLIDS_DISCS_KEY).getAttribute('aria-valuemin')).toBe('1');
+        expect(puckControl(SOLIDS_DISCS_KEY).getAttribute('aria-valuemax')).toBe('60');
     });
 
-    it('steps the plane offset by a quarter and the cursor by 2,5 percent', () => {
+    it('steps the plane offset by a quarter and the slice height by 2,5 percent', async () => {
         const {graph} = mount();
-        const offset = t('solids_graph_offset');
-        fireEvent.keyDown(field(offset), {key: 'ArrowUp'});
+        await waitForPucks(SOLIDS_OFFSET_KEY);
+        pressPuck(SOLIDS_OFFSET_KEY, 'ArrowUp');
         expect(graph.state.offset).toBe(3);
-        expect(field(offset).value).toBe('0,75');
-        fireEvent.keyDown(slider(offset), {key: 'PageDown'});
+        expect(puckControl(SOLIDS_OFFSET_KEY).getAttribute('aria-valuenow')).toBe('0.75');
+        pressPuck(SOLIDS_OFFSET_KEY, 'PageDown');
         expect(graph.state.offset).toBe(3 - 10);
         setMode(graph, 'stack');
-        const cursor = t('solids_graph_cursor');
-        expect(field(cursor).value).toBe('50');
-        fireEvent.keyDown(field(cursor), {key: 'ArrowUp'});
+        await waitForPucks(SOLIDS_CURSOR_KEY);
+        expect(puckControl(SOLIDS_CURSOR_KEY).getAttribute('aria-valuenow')).toBe('50');
+        pressPuck(SOLIDS_CURSOR_KEY, 'ArrowUp');
         expect(graph.state.cursor).toBe(21);
-        expect(field(cursor).value).toBe('52,5');
+        expect(puckControl(SOLIDS_CURSOR_KEY).getAttribute('aria-valuenow')).toBe('52.5');
     });
 
-    it('refuses the zero normal with a hint and leaves the state', () => {
+    it('refuses the zero normal with its reason and leaves the state', async () => {
         const {graph} = mount();
-        const z = t('solids_graph_normal', {value0: 'z'});
-        enterNumber(field(z), '0');
+        await waitForPucks(SOLIDS_NORMAL_KEYS[2]);
+        typePuck(SOLIDS_NORMAL_KEYS[2], '0');
         expect(graph.state.normal).toEqual([0, 0, 1]);
-        expect(screen.getByText(t('solids_graph_normal_zero'))).toBeTruthy();
-        enterNumber(field(z), '3');
+        expect(document.body.textContent).toContain(t('solids_graph_normal_zero'));
+        typePuck(SOLIDS_NORMAL_KEYS[2], '3');
         expect(graph.state.normal).toEqual([0, 0, 3]);
-        enterNumber(field(t('solids_graph_normal', {value0: 'x'})), '-4');
+        typePuck(SOLIDS_NORMAL_KEYS[0], '-4');
         expect(graph.state.normal).toEqual([-4, 0, 3]);
     });
 
-    it('refuses typed values off the integer grid or outside the range, and snaps a typed offset to the quarter grid', () => {
+    it('snaps a typed value to the grid and refuses one outside the range', async () => {
         const {graph} = mount();
-        const x = field(t('solids_graph_normal', {value0: 'x'}));
-        enterNumber(x, '1,5');
+        await waitForPucks(SOLIDS_NORMAL_KEYS[0]);
+        typePuck(SOLIDS_NORMAL_KEYS[0], '5');
         expect(graph.state.normal).toEqual([0, 0, 1]);
-        enterNumber(x, '5');
-        expect(graph.state.normal).toEqual([0, 0, 1]);
-        enterNumber(field(t('solids_graph_normal', {value0: 'z'})), '4');
+        typePuck(SOLIDS_NORMAL_KEYS[0], '1,4'); // the integer grid: snapped to 1, not stored as 1,4
+        expect(graph.state.normal).toEqual([1, 0, 1]);
+        typePuck(SOLIDS_NORMAL_KEYS[2], '4');
         expect(graph.state.normal[2]).toBe(4);
-        const offset = field(t('solids_graph_offset'));
-        enterNumber(offset, '0,3'); // not on the grid: rounded to the nearest quarter, not stored as 0,3
+        typePuck(SOLIDS_OFFSET_KEY, '0,3'); // not on the grid: snapped to the nearest quarter, not stored as 0,3
         expect(graph.state.offset).toBe(1);
-        enterNumber(offset, '40');
+        typePuck(SOLIDS_OFFSET_KEY, '40');
         expect(graph.state.offset).toBe(1);
         setMode(graph, 'revolve');
-        const discs = field(t('solids_graph_discs'));
-        enterNumber(discs, '10,5');
+        await waitForPucks(SOLIDS_DISCS_KEY);
+        typePuck(SOLIDS_DISCS_KEY, '61');
         expect(graph.state.discs).toBe(10);
-        enterNumber(discs, '61');
+        typePuck(SOLIDS_DISCS_KEY, '0');
         expect(graph.state.discs).toBe(10);
-        enterNumber(discs, '0');
-        expect(graph.state.discs).toBe(10);
-        enterNumber(discs, '12');
+        typePuck(SOLIDS_DISCS_KEY, '12');
         expect(graph.state.discs).toBe(12);
     });
 
-    it('hides the shear slider for the failing pair (the cone) and shows it for the sheared pair', () => {
+    it('drops the shear puck for the failing pair (the cone) and keeps the slice height and the slabs', async () => {
         const {graph} = mount();
         setMode(graph, 'stack');
-        expect(screen.queryByRole('slider', {name: t('solids_graph_shear')})).not.toBeNull();
+        await waitForPucks(SOLIDS_SHEAR_KEY);
         act(() => graph.setSolid('cone'));
         expect(graph.state.mode).toBe('stack');
-        expect(screen.queryByRole('slider', {name: t('solids_graph_shear')})).toBeNull();
-        expect(slider(t('solids_graph_cursor'))).toBeTruthy();
+        await waitForPucks(SOLIDS_CURSOR_KEY);
+        expect(document.querySelector(`.puck-strip [data-puck-key="${SOLIDS_SHEAR_KEY}"]`)).toBeNull();
+        expect(document.querySelector(`.puck-strip [data-puck-key="${SOLIDS_DISCS_KEY}"]`)).not.toBeNull();
         act(() => graph.setSolid('cube'));
-        act(() => graph.setShear(5));
+        learn(() => graph.setShear(5));
+        await waitForPucks(SOLIDS_SHEAR_KEY);
         expect(graph.state.shear).toBe(5);
-        expect(field(t('solids_graph_shear')).value).toBe('1,25');
+        expect(puckControl(SOLIDS_SHEAR_KEY).getAttribute('aria-valuenow')).toBe('1.25');
     });
 
     it('ignores setters called with off-grid, out-of-range or non-integer values', () => {
         const {graph} = mount();
         const before = graph.state;
-        act(() => { graph.setOffset(1.5); graph.setOffset(145); graph.setShear(13); graph.setCursor(0); graph.setCursor(40); graph.setDiscs(0); graph.setDiscs(61); graph.setDiscs(2.5); });
+        learn(() => { graph.setOffset(1.5); graph.setOffset(145); graph.setShear(13); graph.setCursor(0); graph.setCursor(40); graph.setDiscs(0); graph.setDiscs(61); graph.setDiscs(2.5); });
         expect(graph.state).toBe(before);
         expect(graph.setNormal(0, 5)).toBe(false);
         expect(graph.setNormal(2, 0)).toBe(false);
         expect(graph.state).toBe(before);
-        act(() => graph.setAxis('y'));
+        learn(() => graph.setAxis('y'));
         expect(graph.state.axis, 'the cube has no y-axis solid').toBe('x');
     });
 });
@@ -277,7 +272,7 @@ describe('the readouts', () => {
 
     it('shows the mesh volume next to the exact one, with decimal comma', () => {
         const {graph} = mount();
-        act(() => graph.setState({mode: 'volume', solid: 'sphere'}));
+        learn(() => graph.setState({mode: 'volume', solid: 'sphere'}));
         const readouts = drawSolids(graph.state).readouts;
         if (readouts.mode !== 'volume') throw new Error('mode');
         expect(label('volume-mesh')).toBe(t('solids_graph_row_mesh_volume'));
@@ -299,17 +294,17 @@ describe('the readouts', () => {
 
     it('labels the stack rows by the pair and shows both exact volumes', () => {
         const {graph} = mount();
-        act(() => graph.setState({mode: 'stack', solid: 'cone'}));
+        learn(() => graph.setState({mode: 'stack', solid: 'cone'}));
         expect(label('volume-0')).toBe(t('solids_graph_row_volume_of_mesh', {value0: t('solids_graph_name_cone')}));
         expect(label('exact-1')).toBe(t('solids_graph_row_volume_of_exact', {value0: t('solids_graph_name_cylinder')}));
         expect(value('exact-0')).toBe(fmt(12 * Math.PI, 5)); // the cone of radius 3 and height 4
-        act(() => graph.setState({solid: 'cube'}));
+        learn(() => graph.setState({solid: 'cube'}));
         expect(label('volume-1')).toBe(t('solids_graph_row_volume_of_mesh', {value0: t('solids_graph_name_sheared')}));
     });
 
     it('follows a language switch in labels and number format', () => {
         const {graph} = mount();
-        act(() => graph.setState({mode: 'volume', solid: 'sphere'}));
+        learn(() => graph.setState({mode: 'volume', solid: 'sphere'}));
         expect(label('volume-exact')).toBe(sl.solids_graph_row_exact_volume);
         act(() => setLanguage('en'));
         expect(label('volume-exact')).toBe(en.solids_graph_row_exact_volume);
@@ -323,19 +318,19 @@ describe('the readouts', () => {
 describe('Preset', () => {
     it('round-trips a changed state through export, the collection check and import', () => {
         const {graph} = mount();
-        act(() => graph.setState({mode: 'revolve', solid: 'parabola', axis: 'y', discs: 17}));
+        learn(() => graph.setState({mode: 'revolve', solid: 'parabola', axis: 'y', discs: 17}));
         const exported = JSON.parse(JSON.stringify(graph.exportPresetData()));
         const checked = solidsPresetCollection.check(exported);
         expect('data' in checked).toBe(true);
         const other = mount().graph;
-        act(() => other.importPresetData('data' in checked ? checked.data : []));
+        learn(() => other.importPresetData('data' in checked ? checked.data : []));
         expect(other.state).toMatchObject({mode: 'revolve', solid: 'parabola', axis: 'y', discs: 17});
         expect(other.exportPresetData()).toEqual(graph.exportPresetData());
     });
 
     it('keeps the stored camera when a Preset file with non-default data is imported', () => {
         const {graph} = mount();
-        act(() => graph.setState({mode: 'volume', solid: 'sphere'}));
+        learn(() => graph.setState({mode: 'volume', solid: 'sphere'}));
         act(() => graph.setCameraAngle('az', 63));
         const preset = JSON.parse(JSON.stringify(graph.exportPreset()));
         const storedCamera = JSON.parse(JSON.stringify(graph.state.camera));
@@ -417,62 +412,63 @@ describe('review repairs', () => {
 
     it('states no direction for the mesh volume of a curved profile and the direction only for the cone', () => {
         const {graph} = mount();
-        act(() => graph.setState({mode: 'volume', solid: 'parabola'}));
+        learn(() => graph.setState({mode: 'volume', solid: 'parabola'}));
         const readouts = drawSolids(graph.state).readouts;
         if (readouts.mode !== 'volume') throw new Error('mode');
         expect(readouts.meshVolume, 'the parabola mesh lies above the exact volume').toBeGreaterThan(readouts.exact);
         expect(notes()).toContain(t('solids_graph_mesh_note'));
         expect(notes()).not.toContain(t('solids_graph_mesh_note_below'));
-        act(() => graph.setState({mode: 'volume', solid: 'cone'}));
+        learn(() => graph.setState({mode: 'volume', solid: 'cone'}));
         const cone = drawSolids(graph.state).readouts;
         if (cone.mode !== 'volume') throw new Error('mode');
         expect(cone.meshVolume).toBeLessThan(cone.exact);
         expect(notes()).toContain(t('solids_graph_mesh_note_below'));
-        act(() => graph.setState({mode: 'revolve', solid: 'parabola', axis: 'y'}));
+        learn(() => graph.setState({mode: 'revolve', solid: 'parabola', axis: 'y'}));
         expect(notes()).toContain(t('solids_graph_mesh_note'));
         expect(notes()).not.toContain(t('solids_graph_mesh_note_below'));
     });
 
     it('says why the shear is missing for the cone and why the sphere has one axis', () => {
         const {graph} = mount();
-        act(() => graph.setState({mode: 'stack', solid: 'cone'}));
+        learn(() => graph.setState({mode: 'stack', solid: 'cone'}));
         expect(notes()).toContain(t('solids_graph_shear_unavailable'));
-        act(() => graph.setState({solid: 'cube'}));
+        learn(() => graph.setState({solid: 'cube'}));
         expect(notes()).not.toContain(t('solids_graph_shear_unavailable'));
-        act(() => graph.setState({mode: 'revolve', solid: 'sphere'}));
+        learn(() => graph.setState({mode: 'revolve', solid: 'sphere'}));
         expect(notes()).toContain(t('solids_graph_axis_sphere_only_x'));
-        act(() => graph.setState({solid: 'parabola'}));
+        learn(() => graph.setState({solid: 'parabola'}));
         expect(notes()).not.toContain(t('solids_graph_axis_sphere_only_x'));
     });
 
     it('states the shear conclusion only once the stack is sheared (SV3 predicts it at shear 0)', () => {
         const {graph} = mount();
-        act(() => graph.setState({mode: 'stack', solid: 'square-prism', shear: 0}));
+        learn(() => graph.setState({mode: 'stack', solid: 'square-prism', shear: 0}));
         expect(notes()).not.toContain(t('solids_graph_sheared_note'));
-        act(() => graph.setState({shear: 6}));
+        learn(() => graph.setState({shear: 6}));
         expect(notes()).toContain(t('solids_graph_sheared_note'));
-        act(() => graph.setState({shear: -6}));
+        learn(() => graph.setState({shear: -6}));
         expect(notes()).toContain(t('solids_graph_sheared_note'));
-        act(() => graph.setState({solid: 'cone'}));
+        learn(() => graph.setState({solid: 'cone'}));
         expect(notes()).toContain(t('solids_graph_failing_note'));
     });
 
-    it('gives the cursor slider a value text with a percent sign and a decimal comma', () => {
+    it('gives the slice height puck a value text with a percent sign and a decimal comma', async () => {
         const {graph} = mount();
         setMode(graph, 'stack');
-        expect(slider(t('solids_graph_cursor')).getAttribute('aria-valuetext')).toBe('50 %');
-        act(() => graph.setCursor(3));
-        expect(slider(t('solids_graph_cursor')).getAttribute('aria-valuetext')).toBe('7,5 %');
+        await waitForPucks(SOLIDS_CURSOR_KEY);
+        expect(puckControl(SOLIDS_CURSOR_KEY).getAttribute('aria-valuetext')).toBe('50 %');
+        learn(() => graph.setCursor(3));
+        expect(puckControl(SOLIDS_CURSOR_KEY).getAttribute('aria-valuetext')).toBe('7,5 %');
     });
 
     it('announces the axis in revolve mode, once, without the repeated word', async () => {
         const {graph} = mount();
-        act(() => graph.setState({mode: 'revolve', solid: 'parabola', axis: 'y'}));
+        learn(() => graph.setState({mode: 'revolve', solid: 'parabola', axis: 'y'}));
         const live = () => document.querySelector('[data-solids-live]')!.textContent!;
         await waitFor(() => expect(live()).toContain(`${t('solids_graph_axis_y')}`));
         expect(live()).toContain('Os vrtenja');
         expect(live()).not.toMatch(/Vrtenina: Vrtenina/);
-        act(() => graph.setState({axis: 'x'}));
+        learn(() => graph.setState({axis: 'x'}));
         await waitFor(() => expect(live()).toContain(t('solids_graph_axis_x')));
     });
 
@@ -484,7 +480,7 @@ describe('review repairs', () => {
     it('drops the captions of the section edge and the cut points when the plane misses the solid', () => {
         const {graph} = mount();
         expect(document.querySelector('[data-caption="solids_graph_caption_section"]')).not.toBeNull();
-        act(() => graph.setState({normal: [0, 0, 1], offset: 40}));
+        learn(() => graph.setState({normal: [0, 0, 1], offset: 40}));
         const readouts = drawSolids(graph.state).readouts;
         if (readouts.mode !== 'section') throw new Error('mode');
         expect(readouts.kind).toBe('empty');
@@ -496,14 +492,14 @@ describe('review repairs', () => {
     it('captions the axial triangle for the pyramid in section mode and not for the cube', () => {
         const axial = () => document.querySelector('[data-caption="solids_graph_caption_axial"]');
         const {graph} = mount();
-        act(() => graph.setState({mode: 'section', solid: 'cube'}));
+        learn(() => graph.setState({mode: 'section', solid: 'cube'}));
         expect(axial()).toBeNull();
-        act(() => graph.setState({solid: 'square-pyramid'}));
+        learn(() => graph.setState({solid: 'square-pyramid'}));
         expect(axial()?.textContent).toBe(sl.solids_graph_caption_axial);
         expect(sl.solids_graph_caption_axial).toContain('osni presek');
-        act(() => graph.setState({normal: [0, 0, 1], offset: 40})); // the plane misses the solid: the triangle is still drawn
+        learn(() => graph.setState({normal: [0, 0, 1], offset: 40})); // the plane misses the solid: the triangle is still drawn
         expect(axial()).not.toBeNull();
-        act(() => graph.setState({solid: 'square-prism'}));
+        learn(() => graph.setState({solid: 'square-prism'}));
         expect(axial()).toBeNull();
         expect(Object.keys(en).includes('solids_graph_caption_axial')).toBe(true);
     });
@@ -530,7 +526,7 @@ describe('smoke repairs: the view of each mode and the camera panel', () => {
         const {graph} = mount();
         setMode(graph, 'revolve');
         for (const change of [() => graph.setSolid('sphere'), () => graph.setSolid('cone'), () => graph.setAxis('y')]) {
-            act(change);
+            learn(change);
             const framed = drawSolids(graph.state).framed.map((p): [number, number, number] => [p[0], p[1], p[2]]);
             const expected = fitCameraTo(framed, 600 / 400, graph.state.camera);
             expect(graph.state.camera.distance).toBeCloseTo(expected.distance, 6);

@@ -5,6 +5,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {JsxSurfaceView} from '../patches/surface-view/jsxSurfaceView';
 import {LifecycleProbe} from '../patches/surface-view/jsxLifecycleProbe.test-helper';
 import type {SurfaceScene} from '../patches/surface-view/surfaceScene';
@@ -48,7 +49,7 @@ describe('solids graph lifecycle', () => {
                 act(() => graph.setMode(mode));
                 act(() => view.flush());
             }
-            act(() => { graph.setOffset(3); graph.setNormal(0, 1); graph.setDiscs(12); });
+            act(() => runAs('learner', () => { graph.setOffset(3); graph.setNormal(0, 1); graph.setDiscs(12); }));
             act(() => view.flush());
             act(() => graph.importPresetData([['Solids', {...graph.exportPresetData()[0][1], mode: 'volume', solid: 'sphere'}]]));
             act(() => view.flush());

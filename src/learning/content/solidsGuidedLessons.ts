@@ -7,12 +7,15 @@
  * exact value computed in the same step. The shapes the learner sees are illustrations of the planes tried; the arguments are SV1 step 5 (six faces) and SV2 step 3 (similar triangles
  * in the drawn axial section).
  */
+import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
+import type {SolidsIds} from '../../graphs/solids/solidsDeclaration';
 import type {LessonAction} from '../model';
 import type {FormulaBlock, GuidedLesson, GuidedLessonFrame, GuidedLessonStep, LessonScene, LocalizedText, WorkedExample} from './guidedLessons';
 
 /** The lesson text is written once with decimal commas in math (`{,}`); the English text gets decimal points. */
 const text = (sl: string, en: string): LocalizedText => ({sl, en: en.replace(/\{,\}/g, '.')});
-const frame = (id: string, kind: GuidedLessonFrame['kind']): GuidedLessonFrame => ({id, kind});
+const frame = (id: string, kind: GuidedLessonFrame['kind'], declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
+const f = frameDeclarer<SolidsIds>();
 
 interface StepContent {
     readonly id: string;
@@ -25,14 +28,16 @@ interface StepContent {
     readonly observationPrompt: LocalizedText;
     readonly expectedObservations: readonly LocalizedText[];
     readonly scene: LessonScene;
+    /** What the observation frame highlights and which pucks its text asks for (task 08). */
+    readonly declare?: FrameDeclaration;
 }
 
-const step = (content: StepContent): GuidedLessonStep => ({
+const step = ({declare, ...content}: StepContent): GuidedLessonStep => ({
     ...content,
     frames: [
         frame(`${content.id}-explanation`, 'explanation'),
         ...(content.workedExampleId ? [frame(`${content.id}-calculation`, 'calculation')] : []),
-        frame(`${content.id}-observation`, 'observation'),
+        frame(`${content.id}-observation`, 'observation', declare),
     ],
 });
 
@@ -128,6 +133,7 @@ const examples: readonly WorkedExample[] = [
 const sv1Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'sv1-parallel', order: 1,
+        declare: f({highlight: ['sides', 'area', 'kept-volume'], uses: ['solids-offset']}),
         title: text('Ravnina, vzporedna ploskvi', 'A plane parallel to a face'),
         purpose: text('Napovedati lik, ki ga reže ravnina, vzporedna ploskvi kocke.', 'Predicting the shape cut by a plane parallel to a face of the cube.'),
         explanation: text(
@@ -136,8 +142,8 @@ const sv1Steps: readonly GuidedLessonStep[] = [
         ),
         formulaIds: [],
         observationPrompt: text(
-            'Preberi Presek, Število stranic preseka, Ploščina preseka in Prostornina spodnjega dela (mreža) pri odmiku ravnine \\(0{,}5\\); nato z drsnikom Odmik ravnine nastavi \\(0{,}25\\) in preberi iste odčitke.',
-            'Read Section, Sides of the section, Area of the section and Volume of the lower part (mesh) at plane offset \\(0{,}5\\); then set the slider Plane offset to \\(0{,}25\\) and read the same readouts.',
+            'Preberi Presek, Število stranic preseka, Ploščina preseka in Prostornina spodnjega dela (mreža) pri odmiku ravnine \\(0{,}5\\); nato s krmilnikom Odmik ravnine nastavi \\(0{,}25\\) in preberi iste odčitke.',
+            'Read Section, Sides of the section, Area of the section and Volume of the lower part (mesh) at plane offset \\(0{,}5\\); then set the Plane offset control to \\(0{,}25\\) and read the same readouts.',
         ),
         expectedObservations: [text(
             'Pri \\(0{,}5\\) je presek mnogokotnik s \\(4\\) stranicami in ploščino \\(1\\), prostornina spodnjega dela je \\(0{,}5\\). Pri \\(0{,}25\\) so \\(4\\) stranice in ploščina je spet \\(1\\), prostornina spodnjega dela pa \\(0{,}25\\): lik se ne spremeni, spodnji del se skrči.',
@@ -149,6 +155,7 @@ const sv1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv1-tilt', order: 2,
+        declare: f({highlight: ['area', 'corner-0'], uses: ['solids-normal-x', 'solids-normal-y', 'solids-normal-z', 'solids-offset']}),
         title: text('Nagnjena ravnina', 'A tilted plane'),
         purpose: text('Napovedati, kako se presek spremeni, ko ravnino nagneš.', 'Predicting how the section changes when the plane is tilted.'),
         explanation: text(
@@ -170,6 +177,7 @@ const sv1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv1-diagonal', order: 3,
+        declare: f({highlight: ['sides', 'area', 'kept-volume'], uses: ['solids-offset']}),
         title: text('Ravnina potuje vzdolž diagonale', 'The plane slides along the diagonal'),
         purpose: text('Napovedati lik pri odmiku \\(1{,}5\\) in videti, kako se število stranic spreminja z odmikom.', 'Predicting the shape at offset \\(1{,}5\\) and seeing how the number of sides changes with the offset.'),
         explanation: text(
@@ -191,6 +199,7 @@ const sv1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv1-corners', order: 4,
+        declare: f({highlight: ['corner-0', 'corner-1', 'corner-2'], uses: ['solids-offset']}),
         title: text('Oglišča preseka ležijo na robovih ali v ogliščih', 'The corners of the section lie on edges or at vertices'),
         purpose: text('Povezati vsako oglišče preseka z robom ali ogliščem kocke, na katerem leži.', 'Connecting each corner of the section with the edge or vertex of the cube it lies on.'),
         explanation: text(
@@ -213,6 +222,7 @@ const sv1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv1-argument', order: 5,
+        declare: f({highlight: ['sides'], uses: ['solids-normal-x', 'solids-normal-y', 'solids-normal-z', 'solids-offset']}),
         title: text('Največ stranic preseka', 'The most sides of a section'),
         purpose: text('Napovedati največje število stranic preseka in to utemeljiti.', 'Predicting the largest number of sides of a section and giving the reason.'),
         explanation: text(
@@ -234,6 +244,7 @@ const sv1Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv1-free', order: 6,
+        declare: f({highlight: ['sides', 'area'], uses: ['solids-normal-x', 'solids-normal-y', 'solids-normal-z', 'solids-offset']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Sam poiskati ravnine za vse štiri možne preseke.', 'Finding planes for all four possible sections on your own.'),
         explanation: text(
@@ -260,6 +271,7 @@ const sv1Steps: readonly GuidedLessonStep[] = [
 const sv2Steps: readonly GuidedLessonStep[] = [
     step({
         id: 'sv2-prism', order: 1,
+        declare: f({highlight: ['area', 'kept-volume'], uses: ['solids-offset']}),
         title: text('Vodoravni presek prizme', 'The horizontal section of a prism'),
         purpose: text('Videti, da se ploščina vodoravnega preseka prizme ne spremeni, in napovedati, kaj naredi piramida.', 'Seeing that the area of a horizontal section of a prism does not change, and predicting what a pyramid does.'),
         explanation: text(
@@ -281,6 +293,7 @@ const sv2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv2-pyramid', order: 2,
+        declare: f({highlight: ['area', 'sides'], uses: ['solids-offset']}),
         title: text('Presek piramide se manjša', 'The section of the pyramid shrinks'),
         purpose: text('Primerjati napoved za piramido z odčitki.', 'Comparing the prediction for the pyramid with the readouts.'),
         explanation: text(
@@ -302,6 +315,7 @@ const sv2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv2-similar', order: 3,
+        declare: f({highlight: ['area'], uses: ['solids-offset']}),
         title: text('Polovična višina, četrtina ploščine', 'Half the height, a quarter of the area'),
         purpose: text('Utemeljiti zmanjševanje ploščine s podobnima trikotnikoma v osnem preseku.', 'Giving the reason for the shrinking area with similar triangles in the axial section.'),
         explanation: text(
@@ -324,6 +338,7 @@ const sv2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv2-apex', order: 4,
+        declare: f({highlight: ['kind', 'sides'], uses: ['solids-normal-x', 'solids-normal-y', 'solids-normal-z', 'solids-offset']}),
         title: text('Ravnina skozi vrh', 'A plane through the apex'),
         purpose: text('Napovedati lik, ki ga reže ravnina skozi vrh.', 'Predicting the shape cut by a plane through the apex.'),
         explanation: text(
@@ -345,6 +360,7 @@ const sv2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv2-pentagon', order: 5,
+        declare: f({highlight: ['sides'], uses: ['solids-normal-x', 'solids-normal-y', 'solids-normal-z', 'solids-offset']}),
         title: text('Nagnjena ravnina skozi piramido', 'A tilted plane through the pyramid'),
         purpose: text('Napovedati največje število stranic preseka piramide in ga utemeljiti.', 'Predicting the largest number of sides of a section of the pyramid and giving the reason.'),
         explanation: text(
@@ -366,6 +382,7 @@ const sv2Steps: readonly GuidedLessonStep[] = [
     }),
     step({
         id: 'sv2-free', order: 6,
+        declare: f({highlight: ['sides', 'area'], uses: ['solids-normal-x', 'solids-normal-y', 'solids-normal-z', 'solids-offset']}),
         title: text('Prosto raziskovanje', 'Free exploration'),
         purpose: text('Sam poiskati trikotnik, štirikotnik in petkotnik v piramidi.', 'Finding a triangle, a quadrilateral and a pentagon in the pyramid on your own.'),
         explanation: text(

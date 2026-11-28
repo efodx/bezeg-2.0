@@ -14,6 +14,10 @@ import {FunctionReadout, type ReadoutRow} from '../functions/FunctionReadout';
 import {azimuthDegrees, type SurfaceCameraActions} from '../patches/SurfaceCameraPanel';
 import {CAMERA_PRESETS} from '../patches/surface-view/surfaceMath';
 import type {SolidsReadouts} from './solidsScene';
+import {PuckOwned, PuckOwnedGroup} from '../base/controls/PuckOwnership';
+import {
+    approximate, captionKeys, meshNoteKey, SOLIDS_AXIS_KEY, SOLIDS_CURSOR_KEY, SOLIDS_DISCS_KEY, SOLIDS_NORMAL_KEYS, SOLIDS_OFFSET_KEY, SOLIDS_PYRAMIDS_ACTION, SOLIDS_SHEAR_KEY,
+} from './solidsDeclaration';
 
 export interface SolidsPanelActions extends SurfaceCameraActions {
     setMode(mode: SolidsMode): void;
@@ -49,76 +53,60 @@ export function SolidsEditPanel({state, actions}: {state: SolidsPanelState; acti
             <ChoiceSelect label={t('solids_graph_solid')} value={state.solid} options={solidOptions} help={t('solids_graph_solid_help')}
                           onChange={value => actions.setSolid(asSolid(value))}/>
         </div>;
-    const sectionPlane = state.mode === 'section' && <div className="inspector-group"><h3>{t('solids_graph_plane_heading')}</h3>
-            <Slider customText={t('solids_graph_offset')} min={OFFSET_RANGE.min / OFFSET_SCALE} max={OFFSET_RANGE.max / OFFSET_SCALE} step={1 / OFFSET_SCALE}
-                    grid={1 / OFFSET_SCALE} decimals={2} value={state.offset / OFFSET_SCALE}
-                    onChange={value => { actions.setOffset(Math.round(value * OFFSET_SCALE)); }}/>
-            {NORMAL_LETTERS.map((letter, index) =>
-                <Slider key={letter} customText={t('solids_graph_normal', {value0: letter})} min={NORMAL_RANGE.min} max={NORMAL_RANGE.max} step={1} decimals={0}
+    // On the board workspace every control a lesson step asks for is a puck (`SolidsGraph.declaration`): `PuckOwned` hides its
+    // slider here, and `PuckOwnedGroup` the group once all of its controls are pucks, so no empty heading is left.
+    const sectionPlane = state.mode === 'section' && <PuckOwnedGroup params={[SOLIDS_OFFSET_KEY, ...SOLIDS_NORMAL_KEYS]} className="inspector-group"><h3>{t('solids_graph_plane_heading')}</h3>
+            <PuckOwned param={SOLIDS_OFFSET_KEY}>
+                <Slider customText={t('solids_graph_offset')} min={OFFSET_RANGE.min / OFFSET_SCALE} max={OFFSET_RANGE.max / OFFSET_SCALE} step={1 / OFFSET_SCALE}
+                        grid={1 / OFFSET_SCALE} decimals={2} value={state.offset / OFFSET_SCALE}
+                        onChange={value => { actions.setOffset(Math.round(value * OFFSET_SCALE)); }}/>
+            </PuckOwned>
+            {NORMAL_LETTERS.map((letter, index) => <PuckOwned key={letter} param={SOLIDS_NORMAL_KEYS[index]}>
+                <Slider customText={t('solids_graph_normal', {value0: letter})} min={NORMAL_RANGE.min} max={NORMAL_RANGE.max} step={1} decimals={0}
                         value={state.normal[index]}
-                        rejectedHint={t('solids_graph_normal_zero')} onChange={value => actions.setNormal(index as 0 | 1 | 2, value)}/>)}
-        </div>;
+                        rejectedHint={t('solids_graph_normal_zero')} onChange={value => actions.setNormal(index as 0 | 1 | 2, value)}/>
+            </PuckOwned>)}
+        </PuckOwnedGroup>;
     return <>
         {solidChoice}
         {sectionPlane}
-        {state.mode === 'stack' && <div className="inspector-group"><h3>{t('solids_graph_stack_heading')}</h3>
-            {failing ? <p className="inspector-help" data-solids-shear-reason="">{t('solids_graph_shear_unavailable')}</p>
-                : <Slider customText={t('solids_graph_shear')} min={SHEAR_RANGE.min / SHEAR_SCALE} max={SHEAR_RANGE.max / SHEAR_SCALE} step={1 / SHEAR_SCALE}
-                          grid={1 / SHEAR_SCALE} decimals={2} value={state.shear / SHEAR_SCALE}
-                          onChange={value => { actions.setShear(Math.round(value * SHEAR_SCALE)); }}/>}
-            <Slider customText={t('solids_graph_cursor')} valueText={value => `${fmt(value, 1)} %`} min={100 * CURSOR_RANGE.min / CURSOR_SCALE} max={100 * CURSOR_RANGE.max / CURSOR_SCALE} step={100 / CURSOR_SCALE}
-                    grid={100 / CURSOR_SCALE} decimals={1} value={100 * state.cursor / CURSOR_SCALE}
-                    onChange={value => { actions.setCursor(Math.round(value * CURSOR_SCALE / 100)); }}/>
-            <Slider customText={t('solids_graph_slabs')} min={DISC_RANGE.min} max={DISC_RANGE.max} step={1} decimals={0} value={state.discs}
-                    onChange={value => { actions.setDiscs(value); }}/>
-        </div>}
-        {state.mode === 'volume' && <div className="inspector-group"><h3>{t('solids_graph_volume_heading')}</h3>
+        {state.mode === 'stack' && failing && <p className="inspector-help" data-solids-shear-reason="">{t('solids_graph_shear_unavailable')}</p>}
+        {state.mode === 'stack' && <PuckOwnedGroup params={[...(failing ? [] : [SOLIDS_SHEAR_KEY]), SOLIDS_CURSOR_KEY, SOLIDS_DISCS_KEY]} className="inspector-group"><h3>{t('solids_graph_stack_heading')}</h3>
+            {!failing && <PuckOwned param={SOLIDS_SHEAR_KEY}>
+                <Slider customText={t('solids_graph_shear')} min={SHEAR_RANGE.min / SHEAR_SCALE} max={SHEAR_RANGE.max / SHEAR_SCALE} step={1 / SHEAR_SCALE}
+                        grid={1 / SHEAR_SCALE} decimals={2} value={state.shear / SHEAR_SCALE}
+                        onChange={value => { actions.setShear(Math.round(value * SHEAR_SCALE)); }}/>
+            </PuckOwned>}
+            <PuckOwned param={SOLIDS_CURSOR_KEY}>
+                <Slider customText={t('solids_graph_cursor')} valueText={value => `${fmt(value, 1)} %`} min={100 * CURSOR_RANGE.min / CURSOR_SCALE} max={100 * CURSOR_RANGE.max / CURSOR_SCALE} step={100 / CURSOR_SCALE}
+                        grid={100 / CURSOR_SCALE} decimals={1} value={100 * state.cursor / CURSOR_SCALE}
+                        onChange={value => { actions.setCursor(Math.round(value * CURSOR_SCALE / 100)); }}/>
+            </PuckOwned>
+            <PuckOwned param={SOLIDS_DISCS_KEY}>
+                <Slider customText={t('solids_graph_slabs')} min={DISC_RANGE.min} max={DISC_RANGE.max} step={1} decimals={0} value={state.discs}
+                        onChange={value => { actions.setDiscs(value); }}/>
+            </PuckOwned>
+        </PuckOwnedGroup>}
+        {state.mode === 'volume' && <PuckOwnedGroup params={[SOLIDS_PYRAMIDS_ACTION]} className="inspector-group"><h3>{t('solids_graph_volume_heading')}</h3>
             <OnOffSwitch label={t('solids_graph_pyramids')} checked={state.pyramids && pyramidsApply(state)} help={t('solids_graph_pyramids_help')}
                          unavailableReason={pyramidsApply(state) ? undefined : t('solids_graph_pyramids_unavailable')}
                          onChange={actions.setPyramids}/>
-        </div>}
-        {state.mode === 'revolve' && <div className="inspector-group"><h3>{t('solids_graph_revolve_heading')}</h3>
-            <ChoiceSelect label={t('solids_graph_axis')} value={state.axis} options={axisOptions} help={t('solids_graph_axis_help')}
-                          reason={state.solid === 'sphere' ? t('solids_graph_axis_sphere_only_x') : undefined}
-                          onChange={value => actions.setAxis(asAxis(value))}/>
-            <Slider customText={t('solids_graph_discs')} min={DISC_RANGE.min} max={DISC_RANGE.max} step={1} decimals={0} value={state.discs}
-                    onChange={value => { actions.setDiscs(value); }}/>
-        </div>}
+        </PuckOwnedGroup>}
+        {state.mode === 'revolve' && <PuckOwnedGroup params={[SOLIDS_AXIS_KEY, SOLIDS_DISCS_KEY]} className="inspector-group"><h3>{t('solids_graph_revolve_heading')}</h3>
+            <PuckOwned param={SOLIDS_AXIS_KEY}>
+                <ChoiceSelect label={t('solids_graph_axis')} value={state.axis} options={axisOptions} help={t('solids_graph_axis_help')}
+                              reason={state.solid === 'sphere' ? t('solids_graph_axis_sphere_only_x') : undefined}
+                              onChange={value => actions.setAxis(asAxis(value))}/>
+            </PuckOwned>
+            <PuckOwned param={SOLIDS_DISCS_KEY}>
+                <Slider customText={t('solids_graph_discs')} min={DISC_RANGE.min} max={DISC_RANGE.max} step={1} decimals={0} value={state.discs}
+                        onChange={value => { actions.setDiscs(value); }}/>
+            </PuckOwned>
+        </PuckOwnedGroup>}
     </>;
 }
 
 const fmt = (value: number, digits: number) => formatNumber(value, currentLanguage(), digits);
-
-type CaptionKey = 'solids_graph_caption_kept' | 'solids_graph_caption_plane' | 'solids_graph_caption_section' | 'solids_graph_caption_cut' | 'solids_graph_caption_corner' | 'solids_graph_caption_axial'
-    | 'solids_graph_caption_straight' | 'solids_graph_caption_sheared' | 'solids_graph_caption_cone' | 'solids_graph_caption_cylinder' | 'solids_graph_caption_slabs'
-    | 'solids_graph_caption_cursor' | 'solids_graph_caption_solid' | 'solids_graph_caption_profile' | 'solids_graph_caption_axis' | 'solids_graph_caption_discs' | 'solids_graph_caption_pyramids';
-
-/** The axial triangle is drawn only for the pyramid (solidsScene `axialSection`), in every section state. */
-const axialCaption = (solid: SolidId): readonly CaptionKey[] => solid === 'square-pyramid' ? ['solids_graph_caption_axial'] : [];
-
-/** What the view draws, in words: one caption for every element the readouts and the view name. */
-function captionKeys(mode: SolidsMode, solid: SolidId, readouts: SolidsReadouts): readonly CaptionKey[] {
-    switch (mode) {
-        case 'section': return readouts.mode === 'section' && readouts.kind === 'empty'
-            ? ['solids_graph_caption_kept', 'solids_graph_caption_plane', 'solids_graph_caption_corner', ...axialCaption(solid)] // no section edge and no cut points are drawn
-            : ['solids_graph_caption_kept', 'solids_graph_caption_plane', 'solids_graph_caption_section', 'solids_graph_caption_cut', 'solids_graph_caption_corner', ...axialCaption(solid)];
-        case 'stack': return readouts.mode === 'stack' && readouts.pair === 'failing'
-            ? ['solids_graph_caption_cone', 'solids_graph_caption_cylinder', 'solids_graph_caption_slabs', 'solids_graph_caption_cursor']
-            : ['solids_graph_caption_straight', 'solids_graph_caption_sheared', 'solids_graph_caption_slabs', 'solids_graph_caption_cursor'];
-        case 'volume': return readouts.mode === 'volume' && readouts.pyramids ? ['solids_graph_caption_pyramids'] : ['solids_graph_caption_solid'];
-        case 'revolve': return ['solids_graph_caption_profile', 'solids_graph_caption_axis', 'solids_graph_caption_discs', 'solids_graph_caption_solid'];
-    }
-}
-
-/** True when the mesh volume differs visibly from the exact one: the solid is a k-gon approximation. */
-const approximate = (mesh: number, exact: number) => Math.abs(mesh - exact) > 1e-9 * Math.max(1, Math.abs(exact));
-
-/**
- * The mesh note. The direction is stated only for the cone, whose straight profile is exact so the inscribed 48-gon alone makes the
- * mesh smaller; for a curved profile (chord profile) the mesh can lie on either side of the exact value.
- */
-const meshNoteKey = (solid: SolidId, mesh: number, exact: number) =>
-    solid === 'cone' && mesh < exact ? 'solids_graph_mesh_note_below' : 'solids_graph_mesh_note';
 
 export function SolidsReadoutPanel({mode, solid, readouts}: {mode: SolidsMode; solid: SolidId; readouts: SolidsReadouts}) {
     const t = useT();
@@ -190,9 +178,10 @@ export function SolidsReadoutPanel({mode, solid, readouts}: {mode: SolidsMode; s
         ? t('solids_graph_live_revolve', {value0: t(`solids_graph_solid_${solid}`), value1: t(`solids_graph_axis_${readouts.axis}`), value2: summary})
         : t('solids_graph_live', {value0: t(`solids_graph_mode_${mode}`), value1: t(`solids_graph_solid_${solid}`), value2: summary});
     const live = useStatusReadout(liveText, true);
+    // The readouts and the captions are the declared rows, notes and legend on the board cards (`data-declared-panel`).
     return <>
-        <FunctionReadout title={t('solids_graph_readout_heading')} rows={rows} note={notes}/>
-        <div className="inspector-group" data-solids-captions=""><h3>{t('solids_graph_captions_heading')}</h3>
+        <FunctionReadout title={t('solids_graph_readout_heading')} rows={rows} note={notes} declaredPanel/>
+        <div className="inspector-group" data-solids-captions="" data-declared-panel=""><h3>{t('solids_graph_captions_heading')}</h3>
             <ul>{captionKeys(mode, solid, readouts).map(key => <li key={key} data-caption={key}>{t(key)}</li>)}</ul>
         </div>
         <LiveReadout readout={live} dataAttribute="solids-live"/>

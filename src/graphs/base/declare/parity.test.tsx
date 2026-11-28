@@ -846,6 +846,26 @@ const SAMPLES: readonly Sample[] = [
             step('corners linked again, inner point moved', graph => { runAs('learner', () => (graph as Coons).setLinkedCorners(true)); move('c1', 1, [1.5, 3.4, -1])(graph); }),
         ];
     })()},
+    {file: 'solids/__parity__/solids.json', demonstration: 'solids', states: (() => {
+        type Solids = {
+            setMode(mode: string): void; setSolid(solid: string): void; setNormal(index: 0 | 1 | 2, value: number): boolean; setOffset(units: number): void;
+            setShear(units: number): void; setCursor(units: number): void; setDiscs(count: number): void; setAxis(axis: string): void; setPyramids(on: boolean): void;
+        };
+        const step = (name: string, apply: (graph: Solids) => void): ParityState => ({name, apply: graph => runAs('learner', () => apply(graph as unknown as Solids))});
+        return [
+            state('default', {}),
+            step('section, offset 1', g => g.setOffset(4)),
+            step('section, normal (1,1,1), offset 1,5 (hexagon)', g => { g.setNormal(0, 1); g.setNormal(1, 1); g.setOffset(6); }),
+            step('section, pyramid through the apex', g => { g.setSolid('square-pyramid'); g.setNormal(1, 0); g.setNormal(2, 0); g.setOffset(0); }),
+            step('section, plane misses the solid', g => g.setOffset(40)),
+            step('stack, prism sheared, cursor 25 %, 12 slabs', g => { g.setMode('stack'); g.setSolid('square-prism'); g.setShear(6); g.setCursor(10); g.setDiscs(12); }),
+            step('stack, cone and cylinder', g => g.setSolid('cone')),
+            step('volume, cube in three pyramids', g => { g.setMode('volume'); g.setSolid('cube'); g.setPyramids(true); }),
+            step('volume, sphere', g => g.setSolid('sphere')),
+            step('revolve, sphere', g => g.setMode('revolve')),
+            step('revolve, parabola about y, 4 discs', g => { g.setMode('revolve'); g.setSolid('parabola'); g.setAxis('y'); g.setDiscs(4); }),
+        ];
+    })()},
     {file: 'linear/__parity__/linear-map-basis.json', demonstration: 'linear-map', states: [
         state('basis default', {'linear-map-mode': 'basis'}),
         state('shear', {'linear-map-example': 'shear'}),

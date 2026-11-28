@@ -4,9 +4,11 @@ import {afterEach, beforeAll, beforeEach, expect, test, vi} from 'vitest';
 import type {LessonAction} from '../../learning/model';
 import {setLanguage, t} from '../../localization';
 import {GraphHost} from '../base/GraphHost';
-import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT} from '../base/realGraphTestHarness';
+import {installBoardShims, puckControl, REAL_GRAPH_TEST_TIMEOUT, waitForPucks} from '../base/realGraphTestHarness';
+import {runAs} from '../base/writes/writeSource';
 import {FakeSurfaceView} from '../patches/FakeSurfaceView';
 import SolidsGraph from './SolidsGraph';
+import {SOLIDS_PYRAMIDS_ACTION} from './solidsDeclaration';
 
 beforeAll(installBoardShims);
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
@@ -78,7 +80,7 @@ test('set-plane and set-offset equal the normal and offset controls', () => {
         apply(graph, setOffset(5));
     });
     expect(viaAction).toEqual(after(graph => {
-        act(() => { graph.setNormal(0, 1); graph.setNormal(1, 1); graph.setNormal(2, 1); graph.setOffset(5); });
+        act(() => runAs('learner', () => { graph.setNormal(0, 1); graph.setNormal(1, 1); graph.setNormal(2, 1); graph.setOffset(5); }));
     }));
     expect(viaAction.state).toEqual(expect.objectContaining({normal: [1, 1, 1], offset: 5}));
     expect(viaAction.readouts).toContain('sides=6');
@@ -98,19 +100,19 @@ test('set-shear, set-cursor, set-discs and set-axis equal their controls and cha
         apply(graph, setCursor(30));
         apply(graph, setDiscs(12));
     });
-    expect(viaAction).toEqual(after(graph => act(() => {
+    expect(viaAction).toEqual(after(graph => act(() => runAs('learner', () => {
         graph.setMode('stack');
         graph.setShear(6);
         graph.setCursor(30);
         graph.setDiscs(12);
-    })));
+    }))));
     expect(viaAction.state).toEqual(expect.objectContaining({mode: 'stack', solid: 'cube', shear: 6, cursor: 30, discs: 12}));
     const revolve = after(graph => {
         apply(graph, setMode('revolve'));
         apply(graph, setAxis('y'));
         apply(graph, setDiscs(7));
     });
-    expect(revolve).toEqual(after(graph => act(() => { graph.setMode('revolve'); graph.setAxis('y'); graph.setDiscs(7); })));
+    expect(revolve).toEqual(after(graph => act(() => runAs('learner', () => { graph.setMode('revolve'); graph.setAxis('y'); graph.setDiscs(7); }))));
     expect(revolve.state).toEqual(expect.objectContaining({mode: 'revolve', solid: 'cone', axis: 'y', discs: 7}));
     expect(after(graph => apply(graph, setShear(-12))).state).toEqual(expect.objectContaining({shear: -12, mode: 'section', solid: 'cube'}));
 });
@@ -145,14 +147,14 @@ test('a stack and volume scene runs synchronously; the checkpoint restores the f
     expect(graph.state).toEqual(expect.objectContaining({mode: 'volume', solid: 'square-prism', shear: 6, cursor: 30, discs: 10}));
     const here = {state: stateOf(graph), readouts: readouts()};
     cleanup();
-    expect(after(graph => act(() => {
+    expect(after(graph => act(() => runAs('learner', () => {
         graph.setMode('stack');
         graph.setSolid('square-prism');
         graph.setShear(6);
         graph.setCursor(30);
         graph.setMode('volume');
         graph.setDiscs(10);
-    }))).toEqual(here);
+    })))).toEqual(here);
     const again = mount();
     const again0 = stateOf(again);
     expect(again0).toEqual(free);
@@ -164,15 +166,18 @@ test('a stack and volume scene runs synchronously; the checkpoint restores the f
     expect(stateOf(again)).toEqual(free);
 });
 
-test('set-pyramids equals the switch, is refused off the cube in volume mode, and the checkpoint restores the free state', () => {
+test('set-pyramids equals the Tri piramide puck, is refused off the cube in volume mode, and the checkpoint restores the free state', async () => {
     const viaAction = after(graph => {
         apply(graph, setMode('volume'));
         apply(graph, setPyramids(true));
     });
-    expect(viaAction).toEqual(after(graph => {
-        act(() => { graph.setMode('volume'); });
-        fireEvent.click(screen.getByLabelText(t('solids_graph_pyramids')));
-    }));
+    const viaPuck = mount();
+    act(() => { viaPuck.setMode('volume'); });
+    await waitForPucks(SOLIDS_PYRAMIDS_ACTION);
+    expect(document.querySelector(`[data-puck-key="${SOLIDS_PYRAMIDS_ACTION}"]`)?.textContent).toContain(t('solids_decl_pyramids_name'));
+    act(() => { fireEvent.click(puckControl(SOLIDS_PYRAMIDS_ACTION)); });
+    expect(viaAction).toEqual({state: stateOf(viaPuck), readouts: readouts()});
+    cleanup();
     expect(viaAction.state).toEqual(expect.objectContaining({mode: 'volume', solid: 'cube', pyramids: true}));
     expect(viaAction.readouts).toContain('pyramid-0=0,33333');
     expect(viaAction.readouts).toContain('pyramids-sum=1');
@@ -236,7 +241,7 @@ test('a scene runs its actions in one synchronous sequence, each reading what th
     expect(readouts()).toContain('sides=4');
     const here = {state: stateOf(graph), readouts: readouts()};
     cleanup();
-    const viaControl = after(graph => act(() => {
+    const viaControl = after(graph => act(() => runAs('learner', () => {
         graph.setSolid('square-pyramid');
         graph.setNormal(2, 1);
         graph.setOffset(-4);
@@ -244,7 +249,7 @@ test('a scene runs its actions in one synchronous sequence, each reading what th
         graph.setMode('section');
         graph.setOffset(0);
         graph.applyCameraPreset('front');
-    }));
+    })));
     expect(viaControl).toEqual(here);
     expect(here.state).not.toEqual(free);
 });

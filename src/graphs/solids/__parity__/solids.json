@@ -1,0 +1,481 @@
+{
+  "graph": "solids",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Presek#0",
+          "label": "Presek",
+          "value": "mnogokotnik"
+        },
+        {
+          "key": "Število stranic preseka#0",
+          "label": "Število stranic preseka",
+          "value": "4"
+        },
+        {
+          "key": "Ploščina preseka#0",
+          "label": "Ploščina preseka",
+          "value": "1"
+        },
+        {
+          "key": "Presečišče 1#0",
+          "label": "Presečišče 1",
+          "value": "na robu med ogliščema 4 in 8"
+        },
+        {
+          "key": "Presečišče 2#0",
+          "label": "Presečišče 2",
+          "value": "na robu med ogliščema 3 in 7"
+        },
+        {
+          "key": "Presečišče 3#0",
+          "label": "Presečišče 3",
+          "value": "na robu med ogliščema 1 in 5"
+        },
+        {
+          "key": "Presečišče 4#0",
+          "label": "Presečišče 4",
+          "value": "na robu med ogliščema 2 in 6"
+        },
+        {
+          "key": "Prostornina spodnjega dela (mreža)#0",
+          "label": "Prostornina spodnjega dela (mreža)",
+          "value": "0,5"
+        },
+        {
+          "key": "Prostornina telesa (mreža)#0",
+          "label": "Prostornina telesa (mreža)",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Dolžine so v enotah koordinatne mreže, ploščine v kvadratnih in prostornine v kubičnih enotah.",
+        "Telo ima ravne ploskve, zato je prostornina mreže natančna."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "section, offset 1",
+      "rows": [
+        {
+          "key": "Presek#0",
+          "label": "Presek",
+          "value": "mnogokotnik"
+        },
+        {
+          "key": "Število stranic preseka#0",
+          "label": "Število stranic preseka",
+          "value": "4"
+        },
+        {
+          "key": "Ploščina preseka#0",
+          "label": "Ploščina preseka",
+          "value": "1"
+        },
+        {
+          "key": "Presečišče 1#0",
+          "label": "Presečišče 1",
+          "value": "v oglišču 5"
+        },
+        {
+          "key": "Presečišče 2#0",
+          "label": "Presečišče 2",
+          "value": "v oglišču 6"
+        },
+        {
+          "key": "Presečišče 3#0",
+          "label": "Presečišče 3",
+          "value": "v oglišču 8"
+        },
+        {
+          "key": "Presečišče 4#0",
+          "label": "Presečišče 4",
+          "value": "v oglišču 7"
+        },
+        {
+          "key": "Prostornina spodnjega dela (mreža)#0",
+          "label": "Prostornina spodnjega dela (mreža)",
+          "value": "1"
+        },
+        {
+          "key": "Prostornina telesa (mreža)#0",
+          "label": "Prostornina telesa (mreža)",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Dolžine so v enotah koordinatne mreže, ploščine v kvadratnih in prostornine v kubičnih enotah.",
+        "Ravnina leži v ploskvi telesa.",
+        "Telo ima ravne ploskve, zato je prostornina mreže natančna."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "section, normal (1,1,1), offset 1,5 (hexagon)",
+      "rows": [
+        {
+          "key": "Presek#0",
+          "label": "Presek",
+          "value": "mnogokotnik"
+        },
+        {
+          "key": "Število stranic preseka#0",
+          "label": "Število stranic preseka",
+          "value": "6"
+        },
+        {
+          "key": "Ploščina preseka#0",
+          "label": "Ploščina preseka",
+          "value": "1,29904"
+        },
+        {
+          "key": "Presečišče 1#0",
+          "label": "Presečišče 1",
+          "value": "na robu med ogliščema 3 in 7"
+        },
+        {
+          "key": "Presečišče 2#0",
+          "label": "Presečišče 2",
+          "value": "na robu med ogliščema 5 in 7"
+        },
+        {
+          "key": "Presečišče 3#0",
+          "label": "Presečišče 3",
+          "value": "na robu med ogliščema 5 in 6"
+        },
+        {
+          "key": "Presečišče 4#0",
+          "label": "Presečišče 4",
+          "value": "na robu med ogliščema 2 in 6"
+        },
+        {
+          "key": "Presečišče 5#0",
+          "label": "Presečišče 5",
+          "value": "na robu med ogliščema 2 in 4"
+        },
+        {
+          "key": "Presečišče 6#0",
+          "label": "Presečišče 6",
+          "value": "na robu med ogliščema 3 in 4"
+        },
+        {
+          "key": "Prostornina spodnjega dela (mreža)#0",
+          "label": "Prostornina spodnjega dela (mreža)",
+          "value": "0,5"
+        },
+        {
+          "key": "Prostornina telesa (mreža)#0",
+          "label": "Prostornina telesa (mreža)",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Dolžine so v enotah koordinatne mreže, ploščine v kvadratnih in prostornine v kubičnih enotah.",
+        "Telo ima ravne ploskve, zato je prostornina mreže natančna."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "section, pyramid through the apex",
+      "rows": [
+        {
+          "key": "Presek#0",
+          "label": "Presek",
+          "value": "mnogokotnik"
+        },
+        {
+          "key": "Število stranic preseka#0",
+          "label": "Število stranic preseka",
+          "value": "3"
+        },
+        {
+          "key": "Ploščina preseka#0",
+          "label": "Ploščina preseka",
+          "value": "8"
+        },
+        {
+          "key": "Presečišče 1#0",
+          "label": "Presečišče 1",
+          "value": "v oglišču 5"
+        },
+        {
+          "key": "Presečišče 2#0",
+          "label": "Presečišče 2",
+          "value": "na robu med ogliščema 1 in 2"
+        },
+        {
+          "key": "Presečišče 3#0",
+          "label": "Presečišče 3",
+          "value": "na robu med ogliščema 3 in 4"
+        },
+        {
+          "key": "Prostornina spodnjega dela (mreža)#0",
+          "label": "Prostornina spodnjega dela (mreža)",
+          "value": "10,66667"
+        },
+        {
+          "key": "Prostornina telesa (mreža)#0",
+          "label": "Prostornina telesa (mreža)",
+          "value": "21,33333"
+        }
+      ],
+      "notes": [
+        "Dolžine so v enotah koordinatne mreže, ploščine v kvadratnih in prostornine v kubičnih enotah.",
+        "Telo ima ravne ploskve, zato je prostornina mreže natančna."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "section, plane misses the solid",
+      "rows": [
+        {
+          "key": "Presek#0",
+          "label": "Presek",
+          "value": "prazen (ravnina telesa ne seka)"
+        },
+        {
+          "key": "Število stranic preseka#0",
+          "label": "Število stranic preseka",
+          "value": "0"
+        },
+        {
+          "key": "Ploščina preseka#0",
+          "label": "Ploščina preseka",
+          "value": "—"
+        },
+        {
+          "key": "Prostornina spodnjega dela (mreža)#0",
+          "label": "Prostornina spodnjega dela (mreža)",
+          "value": "21,33333"
+        },
+        {
+          "key": "Prostornina telesa (mreža)#0",
+          "label": "Prostornina telesa (mreža)",
+          "value": "21,33333"
+        }
+      ],
+      "notes": [
+        "Dolžine so v enotah koordinatne mreže, ploščine v kvadratnih in prostornine v kubičnih enotah.",
+        "Telo ima ravne ploskve, zato je prostornina mreže natančna."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "stack, prism sheared, cursor 25 %, 12 slabs",
+      "rows": [
+        {
+          "key": "Prostornina: ravno telo (mreža)#0",
+          "label": "Prostornina: ravno telo (mreža)",
+          "value": "12"
+        },
+        {
+          "key": "Prostornina: ravno telo (natančno)#0",
+          "label": "Prostornina: ravno telo (natančno)",
+          "value": "12"
+        },
+        {
+          "key": "Prostornina: poševno telo (mreža)#0",
+          "label": "Prostornina: poševno telo (mreža)",
+          "value": "12"
+        },
+        {
+          "key": "Prostornina: poševno telo (natančno)#0",
+          "label": "Prostornina: poševno telo (natančno)",
+          "value": "12"
+        },
+        {
+          "key": "Višina rezin#0",
+          "label": "Višina rezin",
+          "value": "-0,75"
+        },
+        {
+          "key": "Ploščina rezine: ravno telo#0",
+          "label": "Ploščina rezine: ravno telo",
+          "value": "4"
+        },
+        {
+          "key": "Ploščina rezine: poševno telo#0",
+          "label": "Ploščina rezine: poševno telo",
+          "value": "4"
+        }
+      ],
+      "notes": [
+        "Dolžine so v enotah koordinatne mreže, ploščine v kvadratnih in prostornine v kubičnih enotah.",
+        "Strižba vsako rezino le premakne vstran, zato je ploščina rezin na vsaki višini enaka in prostornini sta enaki.",
+        "Primerjava na eni višini je le ponazoritev; pravilo zahteva enako ploščino rezin na vsaki višini."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "stack, cone and cylinder",
+      "rows": [
+        {
+          "key": "Prostornina: stožec (mreža)#0",
+          "label": "Prostornina: stožec (mreža)",
+          "value": "37,59154"
+        },
+        {
+          "key": "Prostornina: stožec (natančno)#0",
+          "label": "Prostornina: stožec (natančno)",
+          "value": "37,69911"
+        },
+        {
+          "key": "Prostornina: valj (mreža)#0",
+          "label": "Prostornina: valj (mreža)",
+          "value": "112,77463"
+        },
+        {
+          "key": "Prostornina: valj (natančno)#0",
+          "label": "Prostornina: valj (natančno)",
+          "value": "113,09734"
+        },
+        {
+          "key": "Višina rezin#0",
+          "label": "Višina rezin",
+          "value": "1"
+        },
+        {
+          "key": "Ploščina rezine: stožec#0",
+          "label": "Ploščina rezine: stožec",
+          "value": "15,85893"
+        },
+        {
+          "key": "Ploščina rezine: valj#0",
+          "label": "Ploščina rezine: valj",
+          "value": "28,19366"
+        }
+      ],
+      "notes": [
+        "Dolžine so v enotah koordinatne mreže, ploščine v kvadratnih in prostornine v kubičnih enotah.",
+        "Ploščini rezin se razlikujeta: Cavalierijevo pravilo zahteva enaki ploščini na vsaki višini, zato iz tega pri prostorninah ne sledi nič.",
+        "Primerjava na eni višini je le ponazoritev; pravilo zahteva enako ploščino rezin na vsaki višini.",
+        "Mreža ima včrtan 48-kotnik namesto kroga, zato je njena prostornina nekoliko manjša od natančne."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "volume, cube in three pyramids",
+      "rows": [
+        {
+          "key": "Piramida 1: prostornina mreže#0",
+          "label": "Piramida 1: prostornina mreže",
+          "value": "0,33333"
+        },
+        {
+          "key": "Piramida 2: prostornina mreže#0",
+          "label": "Piramida 2: prostornina mreže",
+          "value": "0,33333"
+        },
+        {
+          "key": "Piramida 3: prostornina mreže#0",
+          "label": "Piramida 3: prostornina mreže",
+          "value": "0,33333"
+        },
+        {
+          "key": "Vsota prostornin treh piramid#0",
+          "label": "Vsota prostornin treh piramid",
+          "value": "1"
+        }
+      ],
+      "notes": [
+        "Dolžine so v enotah koordinatne mreže, ploščine v kvadratnih in prostornine v kubičnih enotah.",
+        "Vsaka piramida ima za osnovo ploskev kocke in višino 1, zato je njena prostornina B·h/3 = 1/3; vse tri skupaj dajo kocko."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "volume, sphere",
+      "rows": [
+        {
+          "key": "Prostornina (mreža)#0",
+          "label": "Prostornina (mreža)",
+          "value": "110,27559"
+        },
+        {
+          "key": "Prostornina (natančno)#0",
+          "label": "Prostornina (natančno)",
+          "value": "113,09734"
+        }
+      ],
+      "notes": [
+        "Dolžine so v enotah koordinatne mreže, ploščine v kvadratnih in prostornine v kubičnih enotah.",
+        "Mreža je mnogokotniška ocena: prerezi so 48-kotniki, ukrivljen profil pa je nadomeščen s tetivami, zato je prostornina mreže lahko nekoliko večja ali manjša od natančne."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "revolve, sphere",
+      "rows": [
+        {
+          "key": "Os vrtenja#0",
+          "label": "Os vrtenja",
+          "value": "os x"
+        },
+        {
+          "key": "Prostornina (mreža)#0",
+          "label": "Prostornina (mreža)",
+          "value": "110,27559"
+        },
+        {
+          "key": "Prostornina (natančno)#0",
+          "label": "Prostornina (natančno)",
+          "value": "113,09734"
+        },
+        {
+          "key": "Vsota diskov (12)#0",
+          "label": "Vsota diskov (12)",
+          "value": "113,49003"
+        }
+      ],
+      "notes": [
+        "Dolžine so v enotah koordinatne mreže, ploščine v kvadratnih in prostornine v kubičnih enotah.",
+        "Mreža je mnogokotniška ocena: prerezi so 48-kotniki, ukrivljen profil pa je nadomeščen s tetivami, zato je prostornina mreže lahko nekoliko večja ali manjša od natančne."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "revolve, parabola about y, 4 discs",
+      "rows": [
+        {
+          "key": "Os vrtenja#0",
+          "label": "Os vrtenja",
+          "value": "os y"
+        },
+        {
+          "key": "Prostornina (mreža)#0",
+          "label": "Prostornina (mreža)",
+          "value": "1,57869"
+        },
+        {
+          "key": "Prostornina (natančno)#0",
+          "label": "Prostornina (natančno)",
+          "value": "1,5708"
+        },
+        {
+          "key": "Vsota obročev (4)#0",
+          "label": "Vsota obročev (4)",
+          "value": "1,5708"
+        }
+      ],
+      "notes": [
+        "Dolžine so v enotah koordinatne mreže, ploščine v kvadratnih in prostornine v kubičnih enotah.",
+        "Mreža je mnogokotniška ocena: prerezi so 48-kotniki, ukrivljen profil pa je nadomeščen s tetivami, zato je prostornina mreže lahko nekoliko večja ali manjša od natančne."
+      ],
+      "outputs": [],
+      "captions": []
+    }
+  ]
+}
