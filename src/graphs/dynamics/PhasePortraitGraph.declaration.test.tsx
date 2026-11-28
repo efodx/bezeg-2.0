@@ -140,4 +140,16 @@ describe('Phase portrait declaration', () => {
         const choices = Object.fromEntries(declaration().parameters!.filter(parameter => parameter.kind === 'choice').map(parameter => [parameter.key, parameter.kind === 'choice' ? parameter.options.map(option => option.value) : []]));
         expect(choices).toEqual({'phase-system': ['linear', 'pendulum', 'weak-spiral'], 'phase-equilibrium': ['0', '1']});
     });
+
+    test('every matrix entry puck carries a help card in both languages', () => {
+        const {declaration} = setup();
+        const entries = declaration().parameters!.filter(parameter => ['phase-a', 'phase-b', 'phase-c', 'phase-d'].includes(parameter.key));
+        expect(entries).toHaveLength(4);
+        for (const entry of entries) {
+            expect(entry.help, entry.key).toBeDefined();
+            expect(renderMessage(entry.help!)).toContain('matrike A');
+        }
+        setLanguage('en');
+        expect(renderMessage(entries[0].help!)).toContain('matrix A');
+    });
 });
