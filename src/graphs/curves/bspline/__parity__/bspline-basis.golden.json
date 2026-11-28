@@ -15,11 +15,7 @@
       "captions": [
         "0 (×3)",
         "1",
-        "2 (×3)",
-        "N0,2 = 0,25 N1,2 = 0,625 N2,2 = 0,125",
-        "definicijsko območje [0, 2]",
-        "t = 0,5: neničelne bazne funkcije stopnje 2",
-        "vsota = 1"
+        "2 (×3)"
       ]
     },
     {
@@ -35,11 +31,7 @@
       "captions": [
         "0 (×2)",
         "1",
-        "2 (×2)",
-        "N1,1 = 1 N2,1 = 0",
-        "definicijsko območje [0, 2]",
-        "t = 1: neničelne bazne funkcije stopnje 1",
-        "vsota = 1"
+        "2 (×2)"
       ]
     },
     {
@@ -55,11 +47,7 @@
       "captions": [
         "0 (×3)",
         "1",
-        "2 (×3)",
-        "N1,2 = 0,125 N2,2 = 0,625 N3,2 = 0,25",
-        "definicijsko območje [0, 2]",
-        "t = 1,5: neničelne bazne funkcije stopnje 2",
-        "vsota = 1"
+        "2 (×3)"
       ]
     },
     {
@@ -77,11 +65,7 @@
         "1",
         "2",
         "3,5",
-        "4 (×3)",
-        "N2,2 = 0,2667 N3,2 = 0,65 N4,2 = 0,0833",
-        "definicijsko območje [0, 4]",
-        "t = 2,5: neničelne bazne funkcije stopnje 2",
-        "vsota = 1"
+        "4 (×3)"
       ]
     },
     {
@@ -96,11 +80,7 @@
       "outputs": [],
       "captions": [
         "0 (×3)",
-        "1 (×3)",
-        "N0,2 = 0,25 N1,2 = 0,5 N2,2 = 0,25",
-        "definicijsko območje [0, 1]",
-        "t = 0,5: neničelne bazne funkcije stopnje 2",
-        "vsota = 1"
+        "1 (×3)"
       ]
     }
   ]
