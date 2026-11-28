@@ -1,19 +1,21 @@
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions, LABEL_STYLE, COMPACT_BOARD_WIDTH} from "./BaseFunctionGraph";
+import BaseFunctionGraph, {BoundingBox, DomainError, FillCurve, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import {FunctionStatus} from "./FunctionStatus";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {CountSetter} from "../../inputs/CountSetter";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {PointListInput} from "../../inputs/PointListInput";
 import {guard} from "../base/controls/guard";
-import {currentLanguage, renderMessage, t} from "../../localization";
+import {currentLanguage, message, renderMessage, t} from "../../localization";
 import {formatLineEquation, NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import {CORRELATION_MIN_POINTS} from "../../analysis/correlation";
 import {
     addCorrelationPoint, chooseCorrelationExample, CORRELATION_COORDINATE_LIMIT, CORRELATION_EXAMPLE_IDS, CORRELATION_POINTS_MAX,
-    CORRELATION_POINTS_MIN, correlationExampleOf, CorrelationEdit, CorrelationModel, CorrelationPoint, correlationView, CorrelationView,
+    CORRELATION_POINTS_MIN, correlationExampleOf, CorrelationEdit, CorrelationModel, correlationView, CorrelationView,
     DEFAULT_CORRELATION_MODEL, fitCorrelationView, isCorrelationExampleId, moveCorrelationPoint, removeCorrelationPoint,
     setCorrelationResiduals, setCorrelationXOnY,
 } from "../../analysis/correlationModel";
@@ -24,108 +26,18 @@ import {functionPresetCollections} from "./functionPresetCollections";
 
 type ViewLine = readonly [number, number, number, number];
 
-export interface LineLabelPlacement {
-    x: number;
-    y: number;
-    anchorX: "left" | "right";
-    anchorY: "top" | "bottom";
-    /** Set when no position was clear on a board that asked for hiding (`LineLabelView.hideWhenBlocked`). */
-    hidden?: true;
-}
-
-/** The gap kept between a line label and the view's right edge. */
-const LINE_LABEL_MARGIN_PX = 12;
-/** The gap kept between a line label and the edge of a point marker. */
-const LINE_LABEL_POINT_GAP_PX = 3;
-
-/** The room the y-axis and x-axis tick labels take beside their axis, which a line label keeps off. */
-const TICK_STRIP_WIDTH_PX = 30;
-const TICK_STRIP_HEIGHT_PX = 20;
-/** The corner the caption covers: up to this wide and this many label-font lines tall. */
-const CAPTION_AVOID_MAX_PX = 360;
-const CAPTION_AVOID_LINES = 3.6;
-/** The caption's shrink rule in `BaseFunctionGraph.caption` (11 px floor, full size from 700 px), which a line label follows. */
-const CAPTION_FLOOR_FONT = 11;
-const CAPTION_FULL_BOARD_WIDTH = 700;
-
-/** Where a label may sit along its line, as a share of the line's width from the left, in the order they are tried. */
-const LINE_LABEL_ALONG = [0.85, 0.75, 0.65, 0.55, 0.45];
-
-/** The board a line label has to fit on, in user units: the view, the label's size, and the points it keeps clear of. */
-export interface LineLabelView {
-    left: number;
-    right: number;
-    top: number;
-    bottom: number;
-    width: number;
-    height: number;
-    /** The distance kept between the label and a point's centre. */
-    clearX: number;
-    clearY: number;
-    points: readonly CorrelationPoint[];
-    /** Rectangles `[left, bottom, right, top]` the label keeps off (the caption corner and the strips the axis tick labels occupy). */
-    avoid?: readonly (readonly [number, number, number, number])[];
-    /** On a narrow board, a label with no clear position is hidden (`hidden`) instead of drawn over a line, tick or point. */
-    hideWhenBlocked?: boolean;
-}
-
-function yOnLine([xa, ya, xb, yb]: ViewLine, x: number): number {
-    return xb === xa ? ya : ya + (x - xa) / (xb - xa) * (yb - ya);
-}
-
-function placeAlong(along: number, ordered: ViewLine, other: ViewLine | undefined, wins: boolean, view: LineLabelView): LineLabelPlacement {
-    const [xa, ya, xb, yb] = ordered;
-    const x = xa + along * (xb - xa);
-    const rising = yb >= ya;
-    let above = rising;
-    if (other) {
-        const here = yOnLine(ordered, x), there = yOnLine(other, x);
-        above = here === there ? wins : here > there;
-    }
-    const anchorY = above ? "bottom" : "top";
-    if (above === rising) return {x, y: yOnLine(ordered, x), anchorX: "right", anchorY};
-    const moved = Math.max(xa, Math.min(x, view.right - view.width));
-    return {x: moved, y: yOnLine(ordered, moved), anchorX: "left", anchorY};
-}
-
-/** Whether the line passes through the open box, so that a label sitting on one side of its line does not count as crossing it. */
-function lineCrossesBox(line: ViewLine, left: number, bottom: number, right: number, top: number): boolean {
-    const slack = (top - bottom) * 0.1;
-    for (let i = 0; i <= 8; i++) {
-        const y = yOnLine(line, left + (right - left) * i / 8);
-        if (y > bottom + slack && y < top - slack) return true;
-    }
-    return false;
-}
-
-function labelIsClear({x, y, anchorX, anchorY}: LineLabelPlacement, view: LineLabelView, lines: readonly ViewLine[]): boolean {
-    const left = anchorX === "right" ? x - view.width : x;
-    const bottom = anchorY === "bottom" ? y : y - view.height;
-    const right = left + view.width, top = bottom + view.height;
-    if (left < view.left || right > view.right || bottom < view.bottom || top > view.top) return false;
-    if (view.points.some(([px, py]) => px > left - view.clearX && px < right + view.clearX
-        && py > bottom - view.clearY && py < top + view.clearY)) return false;
-    if (view.avoid?.some(([al, ab, ar, at]) => left < ar && right > al && bottom < at && top > ab)) return false;
-    return !lines.some(line => lineCrossesBox(line, left, bottom, right, top));
-}
+/** The follow box is at least this many times the width of the must marks (the director zooms out at most 2.2 times; the strip between the cards is about a third of a small board). */
+const CORRELATION_FOLLOW_SPREAD = 1.5;
 
 /**
- * Where a line's label goes: near the line's right end, on the side no line runs through. With two lines that is outside the
- * wedge they open (the upper line's label above it, the lower line's below it, `wins` deciding when they coincide); alone, the
- * side where a right-anchored label clears its line. Text that has to run to the right of its point moves back along the line
- * by its `width`, so it stays in view. A label that would leave the view or cover a point steps back along the line; if no
- * position is clear (inside the view, off the points, the tick strips and both lines) it keeps the first one, or on a narrow board
- * is hidden: the legend and inspector name the line. It stops before the left part of the board, which holds the caption.
+ * The ids of the correlation declaration: the residuals and the line of x on y are switch pucks (actions); no number with a
+ * range exists (the points are a multi-value list that stays in Orodja); the legend names every kind of drawn object.
  */
-export function lineLabelPlacement(line: ViewLine, other: ViewLine | undefined, wins: boolean, view: LineLabelView): LineLabelPlacement {
-    const ordered: ViewLine = line[0] <= line[2] ? line : [line[2], line[3], line[0], line[1]];
-    const placements = LINE_LABEL_ALONG.map(along => placeAlong(along, ordered, other, wins, view));
-    const lines = other ? [ordered, other] : [ordered];
-    const clear = placements.find(placement => labelIsClear(placement, view, lines));
-    if (clear) return clear;
-    return view.hideWhenBlocked ? {...placements[0], hidden: true} : placements[0];
-}
-
+export type CorrelationIds = {
+    param: never;
+    row: "n" | "r" | "r2" | "slope" | "intercept" | "equation" | "ssres" | "identity" | "xony";
+    note: "correlation"; legend: "points" | "line-y" | "line-x" | "residual"; section: never; action: "residuals" | "x-on-y";
+};
 
 /**
  * Correlation and the regression line (lesson P5): up to 20 draggable points, the y-on-x regression line, vertical residual
@@ -133,8 +45,8 @@ export function lineLabelPlacement(line: ViewLine, other: ViewLine | undefined, 
  * lines and the residual segments all come from that model's view, nothing is derived here.
  *
  * Board objects (owned; the count does not depend on n except the point pool of CORRELATION_POINTS_MAX): the residual segments
- * (one dashed curve), the y-on-x line (solid curve), the x-on-y line (dashed curve in the comparison colour) with a text label
- * on each line, and the draggable points. A drag commits through `moveCorrelationPoint`, which snaps to tenths and refuses a
+ * (one dashed curve), the y-on-x line (solid curve), the x-on-y line (dashed curve in the comparison colour); the legend
+ * names the lines, so the board writes no label; and the draggable points. A drag commits through `moveCorrelationPoint`, which snaps to tenths and refuses a
  * value outside +-CORRELATION_COORDINATE_LIMIT; a drag stops at that limit without a message.
  *
  * Keyboard: the typed point list in the inspector (as in least squares) is the keyboard path.
@@ -145,6 +57,8 @@ export function lineLabelPlacement(line: ViewLine, other: ViewLine | undefined, 
  */
 export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
     protected pointObjects: JXG.Point[] = [];
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     override presetCollection() {
         return functionPresetCollections["prob-correlation"];
@@ -165,12 +79,6 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
 
     protected override exampleView() {
         return {key: JSON.stringify(this.model.points), box: [...fitCorrelationView(this.model.points)] as BoundingBox};
-    }
-
-    /** A line label is 0.9 of the setting, shrinks with the board as the caption does and is never larger than the caption. */
-    private lineLabelFontSize(): number {
-        const caption = Math.max(CAPTION_FLOOR_FONT, this.displaySettings.fontSize * Math.min(1, this.boardWidth() / CAPTION_FULL_BOARD_WIDTH));
-        return Math.min(caption, Math.max(10, this.displaySettings.fontSize * 0.9));
     }
 
     private viewOf(model: CorrelationModel): CorrelationView {
@@ -308,6 +216,7 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
             strokeColor: GraphPalette.warningText, strokeWidth: residualWidth, dash: 0, fillOpacity: 0, highlight: false, fixed: true,
             visible: () => model().residuals && view().yOnXLine !== undefined,
         })) as unknown as FillCurve;
+        this.drawn.set("residual", residuals as unknown as JXG.GeometryElement);
         residuals.updateDataArray = () => {
             const xs: number[] = [];
             const ys: number[] = [];
@@ -319,54 +228,23 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
             residuals.dataY = ys;
         };
 
-        // The two lines, each a two-point curve across the view, with a label near its right end.
+        // The two lines, each a two-point curve across the view; the legend names them, the board writes no label.
         const yOnX = () => view().yOnXLine;
         const xOnY = () => model().xOnY ? view().xOnYLine : undefined;
-        const line = (pick: () => ViewLine | undefined, other: () => ViewLine | undefined, wins: boolean, color: string, dash: number, label: () => string) => {
+        const line = (id: "line-y" | "line-x", pick: () => ViewLine | undefined, color: string, dash: number) => {
             const curve = this.own(board.create("curve", [[], []], {
                 strokeColor: color, strokeWidth: this.displayStrokeWidth, dash, fillOpacity: 0, highlight: false, fixed: true,
                 visible: () => pick() !== undefined,
             })) as unknown as FillCurve;
+            this.drawn.set(id, curve as unknown as JXG.GeometryElement);
             curve.updateDataArray = () => {
                 const l = pick();
                 curve.dataX = l ? [l[0], l[2]] : [];
                 curve.dataY = l ? [l[1], l[3]] : [];
             };
-            // Filled once the text exists: JSXGraph reads the placement while creating it.
-            const drawn: {text?: {size?: number[]}} = {};
-            const placement = (): LineLabelPlacement | undefined => {
-                const l = pick();
-                if (!l) return undefined;
-                const [left, top, right, bottom] = board.getBoundingBox();
-                const tickStrips = (l0: number, t0: number, r0: number, b0: number) => {
-                    const yAxis = Math.max(l0, Math.min(0, r0)), xAxis = Math.max(b0, Math.min(0, t0));
-                    const captionWidth = Math.min(0.55 * board.canvasWidth, CAPTION_AVOID_MAX_PX) / board.unitX;
-                    const captionHeight = CAPTION_AVOID_LINES * this.lineLabelFontSize() / board.unitY;
-                    return [
-                        [l0, t0 - captionHeight, l0 + captionWidth, t0],
-                        [yAxis - TICK_STRIP_WIDTH_PX / board.unitX, b0, yAxis + 2 / board.unitX, t0],
-                        [l0, xAxis - TICK_STRIP_HEIGHT_PX / board.unitY, r0, xAxis + 2 / board.unitY],
-                    ] as const;
-                };
-                const clearPx = Math.max(4, this.displaySettings.pointSize) + LINE_LABEL_POINT_GAP_PX;
-                return lineLabelPlacement(l, other(), wins, {
-                    left, top, right, bottom,
-                    width: ((drawn.text?.size?.[0] ?? 0) + LINE_LABEL_MARGIN_PX) / board.unitX,
-                    height: (drawn.text?.size?.[1] ?? 0) / board.unitY,
-                    clearX: clearPx / board.unitX, clearY: clearPx / board.unitY,
-                    points: model().points,
-                    avoid: tickStrips(left, top, right, bottom),
-                    hideWhenBlocked: board.canvasWidth < COMPACT_BOARD_WIDTH,
-                });
-            };
-            drawn.text = this.own(board.create("text", [() => placement()?.x ?? 0, () => placement()?.y ?? 0, label], {
-                anchorX: () => placement()?.anchorX ?? "right", anchorY: () => placement()?.anchorY ?? "bottom",
-                fixed: true, highlight: false, parse: false, strokeColor: color, fontSize: () => this.lineLabelFontSize(),
-                cssStyle: LABEL_STYLE, highlightCssStyle: LABEL_STYLE, visible: () => pick() !== undefined && !placement()?.hidden,
-            })) as unknown as {size?: number[]};
         };
-        line(yOnX, xOnY, true, GraphPalette.primaryCurve, 0, () => t("prob_correlation_board_line_y"));
-        line(xOnY, yOnX, false, GraphPalette.comparisonCurve, 3, () => t("prob_correlation_board_line_x"));
+        line("line-y", yOnX, GraphPalette.primaryCurve, 0);
+        line("line-x", xOnY, GraphPalette.comparisonCurve, 3);
 
         // The draggable points.
         this.pointObjects = [];
@@ -382,23 +260,14 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
                 if (j >= model().points.length) return;
                 this.dragPoint(j, point.X(), point.Y());
             });
+            if (j === 0) this.drawn.set("points", point as unknown as JXG.GeometryElement);
             this.pointObjects.push(point);
         }
-
-        this.caption("top-left", [
-            {text: () => t("prob_correlation_board_title", {value0: model().points.length}), scale: 1.2},
-            {
-                text: () => {
-                    const r = view().result.r;
-                    return r === undefined ? t("prob_correlation_board_r_undefined") : t("prob_correlation_board_r", {value0: correlationNumber(r, currentLanguage(), 5)});
-                },
-                color: GraphPalette.primaryCurve,
-            },
-        ]);
     }
 
     protected override onSceneRemoved(): void {
         this.pointObjects = [];
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -431,13 +300,13 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
                     value0: CORRELATION_COORDINATE_LIMIT, value1: CORRELATION_POINTS_MIN, value2: CORRELATION_POINTS_MAX,
                 })}</p>
             </div>
-            <div className="inspector-group">
-                <OnOffSwitch checked={state.residuals} label={t("prob_correlation_residuals_label")}
-                             onChange={next => this.guarded(() => this.setResiduals(next))}/>
-                <OnOffSwitch checked={state.xOnY} label={t("prob_correlation_xony_label")} describedBy="prob-correlation-xony-help"
+            <PuckOwnedGroup params={["residuals", "x-on-y"]} className="inspector-group">
+                <PuckOwned param="residuals"><OnOffSwitch checked={state.residuals} label={t("prob_correlation_residuals_label")}
+                             onChange={next => this.guarded(() => this.setResiduals(next))}/></PuckOwned>
+                <PuckOwned param="x-on-y"><OnOffSwitch checked={state.xOnY} label={t("prob_correlation_xony_label")} describedBy="prob-correlation-xony-help"
                              onChange={next => this.guarded(() => this.setXOnY(next))}/>
-                <p id="prob-correlation-xony-help" className="inspector-help">{t("prob_correlation_xony_help")}</p>
-            </div>
+                <p id="prob-correlation-xony-help" className="inspector-help">{t("prob_correlation_xony_help")}</p></PuckOwned>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <ChoiceSelect label={t("prob_correlation_example_label")} value={example ?? "custom"} help={t("prob_correlation_example_help")}
                               options={options} onChange={next => { if (isCorrelationExampleId(next)) this.guarded(() => this.setExample(next)); }}/>
@@ -445,50 +314,116 @@ export class CorrelationGraph extends BaseFunctionGraph<CorrelationModel> {
         </>;
     }
 
-    protected renderReadout(): React.ReactNode {
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /**
+     * What the learner watches and no card may cover: every point and the ends of the regression line (and of the line of x on
+     * y while shown). A line end is kept inside the fitted view, so a near-vertical line does not stretch the marks.
+     */
+    private correlationMust(model: CorrelationModel): {x: number; y: number}[] {
+        const [left, top, right, bottom] = fitCorrelationView(model.points);
+        const view = this.viewOf(model);
+        const inX = (x: number) => Math.max(left, Math.min(right, x));
+        const inY = (y: number) => Math.max(bottom, Math.min(top, y));
+        const must: {x: number; y: number}[] = model.points.map(([x, y]) => ({x, y}));
+        const lines = [view.yOnXLine, model.xOnY ? view.xOnYLine : undefined];
+        for (const line of lines) if (line) must.push({x: inX(line[0]), y: inY(line[1])}, {x: inX(line[2]), y: inY(line[3])});
+        return must;
+    }
+
+    /**
+     * The fitted view, widened about its centre. The director maps the follow box into the strip between the cards by shrinking
+     * at most 2.2 times (`DEFAULT_MAX_OUT`) whatever the box's width, so a box that only just covers the data leaves the far
+     * points under a card; the box must be wide enough that the data fit that strip.
+     */
+    private followBox(): BoundingBox {
+        const [left, top, right, bottom] = fitCorrelationView(this.model.points);
+        const must = this.correlationMust(this.model);
+        const lo = Math.min(left, ...must.map(mark => mark.x)), hi = Math.max(right, ...must.map(mark => mark.x));
+        const half = CORRELATION_FOLLOW_SPREAD * (hi - lo) / 2, centre = (lo + hi) / 2;
+        return [centre - half, Math.max(top, ...must.map(mark => mark.y)), centre + half, Math.min(bottom, ...must.map(mark => mark.y))];
+    }
+
+    /** The common declaration plus the residuals and the line of x on y as switch pucks, and the legend. */
+    protected override declaration(): GraphDeclaration {
+        const {residuals, xOnY} = this.model;
+        return {
+            ...this.commonDeclaration(),
+            // The points and the lines are what the learner watches: the frame follows the data, not the lesson scene's stored box.
+            followView: this.followBox(),
+            legend: [
+                {id: "points", label: message("prob_correlation_legend_points"), kind: "point", object: "points"},
+                {id: "line-y", label: message("prob_correlation_legend_line_y"), kind: "line", object: "line-y"},
+                {id: "line-x", label: message("prob_correlation_legend_line_x"), kind: "dashed", object: "line-x"},
+                {id: "residual", label: message("prob_correlation_legend_residual"), kind: "line", object: "residual"},
+            ],
+            actions: [
+                {id: "residuals", label: message("prob_correlation_residuals_name"), help: message("prob_correlation_residuals_label"), placement: "board", enabled: true, pressed: residuals, puck: true},
+                {id: "x-on-y", label: message("prob_correlation_xony_name"), help: message("prob_correlation_xony_label"), placement: "board", enabled: true, pressed: xOnY, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "residuals") runAs("learner", () => this.setResiduals(!this.model.residuals));
+        else if (id === "x-on-y") runAs("learner", () => this.setXOnY(!this.model.xOnY));
+        else throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const colorProperty = id === "points" ? "fillcolor" : "strokecolor";
+        return {color: String(element.evalVisProp(colorProperty)), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /** Declared by the base: the readout rows (the number of points and r, which the board caption gave, then the line), the note and the refusal sentences. */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
         const {result} = view;
-        const f = (value: number | undefined, decimals = 6) => value === undefined ? NOT_A_NUMBER_TEXT : correlationNumber(value, language, decimals);
+        const formatted = (text: string) => ({kind: "formatted" as const, text});
+        const f = (value: number | undefined, decimals = 6) => formatted(value === undefined ? NOT_A_NUMBER_TEXT : correlationNumber(value, language, decimals));
         const lineText = (line: { slope: number; intercept: number } | undefined, swap: boolean) => {
-            if (!line) return NOT_A_NUMBER_TEXT;
+            if (!line) return formatted(NOT_A_NUMBER_TEXT);
             const text = formatLineEquation(line, language, 5);
-            // The x-on-y line is x = intercept + slope y: the same text with the letters exchanged.
-            return swap ? text.replace(/[xy]/g, c => c === "x" ? "y" : "x") : text;
+            // The x-on-y line is x = intercept + slope y: the same text with the letters exchanged; the frame "y = ..." / "x = ..." is the catalog's.
+            const right = (swap ? text.replace(/[xy]/g, c => c === "x" ? "y" : "x") : text).replace(/^[xy] = /, "");
+            return message(swap ? "prob_correlation_equation_x" : "prob_correlation_equation_y", {value0: right});
         };
-        const rows = [
-            {id: "n", label: t("prob_correlation_readout_n"), value: String(result.n)},
-            {id: "r", label: t("prob_correlation_readout_r"), value: f(result.r, 5)},
-            {id: "r2", label: t("prob_correlation_readout_r2"), value: f(result.rSquared)},
-            {id: "slope", label: t("prob_correlation_readout_slope"), value: f(result.yOnX?.slope)},
-            {id: "intercept", label: t("prob_correlation_readout_intercept"), value: f(result.yOnX?.intercept)},
-            {id: "equation", label: t("prob_correlation_readout_equation"), value: lineText(result.yOnX, false)},
-            {id: "ssres", label: t("prob_correlation_readout_ssres"), value: f(result.yOnX?.residualSumOfSquares)},
-            {id: "identity", label: t("prob_correlation_readout_identity"), value: f(result.slopeFromR)},
-            ...(model.xOnY ? [{id: "xony", label: t("prob_correlation_readout_xony"), value: lineText(result.xOnY, true)}] : []),
-        ];
-        const statusText = {
-            "too-few": () => t("prob_correlation_status_too_few", {value0: CORRELATION_MIN_POINTS}),
-            "zero-variance-x": () => t("prob_correlation_status_zero_x"),
-            "zero-variance-y": () => t("prob_correlation_status_zero_y"),
-            "zero-variance-both": () => t("prob_correlation_status_zero_both"),
+        const statusMessage = {
+            "too-few": () => message("prob_correlation_status_too_few", {value0: CORRELATION_MIN_POINTS}),
+            "zero-variance-x": () => message("prob_correlation_status_zero_x"),
+            "zero-variance-y": () => message("prob_correlation_status_zero_y"),
+            "zero-variance-both": () => message("prob_correlation_status_zero_both"),
         } as const;
-        const statuses: { id: string; text: string }[] = [];
-        if (view.status !== "ok") statuses.push({id: view.status, text: statusText[view.status]()});
-        return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_correlation_note")}/>
-            <FunctionStatus dataAttribute="prob-correlation-status" lines={statuses}/>
-        </>;
+        return {
+            rows: [
+                {id: "n", name: message("prob_correlation_readout_n"), value: formatted(String(result.n))},
+                {id: "r", name: message("prob_correlation_readout_r"), value: f(result.r, 5)},
+                {id: "r2", name: message("prob_correlation_readout_r2"), value: f(result.rSquared)},
+                {id: "slope", name: message("prob_correlation_readout_slope"), value: f(result.yOnX?.slope)},
+                {id: "intercept", name: message("prob_correlation_readout_intercept"), value: f(result.yOnX?.intercept)},
+                {id: "equation", name: message("prob_correlation_readout_equation"), value: lineText(result.yOnX, false)},
+                {id: "ssres", name: message("prob_correlation_readout_ssres"), value: f(result.yOnX?.residualSumOfSquares)},
+                {id: "identity", name: message("prob_correlation_readout_identity"), value: f(result.slopeFromR)},
+                ...(model.xOnY ? [{id: "xony", name: message("prob_correlation_readout_xony"), value: lineText(result.xOnY, true)}] : []),
+            ],
+            notes: [{id: "correlation", text: message("prob_correlation_note")}],
+            ...(view.status !== "ok" ? {status: [{id: view.status, text: statusMessage[view.status](), tone: "warning" as const}]} : {}),
+            must: this.correlationMust(model),
+        };
     }
 
-    protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "points", color: GraphPalette.controlPoint, label: t("prob_correlation_legend_points"), kind: "dot"},
-            {id: "line-y", color: GraphPalette.primaryCurve, label: t("prob_correlation_legend_line_y"), kind: "line"},
-            {id: "line-x", color: GraphPalette.comparisonCurve, label: t("prob_correlation_legend_line_x"), kind: "dashed-line"},
-            {id: "residual", color: GraphPalette.warningText, label: t("prob_correlation_legend_residual"), kind: "line"},
-        ]}/>;
+    protected renderReadout(): React.ReactNode {
+        const status = this.functionPanel().status ?? [];
+        return <>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus dataAttribute="prob-correlation-status" lines={status.map(line => ({id: line.id, text: renderMessage(line.text)}))}/>
+        </>;
     }
 }
 

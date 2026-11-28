@@ -14,6 +14,7 @@ import type {DensityAreaIds} from '../../graphs/functions/DensityAreaGraph';
 import type {BinomialNormalIds} from '../../graphs/functions/BinomialNormalGraph';
 import type {CltIds} from '../../graphs/functions/CltGraph';
 import type {SummaryIds} from '../../graphs/functions/SummaryStatisticsGraph';
+import type {CorrelationIds} from '../../graphs/functions/CorrelationGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
@@ -21,6 +22,7 @@ const densityFrame = frameDeclarer<DensityAreaIds>();
 const binomialFrame = frameDeclarer<BinomialNormalIds>();
 const cltFrame = frameDeclarer<CltIds>();
 const summaryFrame = frameDeclarer<SummaryIds>();
+const correlationFrame = frameDeclarer<CorrelationIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name, value});
 
 interface DensityScene {
@@ -794,7 +796,7 @@ const correlationLesson: GuidedLesson = {
                 'The residuals are shown. The correlation coefficient is \\(r=0.92338\\), the regression line is \\(y=0.9x+0.9\\) and the sum of squared residuals is \\(0.7\\). This is the same least-squares line as in the fitting lesson. The vertical residuals are squared because we chose so (a modelling choice), not because it is the only distance to a line. The slope is positive, so \\(r\\) is positive too.',
             ),
             formulaIds: ['correlation-definitions'],
-            frames: [frame('correlation-line-explanation', 'explanation'), frame('correlation-line-observation', 'observation')],
+            frames: [frame('correlation-line-explanation', 'explanation', correlationFrame({open: ['readouts'], highlight: ['r', 'equation', 'ssres']})), frame('correlation-line-observation', 'observation', correlationFrame({open: ['readouts'], highlight: ['r', 'ssres'], uses: ['residuals']}))],
             observationPrompt: text('Se je napoved ujemala? Kateri ostanek je največji?', 'Did the prediction match? Which residual is the largest?'),
             expectedObservations: [text('Koeficient \\(r=0{,}92338\\) je blizu \\(1\\); premica \\(y=0{,}9x+0{,}9\\) ima vsoto kvadratov ostankov \\(0{,}7\\).', 'The coefficient \\(r=0.92338\\) is near \\(1\\); the line \\(y=0.9x+0.9\\) has a sum of squared residuals \\(0.7\\).')],
             scene: correlationScene('correlation-line-start', [correlationShow('correlation-residuals', true)],
@@ -810,7 +812,7 @@ const correlationLesson: GuidedLesson = {
                 'The point \\((3,4)\\) is now \\((3,8)\\); the view has refitted. The correlation coefficient dropped from \\(0.92338\\) to \\(0.84680\\), the line is \\(y=2.1x+0.1\\) and the sum of squared residuals grew to \\(8.7\\). A single point thus changes \\(r\\) and the line a lot. Drag this point yourself and watch how \\(r\\) and the line move.',
             ),
             formulaIds: ['correlation-definitions'],
-            frames: [frame('correlation-outlier-explanation', 'explanation'), frame('correlation-outlier-observation', 'observation')],
+            frames: [frame('correlation-outlier-explanation', 'explanation', correlationFrame({open: ['readouts'], highlight: ['r', 'equation', 'ssres']})), frame('correlation-outlier-observation', 'observation', correlationFrame({open: ['readouts'], highlight: ['r', 'slope']}))],
             observationPrompt: text('Kam povlečeš točko, da se \\(r\\) spet poveča? Se spremeni naklon premice?', 'Where do you drag the point so that \\(r\\) grows again? Does the slope of the line change?'),
             expectedObservations: [text('Z osamelcem je \\(r=0{,}84680\\) in \\(y=2{,}1x+0{,}1\\); vsota kvadratov ostankov \\(8{,}7\\) kaže, da se premica slabše prilega.', 'With the outlier \\(r=0.84680\\) and \\(y=2.1x+0.1\\); the sum of squared residuals \\(8.7\\) shows the line fits worse.')],
             scene: correlationScene('correlation-outlier-start', [correlationSetPoint(3, 3, 8)],
@@ -826,7 +828,7 @@ const correlationLesson: GuidedLesson = {
                 'The points lie on the parabola \\(y=x^2\\) at \\(x=-3,\\dots,3\\). Every \\(y\\) is fully determined by \\(x\\), yet \\(r=0\\) and the regression line is the horizontal \\(y=4\\). The correlation coefficient measures linear association only, so \\(r=0\\) does not mean independence. The converse is similar: a large \\(|r|\\) does not mean causation, it only says the data line up along a line.',
             ),
             formulaIds: ['correlation-definitions'],
-            frames: [frame('correlation-parabola-explanation', 'explanation'), frame('correlation-parabola-observation', 'observation')],
+            frames: [frame('correlation-parabola-explanation', 'explanation', correlationFrame({open: ['readouts'], highlight: ['r', 'equation']})), frame('correlation-parabola-observation', 'observation', correlationFrame({open: ['readouts'], highlight: ['r']}))],
             observationPrompt: text('Zakaj je \\(r\\) natanko \\(0\\), čeprav je \\(y\\) funkcija od \\(x\\)? Kaj pokažeta levi in desni del parabole?', 'Why is \\(r\\) exactly \\(0\\) although \\(y\\) is a function of \\(x\\)? What do the left and the right half of the parabola show?'),
             expectedObservations: [text('Levi in desni del se izravnata: \\(S_{xy}=0\\), zato \\(r=0\\), a odvisnost je popolna.', 'The left and right halves cancel: \\(S_{xy}=0\\), so \\(r=0\\), yet the dependence is perfect.')],
             scene: correlationScene('correlation-parabola-start', [correlationChoice('parabola')],
@@ -842,7 +844,7 @@ const correlationLesson: GuidedLesson = {
                 'The original data are back. The dashed line minimises the horizontal residuals: \\(x=0.94737y-0.63158\\). The slope \\(0.9\\) of the first line and the slope \\(0.94737\\) of the second (as \\(x\\) on \\(y\\)) multiply to \\(r^2=0.852632\\). Since the product is below \\(1\\), the lines differ; they coincide only for \\(r=\\pm1\\). Which line is right depends on what we want to predict.',
             ),
             formulaIds: ['correlation-definitions'],
-            frames: [frame('correlation-x-on-y-explanation', 'explanation'), frame('correlation-x-on-y-observation', 'observation')],
+            frames: [frame('correlation-x-on-y-explanation', 'explanation', correlationFrame({open: ['readouts'], highlight: ['slope', 'r2', 'xony']})), frame('correlation-x-on-y-observation', 'observation', correlationFrame({open: ['readouts'], highlight: ['r2', 'xony'], uses: ['x-on-y']}))],
             observationPrompt: text('Povleci točke bliže premici. Kaj se zgodi z obema premicama?', 'Drag the points closer to a line. What happens to the two lines?'),
             expectedObservations: [text('Premici se približujeta, ko se \\(r\\) bliža \\(\\pm1\\); zmnožek naklonov je \\(r^2=0{,}852632\\).', 'The lines approach each other as \\(r\\) nears \\(\\pm1\\); the product of the slopes is \\(r^2=0.852632\\).')],
             scene: correlationScene('correlation-x-on-y-start', [correlationShow('correlation-x-on-y', true)],
@@ -854,11 +856,11 @@ const correlationLesson: GuidedLesson = {
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno raziskati druge primere in ugotoviti, kaj \\(r\\) pove in česa ne.', 'Exploring other examples on your own and finding what \\(r\\) tells and what it does not.'),
             explanation: text(
-                'Graf je spet pri prvotnih podatkih. Preizkusi primere »parabola desno od ničle«, »krog osmih točk« in »primer z osamelcem«, vleci točke ali jih vpiši, dodaj in odstrani točke (od \\(2\\) do \\(20\\)). Če imajo vse točke isti \\(x\\) ali isti \\(y\\), korelacijski koeficient ni določen, pri manj kot \\(3\\) točkah pa ne pove ničesar. Poišči podatke, pri katerih je \\(r\\) velik, a ne bi smeli sklepati, da ena količina povzroča drugo.',
-                'The graph is back at the original data. Try the examples "parabola right of zero", "ring of eight points" and "example with an outlier", drag the points or type them, add and remove points (from \\(2\\) to \\(20\\)). When all points have the same \\(x\\) or the same \\(y\\) the correlation coefficient is undefined, and for fewer than \\(3\\) points it tells nothing. Look for data where \\(r\\) is large but you should not conclude that one quantity causes the other.',
+                'Graf je spet pri prvotnih podatkih. V kartici Orodja preizkusi primere »parabola desno od ničle«, »krog osmih točk« in »primer z osamelcem«, vleci točke ali jih vpiši, dodaj in odstrani točke (od \\(2\\) do \\(20\\)), s krmilnikoma Ostanki in Premica za x pa vklopi ali izklopi ostanke in drugo premico. Če imajo vse točke isti \\(x\\) ali isti \\(y\\), korelacijski koeficient ni določen, pri manj kot \\(3\\) točkah pa ne pove ničesar. Poišči podatke, pri katerih je \\(r\\) velik, a ne bi smeli sklepati, da ena količina povzroča drugo.',
+                'The graph is back at the original data. In the Tools card try the examples "parabola right of zero", "ring of eight points" and "example with an outlier", drag the points or type them, add and remove points (from \\(2\\) to \\(20\\)), and show or hide the residuals and the second line with the Residuals and Line of x on y controls. When all points have the same \\(x\\) or the same \\(y\\) the correlation coefficient is undefined, and for fewer than \\(3\\) points it tells nothing. Look for data where \\(r\\) is large but you should not conclude that one quantity causes the other.',
             ),
             formulaIds: ['correlation-definitions'],
-            frames: [frame('correlation-explore-explanation', 'explanation'), frame('correlation-explore-observation', 'observation')],
+            frames: [frame('correlation-explore-explanation', 'explanation', correlationFrame({open: ['tools'], uses: ['residuals', 'x-on-y']})), frame('correlation-explore-observation', 'observation', correlationFrame({open: ['readouts'], highlight: ['r']}))],
             observationPrompt: text('Kdaj je \\(r=0\\) in kdaj je velik, čeprav je odvisnost krivulja?', 'When is \\(r=0\\) and when is it large although the dependence is a curve?'),
             expectedObservations: [text('Parabola na obeh straneh ničle in krog dasta \\(r=0\\); parabola samo desno od ničle ima velik \\(r\\), čeprav ni premica.', 'The two-sided parabola and the ring give \\(r=0\\); the parabola right of zero has a large \\(r\\) although it is not a line.')],
             scene: correlationScene('correlation-explore-default', [],

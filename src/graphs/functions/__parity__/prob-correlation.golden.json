@@ -52,11 +52,7 @@
       "outputs": [
         "4"
       ],
-      "captions": [
-        "Korelacijski koeficient r = 0,92338",
-        "Razsevni diagram, točk: 4",
-        "regresijska premica za y"
-      ]
+      "captions": []
     },
     {
       "name": "prob-correlation-guided/correlation-outlier",
@@ -108,11 +104,7 @@
       "outputs": [
         "4"
       ],
-      "captions": [
-        "Korelacijski koeficient r = 0,8468",
-        "Razsevni diagram, točk: 4",
-        "regresijska premica za y"
-      ]
+      "captions": []
     },
     {
       "name": "prob-correlation-guided/correlation-parabola",
@@ -164,11 +156,7 @@
       "outputs": [
         "7"
       ],
-      "captions": [
-        "Korelacijski koeficient r = 0",
-        "Razsevni diagram, točk: 7",
-        "regresijska premica za y"
-      ]
+      "captions": []
     },
     {
       "name": "prob-correlation-guided/correlation-x-on-y",
@@ -225,12 +213,7 @@
       "outputs": [
         "4"
       ],
-      "captions": [
-        "Korelacijski koeficient r = 0,92338",
-        "Razsevni diagram, točk: 4",
-        "regresijska premica za x",
-        "regresijska premica za y"
-      ]
+      "captions": []
     }
   ]
 }

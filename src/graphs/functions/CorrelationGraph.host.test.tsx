@@ -1,18 +1,19 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
-import {CorrelationGraph, lineLabelPlacement} from './CorrelationGraph';
+import {CorrelationGraph} from './CorrelationGraph';
 import {GraphHost} from '../base/GraphHost';
 import {installBoardShims, REAL_GRAPH_TEST_TIMEOUT, settle} from '../base/realGraphTestHarness';
-import {LocalizedError, setLanguage} from '../../localization';
+import {LocalizedError, renderMessage, setLanguage} from '../../localization';
 import {commitPresetImport, preflightPresetImport} from '../base/presets/PresetImport';
 import {
-    CORRELATION_EXAMPLE_IDS, CORRELATION_EXAMPLES, CORRELATION_POINTS_MAX, correlationView, DEFAULT_CORRELATION_MODEL,
+    CORRELATION_EXAMPLES, CORRELATION_POINTS_MAX, DEFAULT_CORRELATION_MODEL,
     fitCorrelationView,
 } from '../../analysis/correlationModel';
 import {functionPresetCollections} from './functionPresetCollections';
 import {DomainError} from './BaseFunctionGraph';
 import {GraphPalette} from '../styles/GraphPalette';
+import {runAs} from '../base/writes/writeSource';
 import type {LessonAction} from '../../learning/model';
 
 // jsdom has no canvas, no matchMedia and no layout: the shared harness gives the board a size, so its view can be read.
@@ -72,14 +73,17 @@ const typeIn = (label: RegExp, value: number) => act(() => {
     fireEvent.keyDown(field(label), {key: 'Enter'});
 });
 const select = (label: RegExp, value: string) => act(() => { fireEvent.change(screen.getByLabelText(label) as HTMLSelectElement, {target: {value}}); });
-const residualSwitch = () => screen.getByLabelText(/^Pokaži ostanke/) as HTMLInputElement;
-const xOnYSwitch = () => screen.getByLabelText(/^Pokaži še premico za x/) as HTMLInputElement;
+// The residuals and the line of x on y are switch pucks on the board (task 08 lane L47): the tests flip them through `performAction` as the learner.
+let current: ObservedCorrelationGraph;
+const flip = (id: 'residuals' | 'x-on-y') => act(() => { current.performAction(id); });
+const pressed = (id: 'residuals' | 'x-on-y') => current.getDeclaration()!.actions!.find(action => action.id === id)!.pressed;
 const plusButton = () => act(() => { fireEvent.click(screen.getByRole('button', {name: /^Povečaj število$|^Increase/})); });
 const minusButton = () => act(() => { fireEvent.click(screen.getByRole('button', {name: /^Zmanjšaj število$|^Decrease/})); });
 const mount = () => {
     const graph = new ObservedCorrelationGraph();
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     expect(graph.state.initialized).toBe(true);
+    current = graph;
     return {graph, ...view};
 };
 const handlePoints = (graph: ObservedCorrelationGraph) => graph.visibleHandles().map(h => [h.X(), h.Y()]);
@@ -97,7 +101,7 @@ const tickTexts = (graph: ObservedCorrelationGraph) => {
 };
 
 describe('tick labels', () => {
-    const zoom = (graph: ObservedCorrelationGraph, half: number) => act(() => { graph.liveBoard().setBoundingBox([-half, half, half, -half], false); });
+    const zoom = (graph: ObservedCorrelationGraph, half: number) => act(() => { runAs('learner', () => graph.liveBoard().setBoundingBox([-half, half, half, -half], false)); });
     const fractional = (labels: string[]) => labels.filter(label => /[.,]/.test(label));
 
     test('a Slovenian board writes tick decimals with a comma, and a language switch redraws them', () => {
@@ -121,101 +125,14 @@ describe('tick labels', () => {
     });
 });
 
-describe('line labels', () => {
-    const view = {left: 0, right: 10, top: 10, bottom: -10, width: 4, height: 0.5, clearX: 0.1, clearY: 0.1, points: []};
-    const rising = [0, 0, 10, 5] as const;
-    const falling = [0, 5, 10, 0] as const;
-    const steeper = [0, -2, 10, 8] as const;
-    const steeperFalling = [0, 7, 10, -3] as const;
-
-    test('a lone line: above when rising, below when falling, ending at its point', () => {
-        expect(lineLabelPlacement(rising, undefined, true, view)).toEqual({x: 8.5, y: 4.25, anchorX: 'right', anchorY: 'bottom'});
-        expect(lineLabelPlacement(falling, undefined, true, view)).toEqual({x: 8.5, y: 0.75, anchorX: 'right', anchorY: 'top'});
-    });
-
-    test('the direction a line is stored in does not move its label', () => {
-        expect(lineLabelPlacement([10, 0, 0, 5], undefined, true, view)).toEqual(lineLabelPlacement(falling, undefined, true, view));
-    });
-
-    test('two rising lines: the upper label above, the lower label below and clear of the right edge', () => {
-        expect(lineLabelPlacement(steeper, rising, false, view)).toMatchObject({x: 8.5, anchorX: 'right', anchorY: 'bottom'});
-        const lower = lineLabelPlacement(rising, steeper, true, view);
-        expect(lower).toEqual({x: 6, y: 3, anchorX: 'left', anchorY: 'top'});
-        expect(lower.x + view.width).toBeLessThanOrEqual(view.right);
-    });
-
-    test('two falling lines: the lower label below, the upper label above and clear of the right edge', () => {
-        expect(lineLabelPlacement(steeperFalling, falling, false, view)).toMatchObject({x: 8.5, anchorX: 'right', anchorY: 'top'});
-        expect(lineLabelPlacement(falling, steeperFalling, true, view)).toEqual({x: 6, y: 2, anchorX: 'left', anchorY: 'bottom'});
-    });
-
-    test('coinciding lines (r = 1) put one label on each side', () => {
-        expect(lineLabelPlacement(rising, rising, true, view).anchorY).toBe('bottom');
-        expect(lineLabelPlacement(rising, rising, false, view).anchorY).toBe('top');
-    });
-
-    test('a label steps back along its line to clear a point it would cover', () => {
-        const placed = lineLabelPlacement(rising, undefined, true, {...view, points: [[7, 4.5]]});
-        expect(placed).toEqual({x: 7.5, y: 3.75, anchorX: 'right', anchorY: 'bottom'});
-    });
-
-    test('a point beyond the label does not move it', () => {
-        expect(lineLabelPlacement(rising, undefined, true, {...view, points: [[9.5, 4.4], [7, 2]]})).toMatchObject({x: 8.5});
-    });
-
-    test('a label that would pass the top of the view steps back along its line', () => {
-        expect(lineLabelPlacement(rising, undefined, true, {...view, top: 4.5})).toMatchObject({x: 7.5, y: 3.75, anchorY: 'bottom'});
-    });
-
-    test('with no clear position the label keeps its place near the end of the line', () => {
-        expect(lineLabelPlacement(rising, undefined, true, {...view, top: 1})).toMatchObject({x: 8.5, y: 4.25});
-    });
-
-    test('the shipped examples keep every label in view and off every point', () => {
-        for (const id of CORRELATION_EXAMPLE_IDS) {
-            const points = CORRELATION_EXAMPLES[id];
-            const [left, top, right, bottom] = fitCorrelationView(points);
-            const line = correlationView({...DEFAULT_CORRELATION_MODEL, points}).yOnXLine;
-            if (!line) continue;
-            const size = {width: (right - left) * 0.17, height: (top - bottom) * 0.045};
-            const clear = {clearX: (right - left) * 0.01, clearY: (top - bottom) * 0.012};
-            const placed = lineLabelPlacement(line, undefined, true, {left, top, right, bottom, ...size, ...clear, points});
-            const from = placed.anchorX === 'right' ? placed.x - size.width : placed.x;
-            const low = placed.anchorY === 'bottom' ? placed.y : placed.y - size.height;
-            expect(from, id).toBeGreaterThanOrEqual(left);
-            expect(from + size.width, id).toBeLessThanOrEqual(right);
-            expect(low, id).toBeGreaterThanOrEqual(bottom);
-            expect(low + size.height, id).toBeLessThanOrEqual(top);
-            for (const [x, y] of points) {
-                const inside = x > from - clear.clearX && x < from + size.width + clear.clearX
-                    && y > low - clear.clearY && y < low + size.height + clear.clearY;
-                expect(inside, `${id} covers ${x},${y}`).toBe(false);
-            }
-        }
-    });
-
-    test('a label keeps off the tick label strips beside the axes', () => {
-        const strip = [5, -10, 6, 10] as const;
-        const placed = lineLabelPlacement(rising, undefined, true, {...view, avoid: [strip]});
-        const left = placed.anchorX === 'right' ? placed.x - view.width : placed.x;
-        expect(left >= strip[2] || left + view.width <= strip[0]).toBe(true);
-    });
-
-    test('a label does not cross the other line', () => {
-        const placed = lineLabelPlacement(rising, [0, 3, 10, 3], true, view);
-        const left = placed.anchorX === 'right' ? placed.x - view.width : placed.x;
-        const bottom = placed.anchorY === 'bottom' ? placed.y : placed.y - view.height;
-        expect(3 <= bottom || 3 >= bottom + view.height, `label ${left}..${left + view.width} x ${bottom}`).toBe(true);
-    });
-
-    test('on a narrow board a label with no clear position is hidden, otherwise it keeps its place', () => {
-        const blocked = {...view, top: 1};
-        expect(lineLabelPlacement(rising, undefined, true, {...blocked, hideWhenBlocked: true}).hidden).toBe(true);
-        expect(lineLabelPlacement(rising, undefined, true, blocked).hidden).toBeUndefined();
-    });
-
-    test('a label wider than the line stays on the line', () => {
-        expect(lineLabelPlacement([8, 4, 10, 5], [8, 6, 10, 9], true, view)).toMatchObject({x: 8, y: 4, anchorX: 'left'});
+describe('no board line labels (the legend names the lines)', () => {
+    test('the board draws no line label text while the legend lists both regression lines and the residuals', () => {
+        const {graph} = mount();
+        flip('x-on-y');
+        const texts = graph.objects().filter(o => o.elType === 'text').map(o => (o as unknown as {plaintext?: string}).plaintext ?? '');
+        expect(texts.filter(text => /premica|regression line/i.test(text))).toEqual([]);
+        const legend = graph.getDeclaration()!.legend!.map(entry => renderMessage(entry.label));
+        expect(legend).toEqual(['Točka', 'Regresijska premica za y', 'Regresijska premica za x (črtkano)', 'Ostanek']);
     });
 });
 
@@ -260,8 +177,7 @@ describe('defaults and examples', () => {
         expect(l.dataY![0]).toBeCloseTo(0.9 * left + 0.9, 9);
         expect(l.dataY![1]).toBeCloseTo(0.9 * right + 0.9, 9);
         expect(graph.xOnYCurves()).toHaveLength(0);
-        expect(graph.captionPlainLines().join('\n')).toMatch(/Razsevni diagram, točk: 4/);
-        expect(graph.captionPlainLines().join('\n')).toMatch(/Korelacijski koeficient r = 0,92338/);
+        expect(graph.captionPlainLines()).toEqual([]);
     });
 
     test('the outlier example: r 0,8468, line y = 2,1x + 0,1, SSres 8,7, the view refitted', () => {
@@ -290,7 +206,7 @@ describe('defaults and examples', () => {
         expect(graph.visibleHandles()).toHaveLength(8);
         expect(readout('r')).toBe('0');
         expect(readout('equation')).toBe('y = 0');
-        expect(graph.captionPlainLines().join('\n')).toMatch(/r = 0$/m);
+        expect(graph.captionPlainLines()).toEqual([]);
     });
 });
 
@@ -306,14 +222,14 @@ describe('statuses', () => {
         expect(readout('r2')).toBe('—');
         expect(readout('identity')).toBe('—');
         expect(status('too-few')).toMatch(/vsaj 3 točke/);
-        expect(graph.captionPlainLines().join('\n')).toMatch(/r ni določen/);
+        expect(graph.captionPlainLines()).toEqual([]);
         expect(readout('slope')).not.toBe('—');
         expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
     });
 
     test('equal x: r undefined, no y-on-x line; equal y: r undefined, a horizontal line and no x-on-y line; both: no lines', () => {
         const {graph} = mount();
-        act(() => { fireEvent.click(xOnYSwitch()); });
+        flip('x-on-y');
         typePoint(1, 2, 1); typePoint(2, 2, 2); typePoint(3, 2, 2);
         typePoint(4, 2, 4);
         expect(graph.modelNow().points.every(p => p[0] === 2)).toBe(true);
@@ -347,18 +263,18 @@ describe('statuses', () => {
 describe('toggles', () => {
     test('the residual switch hides and shows the segments', () => {
         const {graph} = mount();
-        expect(residualSwitch().checked).toBe(true);
-        act(() => { fireEvent.click(residualSwitch()); });
+        expect(pressed('residuals')).toBe(true);
+        flip('residuals');
         expect(graph.modelNow().residuals).toBe(false);
         expect(graph.residualCurves()).toHaveLength(0);
-        act(() => { fireEvent.click(residualSwitch()); });
+        flip('residuals');
         expect(graph.residualCurves()).toHaveLength(1);
     });
 
     test('the x-on-y switch adds a dashed line x = 0,94737y − 0,63158 across the view and a readout; the product of the slopes is r²', () => {
         const {graph} = mount();
-        expect(xOnYSwitch().checked).toBe(false);
-        act(() => { fireEvent.click(xOnYSwitch()); });
+        expect(pressed('x-on-y')).toBe(false);
+        flip('x-on-y');
         expect(graph.modelNow().xOnY).toBe(true);
         expect(readout('xony')).toBe('x = 0,94737y − 0,63158');
         expect(graph.xOnYCurves()).toHaveLength(1);
@@ -371,7 +287,7 @@ describe('toggles', () => {
         // the two lines are distinct objects in distinct styles
         expect(graph.yOnXCurves()).toHaveLength(1);
         expect(graph.yOnXCurves()[0]).not.toBe(l);
-        act(() => { fireEvent.click(xOnYSwitch()); });
+        flip('x-on-y');
         expect(graph.xOnYCurves()).toHaveLength(0);
         expect(readout('xony')).toBeUndefined();
     });
@@ -447,21 +363,24 @@ describe('Reset and Presets', () => {
         const {graph} = mount();
         const baseline = graph.ownedObjects();
         select(/^Primer$/, 'ring');
-        act(() => { fireEvent.click(residualSwitch()); });
-        act(() => { fireEvent.click(xOnYSwitch()); });
+        flip('residuals');
+        flip('x-on-y');
         graph.drag(0, 99, 0);
         await settle(() => graph.reset());
         expect(graph.modelNow()).toEqual(DEFAULT_CORRELATION_MODEL);
         expect(handlePoints(graph)).toEqual([[0, 1], [1, 2], [2, 2], [3, 4]]);
         expect(readout('r')).toBe('0,92338');
         expect(field(/^Točka 1, x$/).value).toBe('0');
-        expect(residualSwitch().checked).toBe(true);
-        expect(xOnYSwitch().checked).toBe(false);
+        expect(pressed('residuals')).toBe(true);
+        expect(pressed('x-on-y')).toBe(false);
         expect(status('refused')).toBeUndefined();
         expect(graph.residualCurves()).toHaveLength(1);
         expect(graph.xOnYCurves()).toHaveLength(0);
-        expect(box(graph)[0]).toBeCloseTo(fitCorrelationView(DEFAULT_CORRELATION_MODEL.points)[0], 6);
-        expect(box(graph)[2]).toBeCloseTo(fitCorrelationView(DEFAULT_CORRELATION_MODEL.points)[2], 6);
+        // The declared board's view is placed by the view director around the follow box (the fitted view, widened), so Reset gives a view that holds the fitted one.
+        const fitted = fitCorrelationView(DEFAULT_CORRELATION_MODEL.points);
+        expect(box(graph)[0]).toBeLessThanOrEqual(fitted[0]);
+        expect(box(graph)[2]).toBeGreaterThanOrEqual(fitted[2]);
+        expect(box(graph)[2]).toBeLessThan(20);
         expect(graph.ownedObjects()).toBe(baseline);
     });
 
@@ -470,8 +389,8 @@ describe('Reset and Presets', () => {
     test('round trip: save, change, restore gives back points, flags, readouts, board and view; the file form is imported', () => {
         const {graph} = mount();
         select(/^Primer$/, 'outlier');
-        act(() => { fireEvent.click(residualSwitch()); });
-        act(() => { fireEvent.click(xOnYSwitch()); });
+        flip('residuals');
+        flip('x-on-y');
         const saved = graph.modelNow();
         expect(saved).toEqual({points: CORRELATION_EXAMPLES['outlier'], residuals: false, xOnY: true});
         const exported = graph.exportPreset();
@@ -481,9 +400,9 @@ describe('Reset and Presets', () => {
         const ids = ['n', 'r', 'r2', 'slope', 'intercept', 'equation', 'ssres', 'identity', 'xony'];
         const shown = ids.map(readout);
         select(/^Primer$/, 'ring');
-        act(() => { fireEvent.click(residualSwitch()); });
-        act(() => { fireEvent.click(xOnYSwitch()); });
-        graph.liveBoard().setBoundingBox([-1, 4, 5, -2], false);
+        flip('residuals');
+        flip('x-on-y');
+        runAs('learner', () => graph.liveBoard().setBoundingBox([-1, 4, 5, -2], false));
         expect(graph.modelNow()).not.toEqual(saved);
         act(() => { graph.importPreset({...exported, id: 'stored'}); });
         expect(graph.modelNow()).toEqual(saved);
@@ -491,8 +410,8 @@ describe('Reset and Presets', () => {
         expect(handlePoints(graph)).toEqual([[0, 1], [1, 2], [2, 2], [3, 8]]);
         expect(graph.residualCurves()).toHaveLength(0);
         expect(graph.xOnYCurves()).toHaveLength(1);
-        expect(residualSwitch().checked).toBe(false);
-        expect(xOnYSwitch().checked).toBe(true);
+        expect(pressed('residuals')).toBe(false);
+        expect(pressed('x-on-y')).toBe(true);
         expect(box(graph)[1]).toBeCloseTo(fitCorrelationView(CORRELATION_EXAMPLES['outlier'])[1], 6);
         commitPresetImport(preflightPresetImport(fileWith(exported.data as object)));
         expect(JSON.parse(localStorage.getItem('preset-prob-correlation')!).data[0].data).toEqual(saved);
@@ -516,15 +435,16 @@ describe('Reset and Presets', () => {
 test('switching the language keeps the model and re-renders labels, numbers with points, the status and the board', () => {
     const {graph} = mount();
     select(/^Primer$/, 'outlier');
-    act(() => { fireEvent.click(xOnYSwitch()); });
+    flip('x-on-y');
     const model = graph.modelNow();
     act(() => { setLanguage('en'); });
     expect(graph.modelNow()).toEqual(model);
     expect(readout('r')).toBe('0.8468');
     expect(readout('equation')).toBe('y = 2.1x + 0.1');
     expect(readoutLabel('r')).toBe('Correlation coefficient r');
-    expect(screen.getByLabelText(/^Also show the line of x on y/)).toBeChecked();
-    expect(graph.captionPlainLines().join('\n')).toMatch(/Scatter plot, points: 4/);
+    expect(pressed('x-on-y')).toBe(true);
+    expect(graph.getDeclaration()!.actions!.map(action => renderMessage(action.label))).toEqual(['Residuals', 'Line of x on y']);
+    expect(graph.captionPlainLines()).toEqual([]);
     expect(graph.xOnYCurves()).toHaveLength(1);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
     minusButton();

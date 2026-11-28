@@ -57,6 +57,9 @@ const probBinomialAccepted: readonly AcceptedDifference[] = ['n', 'p', 'mean', '
     reason: 'the board captions "X ∼ B(n; p)", "Povprečje μ, σ = ..." and "P(X ≤ k) = ..." are removed and their values are rows of the declaration; the panel showed n, p and k only on its sliders and fields',
 }) as const);
 const probCltAccepted: readonly AcceptedDifference[] = [];
+const probCorrelationAccepted: readonly AcceptedDifference[] = [
+    {kind: 'missing', where: 'output', reason: 'the count of points is the unlabelled output of the count control in Orodja, which stays; the declared row n shows the same value and is already matched to the panel row n'},
+];
 const probDensityAccepted: readonly AcceptedDifference[] = ['mu', 'sigma', 'a', 'b'].map(key => ({
     kind: 'extra', where: `row ${key}`,
     reason: 'the board caption "X ∼ N(μ; σ²)" is removed and the values are rows of the declaration; the panel showed them only on its sliders and fields',
@@ -1374,6 +1377,32 @@ const SAMPLES: readonly Sample[] = [
             {name: 'box plot off', apply: run(g => g.setBoxPlot(false))},
             {name: 'too few values', apply: run(g => { for (let i = 0; i < 5; i++) g.removeValue(0); })},
             {name: 'one value', apply: run(g => { for (let i = 0; i < 6; i++) g.removeValue(0); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/prob-correlation.json', demonstration: 'prob-correlation', accepted: probCorrelationAccepted, states: (() => {
+        type CorrelationSetters = {
+            setExample(id: string): void; setResiduals(value: boolean): void; setXOnY(value: boolean): void;
+            setPoint(index: number, x: number, y: number): void; removePoint(index?: number): void;
+        };
+        // The states run one after another on the same graph: each starts by restoring the demonstration default.
+        const run = (edit: (graph: CorrelationSetters) => void): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as CorrelationSetters;
+                g.setExample('default'); g.setResiduals(true); g.setXOnY(false);
+                edit(g);
+            });
+        };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'outlier example', apply: run(g => g.setExample('outlier'))},
+            {name: 'parabola', apply: run(g => g.setExample('parabola'))},
+            {name: 'parabola right', apply: run(g => g.setExample('parabola-right'))},
+            {name: 'ring, x on y', apply: run(g => { g.setExample('ring'); g.setXOnY(true); })},
+            {name: 'x on y, residuals off', apply: run(g => { g.setXOnY(true); g.setResiduals(false); })},
+            {name: 'point moved', apply: run(g => g.setPoint(3, 3, 8))},
+            {name: 'two points', apply: run(g => { g.removePoint(); g.removePoint(); })},
+            {name: 'same x', apply: run(g => { for (let i = 0; i < 4; i++) g.setPoint(i, 1, i); })},
+            {name: 'same y', apply: run(g => { for (let i = 0; i < 4; i++) g.setPoint(i, i, 2); })},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/derivative.json', demonstration: 'derivative', states: (() => {

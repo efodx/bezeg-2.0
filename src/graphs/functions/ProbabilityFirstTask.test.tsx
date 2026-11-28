@@ -55,9 +55,9 @@ const plan: Record<string, {make: () => BaseGraph<BaseGraphState>; first: Label;
         later: [() => t('prob_clt_example_label')]},
     summary: {make: () => new SummaryStatisticsGraph(), first: () => t('prob_summary_value_name', {value0: 1}),
         later: [() => 'action:add-value', () => t('prob_summary_example_label')]},
-    // The count's own decrease button, then the exact point fields (keyboard entry) directly after it.
+    // The count's own decrease button, then the exact point fields (keyboard entry) directly after it; the two switches are board pucks (task 08 lane L47).
     correlation: {make: () => new CorrelationGraph(), first: () => t('decrease_count'),
-        later: [() => t('increase_count'), () => t('prob_correlation_point_name', {value0: 1}), () => t('prob_correlation_residuals_label'), () => t('prob_correlation_example_label')]},
+        later: [() => t('increase_count'), () => t('prob_correlation_point_name', {value0: 1}), () => t('prob_correlation_example_label')]},
 };
 
 describe.each(Object.keys(plan))('%s', key => {
@@ -110,6 +110,22 @@ describe('summary pucks', () => {
             expect(within(root).queryAllByLabelText(label), label).toEqual([]);
         }
         expect(within(root).queryAllByLabelText(t('prob_summary_example_label')).length).toBeGreaterThan(0);
+    });
+});
+
+describe('correlation pucks', () => {
+    // The residuals and the line of x on y are switch pucks: there once, and not in Orodja, which keeps the count, the point list and the example chooser.
+    test('the residuals and the line of x on y are pucks and Orodja holds no second copy', async () => {
+        mountGraph(new CorrelationGraph());
+        await waitForPucks('residuals');
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const key of ['residuals', 'x-on-y']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of [t('prob_correlation_residuals_label'), t('prob_correlation_xony_label')]) {
+            expect(within(root).queryAllByLabelText(label), label).toEqual([]);
+        }
+        expect(within(root).queryAllByLabelText(t('prob_correlation_example_label')).length).toBeGreaterThan(0);
     });
 });
 
