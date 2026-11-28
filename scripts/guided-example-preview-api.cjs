@@ -74,7 +74,7 @@ function validateRecipeFingerprint(entry) {
 }
 
 function parseGuidedProgress(text) {
-    const match = /Korak\s+(\d+)\s+od\s+(\d+)\s*·\s*Okvir\s+(\d+)\s+od\s+(\d+)/.exec(String(text));
+    const match = /Korak\s+(\d+)\s*\/\s*(\d+)\s*·\s*del\s+(\d+)\s*\/\s*(\d+)/.exec(String(text));
     if (!match) return undefined;
     return {step: Number(match[1]) - 1, frame: Number(match[3]) - 1, steps: Number(match[2]), frames: Number(match[4])};
 }

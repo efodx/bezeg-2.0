@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict');
 const {numberFieldLocator} = require('./number-field-locator.cjs');
+const {puckControl, openTools} = require('./puck-control.cjs');
 
 /** Inspector tabs a recipe can open, as the stable ids of `aria-controls="inspector-<id>"` (Uredi, Prikaz, Shrani). */
 const TAB_IDS = ['edit', 'display', 'save'];
@@ -51,20 +52,49 @@ async function applyExploreStep(page) {
     }, undefined, {timeout: 5000});
 }
 
+/** Drives a board puck (toggle, range or count) to the step's value and verifies the puck shows it. */
+async function applyPuckStep(puck, step) {
+    if (step.control === 'checkbox') {
+        await puck.setChecked(step.value);
+        assert.equal(await puck.isChecked(), step.value, `toggle puck "${step.label}" did not become ${step.value}`);
+        return;
+    }
+    const min = await puck.min(), max = await puck.max();
+    assert.ok(!(step.value < min) && !(step.value > max), `puck "${step.label}" does not accept ${step.value} (range ${min} to ${max})`);
+    await puck.fill(step.value);
+    const shown = Number(await puck.inputValue());
+    assert.ok(Math.abs(shown - step.value) < 1e-9, `puck "${step.label}" shows ${shown} after setting ${step.value}`);
+}
+
 /** Drives one control step through the visible UI as a learner would, then verifies the control shows the requested state. */
 async function applyControlStep(page, step) {
     if (step.kind === 'select-tab') {
-        const tab = page.locator(`.inspector-tabs button[aria-controls="inspector-${step.tab}"]`);
-        assert.equal(await tab.count(), 1, `inspector tab "${step.tab}" is not present exactly once; is the workspace in presentation mode?`);
+        // Board workspace: the tabs are the Orodja card's head buttons, and the card starts folded.
+        await openTools(page);
+        const tab = page.locator(`#board-card-tools .tools-head-button[aria-controls="inspector-${step.tab}"]`);
+        assert.equal(await tab.count(), 1, `inspector tab "${step.tab}" is not present exactly once in the Orodja card; is the workspace in presentation mode?`);
         await tab.click();
         assert.equal(await tab.getAttribute('aria-pressed'), 'true', `inspector tab "${step.tab}" did not become the open tab`);
         return;
     }
+    // A converted graph keeps its range, count and toggle controls as board pucks: try the puck first, then the Orodja field.
+    const puck = await puckControl(page, step.control === 'checkbox' ? 'toggle' : 'number', step.label);
+    if (puck) return applyPuckStep(puck, step);
+    await openTools(page);
     const scope = page.locator('#inspector-content section:not([hidden])');
     const role = CONTROL_ROLES[step.control];
     let control = scope.getByRole(role, {name: step.label, exact: true});
     // A Slider's exact field is named "<label>, vrednost" (English "<label>, value"); a plain number field keeps the label.
     if (step.control === 'number') control = await numberFieldLocator(scope, step.label, control);
+    // A converted graph declares its display switches as Orodja actions: a button carrying aria-pressed.
+    if (step.control === 'checkbox' && await control.count() === 0) {
+        const action = page.locator('#board-card-tools').getByRole('button', {name: step.label, exact: true}).and(page.locator('[aria-pressed]'));
+        if (await action.count() === 1) {
+            if ((await action.getAttribute('aria-pressed') === 'true') !== step.value) await action.click();
+            assert.equal(await action.getAttribute('aria-pressed'), String(step.value), `action "${step.label}" did not become pressed=${step.value}`);
+            return;
+        }
+    }
     const found = await control.count();
     assert.ok(found > 0, `no visible ${step.control} named "${step.label}" in the open inspector tab; check the label and add a select-tab step before it`);
     assert.equal(found, 1, `${step.control} "${step.label}" is ambiguous (${found} controls share that name)`);

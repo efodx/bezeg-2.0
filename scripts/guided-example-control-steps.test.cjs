@@ -61,12 +61,35 @@ function fakeInspector(options = {}) {
         press: async () => {},
     });
     const tabs = ['edit', 'display', 'save'];
-    return {state, locator: selector => {
+    // Board pucks: options.pucks maps a label to {role, value} on the board's puck strip.
+    const pucks = options.pucks || {};
+    state.puck = {};
+    const puckLocator = (role, label) => {
+        const found = pucks[label]?.role === role;
+        return {
+            count: async () => (found ? 1 : 0),
+            getAttribute: async name => ({'aria-valuenow': String(state.puck[label] ?? pucks[label].value), 'aria-valuemin': '0', 'aria-valuemax': '10', 'aria-checked': String(Boolean(state.puck[label] ?? pucks[label].value))})[name],
+            click: async () => { state.puck[label] = !(state.puck[label] ?? pucks[label].value); },
+            evaluate: async () => label,
+            dblclick: async () => { state.open = label; },
+        };
+    };
+    return {state, getByLabel: label => ({label}), locator: selector => {
+        const strip = /^\.puck-strip \[role="(\w+)"\]$/.exec(selector);
+        if (strip) return {and: other => puckLocator(strip[1], other.label)};
+        if (selector.includes('input.puck-input')) {
+            return {count: async () => (state.open ? 1 : 0), fill: async text => { state.puck[state.open] = Number(text); }, press: async () => { state.open = null; }};
+        }
+        if (selector.includes('board-card-fold')) return {count: async () => 0};
+        // Orodja action buttons (aria-pressed): this fake inspector declares none.
+        if (selector === '#board-card-tools') return {getByRole: () => ({and: () => ({count: async () => 0})})};
+        if (selector === '[aria-pressed]') return {};
         const tab = /aria-controls="inspector-(\w+)"/.exec(selector)?.[1];
+        if (tab) assert.ok(selector.startsWith('#board-card-tools .tools-head-button'), selector);
         if (tab) return {count: async () => (tabs.includes(tab) ? 1 : 0), click: async () => { if (!options.tabStuck) state.tab = tab; },
             getAttribute: async () => String(state.tab === tab)};
         assert.equal(selector, '#inspector-content section:not([hidden])');
-        return {getByRole: (role, {name, exact}) => { assert.equal(exact, true); return element(role, name); }};
+        return {getByRole: (role, {name, exact}) => { if (name instanceof RegExp) return element('none', ''); assert.equal(exact, true); return element(role, name); }};
     }};
 }
 
@@ -83,6 +106,15 @@ test('the control driver switches tabs and sets a checkbox, a slider and a numbe
     assert.equal(page.state.slider, 1.25);
     await applyControlStep(page, {kind: 'set-control', control: 'number', label: 'Število', value: 7});
     assert.equal(page.state.number, 7);
+});
+
+test('the control driver sets board pucks before looking in the Orodja fields', async () => {
+    const page = fakeInspector({pucks: {'Razdalja odmika d': {role: 'slider', value: 2}, 'Odmiki krivulje': {role: 'switch', value: false}}});
+    await applyControlStep(page, {kind: 'set-control', control: 'slider', label: 'Razdalja odmika d', value: 5});
+    assert.equal(page.state.puck['Razdalja odmika d'], 5);
+    await applyControlStep(page, {kind: 'set-control', control: 'checkbox', label: 'Odmiki krivulje', value: true});
+    assert.equal(page.state.puck['Odmiki krivulje'], true);
+    await assert.rejects(() => applyControlStep(page, {kind: 'set-control', control: 'slider', label: 'Razdalja odmika d', value: 50}), /puck "Razdalja odmika d" does not accept 50 \(range 0 to 10\)/);
 });
 
 test('the control driver fails with actionable messages for missing, ambiguous, disabled or unaccepting controls', async () => {

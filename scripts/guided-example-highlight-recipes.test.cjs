@@ -77,7 +77,7 @@ test('the fingerprint of a start entry is unchanged by recipes while a highlight
 });
 
 test('guided progress parsing and navigation direction follow the lesson order', () => {
-    assert.deepEqual(parseGuidedProgress('Korak 2 od 3 · Okvir 1 od 2'), {step: 1, frame: 0, steps: 3, frames: 2});
+    assert.deepEqual(parseGuidedProgress('Korak 2/3 · del 1/2'), {step: 1, frame: 0, steps: 3, frames: 2});
     assert.equal(parseGuidedProgress('Lekcija je končana'), undefined);
     assert.equal(navigationDirection({step: 0, frame: 1}, {step: 1, frame: 0}), 'next');
     assert.equal(navigationDirection({step: 1, frame: 0}, {step: 0, frame: 1}), 'back');
@@ -140,7 +140,7 @@ function fakePage(frameCounts, actions = {}) {
     const state = {step: 0, frame: 0, pressed: [], clicks: 0};
     const atEnd = () => state.step === frameCounts.length - 1 && state.frame === frameCounts[state.step] - 1;
     const control = (selector, role) => ({
-        innerText: async () => `Korak ${state.step + 1} od ${frameCounts.length} · Okvir ${state.frame + 1} od ${frameCounts[state.step]}`,
+        innerText: async () => `Korak ${state.step + 1}/${frameCounts.length} · del ${state.frame + 1}/${frameCounts[state.step]}`,
         click: async () => {
             state.clicks++;
             if (selector.includes('nav-next') && !atEnd()) {
@@ -175,7 +175,7 @@ test('the runner reaches frames with navigation, applies steps in order, and fai
     await assert.rejects(() => reachFrame(fakePage([2, 1, 2]), 'x', {step: 5, frame: 0}, 'recipe frame "ghost"'), /recipe frame "ghost" is unreachable/);
     // When the lesson ends before the frame, the progress text becomes unreadable; the message still says the frame is unreachable.
     const ended = {evaluate: async () => undefined, locator: () => ({
-        innerText: async () => (ended.clicked ? 'Vodeni primer je končan' : 'Korak 1 od 1 · Okvir 1 od 1'),
+        innerText: async () => (ended.clicked ? 'Vodeni primer je končan' : 'Korak 1/1 · del 1/1'),
         click: async () => { ended.clicked = true; }})};
     await assert.rejects(() => reachFrame(ended, 'x', {step: 0, frame: 3}, 'recipe frame "ghost"'), /recipe frame "ghost" is unreachable .*Vodeni primer je končan/);
     // A missing action button fails the step with the step number and the button label.

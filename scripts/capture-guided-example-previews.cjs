@@ -504,6 +504,10 @@ async function hideGuidedLessonOverlay(page) {
         const layers = [...document.querySelectorAll('.guided-lesson-layer')];
         if (layers.length !== 1) throw new Error(`expected one guided-lesson overlay layer, found ${layers.length}`);
         layers[0].style.visibility = 'hidden';
+        // Board workspace: the previews show the graph, not the workspace, so every card, puck, chip and hint overlay is hidden too (the board's view is untouched).
+        const style = document.createElement('style');
+        style.textContent = '.board-cards-layer, .board-card, .board-card-ghost, .puck-strip, .puck, .puck-ruler, [data-board-cards-layer], [data-card-id], .guided-lesson-card, .board-drop-target {visibility: hidden !important}';
+        document.head.appendChild(style);
         if (getComputedStyle(layers[0]).visibility !== 'hidden') throw new Error('guided-lesson overlay remains visible during capture');
         return true;
     });
@@ -666,6 +670,15 @@ async function reachFrame(page, id, target, label = 'frame') {
     return current;
 }
 
+/** The board workspace shows the lesson as a card with no hide button, and its inspector is never locked: explore mode is then already on. */
+async function exploreLesson(page) {
+    if (await page.locator('.guided-lesson-card').count() === 1 && await page.locator('.guided-lesson-hide').count() === 0) {
+        await page.locator('#inspector-content').waitFor({state: 'attached', timeout: 5000});
+        return;
+    }
+    await applyExploreStep(page);
+}
+
 /** Reaches the recipe frame, then applies each step as a learner would, waiting for board effects to settle. */
 async function applyHighlightRecipe(page, entry) {
     const recipe = entry.recipe;
@@ -676,7 +689,7 @@ async function applyHighlightRecipe(page, entry) {
         const where = `recipe step ${index + 1} (${[step.kind, step.frame || step.tab || step.label].filter(Boolean).join(' ')})`;
         try {
             if (step.kind === 'goto-frame') await reachFrame(page, entry.id, step.position, where);
-            else if (step.kind === 'explore') await applyExploreStep(page);
+            else if (step.kind === 'explore') await exploreLesson(page);
             else if (step.kind === 'select-tab' || step.kind === 'set-control') await applyControlStep(page, step);
             else {
                 const current = await readGuidedPosition(page, entry.id);
@@ -707,10 +720,17 @@ async function captureExample(page, entry, demonstration, recipe, browserVersion
     await previous.waitFor({state: 'visible'});
     assert.equal(await previous.isDisabled(), true, `${entry.id}: URL did not open the initial guided-example frame`);
     const progress = await page.locator('.guided-lesson-progress').innerText();
-    assert.match(progress, /Korak 1 od \d+\s*·\s*Okvir 1 od \d+/, `${entry.id}: capture did not begin on step 1, frame 1`);
+    assert.match(progress, /Korak 1\/\d+\s*·\s*del 1\/\d+/, `${entry.id}: capture did not begin on step 1, frame 1`);
     await settle(page);
     if (demonstration.view === 'surface') {
         return captureSurfaceExample(page, entry, browserVersion, servedBuild, build, sourceRevision, pageErrors, destination);
+    }
+    // The board workspace refits the board after load (an animation of a second or two); wait until two reads 250 ms apart agree.
+    for (let waited = 0, last = JSON.stringify(await inspectBoard(page)); waited < 6000; waited += 250) {
+        await page.waitForTimeout(250);
+        const next = JSON.stringify(await inspectBoard(page));
+        if (next === last) break;
+        last = next;
     }
     const initial = await inspectBoard(page);
     verifyEvidence(entry, initial);
@@ -723,9 +743,17 @@ async function captureExample(page, entry, demonstration, recipe, browserVersion
     let highlighted = initial, highlight;
     if (entry.recipe.kind === 'highlight') {
         await applyHighlightRecipe(page, entry);
+        // The lesson card morphs the board between steps (an animated refit that outlasts the recipe step); wait for it to end, then require 250 ms of stillness below.
         highlighted = await inspectBoard(page);
+        for (let waited = 0; waited < 4000; waited += 250) {
+            await page.waitForTimeout(250);
+            const next = await inspectBoard(page);
+            const still = JSON.stringify(roundedBoard(next)) === JSON.stringify(roundedBoard(highlighted));
+            highlighted = next;
+            if (still) break;
+        }
         await page.waitForTimeout(250);
-        assert.deepEqual(await inspectBoard(page), highlighted, `${entry.id}: board still changing after the recipe steps; refusing an unsettled highlight`);
+        assert.deepEqual(roundedBoard(await inspectBoard(page)), roundedBoard(highlighted), `${entry.id}: board still changing after the recipe steps; refusing an unsettled highlight`);
         highlight = verifyHighlight(entry, initial, highlighted);
     }
     await page.evaluate(async () => { await document.fonts.ready; });

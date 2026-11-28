@@ -310,7 +310,7 @@ const motionSpecs = {
         invariants:['Visible weighted interpolation points and legs agree with projected homogeneous de Casteljau levels', 'Evaluated point and curve prefix agree with independent rational Bernstein evaluation; no selection handles'],
     },
     'rational-extrapolation': {
-        mode:'parameter-sweep',controlCount:4,control:{label:'Parameter ekstrapolacije t',kind:'range'},
+        mode:'parameter-sweep',controlCount:4,control:{label:'Ekstrapolacija t',kind:'range'},
         sweep:{waypoints:[1,1.2,1],step:0.005,start:1,
             readout:{read:({range})=>range.getAttribute('aria-valuetext'),matches:(s,v)=>Math.abs(Number(String(s).replace(',','.'))-v)<0.011},
             observe:boardGeometry,

@@ -473,7 +473,7 @@ describe('PH offset and singularity expectations (task 04a-3)', () => {
             expect(r.frame).toBe('observe'); expect(r.checks.curveCount).toBe(2);
             expect(r.steps.slice(0, 3)).toEqual([{kind: 'explore'}, {kind: 'select-tab', tab: 'display'}, {kind: 'set-control', control: 'checkbox', label: 'Odmiki krivulje', value: true}]);
         }
-        expect(get('ph-curves.investigate-ph.ph-quintic-singularity').steps.at(-1)).toEqual({kind: 'set-control', control: 'slider', label: 'Razdalja odmika d', value: -2.5});
+        expect(get('ph-curves.investigate-ph.ph-quintic-singularity').steps.at(-1)).toEqual({kind: 'set-control', control: 'slider', label: 'Razdalja d', value: -2.5});
         expect(get('ph-curves.worked-length.ph-cubic-offset-length').steps.at(-1)).toMatchObject({value: 1});
     });
 });

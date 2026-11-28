@@ -144,7 +144,7 @@ const PH_DEFAULT_OFFSET = 0.2, PH_QUINTIC_SELF_INTERSECTION = -2.5;
 const phOffsetOn: readonly HighlightStep[] = [
     {kind: 'explore'}, {kind: 'select-tab', tab: 'display'}, {kind: 'set-control', control: 'checkbox', label: 'Odmiki krivulje', value: true},
 ];
-const phOffsetAt = (d: number): readonly HighlightStep[] => [...phOffsetOn, {kind: 'select-tab', tab: 'edit'}, {kind: 'set-control', control: 'slider', label: 'Razdalja odmika d', value: d}];
+const phOffsetAt = (d: number): readonly HighlightStep[] => [...phOffsetOn, {kind: 'select-tab', tab: 'edit'}, {kind: 'set-control', control: 'slider', label: 'Razdalja d', value: d}];
 const phCubicControls = phControlPointsOf(phCubicFixture), phQuinticControls = phControlPointsOf(phQuinticFixture);
 const phCubicWithOffset = (d: number): HighlightChecks => ({
     curveCount: 2, points: phCubicControls, curves: [sampleCurve(t => phPointOf(phCubicFixture, t)), sampleCurve(t => phOffsetPointOf(phCubicFixture, d, t))],
@@ -221,7 +221,7 @@ export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRec
     'bezier-curves.affine-transformations.affine': {
         kind: 'highlight', frame: 'affine-quarter-turn-observation', steps: [], expectChange: true,
         checks: {
-            curveCount: 1, points: [...rotatedAffineControls, bezierPoint(rotatedAffineControls, MIDPOINT)],
+            curveCount: 2, points: [...rotatedAffineControls, bezierPoint(rotatedAffineControls, MIDPOINT)],
             curves: [sampleCurve(t => bezierPoint(rotatedAffineControls, t))],
         },
     },
@@ -427,7 +427,7 @@ export const guidedExampleHighlightRecipes: Readonly<Record<string, HighlightRec
     // Secant of x^2 through P = (1, 1) and Q = (2, 4) with the tangent switched on in the Prikaz tab: the tangent y = 2x - 1 joins the parabola.
     'functions-and-calculus.derivatives.derivative': {
         kind: 'highlight', frame: 'derivative-secant-observation', expectChange: true,
-        steps: [{kind: 'explore'}, {kind: 'select-tab', tab: 'display'}, {kind: 'set-control', control: 'checkbox', label: 'Prikaži tangento (natančna mejna premica)', value: true}],
+        steps: [{kind: 'explore'}, {kind: 'select-tab', tab: 'display'}, {kind: 'set-control', control: 'checkbox', label: 'Tangenta', value: true}],
         checks: {curveCount: 2, points: [[1, 1], [2, 4]], curves: [graphSamples(x => x * x), graphSamples(x => 2 * x - 1)]},
     },
     // The default base a = 2 is the first frame: the graph of 2^x through (0, 1) and (1, 2); the mirror is off.

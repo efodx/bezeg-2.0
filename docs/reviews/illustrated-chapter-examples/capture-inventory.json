@@ -516,7 +516,7 @@
         "steps": [],
         "expectChange": true,
         "checks": {
-          "curveCount": 1,
+          "curveCount": 2,
           "points": [
             [
               4,
@@ -557,7 +557,7 @@
           ]
         }
       },
-      "recipeFingerprint": "e1b93a990ee242f970c00bfa54a82d4102adf5f795d1c7e47443c18569f854ee"
+      "recipeFingerprint": "6f9a3e90ac64a613ca43ce9eccd821854e025f3a1acee2e2bd4c64655fa9027d"
     },
     {
       "id": "bezier-curves.bernstein-form.bernstein",
@@ -1627,7 +1627,7 @@
           {
             "kind": "set-control",
             "control": "checkbox",
-            "label": "Prikaži tangento (natančna mejna premica)",
+            "label": "Tangenta",
             "value": true
           }
         ],
@@ -1676,7 +1676,7 @@
           ]
         }
       },
-      "recipeFingerprint": "1532d8d822d1415e73df83e8c1708ffa456ff9f96b6743c0021eb090872ecbf0"
+      "recipeFingerprint": "8940a028d69c1a21b77374f56575460e67e5b37f1c8f5c828b1e6cc0e66aec73"
     },
     {
       "id": "functions-and-calculus.function-rules.exponential-function",
@@ -2195,7 +2195,7 @@
       "id": "parametrization.weighted-knot.weighted-parameterization",
       "demonstrationId": "weighted-parameterization",
       "path": "/bezeg-2.0/param/param/alphaparam?example=lesson.parametrization.weighted-knot.weighted-parameterization",
-      "sceneFingerprint": "ca36be53864057c9a37f0bc0c01fddcac7a78dc919912f3046fc32b954413e49",
+      "sceneFingerprint": "c967566900ac58fdaad59b91c3dc50a801fa8e015a7e5fb7276ab21e94de0daa",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wp-identity-three\",\"source\":\"demonstration-default\"}",
         "parameterization-alpha: {\"kind\":\"parameterization-alpha\",\"value\":0.5}",
@@ -2608,7 +2608,7 @@
           {
             "kind": "set-control",
             "control": "slider",
-            "label": "Razdalja odmika d",
+            "label": "Razdalja d",
             "value": -2.5
           }
         ],
@@ -2673,7 +2673,7 @@
           ]
         }
       },
-      "recipeFingerprint": "87e94d4d34a3d1d1c0f08aaec5e53fff4cfdd34ae19dd92bcd03eb71db7d7998"
+      "recipeFingerprint": "8433ca7e747c4aeac4c04d95cfa2bf4f3a62d660d747679654787f329d9e5c4c"
     },
     {
       "id": "ph-curves.offsets.ph-quintic-offsets",
@@ -2794,7 +2794,7 @@
           {
             "kind": "set-control",
             "control": "slider",
-            "label": "Razdalja odmika d",
+            "label": "Razdalja d",
             "value": 1
           }
         ],
@@ -2851,7 +2851,7 @@
           ]
         }
       },
-      "recipeFingerprint": "a203ca475ab8fcca6bcebb8d74d3dd712afa725a44937e3ea2b44e54d3012250"
+      "recipeFingerprint": "255812c1a4116dbe6ad3f21d9dacd5a6e102f17d188ce6a7aac122872e2746e6"
     },
     {
       "id": "rational-curves.homogeneous.rational-decasteljau",

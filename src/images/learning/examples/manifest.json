@@ -1,61 +1,61 @@
 {
   "version": 1,
   "generator": "scripts/capture-guided-example-previews.cjs",
-  "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+  "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
   "sourceTree": "prepared scene/action fingerprints come from the complete generated inventory; source/build revision is recorded separately",
-  "sourceStateDirty": false,
+  "sourceStateDirty": true,
   "buildStamp": {
     "version": 1,
-    "revision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-    "dirty": false,
-    "inputs": "82934b0053b8eb84cbb10ad71da01632d15b20ea5f0bf4a8f831f28cd2b8346f",
-    "output": "0b195b18118b06e2b052e56913fcfc671db2838c6896777cd09d5e2d65c03b86"
+    "revision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+    "dirty": true,
+    "inputs": "96ad055965029c5b2791b11cad99f45d0cfd12103157a19effde52db8861ea94",
+    "output": "71fde898429f2a2c5503aead4248659f0342db0e241c070262185ed5cf62cc08"
   },
   "servedBuild": {
-    "shellUrl": "http://127.0.0.1:4387/bezeg-2.0/",
-    "stampRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-    "stampDirty": false,
-    "localOutputHash": "0b195b18118b06e2b052e56913fcfc671db2838c6896777cd09d5e2d65c03b86",
+    "shellUrl": "http://127.0.0.1:4472/bezeg-2.0/",
+    "stampRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+    "stampDirty": true,
+    "localOutputHash": "71fde898429f2a2c5503aead4248659f0342db0e241c070262185ed5cf62cc08",
     "localOutputHashVerified": true,
     "bundles": [
       {
-        "name": "index-DX0u2Jna.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-DX0u2Jna.js",
-        "sha256": "8934072868b784bd2456498b6c51dda28177ac694be50c742cb12cd236f17e2b",
+        "name": "index-BHQN7AXS.js",
+        "url": "http://127.0.0.1:4472/bezeg-2.0/assets/index-BHQN7AXS.js",
+        "sha256": "4a27bf8ece1d701fbde1bbab6bc845f1a98cfe321f34b008f76ddcf5c8edb5bb",
         "matchesLocalBuild": true
       },
       {
         "name": "rolldown-runtime-Dd_uD5pT.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
+        "url": "http://127.0.0.1:4472/bezeg-2.0/assets/rolldown-runtime-Dd_uD5pT.js",
         "sha256": "c5f0356f5d0918a3137e4e811fd18950efe8ac8f6bf84d1d4da7811c477a24d8",
         "matchesLocalBuild": true
       },
       {
-        "name": "jsx-runtime-DHjp65VN.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/jsx-runtime-DHjp65VN.js",
-        "sha256": "3b892451ca61c15db6cd25cbcca34dc542d52a210e9f35deb622c1539bfd9269",
+        "name": "jsx-runtime-D4WvILAf.js",
+        "url": "http://127.0.0.1:4472/bezeg-2.0/assets/jsx-runtime-D4WvILAf.js",
+        "sha256": "491b973ca4972cfa9ef040b22cbd5bbbbbb3e4a481e59fa128f43a00c373b82d",
         "matchesLocalBuild": true
       },
       {
-        "name": "react-dom-C0TcWuIp.js",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/react-dom-C0TcWuIp.js",
-        "sha256": "94b71e68833f68c78c37cab3951bc6ba151ad80a632aeee3be5bd5b14f7cfc6e",
+        "name": "react-dom--D_yZnNz.js",
+        "url": "http://127.0.0.1:4472/bezeg-2.0/assets/react-dom--D_yZnNz.js",
+        "sha256": "1672b35a99b10a058e0966310703d2da5065c4d58591578362a8631921fa979d",
         "matchesLocalBuild": true
       },
       {
-        "name": "index-oyVtknyb.css",
-        "url": "http://127.0.0.1:4387/bezeg-2.0/assets/index-oyVtknyb.css",
-        "sha256": "96262d0af6d454c18fc4d135513c94c03018419cf343f40f1aeaa5659722129b",
+        "name": "index-C9K7Bv7O.css",
+        "url": "http://127.0.0.1:4472/bezeg-2.0/assets/index-C9K7Bv7O.css",
+        "sha256": "586a0c36cd6ec736f1932d82ca2aee7e9d61a38131f5666b1be8da879952390b",
         "matchesLocalBuild": true
       }
     ]
   },
-  "appBaseUrl": "http://127.0.0.1:4387/bezeg-2.0",
+  "appBaseUrl": "http://127.0.0.1:4472/bezeg-2.0",
   "browserVersion": "156.0.8078.4",
   "locale": "sl-SI",
   "colorScheme": "light",
   "fingerprints": {
-    "inventory": "8dcfa54050b42df71a17e24462ec19accf383ccbb3f714362b7b3bbbeb85393c",
+    "inventory": "3f134d27ab885477717ece63306729d1f499e672cda03b7fed50ece718979538",
     "entries": {
       "analysis.convergence.fixed-point": "7faba2c2882c18dd394f6ba4f6d77face3db79ba9bf678a06fa3f9324407f467",
       "analysis.convergence.sequence": "7ea456025d65b71b531ff7331c8e4e43e6e0c6a0f86b622253df35bd19695431",
@@ -66,7 +66,7 @@
       "analysis.existence.bisection": "73e5fa787d50944ee5ae5ac84efb57ac13f6086aca936e640f77e6535bc8fa1f",
       "analysis.integrability.darboux": "1cce2e38477e2adbb1c970a644fda4890227cc273b40104dfd53f3c1e987f458",
       "analysis.taylor.taylor": "b8e3aff9b300418027da118fb6ea4b0c1282497aa33c827e0e2b181b7f019e75",
-      "bezier-curves.affine-transformations.affine": "920f535fc996cb22c7eaf58f8535f6f4c4261bf61516946aea0b0e0175be002d",
+      "bezier-curves.affine-transformations.affine": "8c00d28244f5ca4c085da1c507a4ca56debde182624971019ae7add9b670956d",
       "bezier-curves.bernstein-form.bernstein": "ea2064aba9a138537078bb714173b107d82ace08e616f99d9e0cc47a6c4f86f8",
       "bezier-curves.control-points.bezier": "739e0552857f2b3afd742a3c187ed8eda5a3f695354c9fdc750fdde06d128a0c",
       "bezier-curves.geometric-properties.convex-hull": "ceaa2fbf11b3cd553b151edae709aba3cb69cb4ec319b593b4c5d30ec557956e",
@@ -84,7 +84,7 @@
       "functions-and-calculus.applications.arc-length": "41a0f4c3dd9722dd8e07f4c76a0121a6451f1e01ba64e33f16ede9c1dc09e56e",
       "functions-and-calculus.applications.area-between-curves": "ef53e71888b8b5dbeb9d115de8cf3c0ce34ac9edf9d98f5cd98b3b75dea81abb",
       "functions-and-calculus.continuity.continuity": "41fb87f0d7adcf2c91049ce739d601656b57303df2c43cf54101aeab64cc3cc0",
-      "functions-and-calculus.derivatives.derivative": "02944d9dd9a4a142a8e6bc47edaa20877b3ac0c61982fe6167ed8045114e313a",
+      "functions-and-calculus.derivatives.derivative": "0f1fd5f654094de5ebb4503641d6f9e8a9e64071ab58ff47c0c8195b44853e27",
       "functions-and-calculus.function-rules.exponential-function": "54e75f832980b7152c4a108208fa6402aa188163fa5deef617458c5ec0baf8f5",
       "functions-and-calculus.function-rules.linear-function": "77cb55a5ed1a8162e2102bf008175be3a38a9c21294fd714c6bdf7fe9947fbfa",
       "functions-and-calculus.function-rules.trigonometric-functions": "d775cf3dc68f8f1ec4f50453bcd8f2349cc30f6aabc53756f8da47cb283864db",
@@ -92,14 +92,14 @@
       "functions-and-calculus.integrals.definite-integral": "a55ececdddee423bc5bd687666d41435c67dd29fa780a6bea4f86a71ec9d11ea",
       "parametrization.uniform-timing.uniform-parameterization": "7b088fcf0115c3bed74529a6b5f2f7b5741861920b01f89b33fe5ea2945ae15b",
       "parametrization.weighted-knot.spline-parameterization": "1bb33b79a7066591d89d0305f9fae7bc04cce4b0c5dcc5c5a7e784abb6904d36",
-      "parametrization.weighted-knot.weighted-parameterization": "1e1659110724e6c05eeb741f24565d588f5f18d2339282f78253809089bac518",
+      "parametrization.weighted-knot.weighted-parameterization": "695f3d5e2cac77980e09594c7bd1d8f0b0aba1183eab58d6cdf45a8b3d8774c4",
       "ph-curves.arc-length-problem.ph-cubic-speed": "2032111da03d80f63eec385890becc969b0e22a529a844f0b4269a28569878b5",
       "ph-curves.arc-length-problem.ph-quintic-comparison": "fe9509b2c7d1f43d0d1a038432a9687d6fb7594740559d48a7498074ed2170ee",
       "ph-curves.complex-hodograph.ph-cubic-generator": "3a34c4c5e6694f4fc5e7f3707e0a8df16427f7511e9f724a4aa4d5c02c1afbbf",
       "ph-curves.investigate-ph.ph-cubic-singularity": "ee46fdb97ab2463ef4fe8931687ae68bd790bf8fd34c7357858885b072ec196e",
-      "ph-curves.investigate-ph.ph-quintic-singularity": "8a56ae9498160a171edbf4cc52afee262e5db18c9b40fa98662926140c25b9a0",
+      "ph-curves.investigate-ph.ph-quintic-singularity": "2e8e21fd0d3f9b1e00ac6d6e7d46202d8e736d0be18ab3923e8d0144f8fc9498",
       "ph-curves.offsets.ph-quintic-offsets": "fbbfab703db1c9ab2b244693078e9ab735b21c6071692083ec14403568a32330",
-      "ph-curves.worked-length.ph-cubic-offset-length": "52283fa34dce7386fcff101a39db66ad3d25494943048b672ad9a86d67d2ec59",
+      "ph-curves.worked-length.ph-cubic-offset-length": "b7f439f3c05155a445e0e44697db54526bc23a82ac37f7afc9e7e061689bd201",
       "rational-curves.homogeneous.rational-decasteljau": "2a2b62710f32b09ea1f42543106f5887f5df45aedbdf477b4d68a544d0c64d9a",
       "rational-curves.investigate-rational.rational-extrapolation": "087c4a0257b011907e4d03befe9fdc0c6f18bc26969c5c5afc6a321fbcb6684e",
       "rational-curves.operations.farin": "2fd63e3aa512f2f6f63ce24037d3ddf3fedc6b576c6578f1477fd3658e7275af",
@@ -114,9 +114,9 @@
       "splines.piecewise.spline-cn": "0641c6a84cdab1c9271025f92290f6aded30ce4dba0c79f0c692f7c018d11dd0",
       "splines.worked-join.spline-c1.parabola-derivatives": "c23b4ed4a16b4741f2cfc427e2243f72a465cd39b2258c265130a630b0628813"
     },
-    "presentation": "b758573eecc327ea30b7fa7a7898b62e8ccaf66a5e58f6599e1bd9984b436f52",
-    "buildOutput": "0b195b18118b06e2b052e56913fcfc671db2838c6896777cd09d5e2d65c03b86",
-    "buildInputs": "82934b0053b8eb84cbb10ad71da01632d15b20ea5f0bf4a8f831f28cd2b8346f"
+    "presentation": "b60cc31264090a264462e5877b28b28049b2d3f5abf6f7b1166c29323691c8e4",
+    "buildOutput": "71fde898429f2a2c5503aead4248659f0342db0e241c070262185ed5cf62cc08",
+    "buildInputs": "96ad055965029c5b2791b11cad99f45d0cfd12103157a19effde52db8861ea94"
   },
   "capture": {
     "cleanContextPerExample": true,
@@ -799,8 +799,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "f22091ac6eadf1adc06501299de88c6705374f2ecd47a12faeb8ccfbc76642ba",
-        "resultFingerprint": "373a12306b1c42e0dcd352097a448c5a56a78b92a1a2691d4a3eb3ea5bef9b7f",
+        "startFingerprint": "5543a294bb1b533ce0765039a4a00309ce7cda30be96e1a42bbab5d82b5f139c",
+        "resultFingerprint": "64693343bcddd1a87564320225d0e8f9b2b5b68d9e6ed237e7eec8ef0bb9341a",
         "changedFromStart": true,
         "checks": [
           {
@@ -829,15 +829,15 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 33,
+          "visibleElementCount": 28,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 15,
+            "label": 11,
             "curve": 3,
             "segment": 3,
             "point": 6,
-            "text": 2
+            "text": 1
           },
           "visiblePointCount": 6
         }
@@ -850,13 +850,13 @@
       "file": "analysis.convergence.fixed-point.png",
       "width": 840,
       "height": 520,
-      "sha256": "d47b084e8168c27b761da4befff35f7d8d6e86f6bf67fb8aace008460e4491d2",
+      "sha256": "0405d7241c9b5046b1130a8051473eee2ad4392ac3fa976585136eef027e3bbb",
       "scene": {
-        "visibleElementCount": 21,
+        "visibleElementCount": 27,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 5,
+          "label": 11,
           "curve": 3,
           "segment": 3,
           "point": 6
@@ -920,15 +920,15 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 28,
+          "visibleElementCount": 23,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 15,
+            "label": 11,
             "curve": 3,
             "segment": 1,
             "point": 3,
-            "text": 2
+            "text": 1
           },
           "visiblePointCount": 3,
           "sampledVisibleCurves": [
@@ -990,7 +990,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 5,
+          "label": 11,
           "curve": 3,
           "segment": 3,
           "point": 6
@@ -999,8 +999,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -1064,8 +1064,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "c413c2109096d8b2cfe9bc1548477b315db7392eff118d85093ef0e204533428",
-        "resultFingerprint": "f82a42198c4cccc6f7633b1bfbcd94657fbe2e783d7e0afc23709025abf659ef",
+        "startFingerprint": "dd1c5de22ca8d91fccb5528081007911be5d05637214a88037d96d70fd7889bd",
+        "resultFingerprint": "ab00cae986d8348fd2e405b08868c66c27dfb9085c5667bb2a3c13819ec148c2",
         "changedFromStart": true,
         "checks": [
           {
@@ -1090,15 +1090,15 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 45,
+          "visibleElementCount": 35,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 22,
+            "label": 13,
             "curve": 1,
             "segment": 4,
             "point": 12,
-            "text": 2
+            "text": 1
           },
           "visiblePointCount": 12
         }
@@ -1111,13 +1111,13 @@
       "file": "analysis.convergence.sequence.png",
       "width": 840,
       "height": 520,
-      "sha256": "30bb612b2bbc3f7dce8ac14b91a4ffd0d8c029cb8bf8433bb9d6e1a6471f2a4a",
+      "sha256": "4c9699f58caafd6225a5d1bb08fb44b74f1b0e81228577b09605ecf853a39e26",
       "scene": {
-        "visibleElementCount": 30,
+        "visibleElementCount": 28,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 8,
+          "label": 6,
           "curve": 1,
           "segment": 4,
           "point": 12,
@@ -1153,29 +1153,29 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 45,
+          "visibleElementCount": 35,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 22,
+            "label": 13,
             "curve": 1,
             "segment": 4,
             "point": 12,
-            "text": 2
+            "text": 1
           },
           "visiblePointCount": 12,
           "sampledVisibleCurves": [
             [
               [
-                -4.9,
+                -12.921367,
                 -0.25
               ],
               [
-                19.05,
+                7.406633,
                 -0.25
               ],
               [
-                43,
+                27.734633,
                 -0.25
               ]
             ]
@@ -1195,7 +1195,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 8,
+          "label": 6,
           "curve": 1,
           "segment": 4,
           "point": 12,
@@ -1205,8 +1205,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -1285,8 +1285,8 @@
           }
         ],
         "expectChange": true,
-        "startFingerprint": "7b246f683b3cf46b9b68641a1f15a6923da819024575af1f6f447d5b252b5c87",
-        "resultFingerprint": "badebd2a68ae59bb48d7ec2c3c43e50e5b9909500f3b70979a49d0d07b4ad471",
+        "startFingerprint": "b83b0a2e85fdfd3fe133980de8d88099be985a03c0e4dd46d20c52f51a5a2505",
+        "resultFingerprint": "dbf748fc5cf3963b2c3e6241988d9fd9282c0b6f593c65ed248bf6e937fcae71",
         "changedFromStart": true,
         "checks": [
           {
@@ -1307,15 +1307,14 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 32,
+          "visibleElementCount": 30,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 15,
+            "label": 14,
             "curve": 2,
             "segment": 5,
-            "point": 5,
-            "text": 1
+            "point": 5
           },
           "visiblePointCount": 5
         }
@@ -1328,12 +1327,13 @@
       "file": "analysis.convergence.uniform-convergence.png",
       "width": 840,
       "height": 520,
-      "sha256": "b89a89e692fe1be9e7eacf4170113457110bb9b7a5a24a6453980b111822ef69",
+      "sha256": "894b19945684d9ccb72863444ade568195a1332113f8109a70d6c3cfd8aa0147",
       "scene": {
-        "visibleElementCount": 16,
+        "visibleElementCount": 28,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
+          "label": 12,
           "curve": 2,
           "segment": 5,
           "point": 5
@@ -1381,15 +1381,14 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 30,
+          "visibleElementCount": 32,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 15,
+            "label": 18,
             "curve": 2,
             "segment": 4,
-            "point": 4,
-            "text": 1
+            "point": 4
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -1437,6 +1436,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
+          "label": 12,
           "curve": 2,
           "segment": 5,
           "point": 5
@@ -1445,8 +1445,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -1507,8 +1507,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "aea25d560a602d0a505aee19df6806403996bd7df03d58a696dbbfbc9d4083da",
-        "resultFingerprint": "23543c6c0118025c1a140f3c20da9168cab8a9abb4f342a0073b3a97a7ed6bb2",
+        "startFingerprint": "f8d53f43a02bfd144a48de8702bd488f0b5475ce2f053015a15ac52628330482",
+        "resultFingerprint": "52c2c90f66ca15d43801fa1577fe37830650ca2dbaf72256c324b20de0e78f72",
         "changedFromStart": true,
         "checks": [
           {
@@ -1529,15 +1529,15 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 34,
+          "visibleElementCount": 32,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 16,
+            "label": 15,
             "segment": 4,
             "curve": 2,
             "point": 6,
-            "text": 2
+            "text": 1
           },
           "visiblePointCount": 6
         }
@@ -1550,17 +1550,17 @@
       "file": "analysis.derivative-results.convexity.png",
       "width": 840,
       "height": 520,
-      "sha256": "86e0082533cf0e158cbf6d7e339878c1a83630371c8333b45be870f2dd94f992",
+      "sha256": "22e4db54266802e512cc9586f9291de56f8699e2b0daae0d90c396d4a78692a5",
       "scene": {
-        "visibleElementCount": 30,
+        "visibleElementCount": 28,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 12,
+          "label": 11,
           "segment": 4,
           "curve": 2,
           "point": 6,
-          "text": 2
+          "text": 1
         },
         "visiblePointCount": 6,
         "sampledVisibleCurves": [
@@ -1605,15 +1605,14 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 33,
+          "visibleElementCount": 31,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 16,
+            "label": 15,
             "segment": 4,
             "curve": 2,
-            "point": 6,
-            "text": 1
+            "point": 6
           },
           "visiblePointCount": 6,
           "sampledVisibleCurves": [
@@ -1661,18 +1660,18 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 12,
+          "label": 11,
           "segment": 4,
           "curve": 2,
           "point": 6,
-          "text": 2
+          "text": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -1737,8 +1736,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "2514c07acdc891a79c68450eeba4cc51c5afc068bd2d3e14de7a362dc9c3e218",
-        "resultFingerprint": "3dbdd495b20f121e96b4d237611692ea351cffc2f7e84e6bf81029c8dc4221e0",
+        "startFingerprint": "8b03265e0abd3cd9a167df8f8c324a61ffe7caa27358565aafce8a1038201dfc",
+        "resultFingerprint": "b38f0c101567e86d496c705824ec39c03fff827e11410b066530c273ec90d8a6",
         "changedFromStart": true,
         "checks": [
           {
@@ -1763,14 +1762,14 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 40,
+          "visibleElementCount": 35,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 15,
             "line": 5,
             "curve": 1,
-            "text": 6,
+            "text": 5,
             "point": 5
           },
           "visiblePointCount": 5
@@ -1784,13 +1783,13 @@
       "file": "analysis.derivative-results.extrema.png",
       "width": 840,
       "height": 520,
-      "sha256": "27ef2605f947bf7a855a072b23cdca88bcaafbf8759212b5eebd7b0d58b02fee",
+      "sha256": "3f033f8936cfc898868c987f51898084084c145ea5eb375ade212e6a356e64b2",
       "scene": {
-        "visibleElementCount": 28,
+        "visibleElementCount": 26,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 13,
+          "label": 11,
           "line": 5,
           "curve": 1,
           "point": 5
@@ -1825,14 +1824,14 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 38,
+          "visibleElementCount": 33,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 15,
             "line": 3,
             "curve": 1,
-            "text": 6,
+            "text": 5,
             "point": 5
           },
           "visiblePointCount": 5,
@@ -1867,7 +1866,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 13,
+          "label": 11,
           "line": 5,
           "curve": 1,
           "point": 5
@@ -1876,8 +1875,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -1969,8 +1968,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "b771b9366f40533b5af1e4584d2e0fb4caddf6eb3692b72d9bdb8aeeddaba383",
-        "resultFingerprint": "1d2165c7a58964169a6e065606081a850921e5c9d9297b57189cbf5d5cb28e6c",
+        "startFingerprint": "2bd5ab35b7f93d1372fcda6a93c3b55f6aa47a3ae9729ea9ba18aeb7c6200455",
+        "resultFingerprint": "426f1fc4e0674af89a6fa70d872ccac5ea51a3afc16b4df6e1a848dc080cda9d",
         "changedFromStart": true,
         "checks": [
           {
@@ -2003,15 +2002,14 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 36,
+          "visibleElementCount": 32,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 15,
             "curve": 4,
             "segment": 2,
-            "point": 7,
-            "text": 1
+            "point": 7
           },
           "visiblePointCount": 7
         }
@@ -2024,13 +2022,13 @@
       "file": "analysis.derivative-results.mean-value.png",
       "width": 840,
       "height": 520,
-      "sha256": "dad8dd71878c18c2df587ebcffaeb865e6ed53c6a549e8944da369022d38f495",
+      "sha256": "5311789ce35bc75156ddc8fb442bc671736f62de5a8bc0e7d7889018be87dea9",
       "scene": {
-        "visibleElementCount": 28,
+        "visibleElementCount": 27,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 11,
+          "label": 10,
           "curve": 4,
           "segment": 2,
           "point": 7
@@ -2109,15 +2107,14 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 34,
+          "visibleElementCount": 30,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 15,
             "curve": 3,
             "segment": 2,
-            "point": 6,
-            "text": 1
+            "point": 6
           },
           "visiblePointCount": 6,
           "sampledVisibleCurves": [
@@ -2179,7 +2176,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 11,
+          "label": 10,
           "curve": 4,
           "segment": 2,
           "point": 7
@@ -2188,8 +2185,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -2249,8 +2246,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "74de729ba6a56296e990f4cab5d69afda49594ec8f4741d338a4f0dd26446850",
-        "resultFingerprint": "f20f710a2262a87cbe2aa9fd17cd49e5dc8857073f1399796e44f6a87190be05",
+        "startFingerprint": "ede2e7e9b2154b0f7596d275677e838a6f89f38722c23b675eee0af5daa730d4",
+        "resultFingerprint": "f80dec7bc4abbdfbe0454945423260ab95b14899222cc0751027aed44f20e097",
         "changedFromStart": true,
         "checks": [
           {
@@ -2271,15 +2268,14 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 34,
+          "visibleElementCount": 29,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 17,
+            "label": 13,
             "curve": 1,
             "segment": 5,
-            "point": 6,
-            "text": 1
+            "point": 6
           },
           "visiblePointCount": 6
         }
@@ -2292,17 +2288,16 @@
       "file": "analysis.existence.bisection.png",
       "width": 840,
       "height": 520,
-      "sha256": "277ab59415476153e2469d8fdaacd1512162e10af7938ea8c85c63619d5f29a9",
+      "sha256": "d479d9a79cd35861a37318bdd4c8025d222ea2036b42bddf6ac8bdedfa4694bd",
       "scene": {
-        "visibleElementCount": 25,
+        "visibleElementCount": 21,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 8,
+          "label": 5,
           "curve": 1,
           "segment": 5,
-          "point": 6,
-          "text": 1
+          "point": 6
         },
         "visiblePointCount": 6,
         "sampledVisibleCurves": [
@@ -2333,15 +2328,14 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 29,
+          "visibleElementCount": 24,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 16,
+            "label": 12,
             "curve": 1,
             "segment": 3,
-            "point": 4,
-            "text": 1
+            "point": 4
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -2369,24 +2363,23 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 8,
+          "label": 5,
           "curve": 1,
           "segment": 5,
-          "point": 6,
-          "text": 1
+          "point": 6
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -2438,8 +2431,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "34e8c8ba0a4f814adf77408106ab535a36789219391a92458902019a51e45bf6",
-        "resultFingerprint": "28e5fd8aec049294ef991c0f8c93033857152de3757ff13f6a2767565c32ba70",
+        "startFingerprint": "fe1b41dffd25a529cc36ce3e07e68a0cd6582b10cae8b2955d93d0496bd2a05b",
+        "resultFingerprint": "ad6796450a2caa5f06be056c7ed53a30c2a9b57ee7aa63a5401cbc1e7a7f8834",
         "changedFromStart": true,
         "checks": [
           {
@@ -2452,14 +2445,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 25,
+          "visibleElementCount": 28,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 14,
+            "label": 18,
             "curve": 4,
-            "point": 2,
-            "text": 1
+            "point": 2
           },
           "visiblePointCount": 2
         }
@@ -2472,13 +2464,13 @@
       "file": "analysis.integrability.darboux.png",
       "width": 840,
       "height": 520,
-      "sha256": "33a7282d0b0d4f1dddbc84b1bd6d066161919046e537732dd50170e44a07e9ec",
+      "sha256": "692d3071b522ccb0f111e2a51585c594b2b1cf71795c7edfae7408a02106407f",
       "scene": {
-        "visibleElementCount": 21,
+        "visibleElementCount": 22,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 11,
+          "label": 12,
           "curve": 4,
           "point": 2
         },
@@ -2551,14 +2543,13 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 23,
+          "visibleElementCount": 26,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 14,
+            "label": 18,
             "curve": 2,
-            "point": 2,
-            "text": 1
+            "point": 2
           },
           "visiblePointCount": 2,
           "sampledVisibleCurves": [
@@ -2606,7 +2597,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 11,
+          "label": 12,
           "curve": 4,
           "point": 2
         }
@@ -2614,8 +2605,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -2694,8 +2685,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "9b0db78a2c1187fcc8093bba15d7f9e3d672bfc36a33bcba8c3bb858473748ac",
-        "resultFingerprint": "96dfc60a1902d663440828a0cd4f4b5cb16885cb261f18a59feb7ba86132f2cb",
+        "startFingerprint": "41d7a9faaa5638d5e7ccc80059b7316119732cc0aa110ceb94eebfe569364de4",
+        "resultFingerprint": "1ff993688a90a873ba395f5c268e68aed4b356077a89133ea611117a7f05c687",
         "changedFromStart": true,
         "checks": [
           {
@@ -2724,15 +2715,14 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 33,
+          "visibleElementCount": 28,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 14,
             "segment": 3,
             "curve": 2,
-            "point": 5,
-            "text": 1
+            "point": 5
           },
           "visiblePointCount": 5
         }
@@ -2745,13 +2735,13 @@
       "file": "analysis.taylor.taylor.png",
       "width": 840,
       "height": 520,
-      "sha256": "fc4643a89b097fb528efe5b4740a7cf48b397c06d7675e93b2456eb1b6b2352f",
+      "sha256": "a19c2b82ea8cacade0f049981149e32c8489ca9db5b9ff2c1c364d297411904d",
       "scene": {
-        "visibleElementCount": 19,
+        "visibleElementCount": 25,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 5,
+          "label": 11,
           "segment": 3,
           "curve": 2,
           "point": 5
@@ -2801,15 +2791,14 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 32,
+          "visibleElementCount": 27,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 14,
             "segment": 2,
             "curve": 2,
-            "point": 5,
-            "text": 1
+            "point": 5
           },
           "visiblePointCount": 5,
           "sampledVisibleCurves": [
@@ -2857,7 +2846,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 5,
+          "label": 11,
           "segment": 3,
           "curve": 2,
           "point": 5
@@ -2866,8 +2855,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -2891,7 +2880,7 @@
         "steps": [],
         "expectChange": true,
         "checks": {
-          "curveCount": 1,
+          "curveCount": 2,
           "points": [
             [
               4,
@@ -2932,7 +2921,7 @@
           ]
         }
       },
-      "recipeFingerprint": "e1b93a990ee242f970c00bfa54a82d4102adf5f795d1c7e47443c18569f854ee",
+      "recipeFingerprint": "6f9a3e90ac64a613ca43ce9eccd821854e025f3a1acee2e2bd4c64655fa9027d",
       "highlight": {
         "frame": "affine-quarter-turn-observation",
         "position": {
@@ -2941,8 +2930,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "6be19bf430094b960a4bea12635b6bfba6968651ca1c64008e1cd86b38de8146",
-        "resultFingerprint": "c0248e2d8cf9d155470b53b2546db8fd587145b96ed006b9866a4a29f5bea976",
+        "startFingerprint": "f7ed2d367eea2a227ad8746111487f2340341d98b3967112064e8bb17a8c14f4",
+        "resultFingerprint": "1571fe0b02c0ab0b0a423d5ada0c7bfe1771bcacd381f1870ec29b25acd384b7",
         "changedFromStart": true,
         "checks": [
           {
@@ -2975,16 +2964,16 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 33,
+          "visibleElementCount": 32,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
-            "point": 5,
-            "curve": 1,
+            "label": 16,
+            "point": 7,
+            "curve": 2,
             "segment": 3
           },
-          "visiblePointCount": 5
+          "visiblePointCount": 7
         }
       },
       "viewport": {
@@ -2995,16 +2984,30 @@
       "file": "bezier-curves.affine-transformations.affine.png",
       "width": 840,
       "height": 520,
-      "sha256": "4f45e332418bc39f51a37ca5f177f594a8732c2279b70898f22038a6db090f94",
+      "sha256": "17cc2fee21409effc2cae2ec7be6be302c03d93259af2fd059597122e4902e9d",
       "scene": {
-        "visibleElementCount": 9,
+        "visibleElementCount": 12,
         "visibleElementTypes": {
-          "point": 5,
-          "curve": 1,
+          "point": 7,
+          "curve": 2,
           "segment": 3
         },
-        "visiblePointCount": 5,
+        "visiblePointCount": 7,
         "sampledVisibleCurves": [
+          [
+            [
+              1,
+              0
+            ],
+            [
+              3,
+              1.75
+            ],
+            [
+              5,
+              -1
+            ]
+          ],
           [
             [
               4,
@@ -3035,11 +3038,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 35,
+          "visibleElementCount": 28,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 22,
+            "label": 15,
             "point": 5,
             "curve": 1,
             "segment": 3
@@ -3074,16 +3077,16 @@
         "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
-          "point": 5,
-          "curve": 1,
+          "point": 7,
+          "curve": 2,
           "segment": 3
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -3175,8 +3178,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "1b1fa0e56f818e44c7292c41a9dc543c21ddcc65b5df8925815d5fe4c3c6649f",
-        "resultFingerprint": "adda6a4f541c1e78d3142ec15d5ad1ca7416bc06cdc05121152d161a975a1e16",
+        "startFingerprint": "928de86e2dc861b4bbd324d9b29e5793ce8272f30552c02f6ce172d89e195baf",
+        "resultFingerprint": "33357aad5e79e734a7478e7b8331b4ca74868e5d6b055da5a0c74e856c288fb3",
         "changedFromStart": true,
         "checks": [
           {
@@ -3201,11 +3204,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 22,
+          "visibleElementCount": 26,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 14,
+            "label": 18,
             "curve": 4
           },
           "visiblePointCount": 0
@@ -3219,7 +3222,7 @@
       "file": "bezier-curves.bernstein-form.bernstein.png",
       "width": 840,
       "height": 520,
-      "sha256": "f171f5d7e7f726e1fbfcd0c698ecfe9960adcdba99f1707b99effbb065818935",
+      "sha256": "ee1750fadcb4b52fea332dfc663740fe4949c81610aedd0f03a5a0a4319fbee2",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -3299,11 +3302,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 20,
+          "visibleElementCount": 24,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 14,
+            "label": 18,
             "curve": 2
           },
           "visiblePointCount": 0,
@@ -3358,8 +3361,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -3431,8 +3434,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "a865cc029a47ff95b38dc108900196ec2f833ac35f70989b16f657aa834e8abb",
-        "resultFingerprint": "5d3d90b8f67a7c29daa6654226668e990941d8ffb76a74d0d3e231ae74c486b0",
+        "startFingerprint": "766f0debc9fcb594823a8517d94ecad65b427cad494ddc7a251cfd4d5a90706d",
+        "resultFingerprint": "41a25651e642e32f393ab901ef8b5d4181c6be14126b79605b4638b9951e8a38",
         "changedFromStart": true,
         "checks": [
           {
@@ -3465,11 +3468,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 37,
+          "visibleElementCount": 39,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 21,
             "point": 5,
             "curve": 1,
             "segment": 7,
@@ -3486,7 +3489,7 @@
       "file": "bezier-curves.control-points.bezier.png",
       "width": 840,
       "height": 520,
-      "sha256": "f9f54273f803b0ba41d3fe82f05ebe951584b608a3d83f838c058eabe4bf086b",
+      "sha256": "56870343096fde01f993962cf433bc40d3dccbb1aea4d51b1cfa90cf8e3ab783",
       "scene": {
         "visibleElementCount": 14,
         "visibleElementTypes": {
@@ -3527,11 +3530,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 27,
+          "visibleElementCount": 29,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 20,
             "point": 4,
             "curve": 1
           },
@@ -3574,8 +3577,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -3597,7 +3600,7 @@
       "file": "bezier-curves.geometric-properties.convex-hull.png",
       "width": 840,
       "height": 520,
-      "sha256": "7c6b72cf34428e7727401b9b7661aa4514a14d64f47e90b19a96528394090e85",
+      "sha256": "ff1e2519c321c8ff76b7ed5f153abfeb11d5d1b9e9f9706c9891fb1c06f34122",
       "scene": {
         "visibleElementCount": 13,
         "visibleElementTypes": {
@@ -3630,11 +3633,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 37,
+          "visibleElementCount": 40,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 23,
             "point": 4,
             "curve": 1,
             "segment": 7,
@@ -3679,8 +3682,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -3764,8 +3767,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "ce56fe368c1ccb6dfcfd66fe7e84971e281a0bf90b0adf5d48749df5a5492fc8",
-        "resultFingerprint": "40bb9a04eaf68273d32b1b3b2534a9710b61c7bfde105ca9b97ddb6e1bdec770",
+        "startFingerprint": "ce9d54f940296a1ac4a214ba8380b8d342b73a7dfdf77487da882009ec9407c4",
+        "resultFingerprint": "ecb17d2dc5be903212d1710c367a9b4ce0abfab013f297e345569dfc52a29306",
         "changedFromStart": true,
         "checks": [
           {
@@ -3806,11 +3809,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 40,
+          "visibleElementCount": 39,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 24,
+            "label": 23,
             "point": 8,
             "curve": 3,
             "segment": 1
@@ -3826,7 +3829,7 @@
       "file": "bezier-curves.interpolation.alternative-recursion.png",
       "width": 840,
       "height": 520,
-      "sha256": "2138da0d5d5bd834edef0d283f996ecbeb1afb709c1e895b9ac78a0957ddb9fa",
+      "sha256": "27bd1866d39c6ca4cbffd6649281c0f3cba19f4c04bcaf42bd84cfcd83bafab0",
       "scene": {
         "visibleElementCount": 12,
         "visibleElementTypes": {
@@ -3896,11 +3899,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 40,
+          "visibleElementCount": 39,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 25,
+            "label": 24,
             "point": 7,
             "curve": 3,
             "segment": 1
@@ -3971,8 +3974,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -4066,8 +4069,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "e6b929b97094cee707edd33457558dc86702f1a2dfc5085d70fc63f0cc56cdc6",
-        "resultFingerprint": "9d676dde6342041b4edf5f229bb530461ef5f8984f7c9919454d344e7b3bccde",
+        "startFingerprint": "d7f96c8eb11fd072dcb0345468ace64d5eb856e9140da224e1fca97650022228",
+        "resultFingerprint": "a9ab9e09d15ab313c007ee72b6a12ac70d766d831530ad22d02329d79ef376da",
         "changedFromStart": true,
         "checks": [
           {
@@ -4120,11 +4123,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 45,
+          "visibleElementCount": 47,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 24,
+            "label": 26,
             "point": 10,
             "curve": 1,
             "segment": 6
@@ -4140,7 +4143,7 @@
       "file": "bezier-curves.interpolation.decasteljau.png",
       "width": 840,
       "height": 520,
-      "sha256": "ba399d75a316cecbf3e8a1ba7557047d720544b9074d0b4e02030828e0895745",
+      "sha256": "53dd15b7bb86cd70aa9ad8ded4dc0ceb50edf58e0a4373b69f95f102e3f2fa72",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -4185,11 +4188,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 34,
+          "visibleElementCount": 37,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 23,
             "point": 6,
             "curve": 1,
             "segment": 3
@@ -4232,8 +4235,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -4256,7 +4259,7 @@
       "file": "bezier-curves.interpolation.quartic-interpolation.png",
       "width": 840,
       "height": 520,
-      "sha256": "197bae6727dfe23e8cd5a2675467f9b6dcf77844650b9dffbcbbf3bc54f803b3",
+      "sha256": "d1339cdd131d05c613085901e8aa6efbf89e2b31858f1fcb4c1308641ac17ada",
       "scene": {
         "visibleElementCount": 27,
         "visibleElementTypes": {
@@ -4302,11 +4305,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 62,
+          "visibleElementCount": 65,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 31,
+            "label": 34,
             "point": 15,
             "curve": 2,
             "segment": 10
@@ -4363,8 +4366,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -4440,8 +4443,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "f9978f11f99a045460474e1ecb209dc7394966a097b0290e6980ea7da5392770",
-        "resultFingerprint": "a9346bf815053696f680d764ba2cff595e76fd9114b8143752515399e70629cc",
+        "startFingerprint": "abed468217a376b9de798e3a823ecc5fec70ee132a69f4ae7a31d88b1e0c4328",
+        "resultFingerprint": "1a493ffe76f10524b7ef05e6dc7407b788b3fc8f6a2a1b8a0d36cb836be9a379",
         "changedFromStart": true,
         "checks": [
           {
@@ -4474,11 +4477,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 54,
+          "visibleElementCount": 51,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 28,
+            "label": 25,
             "curve": 1,
             "point": 12,
             "segment": 9
@@ -4494,7 +4497,7 @@
       "file": "bezier-curves.next-ideas.elevation.png",
       "width": 840,
       "height": 520,
-      "sha256": "374875d75bc074d5ad28ea7619f441cc7464f5844c7d46425844435a02b15498",
+      "sha256": "d414d2d6796997c6dba3df8cfb623a58808afa7ce04ace24d54600232ad67a4a",
       "scene": {
         "visibleElementCount": 22,
         "visibleElementTypes": {
@@ -4534,11 +4537,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 46,
+          "visibleElementCount": 49,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 25,
+            "label": 28,
             "point": 9,
             "curve": 1,
             "segment": 7
@@ -4581,8 +4584,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -4650,8 +4653,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "55a0af637ad1caa3bdc4d23e4fde1933f2c51122b09fccaaa3043a8014e53474",
-        "resultFingerprint": "706e909d44a292d8325b8a28e9bf65a3dbd2e85ec055f3828a41c7c79f9a9c2b",
+        "startFingerprint": "04c512d3a48e1a70168554c7dbdac6af8486a2bb84778589504774515730c8b5",
+        "resultFingerprint": "3cd52e75420b40ab0d3bf925afc2dc8340accb25263cb1006402c348324582ab",
         "changedFromStart": true,
         "checks": [
           {
@@ -4680,11 +4683,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 30,
+          "visibleElementCount": 26,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 15,
             "point": 5,
             "curve": 2
           },
@@ -4699,7 +4702,7 @@
       "file": "bezier-curves.next-ideas.extrapolation.png",
       "width": 840,
       "height": 520,
-      "sha256": "21b2ed92c150bb202778766575f608aa1d6ec51e685e8f9105fe85e42f9fb1af",
+      "sha256": "f9fc7ac35734b4417cc6f9a3bbc59a7c911d5295d9475602c94e737b7105ae2b",
       "scene": {
         "visibleElementCount": 7,
         "visibleElementTypes": {
@@ -4751,11 +4754,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 32,
+          "visibleElementCount": 36,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 21,
+            "label": 25,
             "point": 5,
             "curve": 2
           },
@@ -4810,8 +4813,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -4997,8 +5000,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "15076b965bccc97711a821e67720ef3b39f56f15f952e8e66163674ad6f6da83",
-        "resultFingerprint": "97869a64507b6870f3ccb1844d49a949f4eacd855689f2466b4eb6e3deda58c0",
+        "startFingerprint": "ea684cd92d54dbc14f06f8ad266c64c32f2c05e39586fd21cae1daac828a4883",
+        "resultFingerprint": "6c61422e9cdd3e9510a552c884563c9faff2ba5ca35e43a811a53802f9ac0a84",
         "changedFromStart": true,
         "checks": [
           {
@@ -5075,11 +5078,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 116,
+          "visibleElementCount": 114,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 48,
+            "label": 46,
             "point": 32,
             "curve": 8,
             "segment": 24
@@ -5095,7 +5098,7 @@
       "file": "bezier-curves.next-ideas.repeated-subdivision.png",
       "width": 840,
       "height": 520,
-      "sha256": "35cdef44c03bd951fc3939285d1a814d1703f570659440ae1bfd992139909f26",
+      "sha256": "e3fb2d6e24489d35bd3316a7b29f67734743017b03a52160e474a59de3a382db",
       "scene": {
         "visibleElementCount": 64,
         "visibleElementTypes": {
@@ -5244,11 +5247,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 32,
+          "visibleElementCount": 38,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 26,
             "point": 4,
             "curve": 1,
             "segment": 3
@@ -5291,8 +5294,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -5390,8 +5393,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "e4ed6c9c1417b30b87325c77e9b2549a03f655c0f34ddd9382eaea300d03a3f4",
-        "resultFingerprint": "c7f09027ac523280fa90bec6b034b54e66aa1afc775bf086f7434e286d62d96a",
+        "startFingerprint": "fca71897f859aa96744c4439343e376c6de2c230d3c8d5746cc09324fd768cca",
+        "resultFingerprint": "4f1fce077815f2b4c66a733959dff3c51a494d0167fc38760da12cc195069aa7",
         "changedFromStart": true,
         "checks": [
           {
@@ -5440,11 +5443,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 45,
+          "visibleElementCount": 43,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 30,
+            "label": 28,
             "point": 8,
             "curve": 3
           },
@@ -5459,7 +5462,7 @@
       "file": "bezier-curves.next-ideas.subdivision.png",
       "width": 840,
       "height": 520,
-      "sha256": "7a7f5f9e76c4032402167fa90d2cecfed982179fdb4a221fbcce2584e83fe822",
+      "sha256": "2a7ecfca7d20f906d49045fa5bb48aa406a5e8afd959e143004e03cae5e238d9",
       "scene": {
         "visibleElementCount": 11,
         "visibleElementTypes": {
@@ -5530,11 +5533,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 48,
+          "visibleElementCount": 54,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 26,
+            "label": 32,
             "point": 10,
             "curve": 2,
             "segment": 6
@@ -5590,8 +5593,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -5614,7 +5617,7 @@
       "file": "bezier-curves.parameter.decasteljau-parameter.png",
       "width": 840,
       "height": 520,
-      "sha256": "197bae6727dfe23e8cd5a2675467f9b6dcf77844650b9dffbcbbf3bc54f803b3",
+      "sha256": "d1339cdd131d05c613085901e8aa6efbf89e2b31858f1fcb4c1308641ac17ada",
       "scene": {
         "visibleElementCount": 27,
         "visibleElementTypes": {
@@ -5660,11 +5663,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 62,
+          "visibleElementCount": 65,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 31,
+            "label": 34,
             "point": 15,
             "curve": 2,
             "segment": 10
@@ -5721,8 +5724,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -5744,7 +5747,7 @@
       "file": "foundations.complex-plane.complex-multiplication.png",
       "width": 840,
       "height": 520,
-      "sha256": "f2741b91b361bbf44ffc235bda2ddfbf5ae07984d9da07e0337a1c926dd3d030",
+      "sha256": "bbd61959119c3c5626e4733ac52036ea3844cbbbc2b0f2d243fb847094dcc27d",
       "scene": {
         "visibleElementCount": 24,
         "visibleElementTypes": {
@@ -5821,11 +5824,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 29,
+          "visibleElementCount": 31,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 16,
+            "label": 18,
             "curve": 4,
             "point": 2,
             "text": 3
@@ -5862,30 +5865,30 @@
             ],
             [
               [
-                0.444811,
+                0.451505,
                 0
               ],
               [
-                0.444744,
-                0.005458
+                0.451437,
+                0.00554
               ],
               [
-                0.444677,
-                0.010916
+                0.451369,
+                0.01108
               ]
             ],
             [
               [
-                0.652389,
+                0.662207,
                 0
               ],
               [
-                0.651996,
-                0.016006
+                0.661809,
+                0.016246
               ],
               [
-                0.651603,
-                0.032011
+                0.66141,
+                0.032493
               ]
             ]
           ],
@@ -5913,8 +5916,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -6006,8 +6009,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "1b1fa0e56f818e44c7292c41a9dc543c21ddcc65b5df8925815d5fe4c3c6649f",
-        "resultFingerprint": "ba06ad203931fa4103f6117e71386074a579c2ec65dd06f3208a1beec7979352",
+        "startFingerprint": "928de86e2dc861b4bbd324d9b29e5793ce8272f30552c02f6ce172d89e195baf",
+        "resultFingerprint": "de783a12329b67899c4cc9826814b6db6eaa038954be7a1511f0538cda400b21",
         "changedFromStart": true,
         "checks": [
           {
@@ -6032,11 +6035,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 22,
+          "visibleElementCount": 26,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 14,
+            "label": 18,
             "curve": 4
           },
           "visiblePointCount": 0
@@ -6050,7 +6053,7 @@
       "file": "foundations.reading-bernstein.bernstein.png",
       "width": 840,
       "height": 520,
-      "sha256": "82c8033af2aa7e0ae4cb71332c7b412666fc750fb4ff7aa4326c2ba6f4b64e44",
+      "sha256": "ba53382fbfb78af48d1efd010c857ca3a7226f63024b1ae96364a2696fc5b871",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -6130,11 +6133,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 20,
+          "visibleElementCount": 24,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 14,
+            "label": 18,
             "curve": 2
           },
           "visiblePointCount": 0,
@@ -6189,8 +6192,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -6210,7 +6213,7 @@
       "file": "foundations.worked-weight.bernstein.degree-comparison.png",
       "width": 840,
       "height": 520,
-      "sha256": "58d7155db6ab4385110485c845d83c8b1d21404b878a456232951c20f5a7c759",
+      "sha256": "ce5ef9e5f08a511d04ebbeadfa222aa8f1cd707318201d7110df69e53edc93ad",
       "scene": {
         "visibleElementCount": 7,
         "visibleElementTypes": {
@@ -6276,11 +6279,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 21,
+          "visibleElementCount": 25,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 14,
+            "label": 18,
             "curve": 3
           },
           "visiblePointCount": 0,
@@ -6355,8 +6358,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -6417,8 +6420,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "9c728d7c3bb5b7c50be02ef91d80b06d6e590c76c106d7160def754a25d96e2a",
-        "resultFingerprint": "481c6817814b7c1717a10f5b78563d3cdc6fc99a040a2f9aed8663673efd3c08",
+        "startFingerprint": "da0006ba52f04408d1f15f626764e0a53468e43301245fc56ce1b543b13b0b2f",
+        "resultFingerprint": "14680dc3fc42904564fced3a69ca5acad45d60412059ae0f639545bad3f0dc56",
         "changedFromStart": true,
         "checks": [
           {
@@ -6439,14 +6442,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 28,
+          "visibleElementCount": 24,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 15,
             "curve": 3,
-            "point": 2,
-            "text": 1
+            "point": 2
           },
           "visiblePointCount": 2
         }
@@ -6459,16 +6461,15 @@
       "file": "functions-and-calculus.applications.arc-length.png",
       "width": 840,
       "height": 520,
-      "sha256": "984d34905c82a2e785ef5cf538e31e461ceeb0cf844cf740b16427a4b62a6f42",
+      "sha256": "c42943bc891a2d7fdfe9ef13f4d8b80ae626da95bef5b0199781e37ba18955de",
       "scene": {
         "visibleElementCount": 19,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 9,
+          "label": 10,
           "curve": 3,
-          "point": 2,
-          "text": 1
+          "point": 2
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -6527,14 +6528,13 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 28,
+          "visibleElementCount": 24,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 15,
             "curve": 3,
-            "point": 2,
-            "text": 1
+            "point": 2
           },
           "visiblePointCount": 2,
           "sampledVisibleCurves": [
@@ -6568,16 +6568,16 @@
             ],
             [
               [
-                0.017298,
+                0.02304,
                 0
               ],
               [
-                0.014765,
-                0.006116
+                0.019666,
+                0.008149
               ],
               [
-                0.012232,
-                0.012232
+                0.016292,
+                0.016298
               ]
             ]
           ],
@@ -6590,23 +6590,22 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 9,
+          "label": 10,
           "curve": 3,
-          "point": 2,
-          "text": 1
+          "point": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -6683,8 +6682,8 @@
         },
         "steps": [],
         "expectChange": false,
-        "startFingerprint": "373c4230e53a515045d701a5c6ccced4858f8855e3b1cfac28cb17cc9d7ca73f",
-        "resultFingerprint": "373c4230e53a515045d701a5c6ccced4858f8855e3b1cfac28cb17cc9d7ca73f",
+        "startFingerprint": "b0324c087d4ac4821a1d215ea968e4f8d3579072ba72efda32b817b71e74290f",
+        "resultFingerprint": "b0324c087d4ac4821a1d215ea968e4f8d3579072ba72efda32b817b71e74290f",
         "changedFromStart": false,
         "checks": [
           {
@@ -6709,15 +6708,15 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 37,
+          "visibleElementCount": 35,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 21,
+            "label": 20,
             "curve": 3,
             "segment": 2,
             "point": 4,
-            "text": 3
+            "text": 2
           },
           "visiblePointCount": 4
         }
@@ -6730,12 +6729,13 @@
       "file": "functions-and-calculus.applications.area-between-curves.png",
       "width": 840,
       "height": 520,
-      "sha256": "cf08407a14e5786da27578c1bec0b391d678b0d31864e91a5b9b77e6192bd6fe",
+      "sha256": "0b2911d11ae8704d5a6203507aa12c141191d7d60ec3aa0a1775df4a723cb7f5",
       "scene": {
-        "visibleElementCount": 15,
+        "visibleElementCount": 26,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
+          "label": 11,
           "curve": 3,
           "segment": 2,
           "point": 4,
@@ -6799,15 +6799,15 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 37,
+          "visibleElementCount": 35,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 21,
+            "label": 20,
             "curve": 3,
             "segment": 2,
             "point": 4,
-            "text": 3
+            "text": 2
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -6869,6 +6869,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
+          "label": 11,
           "curve": 3,
           "segment": 2,
           "point": 4,
@@ -6878,8 +6879,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -6923,8 +6924,8 @@
         },
         "steps": [],
         "expectChange": false,
-        "startFingerprint": "3b9335e0cd9d93e1cb0aae4bd7df1d11985ef494629348d779a1b82b13c4670a",
-        "resultFingerprint": "3b9335e0cd9d93e1cb0aae4bd7df1d11985ef494629348d779a1b82b13c4670a",
+        "startFingerprint": "cf090598759b10dcea35906e8779dc9f040896b8def9319db05b60e05ddf7675",
+        "resultFingerprint": "cf090598759b10dcea35906e8779dc9f040896b8def9319db05b60e05ddf7675",
         "changedFromStart": false,
         "checks": [
           {
@@ -6941,14 +6942,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 24,
+          "visibleElementCount": 20,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 15,
+            "label": 12,
             "curve": 2,
-            "point": 2,
-            "text": 1
+            "point": 2
           },
           "visiblePointCount": 2
         }
@@ -6961,7 +6961,7 @@
       "file": "functions-and-calculus.continuity.continuity.png",
       "width": 840,
       "height": 520,
-      "sha256": "e4edf042977e488bdfed5822a7e52f4ed9a001c81286f78c5588474213f4013a",
+      "sha256": "ab1dd61626a40886e0bbe26437b4449c39b0ee06e9c41d71a451ac5ae0b47b8f",
       "scene": {
         "visibleElementCount": 13,
         "visibleElementTypes": {
@@ -7013,29 +7013,28 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 24,
+          "visibleElementCount": 20,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 15,
+            "label": 12,
             "curve": 2,
-            "point": 2,
-            "text": 1
+            "point": 2
           },
           "visiblePointCount": 2,
           "sampledVisibleCurves": [
             [
               [
-                -3.932455,
-                15.4642
+                -7.763895,
+                60.278061
               ],
               [
-                -3.922179,
-                15.383592
+                -7.745637,
+                59.995219
               ],
               [
-                -3.911903,
-                15.302984
+                -7.727378,
+                59.712378
               ]
             ],
             [
@@ -7044,12 +7043,12 @@
                 2
               ],
               [
-                1.010276,
-                1.989724
+                1.014163,
+                1.985837
               ],
               [
-                1.020552,
-                1.979448
+                1.028326,
+                1.971674
               ]
             ]
           ],
@@ -7076,8 +7075,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -7107,7 +7106,7 @@
           {
             "kind": "set-control",
             "control": "checkbox",
-            "label": "Prikaži tangento (natančna mejna premica)",
+            "label": "Tangenta",
             "value": true
           }
         ],
@@ -7156,7 +7155,7 @@
           ]
         }
       },
-      "recipeFingerprint": "1532d8d822d1415e73df83e8c1708ffa456ff9f96b6743c0021eb090872ecbf0",
+      "recipeFingerprint": "8940a028d69c1a21b77374f56575460e67e5b37f1c8f5c828b1e6cc0e66aec73",
       "highlight": {
         "frame": "derivative-secant-observation",
         "position": {
@@ -7174,13 +7173,13 @@
           {
             "kind": "set-control",
             "control": "checkbox",
-            "label": "Prikaži tangento (natančna mejna premica)",
+            "label": "Tangenta",
             "value": true
           }
         ],
         "expectChange": true,
-        "startFingerprint": "0154d6b15ec7c191f3d5fb1e72c9cae42bace93c73ec100c151e45243aa53d7a",
-        "resultFingerprint": "159689fe8fd90a01a5d7552da0dc178efa7b5e662e8f55b2e6b2db2911bd92e4",
+        "startFingerprint": "789fca6deffcb92bcf165454a407ead26b008dcd8f738088700e29ebe831de44",
+        "resultFingerprint": "4117cb93b5309b62c0aca390ccd4eac9fbb54136d4735efc29f05a6495c74173",
         "changedFromStart": true,
         "checks": [
           {
@@ -7205,15 +7204,14 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 29,
+          "visibleElementCount": 24,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 15,
             "curve": 2,
             "point": 2,
-            "line": 1,
-            "text": 1
+            "line": 1
           },
           "visiblePointCount": 2
         }
@@ -7226,17 +7224,16 @@
       "file": "functions-and-calculus.derivatives.derivative.png",
       "width": 840,
       "height": 520,
-      "sha256": "019a3253f6b933734bec4a98de970832de5ee57d8f19f302a25fbf91db1c7c79",
+      "sha256": "60c7546bacf43d94b58bfa46ebae1cf01324a78f21f4009d1aec93ffc7c7d28e",
       "scene": {
         "visibleElementCount": 15,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 5,
+          "label": 6,
           "curve": 2,
           "point": 2,
-          "line": 1,
-          "text": 1
+          "line": 1
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -7282,15 +7279,14 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 28,
+          "visibleElementCount": 23,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 15,
             "curve": 1,
             "point": 2,
-            "line": 1,
-            "text": 1
+            "line": 1
           },
           "visiblePointCount": 2,
           "sampledVisibleCurves": [
@@ -7318,24 +7314,23 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 5,
+          "label": 6,
           "curve": 2,
           "point": 2,
-          "line": 1,
-          "text": 1
+          "line": 1
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -7395,8 +7390,8 @@
         },
         "steps": [],
         "expectChange": false,
-        "startFingerprint": "737a9fcd2ab3a1bc9b1b7cf25ace755d4bcaa2f48364a122b060dfd58765723d",
-        "resultFingerprint": "737a9fcd2ab3a1bc9b1b7cf25ace755d4bcaa2f48364a122b060dfd58765723d",
+        "startFingerprint": "d1c13c8c31d9145f588a199698b33a775a2549fc69adf42a3c3bb7b7eb48c7f3",
+        "resultFingerprint": "d1c13c8c31d9145f588a199698b33a775a2549fc69adf42a3c3bb7b7eb48c7f3",
         "changedFromStart": false,
         "checks": [
           {
@@ -7417,11 +7412,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 26,
+          "visibleElementCount": 32,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 24,
             "curve": 1,
             "point": 2,
             "text": 1
@@ -7437,7 +7432,7 @@
       "file": "functions-and-calculus.function-rules.exponential-function.png",
       "width": 840,
       "height": 520,
-      "sha256": "763ad6c5bdb2abe9088d9c2e7ed31e6baff3abb04b1914beeacb49a219f33c35",
+      "sha256": "a82cb03a2245e974f028d9aadccd500ce62e23b1e041d04cfe70190b78ea03eb",
       "scene": {
         "visibleElementCount": 14,
         "visibleElementTypes": {
@@ -7477,11 +7472,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 26,
+          "visibleElementCount": 32,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 24,
             "curve": 1,
             "point": 2,
             "text": 1
@@ -7527,8 +7522,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -7576,8 +7571,8 @@
         },
         "steps": [],
         "expectChange": false,
-        "startFingerprint": "a60ba17d1dfc4a751dd5d8ab826d5ab4b9871ead75e4b0d148440b215c7755b9",
-        "resultFingerprint": "a60ba17d1dfc4a751dd5d8ab826d5ab4b9871ead75e4b0d148440b215c7755b9",
+        "startFingerprint": "a9a8dfa2df672b7c6d2427934ed814c6ce79f7ff915897a1396e9fd62417a90d",
+        "resultFingerprint": "a9a8dfa2df672b7c6d2427934ed814c6ce79f7ff915897a1396e9fd62417a90d",
         "changedFromStart": false,
         "checks": [
           {
@@ -7602,15 +7597,15 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 34,
+          "visibleElementCount": 37,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 21,
+            "label": 25,
             "point": 3,
             "line": 1,
             "segment": 2,
-            "text": 3
+            "text": 2
           },
           "visiblePointCount": 3
         }
@@ -7623,17 +7618,17 @@
       "file": "functions-and-calculus.function-rules.linear-function.png",
       "width": 840,
       "height": 520,
-      "sha256": "aca9380774fb9756fd8dfea554d32ac62d90dc21669d0c2f3ffe8df3b52f0594",
+      "sha256": "57f821bf6c2c93441cdd6292ece892a4bf0a2be5b7a7cecd99e0caceace88846",
       "scene": {
-        "visibleElementCount": 29,
+        "visibleElementCount": 27,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 16,
+          "label": 15,
           "point": 3,
           "line": 1,
           "segment": 2,
-          "text": 3
+          "text": 2
         },
         "visiblePointCount": 3,
         "sampledVisibleCurves": [],
@@ -7650,15 +7645,15 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 34,
+          "visibleElementCount": 37,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 21,
+            "label": 25,
             "point": 3,
             "line": 1,
             "segment": 2,
-            "text": 3
+            "text": 2
           },
           "visiblePointCount": 3,
           "sampledVisibleCurves": [],
@@ -7671,24 +7666,24 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 3,
-        "finalLabelCount": 3,
+        "renderedLabelCount": 2,
+        "finalLabelCount": 2,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 16,
+          "label": 15,
           "point": 3,
           "line": 1,
           "segment": 2,
-          "text": 3
+          "text": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -7752,8 +7747,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "44c89182901186411f986746611e44f617719134fb722ed228a7c5830cbec743",
-        "resultFingerprint": "5571c270540ff08709c5194c665a301a2f9e75e5aa7e4df057f0132bb8bf8544",
+        "startFingerprint": "f54abc4f62602482e476cd81d81f52ff1d9793bd57135c06d891301cf92e411f",
+        "resultFingerprint": "3113c2b3709f5bbab962aba92b0fe13a48f1e6d98019004602b9ab7220ea8b03",
         "changedFromStart": true,
         "checks": [
           {
@@ -7770,13 +7765,12 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 19,
+          "visibleElementCount": 16,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 12,
-            "curve": 2,
-            "text": 1
+            "label": 10,
+            "curve": 2
           },
           "visiblePointCount": 0
         }
@@ -7789,15 +7783,14 @@
       "file": "functions-and-calculus.function-rules.trigonometric-functions.png",
       "width": 840,
       "height": 520,
-      "sha256": "c9682a1cec51bdda1981601d1fee7c2e9cad93a9ada076900fa20722b3138648",
+      "sha256": "cd6c19345495e4d04f340e5b03a8be055210986e679f0befc20f77ea42a93490",
       "scene": {
-        "visibleElementCount": 19,
+        "visibleElementCount": 16,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 12,
-          "curve": 2,
-          "text": 1
+          "label": 10,
+          "curve": 2
         },
         "visiblePointCount": 0,
         "sampledVisibleCurves": [
@@ -7841,13 +7834,12 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 19,
+          "visibleElementCount": 23,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 12,
-            "curve": 2,
-            "text": 1
+            "label": 17,
+            "curve": 2
           },
           "visiblePointCount": 0,
           "sampledVisibleCurves": [
@@ -7889,22 +7881,21 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 12,
-          "curve": 2,
-          "text": 1
+          "label": 10,
+          "curve": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -8000,8 +7991,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "fd04bfac783f42b8dd4203a381a31d197d4c5e4bb93c3131192315e04e1720ee",
-        "resultFingerprint": "88c867e107d9f371860fd86ebdd73ad74eedbe7683e35259c2a1365ece13428a",
+        "startFingerprint": "cfa9ec2ec690367285a8ed115456c269c853e645aa1b4af7a15dadd056119352",
+        "resultFingerprint": "c19d044eba271409427be8d8dc1bc9b2eabc38f82f78fa06759d154bbe13763d",
         "changedFromStart": true,
         "checks": [
           {
@@ -8038,14 +8029,14 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 34,
+          "visibleElementCount": 30,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 16,
             "curve": 4,
             "segment": 1,
-            "text": 2,
+            "text": 1,
             "point": 4
           },
           "visiblePointCount": 4
@@ -8059,13 +8050,13 @@
       "file": "functions-and-calculus.integrals.accumulation.png",
       "width": 840,
       "height": 520,
-      "sha256": "f8a81b61fc2d5ea1da8c3576b93b6ab0b6fb852f6223a0d3edc3b0e93ffe6a66",
+      "sha256": "8dcae31e97b66f51cae71908a739078ac2eee7058b07ae459544d691eee3000f",
       "scene": {
-        "visibleElementCount": 22,
+        "visibleElementCount": 26,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
-          "label": 8,
+          "label": 12,
           "curve": 4,
           "segment": 1,
           "text": 1,
@@ -8146,14 +8137,14 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 30,
+          "visibleElementCount": 27,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 16,
             "curve": 2,
             "segment": 1,
-            "text": 2,
+            "text": 1,
             "point": 3
           },
           "visiblePointCount": 3,
@@ -8202,7 +8193,7 @@
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
-          "label": 8,
+          "label": 12,
           "curve": 4,
           "segment": 1,
           "text": 1,
@@ -8212,8 +8203,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -8273,8 +8264,8 @@
         },
         "steps": [],
         "expectChange": false,
-        "startFingerprint": "146324ce3179cc96a6a2e3bf7cfd73ec7303edba3855dc1547194e903298a9ea",
-        "resultFingerprint": "146324ce3179cc96a6a2e3bf7cfd73ec7303edba3855dc1547194e903298a9ea",
+        "startFingerprint": "a3372a8fd4b8a2fe953593ae39eca34ea0be0fdc84b04b610ff3bf1c3e611b47",
+        "resultFingerprint": "a3372a8fd4b8a2fe953593ae39eca34ea0be0fdc84b04b610ff3bf1c3e611b47",
         "changedFromStart": false,
         "checks": [
           {
@@ -8295,14 +8286,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 28,
+          "visibleElementCount": 24,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 16,
             "curve": 2,
-            "point": 2,
-            "text": 1
+            "point": 2
           },
           "visiblePointCount": 2
         }
@@ -8315,15 +8305,15 @@
       "file": "functions-and-calculus.integrals.definite-integral.png",
       "width": 840,
       "height": 520,
-      "sha256": "6590fef555c500a3d4efc727b77758996314ed9237de54b62dec640b02485328",
+      "sha256": "929ffbf79144cb354d3d548db27905dc3c4c454ceab6242619d0fb85f2301d86",
       "scene": {
-        "visibleElementCount": 9,
+        "visibleElementCount": 20,
         "visibleElementTypes": {
           "axis": 2,
           "ticks": 2,
+          "label": 12,
           "curve": 2,
-          "point": 2,
-          "text": 1
+          "point": 2
         },
         "visiblePointCount": 2,
         "sampledVisibleCurves": [
@@ -8368,14 +8358,13 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 28,
+          "visibleElementCount": 24,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 16,
             "curve": 2,
-            "point": 2,
-            "text": 1
+            "point": 2
           },
           "visiblePointCount": 2,
           "sampledVisibleCurves": [
@@ -8417,22 +8406,22 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": false,
-        "renderedLabelCount": 1,
-        "finalLabelCount": 1,
+        "renderedLabelCount": 0,
+        "finalLabelCount": 0,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "axis": 2,
           "ticks": 2,
+          "label": 12,
           "curve": 2,
-          "point": 2,
-          "text": 1
+          "point": 2
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -8551,8 +8540,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "81b7f708b1ddb5369345c93234cd9d3124ab94d98107d4e172906edc10d5a7d8",
-        "resultFingerprint": "2b62bc91273dd3658431343ffd33c83f144b9bc45bce84e38a811243b27dd7e8",
+        "startFingerprint": "5d5e79c39b01ffd1b89395a1f97e504f74bf7889a523b1834a37c766902ee26b",
+        "resultFingerprint": "721286eedaf879b2ef4b3657a6c4624c1ca9ad49c3692af204434a45fa0f4a02",
         "changedFromStart": true,
         "checks": [
           {
@@ -8629,14 +8618,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 54,
+          "visibleElementCount": 51,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 32,
+            "label": 30,
             "point": 16,
-            "curve": 1,
-            "text": 1
+            "curve": 1
           },
           "visiblePointCount": 16
         }
@@ -8649,7 +8637,7 @@
       "file": "parametrization.uniform-timing.uniform-parameterization.png",
       "width": 840,
       "height": 520,
-      "sha256": "14ba78c0e049ce5fc5d1e0b9dcec7ae9652fd8b29deaebbe6e4e5d64782afb56",
+      "sha256": "5b8449b3f3c2edc6f5bb3f79e1a55f15d58e11f102e949d1f4376d6c2af3bc98",
       "scene": {
         "visibleElementCount": 17,
         "visibleElementTypes": {
@@ -8699,14 +8687,13 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 40,
+          "visibleElementCount": 44,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 25,
+            "label": 30,
             "point": 9,
-            "curve": 1,
-            "text": 1
+            "curve": 1
           },
           "visiblePointCount": 9,
           "sampledVisibleCurves": [
@@ -8745,8 +8732,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -8890,7 +8877,7 @@
         "steps": [],
         "expectChange": true,
         "startFingerprint": "ab69f6d2af1857cd24207289f190bb64c5f029bc132abf958a43497e2aaf111b",
-        "resultFingerprint": "930dd27dc28dd2055932ed96ae19e9c056eeb31bd8e3e90e0ef7a79497dcef11",
+        "resultFingerprint": "4a5eb01939f320a2b68a5616fce27018778211d44da699dbc318a87d915bbeff",
         "changedFromStart": true,
         "checks": [
           {
@@ -8991,11 +8978,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 77,
+          "visibleElementCount": 76,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 42,
+            "label": 41,
             "point": 30,
             "curve": 1
           },
@@ -9010,7 +8997,7 @@
       "file": "parametrization.weighted-knot.spline-parameterization.png",
       "width": 840,
       "height": 520,
-      "sha256": "f82aec1bd888faad2d0ee6770bd9551dc0c8b9955ad71e0138874d81e42d41f1",
+      "sha256": "5662c538c4519bf7d35eeec46fe08594beee9e15c4ecafc36b9ddc5169a6907f",
       "scene": {
         "visibleElementCount": 31,
         "visibleElementTypes": {
@@ -9111,8 +9098,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -9120,7 +9107,7 @@
       "id": "parametrization.weighted-knot.weighted-parameterization",
       "demonstrationId": "weighted-parameterization",
       "path": "/bezeg-2.0/param/param/alphaparam?example=lesson.parametrization.weighted-knot.weighted-parameterization",
-      "sceneFingerprint": "ca36be53864057c9a37f0bc0c01fddcac7a78dc919912f3046fc32b954413e49",
+      "sceneFingerprint": "c967566900ac58fdaad59b91c3dc50a801fa8e015a7e5fb7276ab21e94de0daa",
       "actions": [
         "prepared-scene: {\"kind\":\"prepared-scene\",\"sceneId\":\"wp-identity-three\",\"source\":\"demonstration-default\"}",
         "parameterization-alpha: {\"kind\":\"parameterization-alpha\",\"value\":0.5}",
@@ -9198,8 +9185,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "b0f699e9e92e7aa58f19da9f651d68e50f3637cbc0eda4829426c23e953191fd",
-        "resultFingerprint": "dd697ade2e43b60a72d10f6287bc503e5b0e9ac978aeba97810f15c32ee651db",
+        "startFingerprint": "46c7c64786097f3e897aeb29de712d94b19dc653ce79e7651736ac152173e366",
+        "resultFingerprint": "4c315c6fbec1d15a9690a6b8a3bdf3e15339f9b1dc038ffaf9465fd0ec0ba5ad",
         "changedFromStart": true,
         "checks": [
           {
@@ -9248,11 +9235,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 35,
+          "visibleElementCount": 36,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 23,
+            "label": 24,
             "point": 7,
             "curve": 1
           },
@@ -9267,7 +9254,7 @@
       "file": "parametrization.weighted-knot.weighted-parameterization.png",
       "width": 840,
       "height": 520,
-      "sha256": "b5c1075c5863cbb4c212289f683cc6fb5948e9fc67ce9118d6c7a980e508c4b2",
+      "sha256": "48393b67a3f7a0731fec94ec9910108062966a837cd0b89a04da99d733f830e3",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -9310,11 +9297,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 35,
+          "visibleElementCount": 38,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 23,
+            "label": 26,
             "point": 7,
             "curve": 1
           },
@@ -9355,8 +9342,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -9438,8 +9425,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "d8587ac5534c6ddae78d940db8c34022a692f581995541df99bc5f6f31f7630e",
-        "resultFingerprint": "591fb09df3733bb8b44f7e7c93f0ad4551a1eaac8e5bac195351484b836b843c",
+        "startFingerprint": "af80f7af29bd2e5c19d32c411551129b5aa4be7a8aab7f4b9072fc3e7955b90a",
+        "resultFingerprint": "9984ea73774e48cf02cae00628a8feead21dabcbadc819a24c3a5bafbd4ad778",
         "changedFromStart": true,
         "checks": [
           {
@@ -9472,14 +9459,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 29,
+          "visibleElementCount": 25,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 15,
             "point": 4,
-            "curve": 2,
-            "text": 1
+            "curve": 2
           },
           "visiblePointCount": 4
         }
@@ -9492,7 +9478,7 @@
       "file": "ph-curves.arc-length-problem.ph-cubic-speed.png",
       "width": 840,
       "height": 520,
-      "sha256": "75af2682c84a28648677a11b0fe1ce8a82edd534c2b02d47717b55e7d3ea46ad",
+      "sha256": "8010ba10662a4e679f3448941a5f4fe45f7b66da12fe138daa788099ef1f3261",
       "scene": {
         "visibleElementCount": 6,
         "visibleElementTypes": {
@@ -9545,14 +9531,13 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 30,
+          "visibleElementCount": 26,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 17,
             "point": 4,
-            "curve": 1,
-            "text": 1
+            "curve": 1
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -9591,8 +9576,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -9710,8 +9695,8 @@
           }
         ],
         "expectChange": true,
-        "startFingerprint": "3414c199a558c86cb59856646a1405c01d05c239af29f0d34b61a7ec240e2651",
-        "resultFingerprint": "2aaed3b4f600daf7a1a612d856b9fd29ffa3ef0d3cb644dc702955f8c4e54d7d",
+        "startFingerprint": "146d68c4def656fd9656c94e5d9ea35c728e0a20c5c84cc06ebe1f72994b13fd",
+        "resultFingerprint": "94677e70f0bbce9e3f473341c91dc9f2ba5c314a7d6b763a3a02e147423cf1ba",
         "changedFromStart": true,
         "checks": [
           {
@@ -9752,14 +9737,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 35,
+          "visibleElementCount": 29,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 22,
+            "label": 17,
             "point": 6,
-            "curve": 2,
-            "text": 1
+            "curve": 2
           },
           "visiblePointCount": 6
         }
@@ -9772,7 +9756,7 @@
       "file": "ph-curves.arc-length-problem.ph-quintic-comparison.png",
       "width": 840,
       "height": 520,
-      "sha256": "faf2d9e6a09ccd158d57af5110d1d102bda5709fa3d36d3870e860005e36993f",
+      "sha256": "7fec3443d4eaed181a01e042b98d429177c3a815b8f3ed55230a843840ab17aa",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -9827,14 +9811,13 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 37,
+          "visibleElementCount": 28,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 25,
+            "label": 17,
             "point": 6,
-            "curve": 1,
-            "text": 1
+            "curve": 1
           },
           "visiblePointCount": 6,
           "sampledVisibleCurves": [
@@ -9873,8 +9856,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -9942,8 +9925,8 @@
         },
         "steps": [],
         "expectChange": false,
-        "startFingerprint": "d8587ac5534c6ddae78d940db8c34022a692f581995541df99bc5f6f31f7630e",
-        "resultFingerprint": "d8587ac5534c6ddae78d940db8c34022a692f581995541df99bc5f6f31f7630e",
+        "startFingerprint": "af80f7af29bd2e5c19d32c411551129b5aa4be7a8aab7f4b9072fc3e7955b90a",
+        "resultFingerprint": "af80f7af29bd2e5c19d32c411551129b5aa4be7a8aab7f4b9072fc3e7955b90a",
         "changedFromStart": false,
         "checks": [
           {
@@ -9972,14 +9955,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 30,
+          "visibleElementCount": 26,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 17,
             "point": 4,
-            "curve": 1,
-            "text": 1
+            "curve": 1
           },
           "visiblePointCount": 4
         }
@@ -9992,7 +9974,7 @@
       "file": "ph-curves.complex-hodograph.ph-cubic-generator.png",
       "width": 840,
       "height": 520,
-      "sha256": "ea5ba3286d1d0fe8f42ed080f151160fffcdf972de0f91aa4b7c43ae03d88cc1",
+      "sha256": "b1d297d07445ef682a40ff136179f6220f8d698f28aede02120e76be57caefd3",
       "scene": {
         "visibleElementCount": 5,
         "visibleElementTypes": {
@@ -10030,14 +10012,13 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 30,
+          "visibleElementCount": 26,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 17,
             "point": 4,
-            "curve": 1,
-            "text": 1
+            "curve": 1
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -10076,8 +10057,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -10187,8 +10168,8 @@
           }
         ],
         "expectChange": true,
-        "startFingerprint": "d8587ac5534c6ddae78d940db8c34022a692f581995541df99bc5f6f31f7630e",
-        "resultFingerprint": "85203d0612dce6b9a71c3f940f13005cf3a434749d36be023a8ddafa9ea7970a",
+        "startFingerprint": "af80f7af29bd2e5c19d32c411551129b5aa4be7a8aab7f4b9072fc3e7955b90a",
+        "resultFingerprint": "0238287753f2e68ad63b4a4c985bd8d8373a87f82df2c0c10dc720dfa49af7ae",
         "changedFromStart": true,
         "checks": [
           {
@@ -10221,14 +10202,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 29,
+          "visibleElementCount": 26,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 16,
             "point": 4,
-            "curve": 2,
-            "text": 1
+            "curve": 2
           },
           "visiblePointCount": 4
         }
@@ -10241,7 +10221,7 @@
       "file": "ph-curves.investigate-ph.ph-cubic-singularity.png",
       "width": 840,
       "height": 520,
-      "sha256": "64a2a7cd74b5bdcc36cd63569ca83b06c9d100bbea7b0d83688c237de95c99bf",
+      "sha256": "c1447144eb2c2b10a44f9ea0bfaa3035d0f4ead6f90fb351419a1e889e219cf7",
       "scene": {
         "visibleElementCount": 6,
         "visibleElementTypes": {
@@ -10294,14 +10274,13 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 30,
+          "visibleElementCount": 26,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 17,
             "point": 4,
-            "curve": 1,
-            "text": 1
+            "curve": 1
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -10340,8 +10319,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -10381,7 +10360,7 @@
           {
             "kind": "set-control",
             "control": "slider",
-            "label": "Razdalja odmika d",
+            "label": "Razdalja d",
             "value": -2.5
           }
         ],
@@ -10446,7 +10425,7 @@
           ]
         }
       },
-      "recipeFingerprint": "87e94d4d34a3d1d1c0f08aaec5e53fff4cfdd34ae19dd92bcd03eb71db7d7998",
+      "recipeFingerprint": "8433ca7e747c4aeac4c04d95cfa2bf4f3a62d660d747679654787f329d9e5c4c",
       "highlight": {
         "frame": "observe",
         "position": {
@@ -10474,13 +10453,13 @@
           {
             "kind": "set-control",
             "control": "slider",
-            "label": "Razdalja odmika d",
+            "label": "Razdalja d",
             "value": -2.5
           }
         ],
         "expectChange": true,
-        "startFingerprint": "3414c199a558c86cb59856646a1405c01d05c239af29f0d34b61a7ec240e2651",
-        "resultFingerprint": "da2d43fb8b63369048801921413e0c063d948f9d7c77515662087facbae2873e",
+        "startFingerprint": "146d68c4def656fd9656c94e5d9ea35c728e0a20c5c84cc06ebe1f72994b13fd",
+        "resultFingerprint": "fc6a379e820c109701bb38ea9f90781919b48a4ea9d54963243438f723fccf58",
         "changedFromStart": true,
         "checks": [
           {
@@ -10521,14 +10500,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 35,
+          "visibleElementCount": 29,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 22,
+            "label": 17,
             "point": 6,
-            "curve": 2,
-            "text": 1
+            "curve": 2
           },
           "visiblePointCount": 6
         }
@@ -10541,7 +10519,7 @@
       "file": "ph-curves.investigate-ph.ph-quintic-singularity.png",
       "width": 840,
       "height": 520,
-      "sha256": "f68a6c3db3bf41dadf566aec36a83e74d3980162197383fa67878cd212052191",
+      "sha256": "30e980c6aa6e15a2e67dae407bb2800ae337c13a40e2411b3d6ec7af34fab77b",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -10596,14 +10574,13 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 37,
+          "visibleElementCount": 28,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 25,
+            "label": 17,
             "point": 6,
-            "curve": 1,
-            "text": 1
+            "curve": 1
           },
           "visiblePointCount": 6,
           "sampledVisibleCurves": [
@@ -10642,8 +10619,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -10737,8 +10714,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "3414c199a558c86cb59856646a1405c01d05c239af29f0d34b61a7ec240e2651",
-        "resultFingerprint": "29299c012631dbe2cf91d9cf44adf6f9ee562d614d012021b585383e9e081da3",
+        "startFingerprint": "146d68c4def656fd9656c94e5d9ea35c728e0a20c5c84cc06ebe1f72994b13fd",
+        "resultFingerprint": "295fdb33ffd1b5bf8584a26e9a24d246f9ff2391dcce07b044d9832c14f7ff84",
         "changedFromStart": true,
         "checks": [
           {
@@ -10787,14 +10764,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 35,
+          "visibleElementCount": 29,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 22,
+            "label": 17,
             "point": 6,
-            "curve": 2,
-            "text": 1
+            "curve": 2
           },
           "visiblePointCount": 6
         }
@@ -10807,7 +10783,7 @@
       "file": "ph-curves.offsets.ph-quintic-offsets.png",
       "width": 840,
       "height": 520,
-      "sha256": "e577137e2fe6fb7235a2ae0d1c578c4a9b2205abd715edfdf0dc1c85efa7c921",
+      "sha256": "44940113710615740f951e219f196ae31a57172e393f93aa9e4f3a9d49d80930",
       "scene": {
         "visibleElementCount": 8,
         "visibleElementTypes": {
@@ -10864,14 +10840,13 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 37,
+          "visibleElementCount": 28,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 25,
+            "label": 17,
             "point": 6,
-            "curve": 1,
-            "text": 1
+            "curve": 1
           },
           "visiblePointCount": 6,
           "sampledVisibleCurves": [
@@ -10910,8 +10885,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -10951,7 +10926,7 @@
           {
             "kind": "set-control",
             "control": "slider",
-            "label": "Razdalja odmika d",
+            "label": "Razdalja d",
             "value": 1
           }
         ],
@@ -11008,7 +10983,7 @@
           ]
         }
       },
-      "recipeFingerprint": "a203ca475ab8fcca6bcebb8d74d3dd712afa725a44937e3ea2b44e54d3012250",
+      "recipeFingerprint": "255812c1a4116dbe6ad3f21d9dacd5a6e102f17d188ce6a7aac122872e2746e6",
       "highlight": {
         "frame": "observe",
         "position": {
@@ -11036,13 +11011,13 @@
           {
             "kind": "set-control",
             "control": "slider",
-            "label": "Razdalja odmika d",
+            "label": "Razdalja d",
             "value": 1
           }
         ],
         "expectChange": true,
-        "startFingerprint": "d8587ac5534c6ddae78d940db8c34022a692f581995541df99bc5f6f31f7630e",
-        "resultFingerprint": "591fb09df3733bb8b44f7e7c93f0ad4551a1eaac8e5bac195351484b836b843c",
+        "startFingerprint": "af80f7af29bd2e5c19d32c411551129b5aa4be7a8aab7f4b9072fc3e7955b90a",
+        "resultFingerprint": "291f09695e0df9cdb9dac8d17a9d48e2da34e0d36b3c2b6ec150f4eb755a4235",
         "changedFromStart": true,
         "checks": [
           {
@@ -11075,14 +11050,13 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 29,
+          "visibleElementCount": 24,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 14,
             "point": 4,
-            "curve": 2,
-            "text": 1
+            "curve": 2
           },
           "visiblePointCount": 4
         }
@@ -11095,7 +11069,7 @@
       "file": "ph-curves.worked-length.ph-cubic-offset-length.png",
       "width": 840,
       "height": 520,
-      "sha256": "75af2682c84a28648677a11b0fe1ce8a82edd534c2b02d47717b55e7d3ea46ad",
+      "sha256": "8010ba10662a4e679f3448941a5f4fe45f7b66da12fe138daa788099ef1f3261",
       "scene": {
         "visibleElementCount": 6,
         "visibleElementTypes": {
@@ -11148,14 +11122,13 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 30,
+          "visibleElementCount": 26,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 17,
             "point": 4,
-            "curve": 1,
-            "text": 1
+            "curve": 1
           },
           "visiblePointCount": 4,
           "sampledVisibleCurves": [
@@ -11194,8 +11167,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -11274,8 +11247,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "7648860af616e4615aa443639bf89ed7d5647cc5e672650229a8116ca5c323c6",
-        "resultFingerprint": "772f26e5eb7ef0253db2e27e32102142a52ac03bb0bd6c77f36ecb80612a1961",
+        "startFingerprint": "2a03877fc7b3b995bb7fec56912622035d763089bb0ce8df17dc528907f97bd1",
+        "resultFingerprint": "fd878e13f59f57440f51d344c93d9f09c3fd50a41c971aef53c9a7b7fb7e0db0",
         "changedFromStart": true,
         "checks": [
           {
@@ -11312,11 +11285,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 39,
+          "visibleElementCount": 41,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 22,
+            "label": 24,
             "point": 6,
             "curve": 1,
             "segment": 3,
@@ -11333,7 +11306,7 @@
       "file": "rational-curves.homogeneous.rational-decasteljau.png",
       "width": 840,
       "height": 520,
-      "sha256": "84dfc9d118225c81a6661ac5e96353801f5a99de9ea0278a803c6a8fb3a6217f",
+      "sha256": "4d491fa6437231001a316c0e4c339bd4da40325ab4f9134f4aa81ef613ebaee1",
       "scene": {
         "visibleElementCount": 13,
         "visibleElementTypes": {
@@ -11375,11 +11348,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 41,
+          "visibleElementCount": 45,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 24,
+            "label": 28,
             "point": 6,
             "curve": 1,
             "segment": 3,
@@ -11424,8 +11397,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -11494,8 +11467,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "6b36b6193f8487a15cc3d594999d06bee8973d66c5c4449308f8f8665c35bbe7",
-        "resultFingerprint": "8f7ef23faf850aecf5e34700d3a9608f416fc9a148233739c6e520118afa4221",
+        "startFingerprint": "80eb81bcd492d3b8b518f81464e46cb878e96535fd6113128c9fc5a3b36747a2",
+        "resultFingerprint": "f8fdd2258a37a7cc31aa4cca37c7308552cc8e936ce16c372509bf787039cd0a",
         "changedFromStart": true,
         "checks": [
           {
@@ -11524,11 +11497,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 34,
+          "visibleElementCount": 32,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 18,
             "point": 5,
             "curve": 1,
             "smartlabel": 4
@@ -11544,7 +11517,7 @@
       "file": "rational-curves.investigate-rational.rational-extrapolation.png",
       "width": 840,
       "height": 520,
-      "sha256": "0b74cf709f6effe6ec1548461151205fadb9b54aa725aef448c08b1c2c5c6c0f",
+      "sha256": "776ac481fca0b36e597f0872c6ebcaa371e6f0ceb065ab664e4acbc821f80c2b",
       "scene": {
         "visibleElementCount": 6,
         "visibleElementTypes": {
@@ -11582,11 +11555,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 35,
+          "visibleElementCount": 41,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 21,
+            "label": 27,
             "point": 5,
             "curve": 1,
             "smartlabel": 4
@@ -11628,8 +11601,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -11702,8 +11675,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "e9d0f10b798e9df46271df1e619ca351df34938ecd62d486a00f6454e38d4081",
-        "resultFingerprint": "61d11b56ad1fd6ac6ae1e226bf8bfbe6957d1f220141ea3516853a4cbd3e5eef",
+        "startFingerprint": "b2002296f5c9b2952f75a501fee9caed4bc3bae72f3582c6c5de678a960c03ab",
+        "resultFingerprint": "5250bbf13493756f2cdbcbe8ad87d15252511dab3e08a96d39b666d4da771c22",
         "changedFromStart": true,
         "checks": [
           {
@@ -11736,11 +11709,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 45,
+          "visibleElementCount": 47,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 22,
             "point": 4,
             "curve": 1,
             "segment": 6,
@@ -11759,7 +11732,7 @@
       "file": "rational-curves.operations.farin.png",
       "width": 840,
       "height": 520,
-      "sha256": "7742c9d8025870cb80c0c363195f0a75752bc64ee26cfeb2f73fc900acd68451",
+      "sha256": "45de02e8340facfbe9b1a7183f7daa9d8d88d5717169ece36d3ee6166d0c3806",
       "scene": {
         "visibleElementCount": 14,
         "visibleElementTypes": {
@@ -11800,11 +11773,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 33,
+          "visibleElementCount": 35,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 22,
             "point": 4,
             "curve": 1,
             "smartlabel": 4
@@ -11848,8 +11821,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -11923,8 +11896,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "3da06e934dfab068b166c0bda14eaea329112e7f960056c119c18c58ad5dd70e",
-        "resultFingerprint": "8d2ab5f1e25be128b9bc77f005c0ce40835baa69ae3ae38c7112dac3c9ef6206",
+        "startFingerprint": "0d3023c17b3f5bf55e84828d761a77f2f8c27e3dd2c854344c4d5fd0325a0b03",
+        "resultFingerprint": "7142dc322017ce22caa4925d48be906226a595ec90285f1182363c6476727b6c",
         "changedFromStart": true,
         "checks": [
           {
@@ -11957,11 +11930,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 40,
+          "visibleElementCount": 42,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 21,
+            "label": 23,
             "curve": 1,
             "point": 5,
             "smartlabel": 5,
@@ -11978,13 +11951,13 @@
       "file": "rational-curves.operations.rational-elevation.png",
       "width": 840,
       "height": 520,
-      "sha256": "048592dc1ffbd61b7fcbff3c74c1c0c7302aa20a1aadee8953cb0dc15873a87c",
+      "sha256": "dc66add0ea484aace87e5aa02ed8b9e4ff06e54e10f26c847c4ac680560768eb",
       "scene": {
-        "visibleElementCount": 14,
+        "visibleElementCount": 15,
         "visibleElementTypes": {
           "curve": 1,
           "point": 5,
-          "smartlabel": 4,
+          "smartlabel": 5,
           "segment": 4
         },
         "visiblePointCount": 5,
@@ -12019,11 +11992,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 36,
+          "visibleElementCount": 38,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 22,
             "point": 4,
             "curve": 1,
             "segment": 3,
@@ -12055,21 +12028,21 @@
         "height": 260,
         "scale": 2,
         "equalUserUnits": true,
-        "renderedLabelCount": 4,
-        "finalLabelCount": 4,
+        "renderedLabelCount": 5,
+        "finalLabelCount": 5,
         "guidedLessonOverlayHidden": true,
         "visibleElementTypesAfterPresentation": {
           "curve": 1,
           "point": 5,
-          "smartlabel": 4,
+          "smartlabel": 5,
           "segment": 4
         }
       },
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -12168,8 +12141,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "acb3a74949192515c4aab0f01f819486bce460b1d3cc7fc69edc1c5cf36b1620",
-        "resultFingerprint": "ffe04dbd5e692e524ee1b77d04355722625e5692f47c430dd8e15ce9b7d9677a",
+        "startFingerprint": "04fb404cfdabb3de7b99367262aea91c9e3437ea10f5526b40e00490ffb7e67e",
+        "resultFingerprint": "6252b147c013ddb8cabad9b34cd99b347764ba62e4c7643bd62b2eef1bfffcca",
         "changedFromStart": true,
         "checks": [
           {
@@ -12218,11 +12191,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 53,
+          "visibleElementCount": 55,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 30,
+            "label": 32,
             "point": 8,
             "curve": 3,
             "smartlabel": 8
@@ -12238,7 +12211,7 @@
       "file": "rational-curves.operations.rational-subdivision.png",
       "width": 840,
       "height": 520,
-      "sha256": "becffd3561b7ac6765736f747ade424f1c8c371acb61fcd8fa6054d9f5a6ba1c",
+      "sha256": "9bc1eac996e3fb0686564e12094d1f4b51672b4066edc9160f5ce1765ceb03af",
       "scene": {
         "visibleElementCount": 11,
         "visibleElementTypes": {
@@ -12309,11 +12282,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 52,
+          "visibleElementCount": 54,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 26,
+            "label": 28,
             "point": 10,
             "curve": 2,
             "segment": 6,
@@ -12370,8 +12343,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -12450,8 +12423,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "f3f87b5e97223fc8b51786d4d92fd712ce765628235d6b6e57dc6391604c861b",
-        "resultFingerprint": "b2f0b7fd8a22e7dc6bfd437a7d5688d30f0f482755c801d0d89c8de58ef4b608",
+        "startFingerprint": "92131065e61c169c5d5a67e14bb2deabac0fe57a3629e47b08ee91cbd2784e7c",
+        "resultFingerprint": "ceb52f892cc73a982d05cd17cf825b606510bb44e2ecbf7193e9ecef90e0906a",
         "changedFromStart": true,
         "checks": [
           {
@@ -12492,11 +12465,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 38,
+          "visibleElementCount": 40,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 21,
+            "label": 23,
             "point": 5,
             "curve": 1,
             "segment": 3,
@@ -12513,7 +12486,7 @@
       "file": "rational-curves.why-rational.rational-weight.png",
       "width": 840,
       "height": 520,
-      "sha256": "87f95e4cb6b8f783a38e2bd667a56e814ffd92173ecde476661ab0a5a1f142b3",
+      "sha256": "0091ce1c24b8e3998be0c751b767688908f003fd048526fc8cabdfaaf38d2f67",
       "scene": {
         "visibleElementCount": 13,
         "visibleElementTypes": {
@@ -12556,11 +12529,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 40,
+          "visibleElementCount": 43,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 23,
+            "label": 26,
             "point": 5,
             "curve": 1,
             "segment": 3,
@@ -12605,8 +12578,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -12625,7 +12598,7 @@
       "file": "rational-curves.worked-conic.circle.png",
       "width": 840,
       "height": 520,
-      "sha256": "db6269f46366f392583324295f24ed0211c40072c20813dec3221e82715ac515",
+      "sha256": "31e465c1022de6afdf14e78d4333cf608e1fe3bc86ab57d310ecac01b330b790",
       "scene": {
         "visibleElementCount": 12,
         "visibleElementTypes": {
@@ -12684,11 +12657,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 44,
+          "visibleElementCount": 38,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 28,
+            "label": 22,
             "point": 9,
             "curve": 3
           },
@@ -12757,8 +12730,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -12831,8 +12804,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "d9e1380c7e9a12b24d9822cdf63ea28cc3376feeeb6cb3c8b2e86a85d01d43b8",
-        "resultFingerprint": "21f5405435b3304d86b13467c1a45c2aaf30c09d73a05bbe6a08b8e22fef52da",
+        "startFingerprint": "2a663f30c801c825ea8faa45b7f376daa2c828f23707b5226bf1b6e1e6e3d798",
+        "resultFingerprint": "76ac67f9ceba7723cd7b6d5b352e208d0c517379ad1060aa7f4c62d18a48280e",
         "changedFromStart": true,
         "checks": [
           {
@@ -12865,11 +12838,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 33,
+          "visibleElementCount": 37,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 23,
             "point": 5,
             "curve": 1,
             "segment": 4
@@ -12885,7 +12858,7 @@
       "file": "splines.continuity-levels.spline-c1.png",
       "width": 840,
       "height": 520,
-      "sha256": "d4851b38d57d982016296761cde505a07040e13bf71e3486250992d6c6376e20",
+      "sha256": "9582f4f6e34165d17973afe913a8f5c45e45002eef7cf8b4902234425444e3d2",
       "scene": {
         "visibleElementCount": 10,
         "visibleElementTypes": {
@@ -12925,11 +12898,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 29,
+          "visibleElementCount": 34,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 24,
             "point": 5,
             "curve": 1
           },
@@ -12971,8 +12944,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -13073,8 +13046,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "6291cf072d3f68ee468b0602c24206d82717ff235e50ab65f49b23638083bdda",
-        "resultFingerprint": "663a49aa4ba8bc6d6f41278689f2460b413097fb399ece94e544dab47e4a9672",
+        "startFingerprint": "e56ed5d76761916c865275035c54d1e2b2ce3bfc6060ba4c8bcddd97c2525810",
+        "resultFingerprint": "5ce0075497e4c8ecf63b2cbf1486673eb366fda082a53d962ccf5e1150406a4e",
         "changedFromStart": true,
         "checks": [
           {
@@ -13135,11 +13108,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 50,
+          "visibleElementCount": 45,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 28,
+            "label": 23,
             "point": 12,
             "curve": 1,
             "segment": 5
@@ -13155,7 +13128,7 @@
       "file": "splines.continuity-levels.spline-c2.png",
       "width": 840,
       "height": 520,
-      "sha256": "80f6a5a7ff5b557a3f20853ec577896b024ed387179169e5b4cb4ca0a84242e2",
+      "sha256": "d9040379dc159348d1b9fcfa586152a98b01ffb985455620d9fc5f3c8eec51fb",
       "scene": {
         "visibleElementCount": 18,
         "visibleElementTypes": {
@@ -13202,11 +13175,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 47,
+          "visibleElementCount": 40,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 30,
+            "label": 23,
             "point": 12,
             "curve": 1
           },
@@ -13248,8 +13221,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -13322,8 +13295,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "d6ca5781ce1fe26e948318c56cbb3e5789e3b4b3dced7f5c6a02768c9a5f62c0",
-        "resultFingerprint": "1afa4dbbfab8715f12a249985cfef820bdd7d834e48f566c8af6b3ca5b20ac3d",
+        "startFingerprint": "64159716c2d860863b1e46bee377641b2c0b059f098c8171a0178f500f90111e",
+        "resultFingerprint": "da7ed8550434135b4473b3217f919251e5b213cf55a95e0cd33d48cab8398d62",
         "changedFromStart": true,
         "checks": [
           {
@@ -13356,11 +13329,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 32,
+          "visibleElementCount": 34,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 18,
+            "label": 20,
             "point": 5,
             "curve": 1,
             "segment": 4
@@ -13376,7 +13349,7 @@
       "file": "splines.geometric-vs-parametric.spline-g1.png",
       "width": 840,
       "height": 520,
-      "sha256": "b256588cad5a91e410e98277dcbe134e2fc9036f71864aa8f0f1861090f77183",
+      "sha256": "bf05591eb5489221782c948f95a20da4aa28c29b72d21e552e2f15d6178cb754",
       "scene": {
         "visibleElementCount": 10,
         "visibleElementTypes": {
@@ -13416,11 +13389,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 30,
+          "visibleElementCount": 33,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 20,
+            "label": 23,
             "point": 5,
             "curve": 1
           },
@@ -13462,8 +13435,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -13537,8 +13510,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "7a0d0ae006aa1b510fb0fd9e5efc0fa86c396f21be819e07b05e502262894788",
-        "resultFingerprint": "9d0369a35ab230fb1a3be1ef76d93e23c9dd63edfb1767271c0a9a42c65c4275",
+        "startFingerprint": "353df1efa2373491ab3d47ec03f91896af534fb32a67917d06b24de6042ca3c6",
+        "resultFingerprint": "19620503427b0e69c2b906bc84339ca6565d064bd7c11ffe80c28d3bef8a6e99",
         "changedFromStart": true,
         "checks": [
           {
@@ -13571,11 +13544,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 33,
+          "visibleElementCount": 30,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 16,
             "point": 5,
             "curve": 1,
             "segment": 4
@@ -13591,7 +13564,7 @@
       "file": "splines.geometric-vs-parametric.spline-g1-symmetric.png",
       "width": 840,
       "height": 520,
-      "sha256": "c71e6bc92e7eba88c5c69e5942bd7fb895ec7963659c8a01fad5183fe6311f7d",
+      "sha256": "cda5e611a15eec3ec033b88ad6381da0150362ad29a1cc2472b7206e29ddcede",
       "scene": {
         "visibleElementCount": 10,
         "visibleElementTypes": {
@@ -13631,11 +13604,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 33,
+          "visibleElementCount": 30,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 16,
             "point": 5,
             "curve": 1,
             "segment": 4
@@ -13678,8 +13651,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -13752,8 +13725,8 @@
         },
         "steps": [],
         "expectChange": true,
-        "startFingerprint": "5ee9bdd1454b9c11680b5a65c5454e6c33743cbdee61ca11ba3a0093cb5c6c59",
-        "resultFingerprint": "be8b6748ac73427b71905ac33a2f47b83f417788976096f8d12d0833943d8455",
+        "startFingerprint": "7303be567a5593e2c0bea28e10d072803414527e2f2c85ecc1e1708a8f27ccd5",
+        "resultFingerprint": "7251a6755e93e4d88cb36bf78feb6baddb08d1d545828d125596c14214d58791",
         "changedFromStart": true,
         "checks": [
           {
@@ -13786,11 +13759,11 @@
           }
         ],
         "evidence": {
-          "visibleElementCount": 33,
+          "visibleElementCount": 37,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 23,
             "point": 5,
             "curve": 1,
             "segment": 4
@@ -13806,7 +13779,7 @@
       "file": "splines.piecewise.spline-cn.png",
       "width": 840,
       "height": 520,
-      "sha256": "61a5ccd42968f06e102599d21d89f0849f8e755d1cf9a8f4bf5d150c0553c072",
+      "sha256": "8159747f9953b3383b5d095e23c370ae5a39b2583e2caafb82848decedff5bb5",
       "scene": {
         "visibleElementCount": 10,
         "visibleElementTypes": {
@@ -13846,11 +13819,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 29,
+          "visibleElementCount": 37,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 19,
+            "label": 27,
             "point": 5,
             "curve": 1
           },
@@ -13892,8 +13865,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     },
@@ -13912,7 +13885,7 @@
       "file": "splines.worked-join.spline-c1.parabola-derivatives.png",
       "width": 840,
       "height": 520,
-      "sha256": "382210c198597e526cf6e5507b3bce4f93ebac09f2ea71b800d59d562bc9aaa9",
+      "sha256": "5bde10d06566992b2e848bfdef6b76210fc38dc7ac83d96c9f4f368837da23fd",
       "scene": {
         "visibleElementCount": 6,
         "visibleElementTypes": {
@@ -13953,11 +13926,11 @@
         "backNavigationDisabled": true,
         "stableAcrossMs": 250,
         "preparedBoardEvidence": {
-          "visibleElementCount": 33,
+          "visibleElementCount": 24,
           "visibleElementTypes": {
             "axis": 2,
             "ticks": 2,
-            "label": 23,
+            "label": 14,
             "point": 5,
             "curve": 1
           },
@@ -14008,8 +13981,8 @@
       "captureEvidence": {
         "browserVersion": "156.0.8078.4",
         "servedBuildVerified": true,
-        "buildRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
-        "sourceRevision": "c079484badda15a23780d3dab5e87ea77f7d30c1",
+        "buildRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
+        "sourceRevision": "2a22759a4cc67bafa0fb0a3381409a4d9164db26",
         "pageErrors": []
       }
     }

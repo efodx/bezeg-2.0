@@ -26,7 +26,7 @@ const targets = {
     rational: ['Unselected rational curve at w₁=2, with four fixed controls and the supporting polygon', [polygon, button('Krivulja1'), toggle('Uteži'), field('Vrednost uteži', 2, 'number'), button('Prekliči izbiro')], [-6.6, 2.8, 6.6, -5.2]],
     'rational-decasteljau': ['Weighted interpolation levels and R(t) at t=0.5', [field('Parameter t', 0.5)]],
     'rational-elevation': ['Original rational cubic with weights; exact one-degree elevation is shown in motion', [polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-5, 4.3, 5, -3.5]],
-    'rational-extrapolation': ['Rational curve at the interval boundary t=1, with its control polygon and weights', [field('Parameter ekstrapolacije t', 1), polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-5, 4.5, 4.5, -4]],
+    'rational-extrapolation': ['Rational curve at the interval boundary t=1, with its control polygon and weights', [field('Ekstrapolacija t', 1), polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-5, 4.5, 4.5, -4]],
     'rational-subdivision': ['Original rational curve at t=0.5 with supporting polygons and weights before one exact Subdiviziraj action', [field('Parameter subdivizije t', 0.5), polygon, button('Krivulja1'), toggle('Uteži'), button('Prekliči izbiro')], [-6.6, 2.8, 6.6, -5.2]],
     farin: ['Original unequal weights divide the control edges at Farin points', [polygon, toggle('Farinove Točke', false), toggle('Farinove Točke'), toggle('Uteži')], [-7.1, 3.3, 7.1, -5.2]],
     circle: ['Complete three-arc circle with supporting polygons', [polygon, {...polygon,index:1}, {...polygon,index:2}]],
