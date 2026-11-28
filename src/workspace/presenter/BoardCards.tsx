@@ -356,12 +356,21 @@ export function BoardCards({graph, host, highlight: highlightOverride, whenReady
   // The strip's natural size: its slots side by side (the strip itself is given the layout's width). Puck widths are constant, so it
   // changes with the declared parameters and the language only.
   const puckShape = `${language}|${puckShapeOf(puckList)}`;
+  // A slot can grow after the first reading (a lesson adds a help or undo button to a puck, a font loads): the strip is read again
+  // whenever a slot resizes, or the layout would wrap it in rows that the stale reading does not count (task 08 bug A).
   useLayoutEffect(() => {
     const slots = [...(stripRef.current?.querySelectorAll<HTMLElement>('.puck-strip-grip, .puck-slot') ?? [])];
-    const sizes = slots.map(measureSlot);
-    const w = sizes.reduce((sum, size) => sum + size.w, 0) + 8 * Math.max(0, slots.length - 1);
-    const h = Math.max(0, ...sizes.map(size => size.h));
-    if (w > 0 && h > 0) setMeasuredStrip(previous => previous && previous.w === w && previous.h === h && JSON.stringify(previous.slots) === JSON.stringify(sizes) ? previous : {w, h, slots: sizes});
+    const read = () => {
+      const sizes = slots.map(measureSlot);
+      const w = sizes.reduce((sum, size) => sum + size.w, 0) + 8 * Math.max(0, slots.length - 1);
+      const h = Math.max(0, ...sizes.map(size => size.h));
+      if (w > 0 && h > 0) setMeasuredStrip(previous => previous && previous.w === w && previous.h === h && JSON.stringify(previous.slots) === JSON.stringify(sizes) ? previous : {w, h, slots: sizes});
+    };
+    read();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(read);
+    for (const slot of slots) observer.observe(slot);
+    return () => observer.disconnect();
   }, [puckShape]);
 
   // Read the live cards from the shown cards before paint; a changed reading re-renders synchronously. Folded, a body is hidden and

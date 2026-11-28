@@ -230,7 +230,7 @@
     .guided-lesson .guided-lesson-navigation button { min-width:6em; }
 }
 /* Stack the stable controls before the body at narrow panel widths. */
-@container (max-width: 24.5rem) {
+@container (max-width: 23rem) {
     .guided-lesson-toolbar { grid-template-columns:minmax(0, 1fr); }
     .guided-lesson-navigation { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); }
     .guided-lesson .guided-lesson-navigation button { min-width:0; overflow-wrap:anywhere; }
