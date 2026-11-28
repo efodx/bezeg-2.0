@@ -158,6 +158,10 @@ const offsetAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'note', reason: OFFSET_CAPTION_REASON},
 ];
 
+const phCubicAccepted: readonly AcceptedDifference[] = [
+    {kind: 'extra', where: 'row arc-length', reason: 'the board text "Dolžina loka: ..", recorded as a caption, only repeated a value, so it is removed and the value is the declared row of the Odčitki card (owner, 2026-11-27)'},
+];
+
 const PARAMETRIC_CAPTION_REASON = 'the board caption lines "Hitrost r′ = (x, y), velikost s", "Hitrost je 0 (ost): ...", "Polmer ρ = ..", "Dolžina loka: ..", "Ploščina: .." were board text (the recording holds them as captions); the lines only repeated the values, so they are removed and the values are the declared rows and the note of the Odčitki card (owner, 2026-11-27)';
 const parametricAccepted: readonly AcceptedDifference[] = [
     {kind: 'extra', where: 'row velocity', reason: PARAMETRIC_CAPTION_REASON},
@@ -1077,6 +1081,19 @@ const SAMPLES: readonly Sample[] = [
             {name: 'the PH curve at d = -0,5', apply: run(g => { g.setCurveKind('ph'); g.setOffsetDistance(-0.5); })},
             {name: 'offset hidden', apply: run(g => g.setOffsetShown(false))},
             {name: 'd = 0,75, 64 samples', apply: run(g => { g.setOffsetDistance(0.75); g.setOffsetSamples(64); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'curves/ph/__parity__/ph-cubic.json', demonstration: 'ph-cubic', accepted: phCubicAccepted, states: (() => {
+        type Ph = {getFirstCurveAsPHBezierCurve(): {w: {setY(y: number): void; setX(x: number): void; Y(): number}[]};
+            getFirstJxgCurveAsPHCurve(): {setShowOffsetCurve(show: boolean): void; setOffsetCurveDistance(d: number): void};
+            setState(patch: {showArcLength: boolean}): void; boardUpdate(): void};
+        const run = (edit: (graph: Ph) => void): ParityState['apply'] => graph => { runAs('learner', () => { edit(graph as unknown as Ph); (graph as unknown as Ph).boardUpdate(); }); };
+        return [
+            {name: 'default (arc length shown)', apply: () => undefined},
+            {name: 'arc length hidden', apply: run(g => g.setState({showArcLength: false}))},
+            {name: 'w1 raised, arc length shown', apply: run(g => { g.setState({showArcLength: true}); g.getFirstCurveAsPHBezierCurve().w[1].setY(g.getFirstCurveAsPHBezierCurve().w[1].Y() + 1); })},
+            {name: 'offset at d = 1, w1 lowered', apply: run(g => { g.getFirstJxgCurveAsPHCurve().setShowOffsetCurve(true); g.getFirstJxgCurveAsPHCurve().setOffsetCurveDistance(1); g.getFirstCurveAsPHBezierCurve().w[1].setY(g.getFirstCurveAsPHBezierCurve().w[1].Y() - 2); })},
+            {name: 'offset at d = -1.5, w0 moved', apply: run(g => { g.getFirstJxgCurveAsPHCurve().setOffsetCurveDistance(-1.5); g.getFirstCurveAsPHBezierCurve().w[0].setX(-1); })},
         ] satisfies ParityState[];
     })()},
     {file: 'curves/parametric/__parity__/curve-parametric.json', demonstration: 'curve-parametric', accepted: parametricAccepted, states: (() => {

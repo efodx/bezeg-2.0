@@ -1,9 +1,13 @@
-import {currentLanguage, onLanguageChange, t} from "../../../localization";
+import {currentLanguage, message, onLanguageChange, t} from "../../../localization";
 import {HodographInputbox} from "./HodographInputBox";
 import React from "react";
 import {JXGBezierCurve} from "../object/JXGBezierCurve";
 import {JXGPHBezierCurve, OFFSET_DISTANCE_MAX, OFFSET_DISTANCE_MIN} from "../object/JXGPHBezierCurve";
-import {BaseGraphStates} from "../../base/BaseCurveGraph";
+import {BaseCurveIds, BaseGraphStates} from "../../base/BaseCurveGraph";
+import type {ActionDeclaration, GraphDeclaration, LegendEntry, ParameterDeclaration, ReadoutRow, ViewMark, ViewMarks} from "../../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../../base/writes/parameterArbiter";
+import {runAs} from "../../base/writes/writeSource";
+import {DomainError} from "../../functions/BaseFunctionGraph";
 import {TransientState} from "../../base/BaseGraph";
 import {BaseBezierCurveGraph} from "../../base/BaseBezierCurveGraph";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
@@ -23,6 +27,15 @@ function formatArcLength(value: number): string {
 export interface BasePhBezierCurveGraphStates extends BaseGraphStates {
     showArcLength?: boolean
 }
+
+/** The ids of the PH workspace declaration (opt-in, `declaresPhWorkspace`): the offset distance, the arc length row and its switch. */
+export type PhIds = {
+    param: 'ph-offset-d'; row: 'arc-length'; note: never; section: never;
+    legend: BaseCurveIds['legend'] | 'offset';
+    action: BaseCurveIds['action'] | 'arc-length-shown' | 'ph-geometry';
+};
+
+const PH_OFFSET_WATCH_SAMPLES = 25;
 
 abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> extends BaseBezierCurveGraph<S> {
 
@@ -54,7 +67,7 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
     protected override workspaceEdit(): React.ReactNode {
         return <>{super.workspaceEdit()}
             {this.getFirstJxgCurveIfAny() && <div className="inspector-group"><h3>{t("curve_offsets")}</h3>
-                <PhOffsetParameterControls curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>}</>;
+                <PhOffsetParameterControls distanceParam="ph-offset-d" curve={this.getFirstJxgCurveAsPHCurve()} onChanged={() => this.store.notify()}/></div>}</>;
     }
     protected override workspaceGraphDisplay(): React.ReactNode {
         return <>{super.workspaceGraphDisplay()}{this.getFirstJxgCurveIfAny() && <div className="inspector-group">
@@ -64,6 +77,128 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
                     onChange={checked => this.setPhState({showArcLength: checked}, this.whileMounted(() => this.boardUpdate()))}
                     label={t("show_arc_length")}/>
                 <p>{t("arc_length_description")}</p></div></>;
+    }
+
+    // ---- Declaration (task 08, lane L56): opt-in, the quintic and the parameterisations keep their panels --------------------
+
+    /** Opt-in: true declares the PH workspace (common curve declaration, the offset distance d, the arc length row, the offset legend entry). */
+    protected declaresPhWorkspace(): boolean { return false; }
+    protected override declaresCurveWorkspace(): boolean { return this.declaresPhWorkspace(); }
+    /** The arc length is the board text `Dolžina loka: ..` unless the workspace declares it as a row. */
+    protected arcLengthOnBoard(): boolean { return !this.declaresPhWorkspace(); }
+    /** Actions a subclass adds to the declaration. */
+    protected phExtraActions(): ActionDeclaration<PhIds>[] { return []; }
+
+    private offsetDistanceOf(): number {
+        const curve = this.getFirstJxgCurveIfAny() as JXGPHBezierCurve | undefined;
+        return curve ? curve.getCurve().getOffsetCurveDistance() : 0;
+    }
+
+    private offsetShown(): boolean {
+        const curve = this.getFirstJxgCurveIfAny() as JXGPHBezierCurve | undefined;
+        return Boolean(curve?.isShowingOffsetCurve());
+    }
+
+    /** Parameter writes (ADR 0064): the key reads and writes d through the validated setter the lesson action also uses. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            ...super.parameterBindings(),
+            'ph-offset-d': {
+                read: () => this.offsetDistanceOf(),
+                apply: (value: unknown) => {
+                    if (typeof value !== 'number' || !Number.isFinite(value) || value < OFFSET_DISTANCE_MIN || value > OFFSET_DISTANCE_MAX) {
+                        throw new DomainError(message('offset_d_refused', {value0: String(OFFSET_DISTANCE_MIN), value1: String(OFFSET_DISTANCE_MAX)}));
+                    }
+                    this.setOffsetCurveDistance(value);
+                    this.store.notify();
+                },
+            },
+        };
+    }
+
+    private phMarksCache: {key: string; base: ViewMarks; marks: ViewMarks} | undefined;
+
+    /** The curve's marks plus 25 samples of each drawn offset curve (`nice`), memoized on d, the offset count and the base marks. */
+    protected override curveViewMarks(): ViewMarks {
+        const base = super.curveViewMarks();
+        if (!this.declaresPhWorkspace() || !this.offsetShown()) return base;
+        const model = (this.getFirstJxgCurveIfAny() as JXGPHBezierCurve).getCurve();
+        const offsets = model.getOffsetCurves();
+        const key = `${model.getOffsetCurveDistance()}|${offsets.length}`;
+        const cached = this.phMarksCache;
+        if (cached && cached.key === key && cached.base === base) return cached.marks;
+        const nice: ViewMark[] = [...(base.nice ?? [])];
+        for (const offset of offsets) {
+            const samples: [number, number][] = [];
+            for (let i = 0; i < PH_OFFSET_WATCH_SAMPLES; i++) {
+                try {
+                    const p = offset.eval(i / (PH_OFFSET_WATCH_SAMPLES - 1));
+                    if (Number.isFinite(p.X()) && Number.isFinite(p.Y())) samples.push([p.X(), p.Y()]);
+                } catch {
+                    // a sample the offset refuses is left out
+                }
+            }
+            if (samples.length > 1) nice.push({kind: 'polyline', points: samples});
+        }
+        const marks: ViewMarks = {...base, nice};
+        this.phMarksCache = {key, base, marks};
+        return marks;
+    }
+
+    /** The box around the control points and the samples of the curve and its offsets, grown by a fifth with room above for labels. */
+    private watchedBox(marks: ViewMarks): [number, number, number, number] | undefined {
+        const points = [...marks.must, ...(marks.nice ?? [])].flatMap(mark => mark.kind === 'point' ? [[mark.x, mark.y]] : mark.kind === 'polyline' ? mark.points.map(p => [p[0], p[1]]) : []);
+        if (points.length === 0) return undefined;
+        const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
+        const left = Math.min(...xs), right = Math.max(...xs), bottom = Math.min(...ys), top = Math.max(...ys);
+        const pad = Math.max(0.2 * Math.max(right - left, top - bottom), 0.3);
+        return [left - pad, top + 2 * pad, right + pad, bottom - pad];
+    }
+
+    private arcLengthValue(): number | undefined {
+        const value = (this.getFirstCurve() as PhBezierCurve | undefined)?.arcLength?.();
+        return value !== undefined && Number.isFinite(value) ? value : undefined;
+    }
+
+    /**
+     * The common curve declaration plus the offset distance d as a board puck while the offsets are drawn (the lesson's step "Predznak
+     * odmika" compares d = 1 and d = -1), the arc length as a row while its switch is on (it was board text), the offset in the legend
+     * while drawn, and the arc length switch as a display action. The offset switch, their number and the hodograph stay in Orodja.
+     */
+    protected override declaration(): GraphDeclaration<PhIds> | undefined {
+        if (!this.declaresPhWorkspace()) return undefined;
+        const common = this.commonCurveDeclaration();
+        const offsetShown = this.offsetShown();
+        const parameters: ParameterDeclaration<PhIds['param']>[] = offsetShown
+            ? [{key: 'ph-offset-d', kind: 'range', label: message('offset_d_name'), symbol: 'd', placement: 'board', min: OFFSET_DISTANCE_MIN, max: OFFSET_DISTANCE_MAX, step: 0.01, maxDecimals: 2}]
+            : [];
+        const legend: LegendEntry<PhIds>[] = [...(common.legend ?? []),
+            ...(offsetShown ? [{id: 'offset' as const, label: message('curve_offsets'), kind: 'line' as const, object: 'offset'}] : [])];
+        const arc = this.state.showArcLength !== false ? this.arcLengthValue() : undefined;
+        const rows: ReadoutRow<PhIds>[] = arc === undefined ? [] : [{id: 'arc-length', name: message('arc_length'), value: {kind: 'formatted', text: formatArcLength(arc)}}];
+        const marks = this.curveViewMarks();
+        return {
+            ...common, parameters, legend,
+            actions: [...(common.actions ?? []),
+                {id: 'arc-length-shown', label: message('show_arc_length'), placement: 'tools', section: 'display', enabled: true, pressed: this.state.showArcLength !== false},
+                ...this.phExtraActions()],
+            readouts: [{id: 'arc-length', rows}],
+            marks, followView: this.watchedBox(marks),
+        };
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        if (id !== 'offset') return super.drawnObject(id);
+        const element = (this.getFirstJxgCurveIfAny() as JXGPHBezierCurve | undefined)?.getJxgOffsetCurves()[0];
+        if (!element) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const drawn = element as typeof element & {evalVisProp(name: string): unknown};
+        return {color: String(drawn.evalVisProp('strokecolor')), visible: Boolean(drawn.evalVisProp('visible'))};
+    }
+
+    override performAction(id: string): void {
+        if (id === 'arc-length-shown') runAs('learner', () => this.setPhState({showArcLength: this.state.showArcLength === false}, this.whileMounted(() => this.boardUpdate())));
+        else super.performAction(id);
     }
 
     override initialize() {
@@ -81,7 +216,7 @@ abstract class BasePhBezierCurveGraph<S extends BasePhBezierCurveGraphStates> ex
     private ensureArcLengthText() {
         this.removeArcLengthText();
         const board = this.board;
-        if (!board) return;
+        if (!board || !this.arcLengthOnBoard()) return;
         const arcLength = () => (this.getFirstCurve() as PhBezierCurve | undefined)?.arcLength?.();
         const box = () => board.getBoundingBox();
         this.arcLengthText = board.create('text', [

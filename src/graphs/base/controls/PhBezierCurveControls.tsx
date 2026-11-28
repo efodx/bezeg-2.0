@@ -5,6 +5,7 @@ import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
 import Slider from "../../../inputs/Slider";
 import {CountSetter} from "../../../inputs/CountSetter";
 import {CurveControlsProps} from "./CurveDisplayControls";
+import {PuckOwned} from "./PuckOwnership";
 
 /**
  * Display settings of a PH Bézier adapter's offset curves: the on/off switch and the dependent visibility options.
@@ -52,7 +53,7 @@ export function PhOffsetDisplayControls({curve, onChanged}: CurveControlsProps<J
  * The mathematical offset parameters of a PH Bézier adapter: the number of offset curves and the distance d.
  * They are shown only while the offsets are on; otherwise a hint says where to turn them on.
  */
-export function PhOffsetParameterControls({curve, onChanged}: CurveControlsProps<JXGPHBezierCurve>) {
+export function PhOffsetParameterControls({curve, onChanged, distanceParam}: CurveControlsProps<JXGPHBezierCurve> & {distanceParam?: string}) {
     const t = useT();
     if (!curve.isShowingOffsetCurve()) return <p>{t("offset_parameters_hint")}</p>;
     return <div>
@@ -67,12 +68,12 @@ export function PhOffsetParameterControls({curve, onChanged}: CurveControlsProps
                          }}
                          min={1}
             ></CountSetter></div>
-        <Slider min={OFFSET_DISTANCE_MIN}
+        <PuckOwned param={distanceParam}><Slider min={OFFSET_DISTANCE_MIN}
                 customText={t("offset_distance_d")} help={t("the_sign_selects_the_side_of_the_offset_zero_means_the_original_curve")}
                 max={OFFSET_DISTANCE_MAX}
                 value={curve.getCurve().getOffsetCurveDistance()}
                 step={0.01}
-                onChange={value => {curve.setOffsetCurveDistance(value); onChanged();}}/>
+                onChange={value => {curve.setOffsetCurveDistance(value); onChanged();}}/></PuckOwned>
     </div>;
 }
 

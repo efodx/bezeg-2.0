@@ -1,0 +1,49 @@
+{
+  "graph": "ph-cubic",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default (arc length shown)",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 10,333"
+      ]
+    },
+    {
+      "name": "arc length hidden",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "w1 raised, arc length shown",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 11,233"
+      ]
+    },
+    {
+      "name": "offset at d = 1, w1 lowered",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 10,100"
+      ]
+    },
+    {
+      "name": "offset at d = -1.5, w0 moved",
+      "rows": [],
+      "notes": [],
+      "outputs": [],
+      "captions": [
+        "Dolžina loka: 4,183"
+      ]
+    }
+  ]
+}

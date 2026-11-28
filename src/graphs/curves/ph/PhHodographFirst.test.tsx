@@ -96,8 +96,16 @@ describe.each(['ph-cubic', 'ph-quintic', 'uniform-parameterization'] as const)('
         select(graph);
         fireEvent.click(screen.getByRole('checkbox', {name: t('curve_offsets'), hidden: true}));
         const count = inEdit(t('number_of_offsets'))[0];
-        const distance = inEdit(t('offset_distance_d'))[0];
         const offsetGroup = group(count);
+        if (key === 'ph-cubic') {
+            // The declared cubic owns d as a board puck (parameter `ph-offset-d`), not as a control in the Edit group.
+            expect(inEdit(t('offset_distance_d'))).toHaveLength(0);
+            expect(screen.getAllByRole('slider', {hidden: true}).some(element => element.getAttribute('aria-label')?.startsWith(t('offset_d_name')))).toBe(true);
+            expect(offsetGroup.querySelector('h3')!.textContent).toBe(t('curve_offsets'));
+            follows(group(hodographHeading()!), offsetGroup);
+            return;
+        }
+        const distance = inEdit(t('offset_distance_d'))[0];
         expect(offsetGroup).toBe(group(distance));
         expect(offsetGroup.querySelector('h3')!.textContent).toBe(t('curve_offsets'));
         follows(count, distance);

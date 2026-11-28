@@ -1928,6 +1928,8 @@ const phCubicPilot = {
         free: {step: 6, firstPoint: [-4.2, -2]}, // ph-free-exploration has no scene; CubicPhBezierCurveGraph default P_0
     }),
     prepareUserState: async page => {
+        // The curve selection and the w fields live in Orodja, which the board workspace folds by default.
+        await h.openToolsCard(page);
         await page.locator('.curve-selection button').first().click();
         await expect.poll(() => hodographBoard(page), {message: 'selecting the curve mounts the hodograph board'}).not.toBeNull();
         const w1x = page.locator('.curve-point-controls').getByRole('spinbutton', {name: 'w₁, x'});

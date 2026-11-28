@@ -9,6 +9,7 @@ import {enterNumber} from '../../inputs/testEntry';
 import {SelectedCurveOption} from './CurveEditingFeature';
 import {curveAccess} from './curveGraphTestAccess';
 import {runAs} from './writes/writeSource';
+import {saveBoardLayout} from '../../workspace/layout/storedLayout';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -17,6 +18,9 @@ beforeEach(() => appStorage.clear());
 const WIDE: [number, number, number, number] = [-50, 50, 50, -50];
 
 async function mountSelected(id: DemonstrationId, firstField = 'p₀, x') {
+    // The shim stage is 600 x 400 and every card measures 400 high, so a graph with an Odčitki card (ph-cubic's arc length) would fold Orodja
+    // by the layout's own rule 5; the learner's stored open fold is what a real window shows.
+    saveBoardLayout({placements: {}, folds: {tools: false}});
     const graph = createGraph(id);
     const mounted = mountGraph(graph);
     await waitUntil(() => graph.state.initialized === true);

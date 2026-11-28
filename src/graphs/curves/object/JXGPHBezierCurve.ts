@@ -114,6 +114,11 @@ export class JXGPHBezierCurve extends JXGBezierCurve {
         this.board.update();
     }
 
+    /** The drawn offset curves (none until the offsets were first shown); read by a declaration's legend. */
+    getJxgOffsetCurves(): readonly JXG.Curve[] {
+        return this.jsxOffsetCurves ?? [];
+    }
+
     isShowingOffsetCurve(): boolean {
         return this.showOffsetCurve;
     }

@@ -13,6 +13,7 @@
 import type {DemonstrationId} from '../../demonstrations';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {DecasteljauIds} from '../../graphs/curves/bezier/DecasteljauGraph';
+import type {PhIds} from '../../graphs/curves/ph/BasePhBezierCurveGraph';
 import type {LessonAction, LessonAnimation, LessonCurveFixture, LessonFrameKind, LessonLanguage, LessonPatchFixture, LessonView3D, LessonViewBox, LocalizedText} from '../model';
 export type {LocalizedText} from '../model';
 import {additionalGuidedLessons} from './additionalGuidedLessons';
@@ -187,6 +188,7 @@ const decasteljauScene = (id: string, curve: LessonCurveFixture, t: number, sl: 
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 /** Typed by De Casteljau's declaration ids: an unknown row or control fails the type check. */
 const decasteljauFrame = frameDeclarer<DecasteljauIds>();
+const phFrame = frameDeclarer<PhIds>();
 
 const bezierFormulaBlocks: readonly FormulaBlock[] = [
     {
@@ -643,7 +645,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 title: text('Hitrost in dolžina loka', 'Speed and arc length'),
                 calculationLatex: 'w(t)=2+it,\\;\\;w(\\tfrac12)=2+\\tfrac12i,\\;\\;\\|r\'(\\tfrac12)\\|=\\|w(\\tfrac12)\\|^2=4+\\tfrac14=\\tfrac{17}{4},\\;\\;L=\\int_0^1(4+t^2)\\,dt',
                 resultLatex: '\\text{speed}(t)=4+t^2,\\quad \\text{speed}(\\tfrac12)=\\tfrac{17}{4},\\quad L=4+\\tfrac13=\\tfrac{13}{3}\\approx4.333',
-                check: text('Dolžino loka \\(\\tfrac{13}{3}\\) prikaže tudi odčitek na grafu; polinomska hitrost omogoča integral brez numeričnega približka.', 'The graph shows the arc length \\(\\tfrac{13}{3}\\) in its readout; the polynomial speed allows an integral without numerical approximation.'),
+                check: text('Dolžino loka \\(\\tfrac{13}{3}\\) prikaže tudi odčitek v kartici Odčitki; polinomska hitrost omogoča integral brez numeričnega približka.', 'The Readouts card shows the arc length \\(\\tfrac{13}{3}\\) too; the polynomial speed allows an integral without numerical approximation.'),
             },
         ],
         steps: [
@@ -671,12 +673,12 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 formulaIds: ['ph-hodograph', 'ph-polynomial-speed'],
                 workedExampleId: 'ph-default-speed-at-half',
                 frames: [
-                    frame('ph-generator-explanation', 'explanation'),
+                    frame('ph-generator-explanation', 'explanation', phFrame({highlight: ['arc-length'], open: ['readouts']})),
                     frame('ph-generator-calculation', 'calculation'),
                     frame('ph-generator-observation', 'observation'),
                 ],
                 observationPrompt: text('Pri \\(t=1/2\\) uporabi \\(w(1/2)=2+\\tfrac12i\\) za izračun hitrosti in primerjaj z označeno točko \\(r(\\tfrac12)\\).', 'At \\(t=1/2\\), use \\(w(1/2)=2+\\tfrac12i\\) to calculate the speed and compare with the marked point \\(r(\\tfrac12)\\).'),
-                expectedObservations: [text('Hitrost je \\(\\tfrac{17}{4}=4{,}25\\), kvadrat dolžine srednjega hodografa; ker je hitrost \\(4+t^2\\), je dolžina loka \\(\\tfrac{13}{3}\\approx4{,}333\\), kar kaže tudi odčitek na grafu.', 'The speed is \\(\\tfrac{17}{4}=4.25\\), the squared length of the midpoint hodograph; since the speed is \\(4+t^2\\), the arc length is \\(\\tfrac{13}{3}\\approx4.333\\), which the readout on the graph also shows.')],
+                expectedObservations: [text('Hitrost je \\(\\tfrac{17}{4}=4{,}25\\), kvadrat dolžine srednjega hodografa; ker je hitrost \\(4+t^2\\), je dolžina loka \\(\\tfrac{13}{3}\\approx4{,}333\\), kar kaže tudi odčitek v kartici Odčitki.','The speed is \\(\\tfrac{17}{4}=4.25\\), the squared length of the midpoint hodograph; since the speed is \\(4+t^2\\), the arc length is \\(\\tfrac{13}{3}\\approx4.333\\), which the readout in the Readouts card also shows.')],
                 scene: phCubicScene('ph-cubic-speed-scene', [{kind: 'curve-evaluation', parameter: 0.5}], 'Označena je točka \\(r(\\tfrac12)=\\left(-\\tfrac1{24},\\,-\\tfrac12\\right)\\) osnovne krivulje.', 'The point \\(r(\\tfrac12)=\\left(-\\tfrac1{24},\\,-\\tfrac12\\right)\\) of the base curve is marked.'),
             },
             {
@@ -694,11 +696,11 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 id: 'ph-offset-side', order: 4,
                 title: text('Predznak odmika', 'Offset sign'),
                 purpose: text('Analiziraj vpliv predznaka odmika pri nespremenjenih generatorjih.', 'Analyze the effect of the offset sign while keeping the generators fixed.'),
-                explanation: text('Pri \\(d=-1\\) predznak izbere nasprotno stran: odmik leži nad krivuljo, na notranji strani zavoja. Polmer ukrivljenosti je \\(\\tfrac{(4+t^2)^2}{4}\\), torej med \\(4\\) in \\(\\tfrac{25}{4}\\), in je večji od \\(1\\), zato ostane odmik regularen; do ostrine bi prišlo šele pri \\(|d|\\ge4\\), kar je zunaj drsnika. Osnovna PH-krivulja in njena kontrolna geometrija ostaneta isti.', 'At \\(d=-1\\), the sign selects the opposite side: the offset lies above the curve, on the inner side of the bend. The radius of curvature is \\(\\tfrac{(4+t^2)^2}{4}\\), between \\(4\\) and \\(\\tfrac{25}{4}\\), and larger than \\(1\\), so the offset stays regular; a cusp would appear only at \\(|d|\\ge4\\), which is outside the slider. The base PH curve and its control geometry stay the same.'),
+                explanation: text('Pri \\(d=-1\\) predznak izbere nasprotno stran: odmik leži nad krivuljo, na notranji strani zavoja. Polmer ukrivljenosti je \\(\\tfrac{(4+t^2)^2}{4}\\), torej med \\(4\\) in \\(\\tfrac{25}{4}\\), in je večji od \\(1\\), zato ostane odmik regularen; do ostrine bi prišlo šele pri \\(|d|\\ge4\\), kar je zunaj območja krmilnika. Osnovna PH-krivulja in njena kontrolna geometrija ostaneta isti.', 'At \\(d=-1\\), the sign selects the opposite side: the offset lies above the curve, on the inner side of the bend. The radius of curvature is \\(\\tfrac{(4+t^2)^2}{4}\\), between \\(4\\) and \\(\\tfrac{25}{4}\\), and larger than \\(1\\), so the offset stays regular; a cusp would appear only at \\(|d|\\ge4\\), which is outside the range of the control. The base PH curve and its control geometry stay the same.'),
                 formulaIds: ['ph-offset'],
-                frames: [frame('ph-offset-side-explanation', 'explanation'), frame('ph-offset-side-observation', 'observation')],
+                frames: [frame('ph-offset-side-explanation', 'explanation'), frame('ph-offset-side-observation', 'observation', phFrame({uses: ['ph-offset-d']}))],
                 scene: phCubicScene('ph-offset-negative', [{kind: 'parameter', name: 'offset-distance', value: -1}, {kind: 'curve-visibility', target: 'offset-curve', visible: true}], 'Prikazan je odmik pri \\(d=-1\\), nad osnovno krivuljo.', 'The offset at \\(d=-1\\) is shown, above the base curve.'),
-                observationPrompt: text('Primerjaj odmika pri \\(d=1\\) in \\(d=-1\\): na kateri strani krivulje leži vsak in kaj ostane nespremenjeno?', 'Compare the offsets at \\(d=1\\) and \\(d=-1\\): which side of the curve does each lie on, and what stays unchanged?'),
+                observationPrompt: text('S krmilnikom Razdalja nastavi \\(d=1\\) in \\(d=-1\\) ter primerjaj odmika: na kateri strani krivulje leži vsak in kaj ostane nespremenjeno?', 'With the Distance control set \\(d=1\\) and \\(d=-1\\) and compare the offsets: which side of the curve does each lie on, and what stays unchanged?'),
                 expectedObservations: [text('Odmik pri \\(d=1\\) leži pod krivuljo, pri \\(d=-1\\) nad njo, na notranji strani zavoja; osnovna krivulja ostane enaka.', 'The offset at \\(d=1\\) lies below the curve and at \\(d=-1\\) above it, on the inner side of the bend; the base curve remains the same.')],
             },
             {
@@ -707,8 +709,8 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
                 purpose: text('Vpliv spremembe vhodnega hodografa na krivuljo.', 'The effect of changing the input hodograph on the curve.'),
                 explanation: text('Premik \\(w_0\\) ali \\(w_1\\) na sekundarnem grafu povzroči ponovni izračun kontrolnih točk PH-krivulje in osvežitev odmika. Poskusi premakniti \\(w_1\\) v \\(2+2i\\): hitrost postane \\(4+4t^2\\), dolžina loka pa \\(\\tfrac{16}{3}\\approx5{,}333\\).', 'Moving \\(w_0\\) or \\(w_1\\) on the secondary graph recomputes the PH control points and refreshes the offset. Try moving \\(w_1\\) to \\(2+2i\\): the speed becomes \\(4+4t^2\\) and the arc length \\(\\tfrac{16}{3}\\approx5.333\\).'),
                 formulaIds: ['ph-hodograph', 'ph-cubic-control-points'],
-                frames: [frame('ph-hodograph-edit-explanation', 'explanation'), frame('ph-hodograph-edit-observation', 'observation')],
-                observationPrompt: text('Opiši spremembe oblike krivulje, hodografa in odmika ter preveri odčitek dolžine loka pri \\(w_1=2+2i\\).', 'Describe the changes in the curve shape, hodograph, and offset, and check the arc-length readout at \\(w_1=2+2i\\).'),
+                frames: [frame('ph-hodograph-edit-explanation', 'explanation'), frame('ph-hodograph-edit-observation', 'observation', phFrame({highlight: ['arc-length'], open: ['readouts']}))],
+                observationPrompt: text('Opiši spremembe oblike krivulje, hodografa in odmika ter v kartici Odčitki preveri dolžino loka pri \\(w_1=2+2i\\).', 'Describe the changes in the curve shape, hodograph, and offset, and check the arc length in the Readouts card at \\(w_1=2+2i\\).'),
                 expectedObservations: [text('Sprememba generatorja spremeni izračunane kontrolne točke, odvod in zato tudi prikazani odmik; pri \\(w_1=2+2i\\) je dolžina loka \\(\\tfrac{16}{3}\\).', 'Changing a generator changes the derived control points, derivative, and therefore the displayed offset; at \\(w_1=2+2i\\) the arc length is \\(\\tfrac{16}{3}\\).')],
                 scene: phCubicScene('ph-offset-after-edit', [{kind: 'parameter', name: 'offset-distance', value: 1}, {kind: 'curve-visibility', target: 'offset-curve', visible: true}], 'Odmik pri \\(d=1\\) ostane viden med ročnim urejanjem hodografa.', 'The offset at \\(d=1\\) remains visible while the hodograph is edited manually.'),
             },
@@ -742,7 +744,7 @@ export const pilotGuidedLessons: readonly GuidedLesson[] = [
         edgeCases: [
             text('Če hodograf izgine oziroma je \\(w(t)=0\\), regularnost in normalna smer odmika nista zagotovljeni.', 'If the hodograph vanishes so that \\(w(t)=0\\), regularity and a normal offset direction are not guaranteed.'),
             text('Odmična konstrukcija uporablja racionalne krivulje; pri ničelnem imenovalcu lahko nastane nedoločen prikaz, ki ga runtime ne sme skriti.', 'The offset construction uses rational curves; a zero denominator can make the display undefined, which the runtime must not hide.'),
-            text('Odmik na notranji strani zavoja postane ostan, ko je \\(|d|\\) vsaj enak polmeru ukrivljenosti. Pri tej krivulji je najmanjši polmer \\(4\\), zato bi do tega prišlo šele pri \\(|d|\\ge4\\), zunaj območja drsnika \\([-3,3]\\).', 'An offset on the inner side of a bend becomes singular once \\(|d|\\) reaches the radius of curvature. For this curve the smallest radius is \\(4\\), so this would happen only at \\(|d|\\ge4\\), outside the slider range \\([-3,3]\\).'),
+            text('Odmik na notranji strani zavoja postane ostan, ko je \\(|d|\\) vsaj enak polmeru ukrivljenosti. Pri tej krivulji je najmanjši polmer \\(4\\), zato bi do tega prišlo šele pri \\(|d|\\ge4\\), zunaj območja krmilnika \\([-3,3]\\).', 'An offset on the inner side of a bend becomes singular once \\(|d|\\) reaches the radius of curvature. For this curve the smallest radius is \\(4\\), so this would happen only at \\(|d|\\ge4\\), outside the range of the control \\([-3,3]\\).'),
             text('Vrednosti v worked example so točni ulomki; zaokrožene vrednosti, na primer \\(4{,}333\\), so le izpis na grafu.', 'Worked-example values are exact fractions; rounded values such as \\(4.333\\) are only the graph readout.'),
         ],
         unresolvedQuestions: [

@@ -1,6 +1,8 @@
 import {LabelOptions} from "jsxgraph";
-import {t} from "../../../localization";
-import BasePhBezierCurveGraph, {BasePhBezierCurveGraphStates} from "./BasePhBezierCurveGraph";
+import {message, t} from "../../../localization";
+import BasePhBezierCurveGraph, {BasePhBezierCurveGraphStates, PhIds} from "./BasePhBezierCurveGraph";
+import type {ActionDeclaration} from "../../base/declare/graphDeclaration";
+import {runAs} from "../../base/writes/writeSource";
 import {GraphPalette} from "../../styles/GraphPalette";
 import {dynamicAttributes} from "../../styles/dynamicAttributes";
 import {OnOffSwitch} from "../../../inputs/OnOffSwitch";
@@ -14,6 +16,15 @@ interface CubicPhBezierCurveGraphStates extends BasePhBezierCurveGraphStates {
 
 class CubicPhBezierCurveGraph extends BasePhBezierCurveGraph<CubicPhBezierCurveGraphStates> {
     protected override workspaceDescription() { return t("explore_the_hodograph_offsets_and_control_polygon_geometry"); }
+    protected override declaresPhWorkspace() { return true; }
+    /** The control polygon geometry switch is a display setting (no lesson step asks for it), so it stays in Orodja. */
+    protected override phExtraActions(): ActionDeclaration<PhIds>[] {
+        return [{id: 'ph-geometry', label: message('control_polygon_geometry'), placement: 'tools', section: 'display', enabled: true, pressed: !this.state.showingCurve}];
+    }
+    override performAction(id: string): void {
+        if (id === 'ph-geometry') runAs('learner', () => this.showControlyPolygonGeometry(this.state.showingCurve));
+        else super.performAction(id);
+    }
     protected override workspaceGraphDisplay() {
         return <>{super.workspaceGraphDisplay()}<div className="inspector-group"><h3>{t("ph_curve_geometry")}</h3>
             <OnOffSwitch checked={!this.state.showingCurve} onChange={checked => this.showControlyPolygonGeometry(checked)}

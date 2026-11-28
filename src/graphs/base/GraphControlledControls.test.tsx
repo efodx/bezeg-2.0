@@ -76,7 +76,8 @@ test('the PH offset switch and slider follow a lesson action', () => {
     expect(offsets().checked).toBe(true);
 
     act(() => graph.getLessonCapabilities().apply({kind: 'parameter', name: 'offset-distance', value: 1.5}));
-    const slider = view.container.querySelector<HTMLInputElement>('input[type="range"][min="-3"]')!;
-    expect(Number(slider.value)).toBe(1.5);
+    // The offset distance d is a board puck (parameter `ph-offset-d`) while the offsets are drawn.
+    const puck = view.getAllByRole('slider', {hidden: true}).find(element => element.getAttribute('aria-label')?.startsWith(t('offset_d_name')))!;
+    expect(Number(puck.getAttribute('aria-valuenow'))).toBe(1.5);
     view.unmount();
 });
