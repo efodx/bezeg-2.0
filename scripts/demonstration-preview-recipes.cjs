@@ -2,6 +2,7 @@
 const assert = require('node:assert/strict');
 const {waitForSurfaceViewDrawn} = require('./surface-view-evidence.cjs');
 const {numberFieldLocator} = require('./number-field-locator.cjs');
+const {puckControl, revealInTools} = require('./puck-control.cjs');
 const button = (label, count = 1) => ({kind: 'button', label, count});
 const toggle = (label, value = true) => ({kind: 'toggle', label, value});
 const field = (label, value, kind = 'range', index = 0) => ({kind, label, value, index});
@@ -41,14 +42,14 @@ const targets = {
     'uniform-parameterization': ['Weighted parameterization checkpoint with ten interior markers; the clip compares this with uniform arc-length spacing', [field('Izberi parametrizacijo', 'alpha', 'select'), field('Število točk', 10, 'number')]],
     'curve-parametric': ['Default cycloid with its generating circle, velocity vector and tangent at the opening parameter', []],
     'curve-curvature': ['Default parabola y = x² with the osculating circle, its centre and the arrows T and N at the opening parameter, framed so the circle stays inside up to t = 0.65', [], [-2.2, 1.65, 2.2, -1.05]],
-    'curve-comb': ['Default quadratic C1 spline with the curvature comb switched on, showing the jump of the comb at the joins', [field('Krivulja', 'c1', 'select'), toggle('Glavnik ukrivljenosti')], [-8, 4.9, 8, -4.9]],
+    'curve-comb': ['Default quadratic C1 spline with the curvature comb switched on, showing the jump of the comb at the joins', [field('Krivulja', 'c1', 'select'), toggle('Glavnik')], [-8, 4.9, 8, -4.9]],
     'curve-evolute': ['Default parabola with the whole evolute, its cusp and the normal at t = 0.8, where the labels E, N and T are apart', [field('Parameter t', 0.8)], [-5.2, 5, 5.2, -1.2]],
     'curve-offset': ['Default parabola with the sampled offset at d = -1 and its two cusps marked', [field('Razdalja d', '-1'), toggle('Osti vzporednice')]],
     // The board frames each motion by itself (the path box, a margin of one arrow and the caption room), so the recipe sets no window and the four lesson scenes keep their own.
     'curve-kinematics': ['Default cycloid with the moving point, the path, the thick travelled part and both arrows, framed by the board for the motion', []],
     // The sum view of the graph's own frame (the phasor panel at the left, the 1 s plot and the caption room above): x from -0.66 to 1.06, y from -1.375 to 2.53 for amplitudes up to 1. The three lesson cards
     // take their own windows in the capture script (the caption rows cover the top of a card). A window keeps the unequal x and y scales of the board.
-    'waves': ['Sum of two equal 3 Hz waves (amplitude 1 each) with a phase difference of 120 degrees, the three waves, the time cursor and the phasor picture', [field('Amplituda 2. vala', 1)], [-0.66, 2.53, 1.06, -1.375]],
+    'waves': ['Sum of two equal 3 Hz waves (amplitude 1 each) with a phase difference of 120 degrees, the three waves, the time cursor and the phasor picture', [field('Amplituda vala 2', 1)], [-0.66, 2.53, 1.06, -1.375]],
     // The default race spans x 0 to 3.25 and y 0 to -2.3 (the arc's lowest point, its caption under it). The readout column fills the left 35% and top half of the poster, so the window (padded by a sixth on each side) puts the tracks right of and below it, about 82 px per unit with A at about (285, 182).
     'mechanics-descent': ['Default race of three beads at A on a line, a circular arc and a cycloid to the end B, shifted right and down of the readout column', [], [-2.38, 1.6, 4.2, -2.43]],
     // The simulation graph frames its own scene (the frame of the mode, the caption rows above the plot); the recipe sets no window. The lesson cards open on the Galton board with one ball and the coin frequency with ten tosses.
@@ -56,7 +57,7 @@ const targets = {
     // The linear-program graph frames its own scene (the feasible region, its vertices and the objective handle below the legend band); the recipe sets a window that puts the vertices under the reserved legend band of the 360 x 220 poster board (the capture pads it by a sixth on each side, so the board shows x -4.5 to 13.5 and y -1 to 10 at 20 px per unit, y = 4 at 120 px). The lesson card opens on the default region.
     'linear-program': ['Default feasible region x + 2y <= 8, 3x + y <= 9 with its vertices, the objective direction handle, the dashed line at k = 9, the optimum line and the walk, with the vertices below the reserved legend band', [], [-2.25, 8.625, 11.25, 0.375]],
     // The contour-map graph frames its own scene (the contour board beside the surface panel, the legend rows at the top left); the recipe sets no window. The LS1 and LS2 cards open on the bowl at c = 1 with the probe at (0,6; 0,8); the card is the contour board, the surface view is a separate panel.
-    'contour-map': ['Default bowl x^2 + y^2 with three level sets from c = 0.375 (radii 0.61, 1.17, 1.54, clear of the tick numbers) and the probe at (0.6, 0.8), level-sets mode, contour board only', [field('Vrednost nivojnice c', 0.375, 'number'), button('Več nivojnic', 2), {kind: 'touch-board'}], [-4.58, 2.8, 4.58, -2.8]],
+    'contour-map': ['Default bowl x^2 + y^2 with three level sets from c = 0.375 (radii 0.61, 1.17, 1.54, clear of the tick numbers) and the probe at (0.6, 0.8), level-sets mode, contour board only', [field('Vrednost c', 0.375, 'number'), field('Število nivojnic', 3, 'number'), {kind: 'touch-board'}], [-4.58, 2.8, 4.58, -2.8]],
     'recursion-growth': ['Arithmetic sequence a1 = 3, d = 2 as the six bars of the lesson card with the marked term and the caption rows; the window leaves room for a6 up to 33', [button('Zmanjšaj število', 4)], [-0.7, 36, 7.2, -4]],
     'recursion-cobweb': ['Cobweb board at its default: the line y = 0.5 x + 1, the diagonal, the start handle and the fixed point with eight steps of the web drawn; the window is close on the web around x* = 2 (the web is a few units wide)', [button('Naslednji korak', 8)], [-2.5, 3.2, 4.5, -1.5]],
     'prob-simulation': ['Default Galton board of 10 rows with p = 1/2, seed 42 and 100 balls dropped: the pegs, the bars of the binomial law and the heap', [field('Število kroglic', 100, 'number')], [-1.6, 0.42, 11.6, -0.4]],
@@ -91,13 +92,13 @@ const targets = {
     'euler-method': ['Default direction field with the Euler polyline, the dashed exact curve and the initial point', [], [-1.2, 3, 2.6, 0.7]],
     bisection: ['First exact halving with midpoint and discarded half before further narrowing', [button('Naslednji korak')], [0.85, 2.3, 2.15, -1.25]],
     'mean-value': ['Shallower tangent and fixed secant before the matching-point discovery', [field('Točka dotika c', 0.5, 'number')], [-0.3, 4.8, 2.4, -0.5]],
-    accumulation: ['Accumulation function revealed beside integrand and signed area', [button('Pokaži akumulacijo A')], [-0.5, 2.6, 6.5, -1.4]],
+    accumulation: ['Accumulation function revealed beside integrand and signed area', [toggle('Akumulacija A')], [-0.5, 2.6, 6.5, -1.4]],
     darboux: ['Coarse lower and upper sums on the unchanged interval', [], [-0.3, 4.8, 2.4, -0.5]],
-    extrema: ['Classification revealed for the original quadratic interval', [button('Pokaži klasifikacijo')], [-1.4, 4.8, 2.4, -1.8]],
+    extrema: ['Classification revealed for the original quadratic interval', [toggle('Klasifikacija')], [-1.4, 4.8, 2.4, -1.8]],
     convexity: ['Chord, tangent and convex curve before revealing the second-derivative conclusion', [], [-1.4, 3, 1.9, -1]],
     taylor: ['Exponential and quadratic Taylor polynomial with visible error away from the fixed center', [field('Stopnja n', 2, 'number')], [-2.6, 5, 2.2, -1.4]],
-    sequence: ['Certified reciprocal tail before tightening epsilon and moving its threshold', [button('Naslednji korak', 15), field('Širina pasu ε', 0.3, 'number'), field('Prag N', 5, 'number'), button('Pokaži certifikat')], [0, 1.2, 18, -0.2]],
-    'uniform-convergence': ['Original power sequence, limit and epsilon band at n=5', [button('Pokaži supremum')], [-0.08, 1.1, 0.9, -0.15]],
+    sequence: ['Certified reciprocal tail before tightening epsilon and moving its threshold', [button('Naslednji korak', 15), field('Širina pasu ε', 0.3, 'number'), field('Prag N', 5, 'number'), toggle('Certifikat')], [0, 1.2, 18, -0.2]],
+    'uniform-convergence': ['Original power sequence, limit and epsilon band at n=5', [toggle('Supremum')], [-0.08, 1.1, 0.9, -0.15]],
     'phase-portrait': ['Default linear system with the stable node of the matrix -E, one seed trajectory and the two eigen-direction lines', [], [-5.8, 4.4, 5.8, -4.4]],
     'logistic-map': ['Default map at r = 2.9 with the diagonal, the cobweb, the fixed point and the bifurcation diagram with its cursor, with room under the axis for the caption column', [], [-0.1, 1.15, 2.9, -1.3]],
     'unit-circle': ['Unit circle at the angle 0 (the opening of the radian lesson) with the sine trace unrolled to its right, framed to show the whole circle and a full turn of the trace', [field('Kot θ (°)', 0)], [-1.6, 3, 8.3, -3.1]],
@@ -110,18 +111,18 @@ const targets = {
     'circle-construction': ['Default tangents mode with the circle, the point P, the tangent segments and the Thales circle, framed around the lesson figures of the four modes', [], [-7, 9.2, 19.5, -7.2]],
     // Lattice paths: the lessons open the paths view on the target (2, 2) (x from -1.5 to 9, y from -2.2 to 6.2, the captions above it and the start label below included); the window keeps the 840:520 aspect.
     // The expansion view of the same Demonstration needs the whole fixed box instead; the capture script gives that card its own window.
-    'lattice-paths': ['Paths view on the target (2, 2) of the lessons: the grid, the six routes, the selected route and the captions', [field('T, a', 2, 'number'), field('T, b', 2, 'number')], [-1.5, 6.2, 12.1, -2.2]],
+    'lattice-paths': ['Paths view on the target (2, 2) of the lessons: the grid, the six routes, the selected route and the captions', [field('Koraki desno a', 2, 'number'), field('Koraki gor b', 2, 'number')], [-1.5, 6.2, 12.1, -2.2]],
     // Counting tree: the lesson opens on the tree of 3 choose 2 (x from 0.6 to 23.8, y from 6.4 to 24.5, the title lines and the leaf labels included); the window keeps the 840:520 aspect.
     // The default 6 choose 3 shows the table of the six counts instead, which reaches below this window.
-    'counting-tree': ['Tree of the ordered choices of 2 out of 3 with its leaves and the title lines, framed around the lesson opening', [field('Število predmetov n', 3, 'number'), field('Izbrani predmeti k', 2, 'number')], [-0.5, 24.5, 30.2, 5.5]],
+    'counting-tree': ['Tree of the ordered choices of 2 out of 3 with its leaves and the title lines, framed around the lesson opening', [field('Predmeti n', 3, 'number'), field('Izbrani k', 2, 'number')], [-0.5, 24.5, 30.2, 5.5]],
     'fourier-series': ['Default square wave with the partial sum, the target and the epsilon band', [], [-7.2, 3.6, 7.2, -2]],
     'prob-binomial-normal': ['Default B(20; 1/2) bars with the matching normal curve and the shaded P(X <= 8)', [], [-1.5, 0.2, 21.5, -0.03]],
     // At the default n = 1 the board shows only the uniform base density, so the poster takes the skewed example at n = 3,
     // where the standardized sum is visibly close to, but not yet on, the normal curve.
-    'prob-clt': ['Skewed base density at n = 3: the standardized sum approaching the standard normal curve', [field('Primer', 'skewed', 'select'), field('Število seštevancev n', 3)], [-3.6, 0.47, 3.6, -0.03]],
+    'prob-clt': ['Skewed base density at n = 3: the standardized sum approaching the standard normal curve', [field('Primer', 'skewed', 'select'), field('Število kopij n', 3, 'number')], [-3.6, 0.47, 3.6, -0.03]],
     'prob-summary': ['Default data 4, 5, 5, 6, 6, 7, 8 with the blue mean triangle, the moss median square, the box plot and the mean +- sigma band (school rule)', [toggle('Pas okoli sredine (± standardni odklon)')], [2.4, 2.85, 11.2, -2.53]],
     'prob-correlation': ['Outlier example points (0,1), (1,2), (2,2), (3,8) with the regression line and the long residuals', [field('Primer', 'outlier', 'select')], [-1, 9, 4.5, -0.5]],
-    'prob-density': ['Standard normal bell curve with the area between a = -1 and b = 1 shaded and its probability readout', [], [-4, 0.5, 4, -0.08]],
+    'prob-density': ['Standard normal bell curve with the area between a = -1 and b = 1 shaded', [], [-4, 0.5, 4, -0.08]],
     // The default circle is a single epicycle, so the poster takes an outline subject (Primer select) and a cutoff (N) slider value: the chain of circles with the tip and a trace that shows the subject but is not yet exact.
     epicycles: ['Outline subject at N = 10: the chain of circles with the tip and the approximating trace, recognisably the subject but not yet exact', [field('Primer', 'slovenia', 'select'), sliderBy('[data-control="epicycle-cutoff"]', 'Epicycles cutoff N', 10)]],
     'fourier-coefficients': ['Default shape with the first coefficient bars and the partial sum', [], [-6.2, 3.8, 6.2, -3.8]],
@@ -129,9 +130,9 @@ const targets = {
     // Example A = [[2, -1], [1, 1]]: a1 = (2, 1), a2 = (-1, 1), det 3. The window holds the image square and the image curve's control points up to (11, 4).
     'linear-map': ['Example matrix A with the image grid, the unit square and its image, and a Bezier curve with its image', [field('Primer matrike', 'basis-default', 'select')], [-1.6, 6.6, 11.6, -1.47]],
     // z = 0.5 + 0.5i inside the unit circle, 1/z = 1 - i outside it; w = 2 + i is the farthest object. The window keeps the 360:220 aspect so the circle stays round.
-    'complex-reciprocal': ['Example z = 0.5 + 0.5i inside the unit circle with its conjugate, w = 2 + i and the revealed reciprocal 1/z = 1 - i outside the circle', [field('Primer obratne vrednosti', 'inside', 'select'), button('Pokaži 1/z')], [-1.5, 1.2835, 2.7, -1.2835]],
+    'complex-reciprocal': ['Example z = 0.5 + 0.5i inside the unit circle with its conjugate, w = 2 + i and the revealed reciprocal 1/z = 1 - i outside the circle', [field('Primer obratne vrednosti', 'inside', 'select'), toggle('Obratna vrednost')], [-1.5, 1.2835, 2.7, -1.2835]],
     // w = 2i, n = 3: the roots lie on a circle of radius 2^(1/3) = 1.26 at 30, 150 and 270 degrees; w is the highest object.
-    'complex-roots': ['Example w = 2i with n = 3: the three roots on their circle joined into the equilateral triangle', [field('Primer korenov', 'two-i', 'select'), button('Pokaži korene'), button('Pokaži n-kotnik')], [-3.19, 2.35, 3.19, -1.55]],
+    'complex-roots': ['Example w = 2i with n = 3: the three roots on their circle joined into the equilateral triangle', [field('Primer korenov', 'two-i', 'select'), toggle('Koreni'), toggle('N-kotnik')], [-3.19, 2.35, 3.19, -1.55]],
     // M6 and M7 example cards (the graph's own view; the chapter card opens the lesson's first scene and ignores the controls here).
     // z = 0,9 + 0,4i has modulus 0,985, so z, z², …, z⁸ all stay near the unit circle in view; the clip steps the exponent 8 → 1 → 8.
     'complex-power': ['z = 0.9 + 0.4i with the powers up to n = 8 spiralling round the dashed unit circle, joined by the path through them', [field('z, Re', 0.9, 'number'), field('z, Im', 0.4, 'number'), field('Eksponent n', 8, 'number')], [-2.1273, 1.3, 2.1273, -1.3]],
@@ -230,9 +231,9 @@ const captureText = {
     'interp-hermite': {keep: [], strip: []},
     // Keep only the correlation line, as `r = 0,8468`; the title and the regression-line label go.
     'prob-correlation': {keep: [/\br = /], strip: [/^Korelacijski koeficient /]},
-    // Distribution and bell curve: the area and its bounds are the subject; only the distribution name stays, the readout lines go.
-    'prob-density': {keep: [/^X ∼ N\(/], strip: []},
-    'prob-binomial-normal': {keep: [/^X ∼ B\(/], strip: []},
+    // Distribution and bell curve: the area and its bounds are the subject. The distribution name and the readout lines are in the Odčitki card now, so the board carries no caption to keep.
+    'prob-density': {keep: [], strip: []},
+    'prob-binomial-normal': {keep: [], strip: []},
     // The standardized sum approaching the normal curve, and the data with their mean and median, need no words on the poster.
     'prob-clt': {keep: [], strip: []},
     'prob-summary': {keep: [], strip: []},
@@ -421,15 +422,17 @@ async function applyAction(page, action) {
         : (['number', 'range'].includes(action.kind) ? page.getByLabel(action.label, {exact: true}).and(page.locator('input')) : page.getByLabel(action.label, {exact: true})).nth(action.index || 0);
     // A Slider takes a typed value in its exact field, named "<label>, vrednost"; a plain number field keeps its own label.
     if (action.kind === 'number') control = await numberFieldLocator(page, action.label, control);
+    // A converted graph keeps the control on the board as a puck (name = the old label); the puck takes the same actions.
+    if (action.kind !== 'button' && !action.selector && await control.count() === 0) control = await puckControl(page, action.kind, action.label) || control;
     assert.equal(await control.count(), 1, `Unsupported or ambiguous ${action.kind} control: ${action.label}`);
-    if (!await control.isVisible()) {
-        for (const tab of ['Prikaz', 'Uredi']) {
+    if (!control.isPuck && !await control.isVisible()) {
+        if (!await revealInTools(page, control)) for (const tab of ['Prikaz', 'Uredi']) {
             await page.getByRole('button', {name: tab, exact: true}).click();
             if (await control.isVisible()) break;
         }
     }
     // Some slider captions include their current value; retain the input's DOM identity.
-    if (action.kind !== 'button') {
+    if (action.kind !== 'button' && !control.isPuck) {
         const inputId = await control.getAttribute('id');
         if (inputId) control = page.locator(`[id=${JSON.stringify(inputId)}]`);
     }
@@ -464,6 +467,12 @@ async function applyAction(page, action) {
             await page.waitForTimeout(50);
         }
         assert.equal(shown, displayed);
+    } else if (control.isPuck) {
+        // A range puck takes a typed entry (double-click, type, Enter); its aria-valuenow is read back.
+        assert.ok(action.value >= await control.min() && action.value <= await control.max(), 'Range target out of bounds');
+        await control.fill(action.value);
+        for (let attempt = 0; attempt < 40 && Math.abs(Number(await control.inputValue()) - action.value) > 1e-9; attempt++) await page.waitForTimeout(50);
+        assert.ok(Math.abs(Number(await control.inputValue()) - action.value) <= 1e-9, `${action.label} failed to reach ${action.value}`);
     } else {
         // Native range keyboard handling is the same supported UI path as pointer dragging.
         const config = await control.evaluate(e => ({min: Number(e.min), max: Number(e.max), step: Number(e.step) || 1}));
@@ -522,7 +531,8 @@ async function outcome(page, id) {
             points: visible.filter(o => ['point', 'glider', 'slider'].includes(o.elType)).map(o => ({type:o.elType, name: o.name, x: o.X(), y: o.Y(), fixed: o.visProp.fixed})),
             text: visible.filter(o => o.elType === 'text').map(o => o.rendNode.textContent),
             readouts: Object.fromEntries([...document.querySelectorAll('[data-readout]')].map(e => [e.dataset.readout, e.querySelector('dd')?.textContent])),
-            reveals: Object.fromEntries([...document.querySelectorAll('[data-revealed]')].map(e => [e.dataset.action, e.dataset.revealed])),
+            reveals: Object.fromEntries([...document.querySelectorAll('[data-revealed]')].map(e => [e.dataset.action, e.dataset.revealed]).concat(
+                [...document.querySelectorAll('.puck-strip [data-puck-key] [role="switch"]')].map(e => [e.closest('[data-puck-key]').dataset.puckKey, e.getAttribute('aria-checked')]))),
             controls: [...document.querySelectorAll('input,select')].filter(e => e.closest('main')).map(e => ({label: e.getAttribute('aria-label') || e.labels?.[0]?.textContent, value: e.value, checked: e.type === 'checkbox' ? e.checked : undefined})),
             curvePaths: visible.filter(o => o.elType === 'curve').map(o => o.rendNode.getAttribute('d'))};
     });
@@ -623,8 +633,9 @@ function assertOutcomeEvidence(id, evidence) {
     if (id === 'fixed-point') assert.equal(evidence.readouts.step, '1', 'First exact cobweb step required');
     if (id === 'mean-value') assert.equal(evidence.readouts.c, '0,5', 'Initial tangent must be shallower than the secant');
     if (id === 'taylor') assert.equal(evidence.readouts.degree, '2');
-    const reveals = {accumulation: 'toggle-accumulation', extrema: 'toggle-classification',
-        'uniform-convergence': 'toggle-uniform-supremum', sequence: 'toggle-sequence-certificate'};
+    // Each reveal is a toggle puck keyed by its action id (accumulation, extrema, sequence, uniform-convergence).
+    const reveals = {accumulation: 'show-accumulation', extrema: 'show-classification',
+        'uniform-convergence': 'show-supremum', sequence: 'show-certificate'};
     if (reveals[id]) assert.equal(evidence.reveals[reveals[id]], 'true', `${id} must reveal its defining result`);
     if (id === 'sequence') assert.equal(evidence.readouts.terms, '16', 'Sixteen reciprocal sequence terms required');
     return evidence;

@@ -7,6 +7,7 @@
 // the evolute point E moves; a failed assertion fails the run.
 // Env: PERF_RUNS (3), PERF_RUNS_THROTTLED (5), PERF_STEPS (150), PERF_DRAG_MS (2000), PERF_ONLY (comma-separated substrings of case names),
 // PERF_OUT or --json path.
+const {puckControl, openTools} = require('./puck-control.cjs');
 const baseUrl = (process.env.PREVIEW_BASE_URL || 'http://127.0.0.1:4314/bezeg-2.0').replace(/\/$/, '');
 const runs = Number(process.env.PERF_RUNS || 3), runsThrottled = Number(process.env.PERF_RUNS_THROTTLED || 5);
 const steps = Number(process.env.PERF_STEPS || 150), dragMs = Number(process.env.PERF_DRAG_MS || 2000);
@@ -113,12 +114,14 @@ async function runOnce(browser, c) {
         await page.goto(`${baseUrl}/${c.route}`, {waitUntil: 'load'});
         await page.waitForFunction(() => window.JXG && Object.values(window.JXG.boards).length > 0, null, {timeout: 20000});
         await page.waitForTimeout(2000);
+        await openTools(page); // the Krivulja select sits in the folded Orodja card
         if (c.kind && c.kind !== 'cubic') {
             await page.getByLabel('Krivulja', {exact: true}).selectOption(c.kind);
             await page.waitForTimeout(800);
         }
         if (c.comb) {
-            await page.getByLabel('Glavnik ukrivljenosti', {exact: true}).check();
+            // The comb switch is a board puck named Glavnik.
+            await (await puckControl(page, 'toggle', 'Glavnik')).setChecked(true);
             await page.waitForTimeout(500);
         }
         await page.evaluate(readBoard); await page.waitForTimeout(600);

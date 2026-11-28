@@ -3,7 +3,7 @@ module.exports = [
     {
         id: 'projective-pole-polar',
         motion: 'parameter-sweep',
-        control: {kind: 'number', label: 'Točka P: y', step: 0.2},
+        control: {kind: 'number', label: 'P, y', step: 0.2},
         // The poster keeps the default P = (1, 4.2) outside the ellipse 9x^2 + 25y^2 = 225. At x = 1 the conic is crossed at y = 2.94, so P moves onto the conic and inside it, as the prompt says. The polar of (1, y0) is y = 9(1 - x/25)/y0, so P stops at y0 = 1 inside, where the polar is still on camera (at -0.4 it left the picture), then rises to 5.8 for 24 distinct values on the field's 1/5 grid.
         path: [4.2, 1, 4.2, 5.8, 4.2],
         lessonQuote: 'Premakni \\(P\\) na stožnico in znotraj nje ter opazuj, kaj se zgodi s polaro.',

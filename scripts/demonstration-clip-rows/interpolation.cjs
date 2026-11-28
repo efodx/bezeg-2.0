@@ -39,11 +39,11 @@ module.exports = [
     {
         id: 'interp-runge',
         motion: 'discrete-exact-steps',
-        control: {kind: 'stepper', label: 'Povečaj število', step: 1},
+        control: {kind: 'number-field', label: 'Stopnja n', step: 1},
         // Cumulative presses from the poster degree n=10 (the graph default): up to n=16 and back.
         path: [0, 2, 4, 6, 4, 2, 0],
         lessonQuote: 'Višaj stopnjo za nekaj korakov in opazuj, kako se spreminja polinom ob krajiščih.',
-        discreteReason: 'The degree n is an integer changed only by the Povečaj and Zmanjšaj buttons; the page has no slider or draggable node, so no smooth control exists.',
+        discreteReason: 'The degree n is an integer set by its count puck (Stopnja n); the page has no slider or draggable node, so no smooth control exists.',
         offCamera: {points: ['runge-grid-max'], reason: 'The maximum-error marker sits on the overshoot near the ends, which grows past the top of the view as n rises; that growth is what the lesson asks the learner to watch.'},
     },
 ];

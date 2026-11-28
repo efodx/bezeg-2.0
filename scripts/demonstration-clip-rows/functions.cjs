@@ -30,10 +30,10 @@ module.exports = [
     {
         id: 'conic-focal',
         motion: 'parameter-sweep',
-        control: {kind: 'slider', label: 'Numerična ekscentričnost ε', step: 0.05},
+        control: {kind: 'slider', label: 'Ekscentričnost ϵ', step: 0.05},
         // The poster scene is the ellipse with eps=0.8, l=1.8. eps goes across 1 to 1.6 (hyperbola) and back, then down to 0.5 and back (the directrix stays at x 7.6 or less, inside the poster frame).
         path: [0.8, 1.6, 0.8, 0.5, 0.8],
-        lessonQuote: 'Z drsnikom pelji \\(\\varepsilon\\) čez \\(1\\) in opazuj, kaj se zgodi z drugim goriščem in z vejami krivulje.',
+        lessonQuote: 'S krmilnikom Ekscentričnost pelji \\(\\varepsilon\\) čez \\(1\\) in opazuj, kaj se zgodi z drugim goriščem in z vejami krivulje.',
         discreteReason: null,
         // Spec decision "conic-focal keeps the lesson's crossing of eps = 1" (handler 5).
         offCamera: {points: ['$$F_2$$', '$$P$$'], reason: 'As eps approaches 1 the second focus runs off to infinity and returns from the other side, and P, held at its polar angle phi, runs off with the branch where 1 + eps cos(phi) nears 0; that crossing is what the lesson teaches.'},
@@ -54,7 +54,7 @@ module.exports = [
         control: {kind: 'slider', label: 'Količnik q', step: 0.05},
         // The poster scene is a=1, q=0.5, one term. q goes to -0.8 and back, so the limit line a/(1-q) moves from 2 to 0.56 and back inside the camera while the bar a stays. The board draws bars and the limit line as segments; the unresponsive-board check reads segment endpoints (handler 9).
         path: [0.5, -0.8, 0.5],
-        lessonQuote: 'Spreminjaj \\(a\\), \\(q\\), \\(n\\) in odstopanje; stolpcev je največ \\(50\\).',
+        lessonQuote: 'Količnik in odstopanje spreminjaš s krmilnikoma Količnik in Odstopanje na grafu, \\(a\\) in \\(n\\) pa s poljema Prvi člen a in Prikazani členi n; stolpcev je največ \\(50\\).',
         discreteReason: null,
     },
 ];

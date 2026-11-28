@@ -50,7 +50,7 @@ module.exports = [
     {
         id: 'waves',
         motion: 'parameter-sweep',
-        control: {kind: 'slider', label: 'Faza 2. vala v stopinjah', step: 5},
+        control: {kind: 'slider', label: 'Faza vala 2', step: 5},
         // The poster scene has two equal waves of amplitude 1 at 3 Hz, the second with the phase 120. The phase goes to 0 (in phase) and to 180 (opposite phase), the lesson's range, and back.
         path: [120, 0, 120, 180, 120],
         lessonQuote: 'Nastavi dva vala z enakima amplitudama in frekvencama ter spreminjaj fazo drugega vala',
@@ -59,7 +59,7 @@ module.exports = [
     {
         id: 'counting-tree',
         motion: 'discrete-exact-steps',
-        control: {kind: 'number-field', label: 'Število predmetov n', step: 1},
+        control: {kind: 'number-field', label: 'Predmeti n', step: 1},
         // The poster scene is the tree of the ordered choices of k = 2 out of n = 3. The number of objects n goes up to 5 and back, so the tree grows from 6 to 20 leaves.
         path: [0, 1, 2, 1, 0],
         lessonQuote: 'Spreminjaj \\(n\\) in \\(k\\) ter stikali za vrstni red in ponavljanje',
@@ -95,7 +95,7 @@ module.exports = [
     {
         id: 'mechanics-descent',
         motion: 'parameter-sweep',
-        control: {kind: 'slider', label: 'Čas', step: 0.01},
+        control: {kind: 'slider', label: 'Čas t', step: 0.01},
         // The poster scene is the race with the beads at A. The time goes to the end of the run (1.19 s) and back, so the three beads slide down their tracks and return.
         path: [0, 0.6, 1.19, 0.6, 0],
         lessonQuote: 'nato premakni čas in preveri napoved',
@@ -106,7 +106,7 @@ module.exports = [
     {
         id: 'curve-kinematics',
         motion: 'parameter-sweep',
-        control: {kind: 'slider', label: 'Čas t (s)', step: 0.01},
+        control: {kind: 'slider', label: 'Čas t', step: 0.01},
         // The poster scene is the cycloid with the moving point at its start. The time goes to the end of the run (6.28 s) and back, so the point travels the whole arch and returns.
         path: [0, 3.14, 6.28, 3.14, 0],
         lessonQuote: 'Premikaj čas po cikloidi in pri vsakem času napovej smer hitrosti',
@@ -164,7 +164,7 @@ module.exports = [
     {
         id: 'contour-map',
         motion: 'parameter-sweep',
-        control: {kind: 'slider', label: 'Vrednost nivojnice c', step: 0.125},
+        control: {kind: 'slider', label: 'Vrednost c', step: 0.125},
         // The poster scene is the bowl x^2 + y^2 with three level sets from c = 0,375 (a start off the tick numbers, so the poster keeps them clear). The level goes to 2,375 (the family of circles grows) and back. Quote: levelSetsChapter.ts:46 (the surface section's investigation prompt).
         path: [0.375, 2.375, 0.375],
         lessonQuote: 'Spreminjaj vrednost \\(c\\) in opazuj, kako se nivojnica premakne',

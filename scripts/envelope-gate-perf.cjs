@@ -5,6 +5,7 @@
 // Every case asserts it is real: the family curve (the data curve of stroke width 1) holds two finite points per requested line and changes during the
 // gesture, or for the t slider the highlighted line (stroke width 3) does; a failed assertion fails the run.
 // Env: PERF_RUNS (3), PERF_RUNS_THROTTLED (3), PERF_STEPS (150), PERF_DRAG_MS (2000), PERF_ONLY (comma-separated substrings of case names), PERF_OUT or --json path.
+const {setPuckValue} = require('./puck-control.cjs');
 const baseUrl = (process.env.PREVIEW_BASE_URL || 'http://127.0.0.1:4314/bezeg-2.0').replace(/\/$/, '');
 const runs = Number(process.env.PERF_RUNS || 3), runsThrottled = Number(process.env.PERF_RUNS_THROTTLED || 3);
 const steps = Number(process.env.PERF_STEPS || 150), dragMs = Number(process.env.PERF_DRAG_MS || 2000);
@@ -90,39 +91,42 @@ async function runOnce(browser, c) {
         await page.goto(`${baseUrl}/${ROUTE}`, {waitUntil: 'load'});
         await page.waitForFunction(() => window.JXG && Object.values(window.JXG.boards).length > 0, null, {timeout: 20000});
         await page.waitForTimeout(2000);
-        const count = page.getByRole('slider', {name: 'Število premic'}), parameter = page.getByRole('slider', {name: 'Parameter t'});
-        await count.fill(String(c.lines));
+        // The line count is a count puck (a typed entry, a stepper, no drag track); t is a range puck.
+        const parameter = page.getByRole('slider', {name: 'Parameter t'});
+        await setPuckValue(page, 'Število premic', c.lines);
+        const count = page.getByRole('spinbutton', {name: 'Število premic', exact: true});
         await page.waitForTimeout(500);
         await page.evaluate(readBoard); await page.waitForTimeout(600);
         const s = await page.evaluate(readBoard);
         if (c.throttle) await (await context.newCDPSession(page)).send('Emulation.setCPUThrottlingRate', {rate: c.throttle});
         let pathAt, from;
-        if (c.gesture !== 'point') {
-            const box = await (c.gesture === 't' ? parameter : count).boundingBox();
+        if (c.gesture === 't') {
+            const box = await parameter.boundingBox();
             if (!box) throw new Error('no slider');
             const y = box.y + box.height / 2, left = box.x + box.width * (c.gesture === 't' ? 0.15 : 0.5), right = box.x + box.width * (c.gesture === 't' ? 0.85 : 0.95);
             from = [left, y];
             pathAt = f => [left + (right - left) * f, y];
-        } else {
+        } else if (c.gesture === 'point') {
             if (!s.pts.length) throw new Error('the middle control point is not reachable');
             const grab = s.pts[0], span = s.size[1] * 0.12;
             from = [s.rect[0] + grab.x, s.rect[1] + grab.y];
             pathAt = f => [from[0] + span * Math.sin(2 * Math.PI * 0.75 * f), from[1] + span * (1 - Math.cos(2 * Math.PI * 0.75 * f))];
         }
         await startSampling(page);
-        await page.mouse.move(from[0], from[1]);
-        await page.mouse.down();
+        // The count puck cannot be dragged: its gesture steps it up with the arrow key, at the same pace as the other drags.
+        const keyed = c.gesture === 'count';
+        if (keyed) await count.focus(); else { await page.mouse.move(from[0], from[1]); await page.mouse.down(); }
         const s0 = await page.evaluate(snapshot); assertStart(c, s0);
         const t0 = await page.evaluate(() => performance.now());
         for (let i = 1; i <= steps; i++) {
-            const [x, y] = pathAt(i / steps);
-            await page.mouse.move(x, y);
+            if (keyed) await page.keyboard.press('ArrowRight');
+            else { const [x, y] = pathAt(i / steps); await page.mouse.move(x, y); }
             await page.waitForTimeout(dragMs / steps);
         }
         const t1 = await page.evaluate(() => performance.now());
         const s1 = await page.evaluate(snapshot);
         assertEnd(c, s0, s1);
-        await page.mouse.up();
+        if (!keyed) await page.mouse.up();
         const perf = await stopSampling(page);
         const samples = intervals(perf.stamps, t0, t1).slice(WARMUP);
         if (samples.length < MIN_SAMPLES) throw new Error(`only ${samples.length} frame samples`);

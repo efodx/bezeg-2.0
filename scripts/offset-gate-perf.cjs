@@ -6,6 +6,7 @@
 // (the overlay's data curve, stroke width 2) has at least the requested samples and changes from gesture start to end, and the plot's path changes
 // with it or is absent when the plot is off; a failed assertion fails the run.
 // Env: PERF_RUNS (3), PERF_RUNS_THROTTLED (3), PERF_STEPS (150), PERF_DRAG_MS (2000), PERF_ONLY (comma-separated substrings of case names), PERF_OUT or --json path.
+const {setPuckValue, openTools} = require('./puck-control.cjs');
 const baseUrl = (process.env.PREVIEW_BASE_URL || 'http://127.0.0.1:4314/bezeg-2.0').replace(/\/$/, '');
 const runs = Number(process.env.PERF_RUNS || 3), runsThrottled = Number(process.env.PERF_RUNS_THROTTLED || 3);
 const steps = Number(process.env.PERF_STEPS || 150), dragMs = Number(process.env.PERF_DRAG_MS || 2000);
@@ -88,8 +89,10 @@ async function runOnce(browser, c) {
         await page.goto(`${baseUrl}/${ROUTE}`, {waitUntil: 'load'});
         await page.waitForFunction(() => window.JXG && Object.values(window.JXG.boards).length > 0, null, {timeout: 20000});
         await page.waitForTimeout(2000);
+        // d is a board puck (typed entry); the samples slider and the two switches sit in the folded Orodja card, which is opened first.
         const distance = page.getByRole('slider', {name: 'Razdalja d'});
-        await distance.fill(String(START_D));
+        await setPuckValue(page, 'Razdalja d', START_D);
+        await openTools(page);
         await page.getByRole('slider', {name: 'Število vzorcev vzporednice'}).fill(String(c.samples));
         await page.getByLabel('Osti vzporednice', {exact: true}).check();
         if (c.plot) await page.getByLabel('Graf faktorja hitrosti', {exact: true}).check();

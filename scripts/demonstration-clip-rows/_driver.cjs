@@ -10,6 +10,7 @@ const {recipes, applyRecipe, readSurfaceFraming, sameCamera, pointsOutsideFrame,
 const {drivenMotions} = require('./_schema.cjs');
 const {newSceneContext, openRecipeScene} = require('./_scene.cjs');
 const {numberFieldLocator} = require('../number-field-locator.cjs');
+const {puckControl, revealInTools} = require('../puck-control.cjs');
 
 // Shared timing, as movePhase in the motion module: 12 holds, 71 moving frames, 13 holds. The pointer is down from PRESS to RELEASE.
 const PRESS = 11, RELEASE = 84;
@@ -174,10 +175,12 @@ async function captureDiscrete(browser, d, row, directory, baseUrl, presentBoard
             await openRecipeScene(page, d, recipes[d.id], baseUrl, {});
             await presentFixed(page, d, presentBoard, fixedBox, row);
             const field = row.control.kind === 'number-field';
-            const button = field ? await numberFieldLocator(page, row.control.label, page.getByLabel(row.control.label, {exact: true}).and(page.locator('input:not([type="range"])')))
+            let button = field ? await numberFieldLocator(page, row.control.label, page.getByLabel(row.control.label, {exact: true}).and(page.locator('input:not([type="range"])')))
                 : page.getByRole('button', {name: row.control.label, exact: true});
+            // A converted graph keeps its number control on the board as a puck of the same name.
+            if (field && await button.count() === 0) button = await puckControl(page, 'number', row.control.label) || button;
             assert.equal(await button.count(), 1, `${row.id}: ${field ? 'number field' : 'button'} "${row.control.label}" is missing or ambiguous (copy the accessible name from route-probe.json)`);
-            for (const tab of ['Prikaz', 'Uredi']) { if (await button.isVisible()) break; await page.getByRole('button', {name: tab, exact: true}).click(); }
+            if (!button.isPuck && !await revealInTools(page, button)) for (const tab of ['Prikaz', 'Uredi']) { if (await button.isVisible()) break; await page.getByRole('button', {name: tab, exact: true}).click(); }
             const parse = value => Number(String(value).replace('−', '-').replace(',', '.'));
             // A stepper shows its value in the text input of the same group; a trace-step button has none, the page's step text is the readout (parseTraceReadout).
             const trace = row.control.kind === 'trace-step';
@@ -298,10 +301,12 @@ async function sweepBoard(page, d, row, directory, presentBoard, kit) {
     assert.deepEqual(fixedBox, poster.boundingBox, `${row.id}: the poster fit must be the clip camera`);
     // Only form inputs count: a value list also gives each row's group its input's name (src/inputs/ValueListInput.tsx).
     let control = page.getByLabel(row.control.label, {exact: true}).and(page.locator('input'));
+    // A converted graph keeps the control on the board as a puck of the same name (its Locator stand-in takes the same calls).
+    if (await control.count() === 0) control = await puckControl(page, 'range', row.control.label) || control;
     assert.equal(await control.count(), 1, `${row.id}: control "${row.control.label}" is missing or ambiguous (copy the accessible label from route-probe.json)`);
-    for (const tab of ['Prikaz', 'Uredi']) { if (await control.isVisible()) break; await page.getByRole('button', {name: tab, exact: true}).click(); }
+    if (!control.isPuck && !await revealInTools(page, control)) for (const tab of ['Prikaz', 'Uredi']) { if (await control.isVisible()) break; await page.getByRole('button', {name: tab, exact: true}).click(); }
     assert.ok(await control.isVisible(), `${row.id}: control "${row.control.label}" stays hidden in every inspector tab`);
-    const rangeId = await control.getAttribute('id');
+    const rangeId = control.isPuck ? null : await control.getAttribute('id');
     // The id survives a label that embeds the value; a control without an id keeps its label locator.
     const range = rangeId ? page.locator(`[id=${JSON.stringify(rangeId)}]`) : control;
     const parse = value => Number(String(value).replace('−', '-').replace(',', '.'));
