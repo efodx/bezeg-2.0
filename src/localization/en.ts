@@ -5434,7 +5434,6 @@ export const en: Record<keyof typeof sl, string> = {
     "prob_summary_sigma_name_sample": "sample s",
     "prob_summary_box_label": "Box plot",
     "prob_summary_band_label": "Band around the mean (± standard deviation)",
-    "prob_summary_board_title": "Number of values: {value0}",
     "prob_summary_board_too_few": "The box plot needs at least {value0} values.",
     "prob_summary_readout_n": "Number of values n",
     "prob_summary_readout_mean": "Mean",

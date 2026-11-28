@@ -11,6 +11,7 @@ import {LessonAction} from '../../learning/model';
 import {DomainError} from './BaseFunctionGraph';
 import {functionPresetCollections} from './functionPresetCollections';
 import {GraphPalette} from '../styles/GraphPalette';
+import {runAs} from '../base/writes/writeSource';
 
 // jsdom has no canvas, no matchMedia and no layout: the shared harness gives the board a size, so its view can be read.
 beforeAll(installBoardShims);
@@ -62,12 +63,16 @@ const typeIn = (label: RegExp, value: number) => act(() => {
 });
 const click = (name: string) => act(() => { fireEvent.click(screen.getByRole('button', {name})); });
 const select = (label: RegExp, value: string) => act(() => { fireEvent.change(screen.getByLabelText(label) as HTMLSelectElement, {target: {value}}); });
-const boxSwitch = () => screen.getByLabelText(/^Škatla z brki$/) as HTMLInputElement;
-const bandSwitch = () => screen.getByLabelText(/^Pas okoli sredine/) as HTMLInputElement;
+// The rule, the kind of deviation, the box plot and the band are pucks on the board (task 08 lane L47): the tests write through the arbiter and `performAction` as the learner.
+let current: ObservedSummaryGraph;
+const writeChoice = (key: 'summary-rule' | 'summary-sigma', value: string) => act(() => { current.parameters!.write(key, value, 'learner'); });
+const flip = (id: 'box-plot' | 'sigma-band') => act(() => { current.performAction(id); });
+const pressed = (id: 'box-plot' | 'sigma-band') => current.getDeclaration()!.actions!.find(action => action.id === id)!.pressed;
 const mount = () => {
     const graph = new ObservedSummaryGraph();
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     expect(graph.state.initialized).toBe(true);
+    current = graph;
     return {graph, ...view};
 };
 const xs = (graph: ObservedSummaryGraph) => graph.visibleHandles().map(h => h.X());
@@ -107,7 +112,7 @@ test('board: seven dots on the axis (ties stacked), mean triangle, median square
     expect(Math.min(...boxX)).toBe(4);
     expect(Math.max(...boxX)).toBe(8);
     expect(boxX.slice(0, 4)).toEqual([5, 6.5, 6.5, 5]);
-    expect(graph.captionPlainLines().join('\n')).toMatch(/Število vrednosti: 7/);
+    expect(graph.captionPlainLines()).toEqual([]);
 });
 
 test('roles by hue and shape: the mean and its band are blue (triangle), the median and the box are moss (square), the data stay ochre', () => {
@@ -238,7 +243,7 @@ describe('few values', () => {
         expect(graph.fences()).toHaveLength(0);
         expect(graph.faces('diamond')).toHaveLength(0);
         expect(status('too-few')).toMatch(/vsaj 3 vrednosti/);
-        expect(graph.captionPlainLines().join('\n')).toMatch(/Škatla z brki potrebuje vsaj 3 vrednosti/);
+        expect(graph.captionPlainLines()).toEqual([]);
         expect(readout('q1')).toBe('—');
         expect(readout('fences')).toBe('—');
         expect(readout('outliers')).toBe('—');
@@ -246,7 +251,7 @@ describe('few values', () => {
         click('Odstrani vrednost 1');
         expect(graph.modelNow().values).toEqual([8]);
         expect(readout('sigma')).toBe('0');
-        select(/^Vrsta standardnega odklona$/, 'sample');
+        writeChoice('summary-sigma', 'sample');
         expect(readout('sigma')).toBe('—');
         expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
         click('Odstrani vrednost 1');
@@ -256,16 +261,16 @@ describe('few values', () => {
 
     test('with the box plot off, two values show no too-few message', () => {
         const {graph} = mount();
-        act(() => { fireEvent.click(boxSwitch()); });
+        flip('box-plot');
         for (let i = 0; i < 5; i++) click('Odstrani vrednost 1');
         expect(status('too-few')).toBeUndefined();
-        expect(graph.captionPlainLines().join('\n')).not.toMatch(/potrebuje/);
+        expect(graph.captionPlainLines()).toEqual([]);
     });
 });
 
 test('the quartile rule switch changes Q3 to 7 (Q1 5, IQR 2) and names the other rule', () => {
     mount();
-    select(/^Pravilo za kvartile$/, 'exclusive');
+    writeChoice('summary-rule', 'exclusive');
     expect(readout('q1')).toBe('5');
     expect(readout('q3')).toBe('7');
     expect(readout('iqr')).toBe('2');
@@ -277,9 +282,9 @@ test('the quartile rule switch changes Q3 to 7 (Q1 5, IQR 2) and names the other
 
 test('the sigma kind switch shows the sample deviation 1,3452 and the band follows it', () => {
     const {graph} = mount();
-    act(() => { fireEvent.click(bandSwitch()); });
+    flip('sigma-band');
     const population = graph.band()[0].dataX!.slice();
-    select(/^Vrsta standardnega odklona$/, 'sample');
+    writeChoice('summary-sigma', 'sample');
     expect(readout('sigma')).toBe('1,3452');
     expect(readoutLabel('sigma')).toMatch(/vzorčni s/);
     const sample = graph.band()[0].dataX!;
@@ -290,26 +295,26 @@ test('the sigma kind switch shows the sample deviation 1,3452 and the band follo
 test('the box-plot and band switches show and hide the actual board objects', () => {
     const {graph} = mount();
     expect([graph.box().length, graph.fences().length, graph.band().length]).toEqual([1, 1, 0]);
-    act(() => { fireEvent.click(boxSwitch()); });
+    flip('box-plot');
     expect([graph.box().length, graph.fences().length, graph.band().length]).toEqual([0, 0, 0]);
     select(/^Primer$/, 'outlier');
     expect(graph.faces('diamond')).toHaveLength(0);
-    act(() => { fireEvent.click(boxSwitch()); });
+    flip('box-plot');
     expect(graph.box()).toHaveLength(1);
     expect(graph.faces('diamond')).toHaveLength(1);
-    act(() => { fireEvent.click(bandSwitch()); });
+    flip('sigma-band');
     expect(graph.band()).toHaveLength(1);
     const band = graph.band()[0];
     expect(Math.min(...band.dataX!)).toBeCloseTo(9 - 8.6189, 3);
     expect(Math.max(...band.dataY!)).toBeLessThan(0);
-    act(() => { fireEvent.click(bandSwitch()); });
+    flip('sigma-band');
     expect(graph.band()).toHaveLength(0);
 });
 
 test('the band is not drawn for sample s at one value', () => {
     const {graph} = mount();
-    act(() => { fireEvent.click(bandSwitch()); });
-    select(/^Vrsta standardnega odklona$/, 'sample');
+    flip('sigma-band');
+    writeChoice('summary-sigma', 'sample');
     for (let i = 0; i < 6; i++) click('Odstrani vrednost 1');
     expect(graph.modelNow().values).toHaveLength(1);
     expect(graph.band()).toHaveLength(0);
@@ -319,10 +324,10 @@ test('Reset restores the defaults, the fields, the readouts, the view and the bo
     const {graph} = mount();
     const baseline = graph.ownedObjects();
     select(/^Primer$/, 'outlier');
-    select(/^Pravilo za kvartile$/, 'exclusive');
-    select(/^Vrsta standardnega odklona$/, 'sample');
-    act(() => { fireEvent.click(bandSwitch()); });
-    act(() => { fireEvent.click(boxSwitch()); });
+    writeChoice('summary-rule', 'exclusive');
+    writeChoice('summary-sigma', 'sample');
+    flip('sigma-band');
+    flip('box-plot');
     graph.drag(6, 99);
     await settle(() => graph.reset());
     expect(graph.modelNow()).toEqual(DEFAULT_SUMMARY_MODEL);
@@ -330,8 +335,8 @@ test('Reset restores the defaults, the fields, the readouts, the view and the bo
     expect(readout('mean')).toBe('5,857143');
     expect(readout('q3')).toBe('6,5');
     expect(readout('sigma')).toBe('1,2454');
-    expect(boxSwitch().checked).toBe(true);
-    expect(bandSwitch().checked).toBe(false);
+    expect(pressed('box-plot')).toBe(true);
+    expect(pressed('sigma-band')).toBe(false);
     expect(status('refused')).toBeUndefined();
     expect(graph.box()).toHaveLength(1);
     expect(graph.band()).toHaveLength(0);
@@ -347,9 +352,9 @@ describe('Presets', () => {
     test('round trip: save, change, restore gives back values, rule, sigma and flags, with the same readouts, board and view', () => {
         const {graph} = mount();
         select(/^Primer$/, 'outlier');
-        select(/^Pravilo za kvartile$/, 'exclusive');
-        select(/^Vrsta standardnega odklona$/, 'sample');
-        act(() => { fireEvent.click(bandSwitch()); });
+        writeChoice('summary-rule', 'exclusive');
+        writeChoice('summary-sigma', 'sample');
+        flip('sigma-band');
         const saved = graph.modelNow();
         expect(saved).toEqual({values: [4, 5, 5, 6, 6, 7, 30], rule: 'exclusive', sigma: 'sample', boxPlot: true, sigmaBand: true});
         const exported = graph.exportPreset();
@@ -359,8 +364,8 @@ describe('Presets', () => {
         const ids = ['n', 'mean', 'median', 'sigma', 'q1', 'q3', 'iqr', 'fences', 'outliers', 'convention'];
         const shown = ids.map(readout);
         select(/^Primer$/, 'even');
-        act(() => { fireEvent.click(boxSwitch()); });
-        graph.liveBoard().setBoundingBox([-1, 4, 5, -2], false);
+        flip('box-plot');
+        runAs('learner', () => graph.liveBoard().setBoundingBox([-1, 4, 5, -2], false));
         expect(graph.modelNow()).not.toEqual(saved);
         act(() => { graph.importPreset({...exported, id: 'stored'}); });
         expect(graph.modelNow()).toEqual(saved);
@@ -369,7 +374,7 @@ describe('Presets', () => {
         expect(graph.box()).toHaveLength(1);
         expect(graph.band()).toHaveLength(1);
         expect(graph.faces('diamond').map(p => p.X())).toEqual([30]);
-        expect(boxSwitch().checked).toBe(true);
+        expect(pressed('box-plot')).toBe(true);
         commitPresetImport(preflightPresetImport(fileWith(exported.data as object)));
         expect(JSON.parse(localStorage.getItem('preset-prob-summary')!).data[0].data).toEqual(saved);
     });
@@ -402,7 +407,7 @@ test('switching the language keeps the model and re-renders labels, numbers with
     expect(readout('outliers')).toBe('30');
     expect(readoutLabel('q1')).toMatch(/school rule/);
     expect(screen.getByRole('button', {name: 'Add a value'})).toBeInTheDocument();
-    expect(graph.captionPlainLines().join('\n')).toMatch(/Number of values: 7/);
+    expect(graph.captionPlainLines()).toEqual([]);
     expect(graph.faces('diamond')).toHaveLength(1);
     expect(graph.box()).toHaveLength(1);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);

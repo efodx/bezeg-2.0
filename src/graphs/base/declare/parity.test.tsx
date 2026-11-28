@@ -1315,6 +1315,30 @@ const SAMPLES: readonly Sample[] = [
             {name: 'n 30 (maximum)', apply: run(g => g.setN(30))},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/prob-summary.json', demonstration: 'prob-summary', states: (() => {
+        type SummarySetters = {
+            setExample(id: string): void; setRule(value: string): void; setSigma(value: string): void; setBoxPlot(value: boolean): void;
+            setSigmaBand(value: boolean): void; moveValue(index: number, value: number): void; addValue(value?: number): void; removeValue(index: number): void;
+        };
+        // The states run one after another on the same graph: each starts by restoring the demonstration default.
+        const run = (edit: (graph: SummarySetters) => void): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const g = graph as unknown as SummarySetters;
+                g.setExample('school'); g.setRule('inclusive'); g.setSigma('population'); g.setBoxPlot(true); g.setSigmaBand(false);
+                edit(g);
+            });
+        };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'outlier example', apply: run(g => g.setExample('outlier'))},
+            {name: 'even example, exclusive rule', apply: run(g => { g.setExample('even'); g.setRule('exclusive'); })},
+            {name: 'sample sigma, band on', apply: run(g => { g.setSigma('sample'); g.setSigmaBand(true); })},
+            {name: 'largest moved to 30', apply: run(g => g.moveValue(6, 30))},
+            {name: 'box plot off', apply: run(g => g.setBoxPlot(false))},
+            {name: 'too few values', apply: run(g => { for (let i = 0; i < 5; i++) g.removeValue(0); })},
+            {name: 'one value', apply: run(g => { for (let i = 0; i < 6; i++) g.removeValue(0); })},
+        ] satisfies ParityState[];
+    })()},
     {file: 'functions/__parity__/derivative.json', demonstration: 'derivative', states: (() => {
         type DerivativeSetters = {setX0(value: number): void; setStep(value: number): void; setFunction(value: string): void; setTangentVisible(value: boolean): void};
         const run = (edit: (graph: DerivativeSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as DerivativeSetters)); };

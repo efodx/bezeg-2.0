@@ -1,21 +1,24 @@
 import {CONTROL_ROW_FILL} from "../../inputs/controlRow";
 import React from "react";
-import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FillCurve, FunctionLessonActions} from "./BaseFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import BaseFunctionGraph, {BoundingBox, cleanNumber, DomainError, FillCurve, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
 import {FunctionStatus} from "./FunctionStatus";
 import {UnavailableButton} from "../../inputs/UnavailableButton";
 import {guard} from "../base/controls/guard";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {ValueListInput} from "../../inputs/ValueListInput";
-import {currentLanguage, renderMessage, t} from "../../localization";
+import {currentLanguage, message, messageNumber, renderMessage, t} from "../../localization";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import {NOT_A_NUMBER_TEXT} from "../../analysis/format";
 import type {QuartileRule} from "../../analysis/descriptiveStatistics";
 import {
     addSummaryValue, chooseSummaryExample, DEFAULT_SUMMARY_MODEL, fitSummaryView, isSummaryExampleId, moveSummaryValue,
     removeSummaryValue, setSummaryBoxPlot, setSummaryRule, setSummarySigma, setSummarySigmaBand, summaryExampleOf,
     SUMMARY_EXAMPLE_IDS, summaryStatisticsView, SUMMARY_VALUE_MAX, SUMMARY_VALUE_MIN, SUMMARY_VALUES_MAX, SUMMARY_VALUES_MIN,
-    SummaryEdit, SummaryModel, SummaryView,
+    SummaryEdit, SummaryModel, SummaryView, SUMMARY_VIEW_MARGIN,
 } from "../../analysis/summaryStatisticsModel";
 import {summaryEditMessage, summaryNumber} from "./summaryStatisticsMessages";
 import {bindMovablePointCursor} from "../base/bindMovablePointCursor";
@@ -25,6 +28,8 @@ import type {LessonActionRegistry} from "../base/lesson/LessonActionRegistry";
 
 /** Height step of the next equal value in a stack of tied dots, and the rows of the box plot and the markers (board units). */
 export const SUMMARY_STACK_STEP = 0.35;
+/** The follow box is at least this many times the width of the must marks (the director zooms out at most 2.2 times; the strip between the cards is about a third of a small board). */
+const SUMMARY_FOLLOW_SPREAD = 1.5;
 const BOX_BOTTOM = 1;
 const BOX_TOP = 2;
 const MEAN_Y = -0.5;
@@ -34,6 +39,16 @@ const BAND_TOP = -1.3;
 /** Roles by hue (and shape): the mean and its spread are blue, a triangle; the median and the box it sits in are moss, a square; the data stay ochre. */
 const MEAN_COLOR = GraphPalette.comparisonCurve;
 const MEDIAN_COLOR = GraphPalette.primaryCurve;
+
+/**
+ * The ids of the summary declaration: the quartile rule and the kind of deviation are choice pucks, the box plot and the band
+ * are switch pucks; the legend names every kind of drawn object.
+ */
+export type SummaryIds = {
+    param: "summary-rule" | "summary-sigma";
+    row: "n" | "mean" | "median" | "sigma" | "q1" | "q3" | "iqr" | "fences" | "outliers" | "convention";
+    note: "summary"; legend: "values" | "mean" | "median" | "box" | "outlier" | "fence" | "band"; section: never; action: "box-plot" | "sigma-band";
+};
 
 /**
  * Mean, median, standard deviation and the box plot (lesson P4): up to 15 values as dots on a number line, a box plot above
@@ -55,6 +70,8 @@ const MEDIAN_COLOR = GraphPalette.primaryCurve;
  */
 export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
     protected pointObjects: JXG.Point[] = [];
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`). */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
 
     override presetCollection() {
         return functionPresetCollections["prob-summary"];
@@ -225,6 +242,7 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
             fillColor: MEAN_COLOR, fillOpacity: 0.28, strokeColor: MEAN_COLOR, strokeWidth: this.displayThinWidth(0.8),
             highlight: false, fixed: true, visible: () => model().sigmaBand && view().sigma !== undefined,
         })) as unknown as FillCurve;
+        this.drawn.set("band", band as unknown as JXG.GeometryElement);
         band.updateDataArray = () => {
             const {mean, sigma} = view();
             if (sigma === undefined) {
@@ -241,6 +259,7 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
             strokeColor: MEDIAN_COLOR, fillOpacity: 0, strokeWidth: this.displayThinWidth(1.4), highlight: false, fixed: true,
             visible: boxShown,
         })) as unknown as FillCurve;
+        this.drawn.set("box", box as unknown as JXG.GeometryElement);
         box.updateDataArray = () => {
             const s = view().summary;
             if (s.status !== "ok") {
@@ -260,6 +279,7 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
         const fences = this.own(board.create("curve", [[], []], {
             strokeColor: GraphPalette.referenceCurve, strokeWidth: thin, dash: 2, fillOpacity: 0, highlight: false, fixed: true, visible: boxShown,
         })) as unknown as FillCurve;
+        this.drawn.set("fence", fences as unknown as JXG.GeometryElement);
         fences.updateDataArray = () => {
             const s = view().summary;
             if (s.status !== "ok") {
@@ -277,28 +297,29 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
             return s.status === "ok" ? s.outliers[i] : undefined;
         };
         for (let i = 0; i < SUMMARY_VALUES_MAX; i++) {
-            this.own(board.create("point", [() => outlierAt(i) ?? 0, (BOX_BOTTOM + BOX_TOP) / 2], {
+            const outlier = this.own(board.create("point", [() => outlierAt(i) ?? 0, (BOX_BOTTOM + BOX_TOP) / 2], {
                 ...this.styles.point.default, name: "", withLabel: false, face: "diamond", fixed: true, highlight: false,
                 fillColor: GraphPalette.warningText, strokeColor: GraphPalette.pointOutline,
                 size: () => Math.max(7, this.displaySettings.pointSize + 3),
                 visible: () => boxShown() && outlierAt(i) !== undefined,
             }));
+            if (i === 0) this.drawn.set("outlier", outlier as JXG.GeometryElement);
         }
 
         // The mean (triangle) and median (square) markers below the axis, large enough for projection and captioned on the
         // board, so they are told apart by shape and word, not by colour alone.
         // A JSXGraph square of size s is 2s wide, a triangle of size s is narrower: `scale` evens their visual weight.
-        const marker = (face: string, color: string, x: () => number, y: number, caption: () => string, scale = 1) => {
-            this.own(board.create("point", [x, y], {
+        const marker = (id: string, face: string, color: string, x: () => number, y: number, caption: () => string, scale = 1) => {
+            this.drawn.set(id, this.own(board.create("point", [x, y], {
                 ...this.styles.point.default, name: "", withLabel: false, face, fixed: true, highlight: false, fillColor: color,
                 strokeColor: GraphPalette.pointOutline, size: () => scale * Math.max(10, this.displaySettings.pointSize + 6),
-            }));
+            })));
             this.own(board.create("text", [() => x() + 14 / board.unitX, y, caption], {
                 anchorY: "middle", fixed: true, highlight: false, color, fontSize: 15,
             }));
         };
-        marker("triangleup", MEAN_COLOR, () => view().mean, MEAN_Y, () => t("prob_summary_mark_mean"));
-        marker("square", MEDIAN_COLOR, () => view().median, MEDIAN_Y, () => t("prob_summary_mark_median"), 0.7);
+        marker("mean", "triangleup", MEAN_COLOR, () => view().mean, MEAN_Y, () => t("prob_summary_mark_mean"));
+        marker("median", "square", MEDIAN_COLOR, () => view().median, MEDIAN_Y, () => t("prob_summary_mark_median"), 0.7);
 
         // The draggable dots, horizontally only.
         this.pointObjects = [];
@@ -315,19 +336,13 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
                 this.dragValue(j, point.X());
             });
             this.pointObjects.push(point);
+            if (j === 0) this.drawn.set("values", point);
         }
-
-        this.caption("top-left", [
-            {text: () => t("prob_summary_board_title", {value0: model().values.length}), scale: 1.2},
-            {
-                text: () => t("prob_summary_board_too_few", {value0: 3}), color: GraphPalette.warningText,
-                visible: () => model().boxPlot && view().summary.status === "too-few",
-            },
-        ]);
     }
 
     protected override onSceneRemoved(): void {
         this.pointObjects = [];
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -360,18 +375,18 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
                 </div>
                 <p className="inspector-help">{t("prob_summary_values_help", {value0: SUMMARY_VALUE_MIN, value1: SUMMARY_VALUE_MAX})}</p>
             </div>
-            <div className="inspector-group">
-                <ChoiceSelect label={t("prob_summary_rule_label")} value={state.rule} options={[
+            <PuckOwnedGroup params={["summary-rule", "summary-sigma"]} className="inspector-group">
+                <PuckOwned param="summary-rule"><ChoiceSelect label={t("prob_summary_rule_label")} value={state.rule} options={[
                     {value: "inclusive", text: t("prob_summary_rule_inclusive")}, {value: "exclusive", text: t("prob_summary_rule_exclusive")},
-                ]} onChange={next => this.guarded(() => this.setRule(next))}/>
-                <ChoiceSelect label={t("prob_summary_sigma_label")} value={state.sigma} options={[
+                ]} onChange={next => this.guarded(() => this.setRule(next))}/></PuckOwned>
+                <PuckOwned param="summary-sigma"><ChoiceSelect label={t("prob_summary_sigma_label")} value={state.sigma} options={[
                     {value: "population", text: t("prob_summary_sigma_population")}, {value: "sample", text: t("prob_summary_sigma_sample")},
-                ]} onChange={next => this.guarded(() => this.setSigma(next))}/>
-            </div>
-            <div className="inspector-group">
-                <OnOffSwitch checked={state.boxPlot} label={t("prob_summary_box_label")} onChange={next => this.guarded(() => this.setBoxPlot(next))}/>
-                <OnOffSwitch checked={state.sigmaBand} label={t("prob_summary_band_label")} onChange={next => this.guarded(() => this.setSigmaBand(next))}/>
-            </div>
+                ]} onChange={next => this.guarded(() => this.setSigma(next))}/></PuckOwned>
+            </PuckOwnedGroup>
+            <PuckOwnedGroup params={["box-plot", "sigma-band"]} className="inspector-group">
+                <PuckOwned param="box-plot"><OnOffSwitch checked={state.boxPlot} label={t("prob_summary_box_label")} onChange={next => this.guarded(() => this.setBoxPlot(next))}/></PuckOwned>
+                <PuckOwned param="sigma-band"><OnOffSwitch checked={state.sigmaBand} label={t("prob_summary_band_label")} onChange={next => this.guarded(() => this.setSigmaBand(next))}/></PuckOwned>
+            </PuckOwnedGroup>
             <div className="inspector-group">
                 <ChoiceSelect label={t("prob_summary_example_label")} value={example ?? "custom"} help={t("prob_summary_example_help")} options={options}
                               onChange={next => { if (isSummaryExampleId(next)) this.guarded(() => this.setExample(next)); }}/>
@@ -379,56 +394,150 @@ export class SummaryStatisticsGraph extends BaseFunctionGraph<SummaryModel> {
         </>;
     }
 
-    protected renderReadout(): React.ReactNode {
+
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): the lesson names are the keys; the two choices are written like the inspector's. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {
+            "summary-rule": {read: () => this.model.rule, apply: (value: unknown) => this.setRule(value)},
+            "summary-sigma": {read: () => this.model.sigma, apply: (value: unknown) => this.setSigma(value)},
+        };
+    }
+
+    /**
+     * The fitted view, widened about the centre of the must marks. The director maps the follow box into the strip between the
+     * cards by shrinking at most 2.2 times (`DEFAULT_MAX_OUT`) whatever the box's width, so a box that only just covers the data
+     * leaves the far dots (the outlier at 30) under a card; the box must be wide enough that the data fit that strip.
+     */
+    private followBox(): BoundingBox {
+        const [left, top, right, bottom] = fitSummaryView(this.model.values);
+        const xs = this.summaryMust(this.model).map(mark => mark.x);
+        const lo = Math.min(left, ...xs), hi = Math.max(right, ...xs);
+        const half = Math.max(hi - lo, SUMMARY_FOLLOW_SPREAD * (Math.max(...xs) - Math.min(...xs) + 2 * SUMMARY_VIEW_MARGIN)) / 2;
+        const centre = (lo + hi) / 2;
+        return [centre - half, top, centre + half, bottom];
+    }
+
+    /** The common declaration plus the quartile rule and the kind of deviation as choice pucks, the box plot and the band as switch pucks, and the legend. */
+    protected override declaration(): GraphDeclaration {
+        const {boxPlot, sigmaBand} = this.model;
+        return {
+            ...this.commonDeclaration(),
+            // The dots, the box and the band are what the learner watches: the frame follows the data (and its fences), not the lesson scene's stored box.
+            followView: this.followBox(),
+            parameters: [
+                {
+                    key: "summary-rule", kind: "choice", label: message("prob_summary_rule_name"), help: message("prob_summary_rule_label"), placement: "board", puck: true,
+                    options: [
+                        {value: "inclusive", label: message("prob_summary_rule_inclusive"), short: message("prob_summary_rule_short_inclusive")},
+                        {value: "exclusive", label: message("prob_summary_rule_exclusive"), short: message("prob_summary_rule_short_exclusive")},
+                    ],
+                },
+                {
+                    key: "summary-sigma", kind: "choice", label: message("prob_summary_sigma_name"), help: message("prob_summary_sigma_label"), placement: "board", puck: true,
+                    options: [
+                        {value: "population", label: message("prob_summary_sigma_population"), short: message("prob_summary_sigma_short_population")},
+                        {value: "sample", label: message("prob_summary_sigma_sample"), short: message("prob_summary_sigma_short_sample")},
+                    ],
+                },
+            ],
+            legend: [
+                {id: "values", label: message("prob_summary_legend_values"), kind: "point", object: "values"},
+                {id: "mean", label: message("prob_summary_legend_mean"), kind: "point", object: "mean"},
+                {id: "median", label: message("prob_summary_legend_median"), kind: "point", object: "median"},
+                {id: "box", label: message("prob_summary_legend_box"), kind: "line", object: "box"},
+                {id: "outlier", label: message("prob_summary_legend_outlier"), kind: "point", object: "outlier"},
+                {id: "fence", label: message("prob_summary_legend_fence"), kind: "dashed", object: "fence"},
+                {id: "band", label: message("prob_summary_legend_band"), kind: "area", object: "band"},
+            ],
+            actions: [
+                {id: "box-plot", label: message("prob_summary_box_name"), help: message("prob_summary_box_label"), placement: "board", enabled: true, pressed: boxPlot, puck: true},
+                {id: "sigma-band", label: message("prob_summary_band_name"), help: message("prob_summary_band_label"), placement: "board", enabled: true, pressed: sigmaBand, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "box-plot") runAs("learner", () => this.setBoxPlot(!this.model.boxPlot));
+        else if (id === "sigma-band") runAs("learner", () => this.setSigmaBand(!this.model.sigmaBand));
+        else throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        const colorProperty = id === "box" || id === "fence" ? "strokecolor" : "fillcolor";
+        return {color: String(element.evalVisProp(colorProperty)), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /**
+     * What the learner watches and no card may cover: the dots (the ends of the data and the top of the tallest stack), the box
+     * plot with its whiskers and fences while shown, the mean and median markers and the band while shown.
+     */
+    private summaryMust(model: SummaryModel): {x: number; y: number}[] {
+        const view = this.viewOf(model);
+        const s = view.summary;
+        const low = Math.min(...model.values);
+        const high = Math.max(...model.values);
+        const stackTop = Math.max(...model.values.map((_, index) => this.stackY(index)));
+        const must = [{x: low, y: 0}, {x: high, y: stackTop}, {x: view.mean, y: MEAN_Y}, {x: view.median, y: MEDIAN_Y}];
+        if (model.boxPlot && s.status === "ok") {
+            must.push({x: s.whiskerLow, y: BOX_BOTTOM}, {x: s.whiskerHigh, y: BOX_TOP}, {x: s.lowerFence, y: BOX_BOTTOM - 0.2}, {x: s.upperFence, y: BOX_TOP + 0.2});
+        }
+        if (model.sigmaBand && view.sigma !== undefined) must.push({x: view.mean - view.sigma, y: BAND_BOTTOM}, {x: view.mean + view.sigma, y: BAND_TOP});
+        return must;
+    }
+
+    /** Declared by the base: the readout rows (the number of values the board caption gave, then the summary), the note and the status. */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
         const view = this.viewOf(model);
         const language = currentLanguage();
-        const rule = this.ruleName(model.rule);
-        const other = this.ruleName(model.rule === "inclusive" ? "exclusive" : "inclusive");
-        const sigmaName = model.sigma === "population" ? t("prob_summary_sigma_name_population") : t("prob_summary_sigma_name_sample");
-        const f = (value: number, decimals: number) => summaryNumber(value, language, decimals);
+        const rule = message(model.rule === "inclusive" ? "prob_summary_rule_name_inclusive" : "prob_summary_rule_name_exclusive");
+        const other = message(model.rule === "inclusive" ? "prob_summary_rule_name_exclusive" : "prob_summary_rule_name_inclusive");
+        const sigmaName = message(model.sigma === "population" ? "prob_summary_sigma_name_population" : "prob_summary_sigma_name_sample");
+        const formatted = (text: string) => ({kind: "formatted" as const, text});
+        const dash = formatted(NOT_A_NUMBER_TEXT);
         const s = view.summary;
         const o = view.otherSummary;
-        const dash = NOT_A_NUMBER_TEXT;
-        const rows = [
-            {id: "n", label: t("prob_summary_readout_n"), value: String(view.n)},
-            {id: "mean", label: t("prob_summary_readout_mean"), value: f(view.mean, 6)},
-            {id: "median", label: t("prob_summary_readout_median"), value: f(view.median, 2)},
-            {id: "sigma", label: t("prob_summary_readout_sigma", {value0: sigmaName}), value: view.sigma === undefined ? dash : f(view.sigma, 4)},
-            {id: "q1", label: t("prob_summary_readout_q1", {value0: rule}), value: s.status === "ok" ? f(s.q1, 2) : dash},
-            {id: "q3", label: t("prob_summary_readout_q3", {value0: rule}), value: s.status === "ok" ? f(s.q3, 2) : dash},
-            {id: "iqr", label: t("prob_summary_readout_iqr", {value0: rule}), value: s.status === "ok" ? f(s.iqr, 2) : dash},
-            {
-                id: "fences", label: t("prob_summary_readout_fences", {value0: rule}),
-                value: s.status === "ok" ? t("prob_summary_readout_and", {value0: f(s.lowerFence, 3), value1: f(s.upperFence, 3)}) : dash,
-            },
-            {
-                id: "outliers", label: t("prob_summary_readout_outliers", {value0: rule}),
-                value: s.status !== "ok" ? dash : s.outliers.length === 0 ? t("prob_summary_readout_none") : s.outliers.map(v => f(v, 1)).join("; "),
-            },
-            {
-                id: "convention", label: t("prob_summary_readout_convention", {value0: other}),
-                value: o.status === "ok" ? [f(o.q1, 2), f(o.q3, 2), f(o.iqr, 2)].join("; ") : dash,
-            },
-        ];
-        const statuses: { id: string; text: string }[] = [];
-        if (model.boxPlot && s.status === "too-few") statuses.push({id: "too-few", text: t("prob_summary_board_too_few", {value0: 3})});
-        return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_summary_note")}/>
-            <FunctionStatus dataAttribute="prob-summary-status" lines={statuses}/>
-        </>;
+        const okNumber = (value: number | undefined, decimals: number) => value === undefined ? dash : messageNumber(value, decimals);
+        return {
+            rows: [
+                {id: "n", name: message("prob_summary_readout_n"), value: messageNumber(view.n)},
+                {id: "mean", name: message("prob_summary_readout_mean"), value: messageNumber(view.mean, 6)},
+                {id: "median", name: message("prob_summary_readout_median"), value: messageNumber(view.median, 2)},
+                {id: "sigma", name: message("prob_summary_readout_sigma", {value0: sigmaName}), value: okNumber(view.sigma, 4)},
+                {id: "q1", name: message("prob_summary_readout_q1", {value0: rule}), value: okNumber(s.status === "ok" ? s.q1 : undefined, 2)},
+                {id: "q3", name: message("prob_summary_readout_q3", {value0: rule}), value: okNumber(s.status === "ok" ? s.q3 : undefined, 2)},
+                {id: "iqr", name: message("prob_summary_readout_iqr", {value0: rule}), value: okNumber(s.status === "ok" ? s.iqr : undefined, 2)},
+                {
+                    id: "fences", name: message("prob_summary_readout_fences", {value0: rule}),
+                    value: s.status === "ok" ? message("prob_summary_readout_and", {value0: messageNumber(s.lowerFence, 3), value1: messageNumber(s.upperFence, 3)}) : dash,
+                },
+                {
+                    id: "outliers", name: message("prob_summary_readout_outliers", {value0: rule}),
+                    value: s.status !== "ok" ? dash : s.outliers.length === 0 ? message("prob_summary_readout_none") : formatted(s.outliers.map(v => summaryNumber(v, language, 1)).join("; ")),
+                },
+                {
+                    id: "convention", name: message("prob_summary_readout_convention", {value0: other}),
+                    value: o.status === "ok" ? formatted([o.q1, o.q3, o.iqr].map(v => summaryNumber(v, language, 2)).join("; ")) : dash,
+                },
+            ],
+            notes: [{id: "summary", text: message("prob_summary_note")}],
+            ...(model.boxPlot && s.status === "too-few" ? {status: [{id: "too-few", text: message("prob_summary_board_too_few", {value0: 3}), tone: "warning" as const}]} : {}),
+            must: this.summaryMust(model),
+        };
     }
 
-    protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "values", color: GraphPalette.controlPoint, label: t("prob_summary_legend_values"), kind: "dot"},
-            {id: "mean", color: MEAN_COLOR, label: t("prob_summary_legend_mean"), kind: "dot"},
-            {id: "median", color: MEDIAN_COLOR, label: t("prob_summary_legend_median"), kind: "dot"},
-            {id: "box", color: MEDIAN_COLOR, label: t("prob_summary_legend_box"), kind: "line"},
-            {id: "outlier", color: GraphPalette.warningText, label: t("prob_summary_legend_outlier"), kind: "dot"},
-            {id: "fence", color: GraphPalette.referenceCurve, label: t("prob_summary_legend_fence"), kind: "dashed-line"},
-            {id: "band", color: MEAN_COLOR, label: t("prob_summary_legend_band"), kind: "area"},
-        ]}/>;
+    protected renderReadout(): React.ReactNode {
+        const status = this.functionPanel().status ?? [];
+        return <>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus dataAttribute="prob-summary-status" lines={status.map(line => ({id: line.id, text: renderMessage(line.text)}))}/>
+        </>;
     }
 }
 

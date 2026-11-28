@@ -1,0 +1,520 @@
+{
+  "graph": "prob-summary",
+  "language": "sl",
+  "states": [
+    {
+      "name": "default",
+      "rows": [
+        {
+          "key": "Število vrednosti n#0",
+          "label": "Število vrednosti n",
+          "value": "7"
+        },
+        {
+          "key": "Aritmetična sredina#0",
+          "label": "Aritmetična sredina",
+          "value": "5,857143"
+        },
+        {
+          "key": "Mediana#0",
+          "label": "Mediana",
+          "value": "6"
+        },
+        {
+          "key": "Standardni odklon (populacijski σ)#0",
+          "label": "Standardni odklon (populacijski σ)",
+          "value": "1,2454"
+        },
+        {
+          "key": "Prvi kvartil Q₁ (šolsko pravilo)#0",
+          "label": "Prvi kvartil Q₁ (šolsko pravilo)",
+          "value": "5"
+        },
+        {
+          "key": "Tretji kvartil Q₃ (šolsko pravilo)#0",
+          "label": "Tretji kvartil Q₃ (šolsko pravilo)",
+          "value": "6,5"
+        },
+        {
+          "key": "Medčetrtinski razmik (šolsko pravilo)#0",
+          "label": "Medčetrtinski razmik (šolsko pravilo)",
+          "value": "1,5"
+        },
+        {
+          "key": "Meji osamelcev (šolsko pravilo)#0",
+          "label": "Meji osamelcev (šolsko pravilo)",
+          "value": "2,75 in 8,75"
+        },
+        {
+          "key": "Osamelci (šolsko pravilo)#0",
+          "label": "Osamelci (šolsko pravilo)",
+          "value": "ni"
+        },
+        {
+          "key": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik#0",
+          "label": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik",
+          "value": "5; 7; 2"
+        }
+      ],
+      "notes": [
+        "Imena pravila in vrste odklona so del odgovora, ker se kalkulatorji in programi razlikujejo. Osamelec tu pomeni vrednost zunaj mej, ki sta 1,5 medčetrtinskega razmika od kvartilov; to je dogovor, ne matematična lastnost."
+      ],
+      "outputs": [],
+      "captions": [
+        "mediana",
+        "sredina",
+        "Število vrednosti: 7"
+      ]
+    },
+    {
+      "name": "outlier example",
+      "rows": [
+        {
+          "key": "Število vrednosti n#0",
+          "label": "Število vrednosti n",
+          "value": "7"
+        },
+        {
+          "key": "Aritmetična sredina#0",
+          "label": "Aritmetična sredina",
+          "value": "9"
+        },
+        {
+          "key": "Mediana#0",
+          "label": "Mediana",
+          "value": "6"
+        },
+        {
+          "key": "Standardni odklon (populacijski σ)#0",
+          "label": "Standardni odklon (populacijski σ)",
+          "value": "8,6189"
+        },
+        {
+          "key": "Prvi kvartil Q₁ (šolsko pravilo)#0",
+          "label": "Prvi kvartil Q₁ (šolsko pravilo)",
+          "value": "5"
+        },
+        {
+          "key": "Tretji kvartil Q₃ (šolsko pravilo)#0",
+          "label": "Tretji kvartil Q₃ (šolsko pravilo)",
+          "value": "6,5"
+        },
+        {
+          "key": "Medčetrtinski razmik (šolsko pravilo)#0",
+          "label": "Medčetrtinski razmik (šolsko pravilo)",
+          "value": "1,5"
+        },
+        {
+          "key": "Meji osamelcev (šolsko pravilo)#0",
+          "label": "Meji osamelcev (šolsko pravilo)",
+          "value": "2,75 in 8,75"
+        },
+        {
+          "key": "Osamelci (šolsko pravilo)#0",
+          "label": "Osamelci (šolsko pravilo)",
+          "value": "30"
+        },
+        {
+          "key": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik#0",
+          "label": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik",
+          "value": "5; 7; 2"
+        }
+      ],
+      "notes": [
+        "Imena pravila in vrste odklona so del odgovora, ker se kalkulatorji in programi razlikujejo. Osamelec tu pomeni vrednost zunaj mej, ki sta 1,5 medčetrtinskega razmika od kvartilov; to je dogovor, ne matematična lastnost."
+      ],
+      "outputs": [],
+      "captions": [
+        "mediana",
+        "sredina",
+        "Število vrednosti: 7"
+      ]
+    },
+    {
+      "name": "even example, exclusive rule",
+      "rows": [
+        {
+          "key": "Število vrednosti n#0",
+          "label": "Število vrednosti n",
+          "value": "4"
+        },
+        {
+          "key": "Aritmetična sredina#0",
+          "label": "Aritmetična sredina",
+          "value": "4,75"
+        },
+        {
+          "key": "Mediana#0",
+          "label": "Mediana",
+          "value": "4"
+        },
+        {
+          "key": "Standardni odklon (populacijski σ)#0",
+          "label": "Standardni odklon (populacijski σ)",
+          "value": "2,681"
+        },
+        {
+          "key": "Prvi kvartil Q₁ (pravilo brez mediane)#0",
+          "label": "Prvi kvartil Q₁ (pravilo brez mediane)",
+          "value": "2,5"
+        },
+        {
+          "key": "Tretji kvartil Q₃ (pravilo brez mediane)#0",
+          "label": "Tretji kvartil Q₃ (pravilo brez mediane)",
+          "value": "7"
+        },
+        {
+          "key": "Medčetrtinski razmik (pravilo brez mediane)#0",
+          "label": "Medčetrtinski razmik (pravilo brez mediane)",
+          "value": "4,5"
+        },
+        {
+          "key": "Meji osamelcev (pravilo brez mediane)#0",
+          "label": "Meji osamelcev (pravilo brez mediane)",
+          "value": "-4,25 in 13,75"
+        },
+        {
+          "key": "Osamelci (pravilo brez mediane)#0",
+          "label": "Osamelci (pravilo brez mediane)",
+          "value": "ni"
+        },
+        {
+          "key": "Drugo pravilo (šolsko pravilo): Q₁; Q₃; razmik#0",
+          "label": "Drugo pravilo (šolsko pravilo): Q₁; Q₃; razmik",
+          "value": "2,5; 7; 4,5"
+        }
+      ],
+      "notes": [
+        "Imena pravila in vrste odklona so del odgovora, ker se kalkulatorji in programi razlikujejo. Osamelec tu pomeni vrednost zunaj mej, ki sta 1,5 medčetrtinskega razmika od kvartilov; to je dogovor, ne matematična lastnost."
+      ],
+      "outputs": [],
+      "captions": [
+        "mediana",
+        "sredina",
+        "Število vrednosti: 4"
+      ]
+    },
+    {
+      "name": "sample sigma, band on",
+      "rows": [
+        {
+          "key": "Število vrednosti n#0",
+          "label": "Število vrednosti n",
+          "value": "7"
+        },
+        {
+          "key": "Aritmetična sredina#0",
+          "label": "Aritmetična sredina",
+          "value": "5,857143"
+        },
+        {
+          "key": "Mediana#0",
+          "label": "Mediana",
+          "value": "6"
+        },
+        {
+          "key": "Standardni odklon (vzorčni s)#0",
+          "label": "Standardni odklon (vzorčni s)",
+          "value": "1,3452"
+        },
+        {
+          "key": "Prvi kvartil Q₁ (šolsko pravilo)#0",
+          "label": "Prvi kvartil Q₁ (šolsko pravilo)",
+          "value": "5"
+        },
+        {
+          "key": "Tretji kvartil Q₃ (šolsko pravilo)#0",
+          "label": "Tretji kvartil Q₃ (šolsko pravilo)",
+          "value": "6,5"
+        },
+        {
+          "key": "Medčetrtinski razmik (šolsko pravilo)#0",
+          "label": "Medčetrtinski razmik (šolsko pravilo)",
+          "value": "1,5"
+        },
+        {
+          "key": "Meji osamelcev (šolsko pravilo)#0",
+          "label": "Meji osamelcev (šolsko pravilo)",
+          "value": "2,75 in 8,75"
+        },
+        {
+          "key": "Osamelci (šolsko pravilo)#0",
+          "label": "Osamelci (šolsko pravilo)",
+          "value": "ni"
+        },
+        {
+          "key": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik#0",
+          "label": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik",
+          "value": "5; 7; 2"
+        }
+      ],
+      "notes": [
+        "Imena pravila in vrste odklona so del odgovora, ker se kalkulatorji in programi razlikujejo. Osamelec tu pomeni vrednost zunaj mej, ki sta 1,5 medčetrtinskega razmika od kvartilov; to je dogovor, ne matematična lastnost."
+      ],
+      "outputs": [],
+      "captions": [
+        "mediana",
+        "sredina",
+        "Število vrednosti: 7"
+      ]
+    },
+    {
+      "name": "largest moved to 30",
+      "rows": [
+        {
+          "key": "Število vrednosti n#0",
+          "label": "Število vrednosti n",
+          "value": "7"
+        },
+        {
+          "key": "Aritmetična sredina#0",
+          "label": "Aritmetična sredina",
+          "value": "9"
+        },
+        {
+          "key": "Mediana#0",
+          "label": "Mediana",
+          "value": "6"
+        },
+        {
+          "key": "Standardni odklon (populacijski σ)#0",
+          "label": "Standardni odklon (populacijski σ)",
+          "value": "8,6189"
+        },
+        {
+          "key": "Prvi kvartil Q₁ (šolsko pravilo)#0",
+          "label": "Prvi kvartil Q₁ (šolsko pravilo)",
+          "value": "5"
+        },
+        {
+          "key": "Tretji kvartil Q₃ (šolsko pravilo)#0",
+          "label": "Tretji kvartil Q₃ (šolsko pravilo)",
+          "value": "6,5"
+        },
+        {
+          "key": "Medčetrtinski razmik (šolsko pravilo)#0",
+          "label": "Medčetrtinski razmik (šolsko pravilo)",
+          "value": "1,5"
+        },
+        {
+          "key": "Meji osamelcev (šolsko pravilo)#0",
+          "label": "Meji osamelcev (šolsko pravilo)",
+          "value": "2,75 in 8,75"
+        },
+        {
+          "key": "Osamelci (šolsko pravilo)#0",
+          "label": "Osamelci (šolsko pravilo)",
+          "value": "30"
+        },
+        {
+          "key": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik#0",
+          "label": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik",
+          "value": "5; 7; 2"
+        }
+      ],
+      "notes": [
+        "Imena pravila in vrste odklona so del odgovora, ker se kalkulatorji in programi razlikujejo. Osamelec tu pomeni vrednost zunaj mej, ki sta 1,5 medčetrtinskega razmika od kvartilov; to je dogovor, ne matematična lastnost."
+      ],
+      "outputs": [],
+      "captions": [
+        "mediana",
+        "sredina",
+        "Število vrednosti: 7"
+      ]
+    },
+    {
+      "name": "box plot off",
+      "rows": [
+        {
+          "key": "Število vrednosti n#0",
+          "label": "Število vrednosti n",
+          "value": "7"
+        },
+        {
+          "key": "Aritmetična sredina#0",
+          "label": "Aritmetična sredina",
+          "value": "5,857143"
+        },
+        {
+          "key": "Mediana#0",
+          "label": "Mediana",
+          "value": "6"
+        },
+        {
+          "key": "Standardni odklon (populacijski σ)#0",
+          "label": "Standardni odklon (populacijski σ)",
+          "value": "1,2454"
+        },
+        {
+          "key": "Prvi kvartil Q₁ (šolsko pravilo)#0",
+          "label": "Prvi kvartil Q₁ (šolsko pravilo)",
+          "value": "5"
+        },
+        {
+          "key": "Tretji kvartil Q₃ (šolsko pravilo)#0",
+          "label": "Tretji kvartil Q₃ (šolsko pravilo)",
+          "value": "6,5"
+        },
+        {
+          "key": "Medčetrtinski razmik (šolsko pravilo)#0",
+          "label": "Medčetrtinski razmik (šolsko pravilo)",
+          "value": "1,5"
+        },
+        {
+          "key": "Meji osamelcev (šolsko pravilo)#0",
+          "label": "Meji osamelcev (šolsko pravilo)",
+          "value": "2,75 in 8,75"
+        },
+        {
+          "key": "Osamelci (šolsko pravilo)#0",
+          "label": "Osamelci (šolsko pravilo)",
+          "value": "ni"
+        },
+        {
+          "key": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik#0",
+          "label": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik",
+          "value": "5; 7; 2"
+        }
+      ],
+      "notes": [
+        "Imena pravila in vrste odklona so del odgovora, ker se kalkulatorji in programi razlikujejo. Osamelec tu pomeni vrednost zunaj mej, ki sta 1,5 medčetrtinskega razmika od kvartilov; to je dogovor, ne matematična lastnost."
+      ],
+      "outputs": [],
+      "captions": [
+        "mediana",
+        "sredina",
+        "Število vrednosti: 7"
+      ]
+    },
+    {
+      "name": "too few values",
+      "rows": [
+        {
+          "key": "Število vrednosti n#0",
+          "label": "Število vrednosti n",
+          "value": "2"
+        },
+        {
+          "key": "Aritmetična sredina#0",
+          "label": "Aritmetična sredina",
+          "value": "7,5"
+        },
+        {
+          "key": "Mediana#0",
+          "label": "Mediana",
+          "value": "7,5"
+        },
+        {
+          "key": "Standardni odklon (populacijski σ)#0",
+          "label": "Standardni odklon (populacijski σ)",
+          "value": "0,5"
+        },
+        {
+          "key": "Prvi kvartil Q₁ (šolsko pravilo)#0",
+          "label": "Prvi kvartil Q₁ (šolsko pravilo)",
+          "value": "—"
+        },
+        {
+          "key": "Tretji kvartil Q₃ (šolsko pravilo)#0",
+          "label": "Tretji kvartil Q₃ (šolsko pravilo)",
+          "value": "—"
+        },
+        {
+          "key": "Medčetrtinski razmik (šolsko pravilo)#0",
+          "label": "Medčetrtinski razmik (šolsko pravilo)",
+          "value": "—"
+        },
+        {
+          "key": "Meji osamelcev (šolsko pravilo)#0",
+          "label": "Meji osamelcev (šolsko pravilo)",
+          "value": "—"
+        },
+        {
+          "key": "Osamelci (šolsko pravilo)#0",
+          "label": "Osamelci (šolsko pravilo)",
+          "value": "—"
+        },
+        {
+          "key": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik#0",
+          "label": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik",
+          "value": "—"
+        }
+      ],
+      "notes": [
+        "Imena pravila in vrste odklona so del odgovora, ker se kalkulatorji in programi razlikujejo. Osamelec tu pomeni vrednost zunaj mej, ki sta 1,5 medčetrtinskega razmika od kvartilov; to je dogovor, ne matematična lastnost."
+      ],
+      "outputs": [],
+      "captions": [
+        "mediana",
+        "sredina",
+        "Škatla z brki potrebuje vsaj 3 vrednosti.",
+        "Število vrednosti: 2"
+      ]
+    },
+    {
+      "name": "one value",
+      "rows": [
+        {
+          "key": "Število vrednosti n#0",
+          "label": "Število vrednosti n",
+          "value": "1"
+        },
+        {
+          "key": "Aritmetična sredina#0",
+          "label": "Aritmetična sredina",
+          "value": "8"
+        },
+        {
+          "key": "Mediana#0",
+          "label": "Mediana",
+          "value": "8"
+        },
+        {
+          "key": "Standardni odklon (populacijski σ)#0",
+          "label": "Standardni odklon (populacijski σ)",
+          "value": "0"
+        },
+        {
+          "key": "Prvi kvartil Q₁ (šolsko pravilo)#0",
+          "label": "Prvi kvartil Q₁ (šolsko pravilo)",
+          "value": "—"
+        },
+        {
+          "key": "Tretji kvartil Q₃ (šolsko pravilo)#0",
+          "label": "Tretji kvartil Q₃ (šolsko pravilo)",
+          "value": "—"
+        },
+        {
+          "key": "Medčetrtinski razmik (šolsko pravilo)#0",
+          "label": "Medčetrtinski razmik (šolsko pravilo)",
+          "value": "—"
+        },
+        {
+          "key": "Meji osamelcev (šolsko pravilo)#0",
+          "label": "Meji osamelcev (šolsko pravilo)",
+          "value": "—"
+        },
+        {
+          "key": "Osamelci (šolsko pravilo)#0",
+          "label": "Osamelci (šolsko pravilo)",
+          "value": "—"
+        },
+        {
+          "key": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik#0",
+          "label": "Drugo pravilo (pravilo brez mediane): Q₁; Q₃; razmik",
+          "value": "—"
+        }
+      ],
+      "notes": [
+        "Imena pravila in vrste odklona so del odgovora, ker se kalkulatorji in programi razlikujejo. Osamelec tu pomeni vrednost zunaj mej, ki sta 1,5 medčetrtinskega razmika od kvartilov; to je dogovor, ne matematična lastnost."
+      ],
+      "outputs": [],
+      "captions": [
+        "mediana",
+        "sredina",
+        "Škatla z brki potrebuje vsaj 3 vrednosti.",
+        "Število vrednosti: 1"
+      ]
+    }
+  ]
+}

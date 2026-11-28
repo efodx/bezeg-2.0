@@ -54,7 +54,7 @@ const plan: Record<string, {make: () => BaseGraph<BaseGraphState>; first: Label;
     clt: {make: () => new CltGraph(), first: () => 'action:next-step',
         later: [() => t('prob_clt_example_label')]},
     summary: {make: () => new SummaryStatisticsGraph(), first: () => t('prob_summary_value_name', {value0: 1}),
-        later: [() => 'action:add-value', () => t('prob_summary_rule_label'), () => t('prob_summary_box_label'), () => t('prob_summary_example_label')]},
+        later: [() => 'action:add-value', () => t('prob_summary_example_label')]},
     // The count's own decrease button, then the exact point fields (keyboard entry) directly after it.
     correlation: {make: () => new CorrelationGraph(), first: () => t('decrease_count'),
         later: [() => t('increase_count'), () => t('prob_correlation_point_name', {value0: 1}), () => t('prob_correlation_residuals_label'), () => t('prob_correlation_example_label')]},
@@ -94,6 +94,22 @@ describe('binomial-normal pucks', () => {
             expect(within(root).queryAllByLabelText(label), label).toEqual([]);
         }
         expect(within(root).queryAllByLabelText(t('prob_binomial_example_label')).length).toBeGreaterThan(0);
+    });
+});
+
+describe('summary pucks', () => {
+    // The quartile rule and the kind of deviation are choice pucks, the box plot and the band switch pucks: there once, and not in Orodja, which keeps the values and the example chooser.
+    test('the rule, the deviation, the box plot and the band are pucks and Orodja holds no second copy', async () => {
+        mountGraph(new SummaryStatisticsGraph());
+        await waitForPucks('summary-rule');
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const key of ['summary-rule', 'summary-sigma', 'box-plot', 'sigma-band']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of [t('prob_summary_rule_label'), t('prob_summary_sigma_label'), t('prob_summary_box_label'), t('prob_summary_band_label')]) {
+            expect(within(root).queryAllByLabelText(label), label).toEqual([]);
+        }
+        expect(within(root).queryAllByLabelText(t('prob_summary_example_label')).length).toBeGreaterThan(0);
     });
 });
 

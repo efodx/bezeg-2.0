@@ -5433,7 +5433,6 @@ export const sl = {
     "prob_summary_sigma_name_sample": "vzorčni s",
     "prob_summary_box_label": "Škatla z brki",
     "prob_summary_band_label": "Pas okoli sredine (± standardni odklon)",
-    "prob_summary_board_title": "Število vrednosti: {value0}",
     "prob_summary_board_too_few": "Škatla z brki potrebuje vsaj {value0} vrednosti.",
     "prob_summary_readout_n": "Število vrednosti n",
     "prob_summary_readout_mean": "Aritmetična sredina",

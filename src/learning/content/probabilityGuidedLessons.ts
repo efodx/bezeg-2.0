@@ -13,12 +13,14 @@ import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/gr
 import type {DensityAreaIds} from '../../graphs/functions/DensityAreaGraph';
 import type {BinomialNormalIds} from '../../graphs/functions/BinomialNormalGraph';
 import type {CltIds} from '../../graphs/functions/CltGraph';
+import type {SummaryIds} from '../../graphs/functions/SummaryStatisticsGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 const densityFrame = frameDeclarer<DensityAreaIds>();
 const binomialFrame = frameDeclarer<BinomialNormalIds>();
 const cltFrame = frameDeclarer<CltIds>();
+const summaryFrame = frameDeclarer<SummaryIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name, value});
 
 interface DensityScene {
@@ -618,7 +620,7 @@ const summaryStatistics: GuidedLesson = {
                 'Seven values \\(4,5,5,6,6,7,8\\) are drawn as dots on an axis. The mean (triangle) is \\(5.857143\\), the median (square) is \\(6\\). Predict: what happens to each of them if you move the largest value \\(8\\) far to the right?',
             ),
             formulaIds: ['summary-definitions'],
-            frames: [frame('summary-markers-explanation', 'explanation'), frame('summary-markers-observation', 'observation')],
+            frames: [frame('summary-markers-explanation', 'explanation', summaryFrame({open: ['readouts'], highlight: ['mean', 'median']})), frame('summary-markers-observation', 'observation', summaryFrame({open: ['readouts'], highlight: ['mean', 'median']}))],
             observationPrompt: text('Kje na osi sta trikotnik in kvadrat in zakaj nista na istem mestu?', 'Where on the axis are the triangle and the square, and why are they not at the same place?'),
             expectedObservations: [text('Sredina je \\(5{,}857143\\), mediana \\(6\\); mediana je sredina vrstnega reda, aritmetična sredina je ravnotežje vseh vrednosti.', 'The mean is \\(5.857143\\), the median \\(6\\); the median is the middle of the order, the mean balances all the values.')],
             scene: summaryScene('summary-markers-start', [summaryShow('summary-box-plot', false), summaryShow('summary-sigma-band', false)],
@@ -634,7 +636,7 @@ const summaryStatistics: GuidedLesson = {
                 'The value \\(8\\) is now \\(30\\); the view has refitted. The mean has moved to \\(9\\), the median stayed \\(6\\) because the order did not change. The population standard deviation grew to \\(8.6189\\). Drag that dot yourself and watch the triangle and the square.',
             ),
             formulaIds: ['summary-definitions'],
-            frames: [frame('summary-move-explanation', 'explanation'), frame('summary-move-observation', 'observation')],
+            frames: [frame('summary-move-explanation', 'explanation', summaryFrame({open: ['readouts'], highlight: ['mean', 'median', 'sigma']})), frame('summary-move-observation', 'observation', summaryFrame({open: ['readouts'], highlight: ['mean', 'median']}))],
             observationPrompt: text('Kaj se zgodi z mediano, če to piko vlečeš naprej v desno? Kaj, če jo vlečeš pod \\(6\\)?', 'What happens to the median if you keep dragging this dot right? What if you drag it below \\(6\\)?'),
             expectedObservations: [text('Sredina je \\(9\\), mediana \\(6\\). Mediana se spremeni šele, ko pika prečka mesto v vrstnem redu.', 'The mean is \\(9\\), the median \\(6\\). The median changes only once the dot crosses its rank.')],
             scene: summaryScene('summary-move-start', [summaryShow('summary-box-plot', false), summarySet(6, 30)],
@@ -650,7 +652,7 @@ const summaryStatistics: GuidedLesson = {
                 'The box plot is on. By the school rule \\(Q_1=5\\), \\(Q_3=6.5\\) and \\(\\mathrm{IQR}=1.5\\); moving \\(8\\) to \\(30\\) did not change the quartiles. The fences are \\(2.75\\) and \\(8.75\\). The value \\(30\\) lies beyond the upper fence and is marked with a diamond. Here "outlier" only means beyond the \\(1.5\\) IQR fences: it is a convention, not a mathematical property.',
             ),
             formulaIds: ['summary-definitions'],
-            frames: [frame('summary-box-explanation', 'explanation'), frame('summary-box-observation', 'observation')],
+            frames: [frame('summary-box-explanation', 'explanation', summaryFrame({open: ['readouts'], highlight: ['q1', 'q3', 'fences']})), frame('summary-box-observation', 'observation', summaryFrame({open: ['readouts'], highlight: ['fences', 'outliers']}))],
             observationPrompt: text('Kje se konča desni brk in zakaj ne pri \\(30\\)? Premakni piko \\(30\\) nazaj proti \\(8\\) in poglej, kdaj izgine oznaka.', 'Where does the right whisker end and why not at \\(30\\)? Move the dot \\(30\\) back towards \\(8\\) and see when the flag disappears.'),
             expectedObservations: [text('Brk se konča pri največji vrednosti znotraj meje; \\(30\\) je večja od \\(8{,}75\\) in je označena posebej.', 'The whisker ends at the largest value inside the fence; \\(30\\) is greater than \\(8.75\\) and is marked separately.')],
             scene: summaryScene('summary-box-start', [summaryShow('summary-box-plot', true), summarySet(6, 30)],
@@ -666,8 +668,8 @@ const summaryStatistics: GuidedLesson = {
                 'The band about the mean is on and is \\(\\pm\\sigma\\) wide. Before the addition \\(\\sigma=8.6189\\) at \\(n=7\\). A value \\(20\\), far from the mean, has been added: now \\(n=8\\), the mean is \\(10.375\\), the median is still \\(6\\) and \\(\\sigma=8.845\\). Like the mean, the deviation is sensitive to far values; the median is not.',
             ),
             formulaIds: ['summary-definitions'],
-            frames: [frame('summary-spread-explanation', 'explanation'), frame('summary-spread-observation', 'observation')],
-            observationPrompt: text('Dodaj še eno vrednost blizu sredine. Se pas razširi ali zoži?', 'Add one more value near the mean. Does the band widen or narrow?'),
+            frames: [frame('summary-spread-explanation', 'explanation', summaryFrame({open: ['readouts'], highlight: ['n', 'mean', 'sigma']})), frame('summary-spread-observation', 'observation', summaryFrame({open: ['tools'], highlight: ['mean', 'sigma']}))],
+            observationPrompt: text('V kartici Orodja dodaj še eno vrednost blizu sredine. Se pas razširi ali zoži?', 'In the Tools card, add one more value near the mean. Does the band widen or narrow?'),
             expectedObservations: [text('Vrednost blizu sredine pas zoži, oddaljena ga razširi; sredina je zdaj \\(10{,}375\\).', 'A value near the mean narrows the band, a far one widens it; the mean is now \\(10.375\\).')],
             scene: summaryScene('summary-spread-start', [summarySet(6, 30), summaryShow('summary-sigma-band', true), summaryAdd(20)],
                 'Pas \\(\\pm\\sigma\\) okoli sredine; \\(n=8\\), sredina \\(10{,}375\\), mediana \\(6\\), \\(\\sigma=8{,}845\\).',
@@ -682,8 +684,8 @@ const summaryStatistics: GuidedLesson = {
                 'The school data are \\(4,5,5,6,6,7,8\\) again. The lesson uses the school rule (the median belongs to both halves): \\(Q_1=5\\), \\(Q_3=6.5\\), \\(\\mathrm{IQR}=1.5\\), and the population \\(\\sigma=1.2454\\) (sample \\(s=1.3452\\)). Now the rule without the median is chosen: \\(Q_1=5\\), \\(Q_3=7\\), \\(\\mathrm{IQR}=2\\). The same data, a different box. Calculators and software use different rules, so the rule\'s name is part of the answer; here an outlier is a value beyond the \\(1.5\\) IQR fences, which is a convention.',
             ),
             formulaIds: ['summary-definitions'],
-            frames: [frame('summary-convention-explanation', 'explanation'), frame('summary-convention-observation', 'observation')],
-            observationPrompt: text('Preklopi med pravili in primerjaj \\(Q_3\\). Kaj se zgodi s \\(Q_1\\)?', 'Switch between the rules and compare \\(Q_3\\). What happens to \\(Q_1\\)?'),
+            frames: [frame('summary-convention-explanation', 'explanation', summaryFrame({open: ['readouts'], highlight: ['q3', 'iqr', 'convention']})), frame('summary-convention-observation', 'observation', summaryFrame({open: ['readouts'], highlight: ['q3', 'iqr'], uses: ['summary-rule']}))],
+            observationPrompt: text('S krmilnikom Pravilo preklopi med pravili in primerjaj \\(Q_3\\). Kaj se zgodi s \\(Q_1\\)?', 'Switch between the rules with the Rule control and compare \\(Q_3\\). What happens to \\(Q_1\\)?'),
             expectedObservations: [text('Pri obeh pravilih je \\(Q_1=5\\); \\(Q_3\\) je \\(6{,}5\\) ali \\(7\\), razmik \\(1{,}5\\) ali \\(2\\).', 'Under both rules \\(Q_1=5\\); \\(Q_3\\) is \\(6.5\\) or \\(7\\), the range \\(1.5\\) or \\(2\\).')],
             scene: summaryScene('summary-convention-start', [summaryChoice('summary-example', 'school'), summaryChoice('summary-rule', 'exclusive')],
                 'Šolski podatki, pravilo brez mediane: \\(Q_1=5\\), \\(Q_3=7\\), \\(\\mathrm{IQR}=2\\).',
@@ -694,11 +696,11 @@ const summaryStatistics: GuidedLesson = {
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno dodajati, odstranjevati in premikati vrednosti.', 'Adding, removing and moving values on your own.'),
             explanation: text(
-                'Graf je spet pri šolskem primeru: \\(n=7\\), sredina \\(5{,}857143\\), mediana \\(6\\). Dodaj in odstrani vrednosti (od \\(1\\) do \\(15\\)), vleci pike ali jih vpiši, preklopi pravilo, vrsto odklona in prikaz. Pri sodem številu vrednosti je mediana povprečje srednjih dveh; poskusi primer »Sodo število vrednosti«. Poišči podatke, pri katerih se sredina in mediana čim bolj razlikujeta.',
-                'The graph is back at the school data: \\(n=7\\), mean \\(5.857143\\), median \\(6\\). Add and remove values (from \\(1\\) to \\(15\\)), drag the dots or type them, switch the rule, the kind of deviation and the display. For an even number of values the median is the mean of the middle two; try the example "Even number of values". Look for data where the mean and the median differ the most.',
+                'Graf je spet pri šolskem primeru: \\(n=7\\), sredina \\(5{,}857143\\), mediana \\(6\\). V kartici Orodja dodaj in odstrani vrednosti (od \\(1\\) do \\(15\\)) ali jih vpiši, vleci pike, s krmilnikoma Pravilo in Odklon preklopi pravilo in vrsto odklona, s krmilnikoma Škatla z brki in Pas odklona pa vklopi ali izklopi prikaz. Pri sodem številu vrednosti je mediana povprečje srednjih dveh; v kartici Orodja poskusi primer »Sodo število vrednosti«. Poišči podatke, pri katerih se sredina in mediana čim bolj razlikujeta.',
+                'The graph is back at the school data: \\(n=7\\), mean \\(5.857143\\), median \\(6\\). In the Tools card, add and remove values (from \\(1\\) to \\(15\\)) or type them, drag the dots, switch the rule and the kind of deviation with the Rule and Deviation controls, and the display with the Box plot and Deviation band controls. For an even number of values the median is the mean of the middle two; in the Tools card try the example "Even number of values". Look for data where the mean and the median differ the most.',
             ),
             formulaIds: ['summary-definitions'],
-            frames: [frame('summary-explore-explanation', 'explanation'), frame('summary-explore-observation', 'observation')],
+            frames: [frame('summary-explore-explanation', 'explanation', summaryFrame({open: ['tools'], uses: ['summary-rule', 'summary-sigma', 'box-plot', 'sigma-band']})), frame('summary-explore-observation', 'observation', summaryFrame({open: ['readouts'], highlight: ['mean', 'median']}))],
             observationPrompt: text('Kdaj sta sredina in mediana enaki in kdaj zelo različni?', 'When are the mean and the median equal and when are they very different?'),
             expectedObservations: [text('Pri simetričnih podatkih sta enaki; osamelec ju razmakne, ker premakne le sredino.', 'For symmetric data they are equal; an outlier separates them because it moves only the mean.')],
             scene: summaryScene('summary-explore-default', [],
