@@ -3,6 +3,7 @@ import type {ContentSource, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKi
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {SubdivisionIds} from '../../graphs/curves/bezier/SubdivisionGraph1';
 import type {ExtrapolationIds} from '../../graphs/curves/bezier/ExtrapolationGraph';
+import type {RationalExtrapolationIds} from '../../graphs/curves/rational/RationalExtrapolationGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
@@ -10,6 +11,8 @@ const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclarati
 const subdivisionFrame = frameDeclarer<SubdivisionIds>();
 /** Typed by the declared extrapolation graph's ids. */
 const extrapolationFrame = frameDeclarer<ExtrapolationIds>();
+/** Typed by the declared rational extrapolation graph's ids. */
+const rationalExtrapolationFrame = frameDeclarer<RationalExtrapolationIds>();
 
 const farinSource = (implementationCorrespondence?: string): ContentSource => ({
     id: 'farin-cagd-construction',
@@ -786,8 +789,8 @@ const rationalExtrapolation: GuidedLesson = {
                 'We write the points as \\((w_iP_i,\\ w_i)\\), run the same scheme at \\(t=\\tfrac65\\) and divide by the last coordinate. The first entries of the rows give four new control points and four new weights. Thus \\(E(u)=B(tu)\\).',
             ),
             formulaIds: ['rex-homogeneous'],
-            frames: [frame('rex-homogeneous-rule-explanation', 'explanation'), frame('rex-homogeneous-rule-observation', 'observation')],
-            observationPrompt: text('Premakni drsnik \\(t\\) in opazuj, kako se označena točka premika po nadaljevanju krivulje.', 'Move the \\(t\\) slider and watch how the marked point moves along the continuation of the curve.'),
+            frames: [frame('rex-homogeneous-rule-explanation', 'explanation'), frame('rex-homogeneous-rule-observation', 'observation', rationalExtrapolationFrame({uses: ['extrapolation-t']}))],
+            observationPrompt: text('S krmilnikom Ekstrapolacija premikaj \\(t\\) in opazuj, kako se označena točka premika po nadaljevanju krivulje.', 'With the Extrapolation control move \\(t\\) and watch how the marked point moves along the continuation of the curve.'),
             expectedObservations: [text('Označena točka leži vedno na nadaljevanju iste racionalne krivulje, čeprav se \\(t\\) spreminja.', 'The marked point always lies on the continuation of the same rational curve as \\(t\\) changes.')],
             scene: {
                 id: 'rex-t-twelve-tenths', basedOn: 'demonstration-default',

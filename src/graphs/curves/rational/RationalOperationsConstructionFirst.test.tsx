@@ -8,6 +8,7 @@ import BaseGraph, {BaseGraphState} from '../../base/BaseGraph';
 import {appStorage} from '../../../storage/appStorage';
 import {installBoardShims, mountGraph, REAL_GRAPH_TEST_TIMEOUT, typePuck, waitForPucks} from '../../base/realGraphTestHarness';
 import {t} from '../../../localization';
+import {runAs} from '../../base/writes/writeSource';
 
 vi.setConfig({testTimeout: REAL_GRAPH_TEST_TIMEOUT});
 beforeAll(installBoardShims);
@@ -27,6 +28,7 @@ type Key = 'rational-decasteljau' | 'rational-elevation' | 'rational-extrapolati
 const mount = async (key: Key) => {
     const graph = mountGraph(graphFactories[key]()).graph as Run;
     if (key === 'rational-decasteljau') await waitForPucks('decasteljau-t');
+    if (key === 'rational-extrapolation') await waitForPucks('extrapolation-t');
     return graph;
 };
 const inEdit = (text: string) => screen.queryAllByText(text).filter(element => element.closest('#inspector-edit'));
@@ -45,7 +47,8 @@ const firstTask: Record<Key, Array<(root: HTMLElement) => HTMLElement>> = {
     // Its parameter is a puck on the board: once there, and not in the group (checked below).
     'rational-decasteljau': [],
     'rational-elevation': [r => inButton(r, t('elevate_degree'))],
-    'rational-extrapolation': [r => inSlider(r, t('extrapolation_parameter_t')), r => inButton(r, t('extrapolate'))],
+    // Its parameter is a puck on the board (task 08 lane L41): off the Edit list, on the strip (checked below); Extrapolate leads.
+    'rational-extrapolation': [r => inButton(r, t('extrapolate'))],
     'rational-subdivision': [r => inSlider(r, t('subdivision_parameter_t')), r => inButton(r, t('subdivide'))],
 };
 
@@ -61,6 +64,10 @@ describe.each(Object.keys(firstTask) as Key[])('%s construction first', key => {
             if (key === 'rational-decasteljau') {
                 expect(document.querySelector('.puck-strip')!.contains(slider(t('animation_parameter')))).toBe(true);
                 expect(card.contains(slider(t('animation_parameter')))).toBe(false);
+            }
+            if (key === 'rational-extrapolation') {
+                expect(document.querySelector('[data-puck-strip]')!.textContent).toContain(t('extrapolation_t_name'));
+                expect(screen.queryByRole('slider', {name: t('extrapolation_parameter_t')})).toBeNull();
             }
             for (const heading of inEdit(t('curve_selection'))) if (!card.contains(heading)) follows(card, heading);
             for (const typed of screen.queryAllByRole('spinbutton')) if (!card.contains(typed)) follows(card, typed);
@@ -118,7 +125,7 @@ describe('route acceptance', () => {
         const graph = await mount('rational-extrapolation');
         const curve = graph.jxgCurves[0];
         const target = xy(curve.getCurve().eval(1.5));
-        act(() => { fireEvent.change(slider(t('extrapolation_parameter_t')), {target: {value: '1.5'}}); });
+        act(() => runAs('learner', () => (graph as unknown as {parameterBindings(): Record<string, {apply(value: number): void}>}).parameterBindings()['extrapolation-t'].apply(1.5)));
         expect(curve.getExtrapolationT()).toBeCloseTo(1.5, 6);
         press(t('extrapolate'));
         const end = xy(graph.jxgCurves[0].getCurve().eval(1));
