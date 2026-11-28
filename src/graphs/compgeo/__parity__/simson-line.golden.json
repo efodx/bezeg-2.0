@@ -5,10 +5,59 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
-      "outputs": [
-        "0"
+      "notes": [
+        "Nožišča D, E, F: kolinearna",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P ≈ (5,404, 4,798)",
+        "D ≈ (3,803, 3,197)",
+        "E ≈ (2,4, 5,999)",
+        "F ≈ (5,404, 0)",
+        "Ploščina nožiščnega trikotnika / S = 0",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
       ],
+      "outputs": [],
+      "captions": [
+        "Nožišča D, E, F: kolinearna"
+      ]
+    },
+    {
+      "name": "simson-line/circle",
+      "rows": [],
+      "notes": [
+        "Nožišča D, E, F: kolinearna",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P ≈ (2,198, -2,078)",
+        "D ≈ (5,638, 1,362)",
+        "E ≈ (-0,414, -1,034)",
+        "F ≈ (2,198, 0)",
+        "Ploščina nožiščnega trikotnika / S = 0",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
+      "outputs": [],
+      "captions": [
+        "Nožišča D, E, F: kolinearna"
+      ]
+    },
+    {
+      "name": "simson-line/drag",
+      "rows": [],
+      "notes": [
+        "Nožišča D, E, F: kolinearna",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P ≈ (0,202, 3,404)",
+        "D ≈ (1,899, 5,101)",
+        "E ≈ (1,202, 3,004)",
+        "F ≈ (0,202, 0)",
+        "Ploščina nožiščnega trikotnika / S = 0",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
+      "outputs": [],
       "captions": [
         "Nožišča D, E, F: kolinearna"
       ]
@@ -16,10 +65,19 @@
     {
       "name": "simson-line/offset",
       "rows": [],
-      "notes": [],
-      "outputs": [
-        "0,2"
+      "notes": [
+        "Nožišča D, E, F: ni kolinearna",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P ≈ (1,937, -2,794)",
+        "D ≈ (5,866, 1,134)",
+        "E ≈ (-0,696, -1,741)",
+        "F ≈ (1,937, 0)",
+        "Ploščina nožiščnega trikotnika / S ≈ 0,11",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
       ],
+      "outputs": [],
       "captions": [
         "Nožišča D, E, F: ni kolinearna"
       ]
@@ -27,10 +85,19 @@
     {
       "name": "simson-line/readout",
       "rows": [],
-      "notes": [],
-      "outputs": [
-        "0,001"
+      "notes": [
+        "Nožišča D, E, F: ni kolinearna",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P ≈ (2,196, -2,082)",
+        "D ≈ (5,639, 1,361)",
+        "E ≈ (-0,415, -1,037)",
+        "F ≈ (2,196, 0)",
+        "Ploščina nožiščnega trikotnika / S ≈ 5,0·10⁻⁴",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
       ],
+      "outputs": [],
       "captions": [
         "Nožišča D, E, F: ni kolinearna"
       ]
@@ -38,7 +105,21 @@
     {
       "name": "simson-line/vertex",
       "rows": [],
-      "notes": [],
+      "notes": [
+        "Nožišča D, E, F: dve nožišči sovpadata; premica poteka skozi različni nožišči",
+        "O = (7/2, 3/2), R² = 29/2",
+        "P′ = (7, 0)",
+        "D = (7, 0)",
+        "E = (28/29, 70/29)",
+        "F = (7, 0)",
+        "Potenca točke P′ na očrtano krožnico = 0",
+        "Ploščina nožiščnega trikotnika / S = 0 (natančno)",
+        "P′ je natančno na očrtani krožnici (potenca je 0).",
+        "Različnih nožišč: 2 od 3",
+        "A (P1) = (0, 0)",
+        "B (P2) = (7, 0)",
+        "C (P3) = (2, 5)"
+      ],
       "outputs": [],
       "captions": [
         "Nožišča D, E, F: dve nožišči sovpadata; premica poteka skozi različni nožišči"
