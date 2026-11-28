@@ -5389,8 +5389,6 @@ export const sl = {
     "prob_clt_reset": "Nazaj na n = 1",
     "prob_clt_playback_note": "Predvajanje doda po eno kopijo naenkrat v enakih presledkih in se ustavi pri največjem n. Pred izvozom slike in ob odpiranju prednastavitve se predvajanje ustavi.",
     "prob_clt_cannot_advance": "Več kot {value0} seštevancev ni mogoče dodati.",
-    "prob_clt_board_title": "Standardizirana vsota n = {value0} neodvisnih kopij",
-    "prob_clt_board_distance": "Kolmogorova razdalja K_n = {value0} (le za to obliko in ta n)",
     "prob_clt_readout_n": "Število seštevancev n",
     "prob_clt_readout_mean": "Povprečje osnovne gostote μ",
     "prob_clt_readout_variance": "Varianca osnovne gostote σ²",

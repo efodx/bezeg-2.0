@@ -50,9 +50,9 @@ const plan: Record<string, {make: () => BaseGraph<BaseGraphState>; first: Label;
     density: {make: () => new DensityAreaGraph(), first: () => t('prob_density_example_label'), later: []},
     // n, p, k and the two switches are board pucks (task 08 lane L47): Edit holds the example chooser alone.
     'binomial-normal': {make: () => new BinomialNormalGraph(), first: () => t('prob_binomial_example_label'), later: []},
-    // The first control is the "Add another copy" action of the playback group.
+    // The first control is the "Add another copy" action of the playback group; n and the distribution function are board pucks (task 08 lane L47).
     clt: {make: () => new CltGraph(), first: () => 'action:next-step',
-        later: [() => t('prob_clt_n_label'), () => t('prob_clt_example_label'), () => t('prob_clt_cdf_label')]},
+        later: [() => t('prob_clt_example_label')]},
     summary: {make: () => new SummaryStatisticsGraph(), first: () => t('prob_summary_value_name', {value0: 1}),
         later: [() => 'action:add-value', () => t('prob_summary_rule_label'), () => t('prob_summary_box_label'), () => t('prob_summary_example_label')]},
     // The count's own decrease button, then the exact point fields (keyboard entry) directly after it.
@@ -94,5 +94,19 @@ describe('binomial-normal pucks', () => {
             expect(within(root).queryAllByLabelText(label), label).toEqual([]);
         }
         expect(within(root).queryAllByLabelText(t('prob_binomial_example_label')).length).toBeGreaterThan(0);
+    });
+});
+
+describe('clt pucks', () => {
+    // n is a count puck and the distribution function a switch puck: there once, and not in Orodja, which keeps the heights and the example chooser.
+    test('n and the distribution function are pucks and Orodja holds no second copy', async () => {
+        mountGraph(new CltGraph());
+        await waitForPucks('clt-n');
+        await openTools();
+        const root = document.querySelector('#board-card-tools') as HTMLElement;
+        const strip = document.querySelector('.puck-strip') as HTMLElement;
+        for (const key of ['clt-n', 'cdf']) expect(strip.querySelector(`[data-puck-key="${key}"]`), key).not.toBeNull();
+        for (const label of [t('prob_clt_n_label'), t('prob_clt_cdf_label')]) expect(within(root).queryAllByLabelText(label), label).toEqual([]);
+        expect(within(root).queryAllByLabelText(t('prob_clt_example_label')).length).toBeGreaterThan(0);
     });
 });

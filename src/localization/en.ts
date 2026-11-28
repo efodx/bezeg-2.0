@@ -5390,8 +5390,6 @@ export const en: Record<keyof typeof sl, string> = {
     "prob_clt_reset": "Back to n = 1",
     "prob_clt_playback_note": "Playback adds one copy at a time at equal intervals and stops at the largest n. It also pauses before a figure is exported and when a preset is opened.",
     "prob_clt_cannot_advance": "No more than {value0} summands can be added.",
-    "prob_clt_board_title": "Standardized sum of n = {value0} independent copies",
-    "prob_clt_board_distance": "Kolmogorov distance K_n = {value0} (for this shape and this n only)",
     "prob_clt_readout_n": "Number of summands n",
     "prob_clt_readout_mean": "Mean of the base density μ",
     "prob_clt_readout_variance": "Variance of the base density σ²",

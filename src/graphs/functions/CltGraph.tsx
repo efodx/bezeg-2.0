@@ -1,8 +1,13 @@
 import React from "react";
-import {BoundingBox, DomainError, FunctionLessonActions} from "./BaseFunctionGraph";
-import IterativeFunctionGraph from "./IterativeFunctionGraph";
-import {FunctionLegend, FunctionReadout} from "./FunctionReadout";
+import type JXG from "jsxgraph";
+import {BoundingBox, DomainError, FunctionLessonActions, FunctionPanel} from "./BaseFunctionGraph";
+import IterativeFunctionGraph, {IterationActionId} from "./IterativeFunctionGraph";
+import type {GraphDeclaration} from "../base/declare/graphDeclaration";
+import type {Lease, ParameterBinding} from "../base/writes/parameterArbiter";
+import {runAs} from "../base/writes/writeSource";
+import {PuckOwned, PuckOwnedGroup} from "../base/controls/PuckOwnership";
 import Slider from "../../inputs/Slider";
+import {CountSetter} from "../../inputs/CountSetter";
 import {ChoiceSelect} from "../../inputs/ChoiceSelect";
 import {PlaybackButtons, playbackBlocks} from "../base/controls/PlaybackButtons";
 import {guard, guardField} from "../base/controls/guard";
@@ -11,7 +16,7 @@ import {OnOffSwitch} from "../../inputs/OnOffSwitch";
 import {currentLanguage, Message, message, renderMessage, t} from "../../localization";
 import {formatNumber, formatSignificant} from "../../analysis/format";
 import {
-    CLT_EXAMPLE_IDS, CLT_HEIGHT_COUNT, CLT_HEIGHT_MAX, CLT_N_MAX, CltEdit, cltExampleOf, CltModel, cltView, CltViewResult,
+    CLT_EXAMPLE_IDS, CLT_HEIGHT_COUNT, CLT_HEIGHT_MAX, CLT_N_MAX, CltCurve, CltEdit, cltExampleOf, CltModel, cltView, CltViewResult,
     chooseCltExample, DEFAULT_CLT_MODEL, fitCltView, isCltExampleId, setCltCdf, setCltHeight, setCltN,
 } from "../../analysis/cltModel";
 import {IterationOutcome} from "../../learning/runtime/iterationController";
@@ -24,16 +29,50 @@ const CLT_COLORS = {sum: "#2468a2", normal: "#bd6047"} as const;
 export const CLT_STEP_INTERVAL_MS = 700;
 
 /**
+ * The ids of the declaration: the number of copies n is a board count puck, the distribution function a switch puck, and Next step, Play
+ * and Reset are board actions; the heights and the example stay in Orodja. The legend names the two curves.
+ */
+export type CltIds = {
+    param: "clt-n";
+    row: "n" | "mean" | "variance" | "sum-mean" | "sum-variance" | "kolmogorov" | "mass-residual";
+    note: "clt"; legend: "sum" | "normal"; section: never; action: IterationActionId | "cdf";
+};
+
+/** The value of a curve at x by linear interpolation; NaN outside its grid (the marks leave such a sample out). */
+function curveFunction(curve: CltCurve): (x: number) => number {
+    return x => {
+        const xs = curve.x;
+        if (xs.length === 0 || x < xs[0] || x > xs[xs.length - 1]) return NaN;
+        let low = 0;
+        let high = xs.length - 1;
+        while (high - low > 1) {
+            const middle = (low + high) >> 1;
+            if (xs[middle] <= x) low = middle; else high = middle;
+        }
+        const span = xs[high] - xs[low];
+        return span === 0 ? curve.y[low] : curve.y[low] + (curve.y[high] - curve.y[low]) * (x - xs[low]) / span;
+    };
+}
+
+/**
  * The central limit theorem without randomness (lesson P3): the standardized density (or CDF) of the sum of n independent
  * copies of a piecewise linear base density, drawn over the standard normal curve on a fixed view. The model is
  * `{heights, n, cdf}` (`src/analysis/cltModel`); the iteration index is n (n - 1 additions), so Next step adds one copy
  * (one convolution thanks to the model's history cache) and Reset returns to n = 1.
  *
  * Board objects (the count does not depend on n): the n-fold curve and the normal curve, both rebuilt from point lists on
- * every board update, and the caption. The base shape is edited with sliders and number fields in the inspector (no handles
+ * every board update. The base shape is edited with sliders and number fields in the inspector (no handles
  * on the board: the board shows the standardized sum, whose coordinates are not the base shape's).
+ *
+ * Playback writes n, which is a board puck: Play takes an animation lease on it (ADR 0064) and every tick runs inside it, so a
+ * learner or lesson write of n ends the playback at once and the declaration needs no other hook of the iteration base.
  */
 export class CltGraph extends IterativeFunctionGraph<CltModel> {
+    /** The elements the legend names, by the `object` id of their legend entry (`drawnObject`); cleared when the scene is rebuilt. */
+    private readonly drawn = new Map<string, JXG.GeometryElement>();
+    /** The lease of the running playback on n; absent while paused. */
+    private playLease?: Lease;
+
     override presetCollection() {
         return functionPresetCollections["prob-clt"];
     }
@@ -82,13 +121,53 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
         return message("prob_clt_cannot_advance", {value0: CLT_N_MAX});
     }
 
-    /** Adds one copy: n + 1. */
+    /** Adds one copy: n + 1. A playback tick runs inside the lease on n; Next step is the learner's own write. */
     protected transition(): IterationOutcome {
+        const lease = this.playLease;
+        if (lease === undefined || !this.playback.isPlaying) return this.addCopy();
+        let outcome: IterationOutcome = "complete";
+        if (lease.run(() => { outcome = this.addCopy(); })) {
+            if (outcome === "complete") this.releaseLease();
+            return outcome;
+        }
+        return "complete"; // the lease ended under this tick: the playback was stopped by the write that ended it
+    }
+
+    private addCopy(): IterationOutcome {
         if (!this.canAdvance()) return "complete";
         const next = setCltN(this.model, this.model.n + 1);
         if (!next.ok) return "complete";
         this.commitModel(next.model);
         return next.model.n < CLT_N_MAX ? "continue" : "complete";
+    }
+
+    /** Play: leases n first (inside the learner's press or the lesson command), then starts the ticks; no lease is kept for a playback that did not start. */
+    protected override play(): void {
+        this.releaseLease();
+        this.playLease = this.parameters?.lease(["clt-n"], reason => {
+            if (reason === "released") return;
+            this.playLease = undefined;
+            this.pauseIteration(); // a learner or lesson write of n, or a lesson frame, took the key
+        });
+        if (this.parameters && !this.playLease) return; // the learner holds n: the arbiter refuses the lease, so playback does not start
+        super.play();
+        if (!this.playback.isPlaying) this.releaseLease();
+    }
+
+    private releaseLease(): void {
+        const lease = this.playLease;
+        this.playLease = undefined;
+        lease?.release();
+    }
+
+    protected override pauseIteration(): void {
+        this.releaseLease();
+        super.pauseIteration();
+    }
+
+    override importPresetData(data: CltModel): void {
+        this.releaseLease();
+        super.importPresetData(data);
     }
 
     /** Back to n = 1 with the same shape; playback stops. */
@@ -166,10 +245,9 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
 
     protected createScene(): void {
         const board = this.board;
-        const language = () => currentLanguage();
         const strokeWidth = () => this.displaySettings.strokeWidth;
 
-        const polyline = (color: string, dash: number, data: () => { x: number[]; y: number[] }) => {
+        const polyline = (id: string, color: string, dash: number, data: () => { x: number[]; y: number[] }) => {
             const curve = this.own(board.create("curve", [[], []], {
                 strokeColor: color, dash, fillOpacity: 0, highlight: false, fixed: true, strokeWidth,
             })) as unknown as { updateDataArray: () => void; dataX: number[]; dataY: number[] };
@@ -178,27 +256,23 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
                 curve.dataX = x;
                 curve.dataY = y;
             };
+            this.drawn.set(id, curve as unknown as JXG.GeometryElement);
         };
         const empty = {x: [] as number[], y: [] as number[]};
-        polyline(CLT_COLORS.normal, 2, () => {
+        polyline("normal", CLT_COLORS.normal, 2, () => {
             const result = this.viewOf(this.model);
             return result.ok ? result.view.normal : empty;
         });
-        polyline(CLT_COLORS.sum, 0, () => {
+        polyline("sum", CLT_COLORS.sum, 0, () => {
             const result = this.viewOf(this.model);
             return result.ok ? result.view.curve : empty;
         });
+        // No caption: its two lines (n and the Kolmogorov distance) are rows of the Odčitki card.
+    }
 
-        this.caption("top-left", [
-            {text: () => t("prob_clt_board_title", {value0: this.model.n}), scale: 1.2},
-            {
-                text: () => {
-                    const result = this.viewOf(this.model);
-                    return result.ok ? t("prob_clt_board_distance", {value0: cltDistance(result.view.kolmogorov, language())}) : "";
-                },
-                visible: () => this.viewOf(this.model).ok,
-            },
-        ]);
+    protected override onSceneRemoved(): void {
+        super.onSceneRemoved();
+        this.drawn.clear();
     }
 
     // ---- Inspector -----------------------------------------------------------------------------------------------
@@ -222,9 +296,10 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
                                  onPlayPause={() => { if (playing) this.pauseIteration(); else this.play(); }}
                                  onReset={() => this.resetIteration()}/>
                 <p className="inspector-help">{t("prob_clt_playback_note")}</p>
-                <Slider customText={t("prob_clt_n_label")} min={1} max={CLT_N_MAX} step={1} value={state.n}
-                        rejectedHint={t("prob_clt_n_rejected", {value0: CLT_N_MAX})} onChange={next => this.guarded(() => this.setN(next))}
-                        onTypedChange={next => guardField(this.refusals, () => this.setN(next))}/>
+                <PuckOwned param="clt-n"><CountSetter label={t("prob_clt_n_label")} n={state.n} min={1} max={CLT_N_MAX}
+                        rejectedHint={t("prob_clt_n_rejected", {value0: CLT_N_MAX})}
+                        onPlus={() => this.guarded(() => this.setN(state.n + 1))} onMinus={() => this.guarded(() => this.setN(state.n - 1))}
+                        onSet={next => guardField(this.refusals, () => this.setN(next))}/></PuckOwned>
             </div>
             <div className="inspector-group">
                 {state.heights.map((height, index) => <Slider key={index}
@@ -238,40 +313,95 @@ export class CltGraph extends IterativeFunctionGraph<CltModel> {
                 <ChoiceSelect label={t("prob_clt_example_label")} value={example ?? "custom"} help={t("prob_clt_example_help")} options={options}
                               onChange={next => { if (isCltExampleId(next)) this.guarded(() => this.setExample(next)); }}/>
             </div>
-            <div className="inspector-group">
-                <OnOffSwitch checked={state.cdf} label={t("prob_clt_cdf_label")} onChange={next => this.guarded(() => this.setCdf(next))}/>
-            </div>
+            <PuckOwnedGroup params={["cdf"]} className="inspector-group">
+                <PuckOwned param="cdf"><OnOffSwitch checked={state.cdf} label={t("prob_clt_cdf_label")} onChange={next => this.guarded(() => this.setCdf(next))}/></PuckOwned>
+            </PuckOwnedGroup>
         </>;
     }
 
-    protected renderReadout(): React.ReactNode {
+    // ---- Declaration (task 08) ---------------------------------------------------------------------------------------
+
+    /** Parameter writes (ADR 0064): n is the one bound key; playback writes it as `animation` under a lease. */
+    protected override parameterBindings(): Readonly<Record<string, ParameterBinding>> {
+        return {"clt-n": {read: () => this.model.n, apply: (value: number) => this.setN(value)}};
+    }
+
+    /**
+     * The common declaration (rows, note, status, view marks) plus n as a board count puck, the distribution function as a switch puck,
+     * the playback actions and the legend of the two curves. The frame follows the base shape and the density or distribution choice, not
+     * the lesson scene's stored box, so the curves stay clear of the cards. The heights and the example stay in Orodja.
+     */
+    protected override declaration(): GraphDeclaration {
+        return {
+            ...this.commonDeclaration(),
+            followView: fitCltView(this.model),
+            parameters: [
+                {key: "clt-n", kind: "count", label: message("prob_clt_n_name"), symbol: "n", placement: "board", min: 1, max: CLT_N_MAX},
+            ],
+            legend: [
+                {id: "sum", label: message("prob_clt_legend_sum"), kind: "line", object: "sum"},
+                {id: "normal", label: message("prob_clt_legend_normal"), kind: "dashed", object: "normal"},
+            ],
+            actions: [
+                ...this.iterationActions(),
+                {id: "cdf", label: message("prob_clt_cdf_name"), help: message("prob_clt_cdf_label"), placement: "board", enabled: true, pressed: this.model.cdf, puck: true},
+            ],
+        };
+    }
+
+    override performAction(id: string): void {
+        if (id === "cdf") runAs("learner", () => this.guarded(() => this.setCdf(!this.model.cdf)));
+        else if (!this.performIterationAction(id)) throw new Error("Unknown action");
+    }
+
+    override drawnObject(id: string): {color: string; visible: boolean} | undefined {
+        const drawn = this.drawn.get(id);
+        if (!drawn) return undefined;
+        // JSXGraph 1.14 has `evalVisProp` (it resolves function-valued attributes) but its typings do not declare it.
+        const element = drawn as JXG.GeometryElement & {evalVisProp(name: string): unknown};
+        return {color: String(element.evalVisProp("strokecolor")), visible: Boolean(element.evalVisProp("visible"))};
+    }
+
+    /**
+     * The rows of the inspector as declared data: the values the removed board caption gave (n, the Kolmogorov distance) and the
+     * moments, the note, and the statuses. The marks are the two curves and the points the learner compares: the normal curve at
+     * -3, 0 and 3 (its peak in the density view) and the highest point of the sum.
+     */
+    protected override functionPanel(): FunctionPanel {
         const model = this.model;
         const language = currentLanguage();
         const result = this.viewOf(model);
-        const number = (value: number) => cltNumber(value, language);
+        const formatted = (text: string) => ({kind: "formatted" as const, text});
         const rows = result.ok ? [
-            {id: "n", label: t("prob_clt_readout_n"), value: String(model.n)},
-            {id: "mean", label: t("prob_clt_readout_mean"), value: number(result.view.mean)},
-            {id: "variance", label: t("prob_clt_readout_variance"), value: number(result.view.variance)},
-            {id: "sum-mean", label: t("prob_clt_readout_sum_mean"), value: number(result.view.sumMean)},
-            {id: "sum-variance", label: t("prob_clt_readout_sum_variance"), value: number(result.view.sumVariance)},
-            {id: "kolmogorov", label: t("prob_clt_readout_kolmogorov"), value: cltDistance(result.view.kolmogorov, language)},
-            {id: "mass-residual", label: t("prob_clt_readout_residual"), value: formatSignificant(result.view.massResidual, language, 3)},
-        ] : [{id: "n", label: t("prob_clt_readout_n"), value: String(model.n)}];
-        const statuses: { id: string; text: string }[] = [];
-        if (!result.ok) statuses.push({id: "failed", text: renderMessage(cltEditMessage(result.issue))});
-        if (model.n >= CLT_N_MAX) statuses.push({id: "max-n", text: renderMessage(this.cannotAdvanceMessage())});
-        return <>
-            <FunctionReadout title={t("function_readouts")} rows={rows} note={t("prob_clt_note")}/>
-            <FunctionStatus dataAttribute="prob-clt-status" lines={statuses} muted={this.playback.isPlaying}/>
-        </>;
+            {id: "n" as const, name: message("prob_clt_readout_n"), value: formatted(String(model.n))},
+            {id: "mean" as const, name: message("prob_clt_readout_mean"), value: formatted(cltNumber(result.view.mean, language))},
+            {id: "variance" as const, name: message("prob_clt_readout_variance"), value: formatted(cltNumber(result.view.variance, language))},
+            {id: "sum-mean" as const, name: message("prob_clt_readout_sum_mean"), value: formatted(cltNumber(result.view.sumMean, language))},
+            {id: "sum-variance" as const, name: message("prob_clt_readout_sum_variance"), value: formatted(cltNumber(result.view.sumVariance, language))},
+            {id: "kolmogorov" as const, name: message("prob_clt_readout_kolmogorov"), value: formatted(cltDistance(result.view.kolmogorov, language))},
+            {id: "mass-residual" as const, name: message("prob_clt_readout_residual"), value: formatted(formatSignificant(result.view.massResidual, language, 3))},
+        ] : [{id: "n" as const, name: message("prob_clt_readout_n"), value: formatted(String(model.n))}];
+        const status: {id: string; text: Message; tone?: "warning" | "muted"}[] = [];
+        if (!result.ok) status.push({id: "failed", text: cltEditMessage(result.issue), tone: "warning"});
+        if (model.n >= CLT_N_MAX) status.push({id: "max-n", text: this.cannotAdvanceMessage(), tone: "muted"});
+        if (!result.ok) return {rows, notes: [{id: "clt", text: message("prob_clt_note")}], status};
+        const normal = curveFunction(result.view.normal);
+        const top = result.view.curve.y.reduce((best, value, index) => value > result.view.curve.y[best] ? index : best, 0);
+        return {
+            rows,
+            notes: [{id: "clt", text: message("prob_clt_note")}],
+            ...(status.length > 0 ? {status} : {}),
+            plotted: [normal, curveFunction(result.view.curve)],
+            must: [-3, 0, 3].map(x => ({x, y: normal(x)})).concat([{x: result.view.curve.x[top], y: result.view.curve.y[top]}]),
+        };
     }
 
-    protected override renderLegend(): React.ReactNode {
-        return <FunctionLegend items={[
-            {id: "sum", color: CLT_COLORS.sum, label: t("prob_clt_legend_sum"), kind: "line"},
-            {id: "normal", color: CLT_COLORS.normal, label: t("prob_clt_legend_normal"), kind: "dashed-line"},
-        ]}/>;
+    protected renderReadout(): React.ReactNode {
+        const status = this.functionPanel().status ?? [];
+        return <>
+            {this.renderDeclaredReadout()}
+            <FunctionStatus dataAttribute="prob-clt-status" lines={status.map(line => ({id: line.id, text: renderMessage(line.text)}))} muted={this.playback.isPlaying}/>
+        </>;
     }
 }
 

@@ -11,6 +11,7 @@ import {CLT_EXAMPLES, CLT_N_MAX, CltModel, cltView, DEFAULT_CLT_MODEL, fitCltVie
 import {formatNumber} from '../../analysis/format';
 import {LessonAction, LessonAnimationCommand} from '../../learning/model';
 import {DomainError} from './BaseFunctionGraph';
+import {runAs} from '../base/writes/writeSource';
 import {functionPresetCollections} from './functionPresetCollections';
 
 // jsdom has no canvas, no matchMedia and no layout: the shared harness gives the board a size, so its view can be read.
@@ -50,8 +51,8 @@ class ObservedCltGraph extends CltGraph {
     normalCurve() { return this.curves()[0]; }
     sumCurve() { return this.curves()[1]; }
     lesson(action: LessonAction) { act(() => { this.applyLessonAction(action); }); }
-    callNext() { this.nextStep(); }
-    callSetN(value: unknown) { this.setN(value); }
+    callNext() { runAs('learner', () => this.nextStep()); }
+    callSetN(value: unknown) { runAs('learner', () => this.setN(value)); } // n is a bound puck key: a write names its source
     callSetHeight(index: unknown, value: unknown) { this.setHeight(index, value); }
 }
 
@@ -71,12 +72,17 @@ const button = (name: string) => screen.getByRole('button', {name}) as HTMLButto
 const click = (name: string) => act(() => { fireEvent.click(button(name)); });
 const exampleSelect = () => screen.getByLabelText(/^Primer$/) as HTMLSelectElement;
 const choose = (id: string) => act(() => { fireEvent.change(exampleSelect(), {target: {value: id}}); });
-const cdfSwitch = () => screen.getByLabelText(/^Porazdelitvena funkcija namesto gostote$/) as HTMLInputElement;
+// n is a board count puck and the distribution function a switch puck (task 08 lane L47): the tests write n through the arbiter and flip the switch with `performAction`.
+let current: ObservedCltGraph;
+const flipCdf = () => act(() => { current.performAction('cdf'); });
+const cdfPressed = () => current.getDeclaration()!.actions!.find(action => action.id === 'cdf')!.pressed;
+const writeN = (value: number, source: 'learner' | 'lesson' = 'learner') => { let result: unknown; act(() => { result = current.parameters!.write('clt-n', value, source); }); return result as {status: string; error?: Error}; };
 const mount = () => {
     const frames = manualScheduler();
     const graph = new ObservedCltGraph(frames.scheduler);
     const view = render(<MemoryRouter><GraphHost create={() => graph}/></MemoryRouter>);
     expect(graph.state.initialized).toBe(true);
+    current = graph;
     return {graph, frames, ...view};
 };
 
@@ -115,7 +121,7 @@ test('defaults: the uniform density at n = 1 reads mean 0,5, variance 1/12 (0,08
     expect(graph.sumCurve().dataX!.length).toBeGreaterThan(100);
 });
 
-test('Next adds one copy: n and every readout follow cltView at that n, and the caption names K_n for this n only', () => {
+test('Next adds one copy: n and every readout follow cltView at that n; the board has no caption (n and K_n are rows)', () => {
     const {graph} = mount();
     for (const n of [2, 3, 4]) {
         click('Dodaj še eno kopijo');
@@ -123,10 +129,8 @@ test('Next adds one copy: n and every readout follow cltView at that n, and the 
         expectReadouts({...DEFAULT_CLT_MODEL, n});
         expect(readout('sum-mean')).toBe(formatNumber(n / 2, 'sl', 4));
     }
-    expect(graph.captionPlainLines().join('\n')).toMatch(/n = 4/);
-    expect(graph.captionPlainLines().join('\n')).toMatch(/K_n = 0,0\d{3}\d* \(le za to obliko in ta n\)/);
-    const k4 = shownFor({...DEFAULT_CLT_MODEL, n: 4}).kolmogorov;
-    expect(graph.captionPlainLines().join('\n')).toContain(`K_n = ${k4}`);
+    expect(graph.captionPlainLines()).toEqual([]);
+    expect(readout('kolmogorov')).toBe(shownFor({...DEFAULT_CLT_MODEL, n: 4}).kolmogorov);
 });
 
 test('the board object count does not depend on n or on the CDF view', () => {
@@ -134,7 +138,7 @@ test('the board object count does not depend on n or on the CDF view', () => {
     const count = graph.ownedObjects();
     for (let i = 0; i < 6; i++) click('Dodaj še eno kopijo');
     expect(graph.ownedObjects()).toBe(count);
-    act(() => { fireEvent.click(cdfSwitch()); });
+    flipCdf();
     expect(graph.ownedObjects()).toBe(count);
 });
 
@@ -170,6 +174,56 @@ describe('the largest n', () => {
         for (let i = 0; i < 40 && graph.playing(); i++) act(() => { frames.frame(CLT_STEP_INTERVAL_MS); });
         expect(graph.modelNow().n).toBe(30);
         expect(graph.playing()).toBe(false);
+    });
+});
+
+describe('playback leases n (ADR 0064)', () => {
+    test('Play leases the puck n, ticks write it as animation, and the lease ends with the playback at 30', () => {
+        const {graph, frames} = mount();
+        expect(current.parameters!.activeLeases()).toHaveLength(0);
+        click('Predvajaj');
+        expect(current.parameters!.activeLeases()).toHaveLength(1);
+        act(() => { frames.frame(0); frames.frame(CLT_STEP_INTERVAL_MS); });
+        expect(graph.modelNow().n).toBe(2);
+        for (let i = 0; i < 40 && graph.playing(); i++) act(() => { frames.frame(CLT_STEP_INTERVAL_MS); });
+        expect(graph.modelNow().n).toBe(30);
+        expect(current.parameters!.activeLeases()).toHaveLength(0);
+    });
+
+    test.each(['learner', 'lesson'] as const)('a %s write of n ends the playback and its lease at once', source => {
+        const {graph, frames} = mount();
+        click('Predvajaj');
+        act(() => { frames.frame(0); frames.frame(CLT_STEP_INTERVAL_MS); });
+        expect(graph.playing()).toBe(true);
+        expect(writeN(7, source).status).toBe('applied');
+        expect(graph.modelNow().n).toBe(7);
+        expect(graph.playing()).toBe(false);
+        expect(current.parameters!.activeLeases()).toHaveLength(0);
+        act(() => { frames.frame(CLT_STEP_INTERVAL_MS); });
+        expect(graph.modelNow().n).toBe(7);
+    });
+
+    test('pausing and Reset release the lease; Next step takes none', () => {
+        const {graph, frames} = mount();
+        click('Dodaj še eno kopijo');
+        expect(current.parameters!.activeLeases()).toHaveLength(0);
+        click('Predvajaj');
+        act(() => { graph.pausePlayback(); });
+        expect(current.parameters!.activeLeases()).toHaveLength(0);
+        click('Predvajaj');
+        expect(current.parameters!.activeLeases()).toHaveLength(1);
+        click('Nazaj na n = 1');
+        expect(current.parameters!.activeLeases()).toHaveLength(0);
+        expect(frames.callbacks.size).toBe(0);
+    });
+
+    test('a learner hold on n refuses the lease, so Play does not start', () => {
+        const {graph} = mount();
+        const release = current.parameters!.hold('clt-n');
+        act(() => { current.performAction('play'); });
+        expect(graph.playing()).toBe(false);
+        expect(current.parameters!.activeLeases()).toHaveLength(0);
+        release();
     });
 });
 
@@ -226,8 +280,9 @@ describe('the CDF view', () => {
         click('Dodaj še eno kopijo');
         const densityPeak = Math.max(...graph.sumCurve().dataY!);
         expect(densityPeak).toBeGreaterThan(0.3);
-        act(() => { fireEvent.click(cdfSwitch()); });
+        flipCdf();
         expect(graph.modelNow().cdf).toBe(true);
+        expect(cdfPressed()).toBe(true);
         expect(graph.modelNow().n).toBe(2);
         for (const curve of [graph.sumCurve(), graph.normalCurve()]) {
             const y = curve.dataY!;
@@ -240,14 +295,15 @@ describe('the CDF view', () => {
         const expected = fitCltView({...DEFAULT_CLT_MODEL, cdf: true});
         expect(box[1]).toBeCloseTo(expected[1], 6);
         expect(box[3]).toBeCloseTo(expected[3], 6);
-        act(() => { fireEvent.click(cdfSwitch()); });
+        flipCdf();
+        expect(cdfPressed()).toBe(false);
         expect(Math.max(...graph.sumCurve().dataY!)).toBeCloseTo(shownFor({...DEFAULT_CLT_MODEL, n: 2}).raw.curve.y.reduce((a, b) => Math.max(a, b), 0), 9);
     });
 
     test('the CDF switch does not pause playback', () => {
         const {graph} = mount();
         click('Predvajaj');
-        act(() => { fireEvent.click(cdfSwitch()); });
+        flipCdf();
         expect(graph.playing()).toBe(true);
     });
 });
@@ -313,7 +369,7 @@ describe('Presets', () => {
         const {graph, frames} = mount();
         typeHeight(2, 2.5);
         for (let i = 0; i < 4; i++) click('Dodaj še eno kopijo');
-        act(() => { fireEvent.click(cdfSwitch()); });
+        flipCdf();
         const saved = graph.modelNow();
         expect(saved).toEqual({heights: [1, 1, 2.5, 1, 1], n: 5, cdf: true});
         const exported = graph.exportPreset();
@@ -332,7 +388,7 @@ describe('Presets', () => {
         expect(graph.playing()).toBe(false);
         expect(screen.getByRole('button', {name: 'Predvajaj'})).toBeInTheDocument();
         expect(['n', 'mean', 'variance', 'sum-mean', 'sum-variance', 'kolmogorov', 'mass-residual'].map(readout)).toEqual(shown);
-        expect(cdfSwitch().checked).toBe(true);
+        expect(cdfPressed()).toBe(true);
         act(() => { frames.frame(CLT_STEP_INTERVAL_MS); });
         expect(graph.modelNow().n).toBe(5);
         commitPresetImport(preflightPresetImport(fileWith(exported.data as object)));
@@ -405,7 +461,7 @@ test('switching the language keeps the model and re-renders labels and numbers w
     expect(readout('mean')).toMatch(/\./);
     expect(readout('kolmogorov')).toBe(shownFor(model, 'en').kolmogorov);
     expect(screen.getByRole('button', {name: 'Add one more copy'})).toBeInTheDocument();
-    expect(graph.captionPlainLines().join('\n')).toMatch(/K_n = 0\.\d+ \(for this shape and this n only\)/);
+    expect(graph.captionPlainLines()).toEqual([]);
     expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
 });
 

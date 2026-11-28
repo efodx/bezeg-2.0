@@ -56,6 +56,7 @@ const probBinomialAccepted: readonly AcceptedDifference[] = ['n', 'p', 'mean', '
     kind: 'extra', where: `row ${key}`,
     reason: 'the board captions "X ∼ B(n; p)", "Povprečje μ, σ = ..." and "P(X ≤ k) = ..." are removed and their values are rows of the declaration; the panel showed n, p and k only on its sliders and fields',
 }) as const);
+const probCltAccepted: readonly AcceptedDifference[] = [];
 const probDensityAccepted: readonly AcceptedDifference[] = ['mu', 'sigma', 'a', 'b'].map(key => ({
     kind: 'extra', where: `row ${key}`,
     reason: 'the board caption "X ∼ N(μ; σ²)" is removed and the values are rows of the declaration; the panel showed them only on its sliders and fields',
@@ -1299,6 +1300,19 @@ const SAMPLES: readonly Sample[] = [
             {name: 'rare with Poisson', apply: run(g => g.setExample('rare'))},
             {name: 'Poisson tail', apply: run(g => { g.setN(10); g.setP(0.9); g.setK(9); g.setFlag('poisson', true); })},
             {name: 'p 0.3, k 0', apply: run(g => { g.setP(0.3); g.setK(0); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'functions/__parity__/prob-clt.json', demonstration: 'prob-clt', accepted: probCltAccepted, states: (() => {
+        type CltSetters = {setN(value: number): void; setHeight(index: number, value: number): void; setCdf(value: boolean): void; setExample(id: string): void};
+        const run = (edit: (graph: CltSetters) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as CltSetters)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'n 2', apply: run(g => g.setN(2))},
+            {name: 'n 10', apply: run(g => g.setN(10))},
+            {name: 'skewed n 3', apply: run(g => { g.setExample('skewed'); g.setN(3); })},
+            {name: 'skewed n 10 cdf', apply: run(g => { g.setExample('skewed'); g.setN(10); g.setCdf(true); })},
+            {name: 'custom heights n 5', apply: run(g => { g.setHeight(2, 3); g.setHeight(4, 0.5); g.setN(5); })},
+            {name: 'n 30 (maximum)', apply: run(g => g.setN(30))},
         ] satisfies ParityState[];
     })()},
     {file: 'functions/__parity__/derivative.json', demonstration: 'derivative', states: (() => {

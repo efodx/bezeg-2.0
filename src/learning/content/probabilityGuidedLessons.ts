@@ -12,11 +12,13 @@ import type {GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LessonScene
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {DensityAreaIds} from '../../graphs/functions/DensityAreaGraph';
 import type {BinomialNormalIds} from '../../graphs/functions/BinomialNormalGraph';
+import type {CltIds} from '../../graphs/functions/CltGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 const densityFrame = frameDeclarer<DensityAreaIds>();
 const binomialFrame = frameDeclarer<BinomialNormalIds>();
+const cltFrame = frameDeclarer<CltIds>();
 const parameter = (name: FunctionParameterName, value: number): LessonAction => ({kind: 'function-parameter', name, value});
 
 interface DensityScene {
@@ -440,7 +442,7 @@ const centralLimit: GuidedLesson = {
                 'The base density is uniform on \\([0,1]\\): mean \\(\\mu=\\tfrac12\\), variance \\(\\sigma^2=\\tfrac1{12}\\approx0.0833\\). The graph standardizes it and draws it over the standard normal curve. At \\(n=1\\) the Kolmogorov distance is \\(K_1=0.05718\\). Predict: what will the picture of the sum of two such variables look like?',
             ),
             formulaIds: ['clt-standardized-sum'],
-            frames: [frame('clt-base-explanation', 'explanation'), frame('clt-base-observation', 'observation')],
+            frames: [frame('clt-base-explanation', 'explanation', cltFrame({open: ['readouts'], highlight: ['n', 'kolmogorov']})), frame('clt-base-observation', 'observation', cltFrame({open: ['readouts'], highlight: ['kolmogorov']}))],
             observationPrompt: text('Kakšne oblike je standardizirana enakomerna gostota in kje se najbolj razlikuje od zvona?', 'What shape is the standardized uniform density, and where does it differ most from the bell?'),
             expectedObservations: [text('Gostota je ravna in ima ostre robove; normalna krivulja je zvonasta. \\(K_1=0{,}05718\\).', 'The density is flat with sharp edges; the normal curve is bell-shaped. \\(K_1=0.05718\\).')],
             scene: cltScene('clt-base-start', {example: 'uniform'},
@@ -456,7 +458,7 @@ const centralLimit: GuidedLesson = {
                 'The button "Add one more copy" has been pressed once: \\(n=2\\). The density of the sum is the convolution of the uniform density with itself, a triangle on \\([0,2]\\). The mean of the sum is \\(n\\mu=1\\), its variance \\(n\\sigma^2=\\tfrac16\\). The Kolmogorov distance drops from \\(0.05718\\) to \\(K_2=0.01644\\).',
             ),
             formulaIds: ['clt-standardized-sum'],
-            frames: [frame('clt-two-explanation', 'explanation'), frame('clt-two-observation', 'observation')],
+            frames: [frame('clt-two-explanation', 'explanation', cltFrame({open: ['readouts'], highlight: ['sum-mean', 'sum-variance', 'kolmogorov']})), frame('clt-two-observation', 'observation', cltFrame({open: ['readouts'], highlight: ['kolmogorov']}))],
             observationPrompt: text('Primerjaj trikotnik z napovedjo. Ali ima še ostre robove?', 'Compare the triangle with your prediction. Does it still have sharp edges?'),
             expectedObservations: [text('Gostota je trikotna, edini vogal je zdaj vrh; \\(K_2=0{,}01644\\).', 'The density is a triangle; the only corner is now the peak; \\(K_2=0.01644\\).')],
             scene: cltScene('clt-two-start', {example: 'uniform', steps: 1},
@@ -468,11 +470,11 @@ const centralLimit: GuidedLesson = {
             title: text('Dodajamo kopije', 'Adding more copies'),
             purpose: text('Spremljati, kako se standardizirana gostota z večjim \\(n\\) približuje zvonu.', 'Watching the standardized density approach the bell as \\(n\\) grows.'),
             explanation: text(
-                'Zdaj je \\(n=5\\) in \\(K_5=0{,}00572\\). Povleci drsnik \\(n\\) nazaj na \\(3\\), kjer je \\(K_3=0{,}00986\\), in naprej na \\(10\\), kjer je \\(K_{10}=0{,}00281\\). Krivulji se pokrivata vse bolje. Tak primer ponazarja izrek, ne dokazuje ga, in ujemanje pri enem \\(n\\) ni hitrost približevanja.',
-                'Now \\(n=5\\) and \\(K_5=0.00572\\). Drag the slider \\(n\\) back to \\(3\\), where \\(K_3=0.00986\\), and on to \\(10\\), where \\(K_{10}=0.00281\\). The curves coincide better and better. Such an example illustrates the theorem, it does not prove it, and a match at one \\(n\\) is not a rate of approach.',
+                'Zdaj je \\(n=5\\) in \\(K_5=0{,}00572\\). S krmilnikom Število kopij nastavi \\(n\\) nazaj na \\(3\\), kjer je \\(K_3=0{,}00986\\), in naprej na \\(10\\), kjer je \\(K_{10}=0{,}00281\\). Krivulji se pokrivata vse bolje. Tak primer ponazarja izrek, ne dokazuje ga, in ujemanje pri enem \\(n\\) ni hitrost približevanja.',
+                'Now \\(n=5\\) and \\(K_5=0.00572\\). Set \\(n\\) back to \\(3\\) with the Copies control, where \\(K_3=0.00986\\), and on to \\(10\\), where \\(K_{10}=0.00281\\). The curves coincide better and better. Such an example illustrates the theorem, it does not prove it, and a match at one \\(n\\) is not a rate of approach.',
             ),
             formulaIds: ['clt-standardized-sum'],
-            frames: [frame('clt-more-explanation', 'explanation'), frame('clt-more-observation', 'observation')],
+            frames: [frame('clt-more-explanation', 'explanation', cltFrame({open: ['readouts'], highlight: ['n', 'kolmogorov'], uses: ['clt-n']})), frame('clt-more-observation', 'observation', cltFrame({open: ['readouts'], highlight: ['kolmogorov']}))],
             observationPrompt: text('Kakšno je razmerje razdalj \\(K_5\\) in \\(K_{10}\\)? Ali iz tega lahko sklepaš na hitrost za vsak \\(n\\)?', 'What is the ratio of the distances \\(K_5\\) and \\(K_{10}\\)? Can you conclude a rate for every \\(n\\) from it?'),
             expectedObservations: [text('Pri \\(n=5\\) je \\(K_5=0{,}00572\\), pri \\(n=10\\) je \\(K_{10}=0{,}00281\\): približno polovica. Dve točki ne dasta hitrosti.', 'At \\(n=5\\), \\(K_5=0.00572\\); at \\(n=10\\), \\(K_{10}=0.00281\\): about one half. Two points give no rate.')],
             scene: cltScene('clt-more-start', {example: 'uniform', n: 5},
@@ -488,7 +490,7 @@ const centralLimit: GuidedLesson = {
                 'The base density is now \\(f(x)=2(1-x)\\) on \\([0,1]\\): mean \\(\\mu=\\tfrac13\\), variance \\(\\sigma^2=\\tfrac1{18}\\approx0.0556\\), skewness \\(0.56569\\). The skewness of the standardized sum falls as \\(0.56569/\\sqrt n\\). At \\(n=3\\) the curve is still visibly lopsided: \\(K_3=0.02492\\), while the uniform density has only \\(0.00986\\) at \\(n=3\\). Skewness slows the approach.',
             ),
             formulaIds: ['clt-standardized-sum'],
-            frames: [frame('clt-skewed-explanation', 'explanation'), frame('clt-skewed-observation', 'observation')],
+            frames: [frame('clt-skewed-explanation', 'explanation', cltFrame({open: ['readouts'], highlight: ['mean', 'variance', 'kolmogorov']})), frame('clt-skewed-observation', 'observation', cltFrame({open: ['readouts'], highlight: ['kolmogorov']}))],
             observationPrompt: text('Na kateri strani je krivulja pri \\(n=3\\) višja od zvona? Dodaj kopije in opazuj, kdaj se razlika izgubi.', 'On which side is the curve higher than the bell at \\(n=3\\)? Add copies and watch when the difference disappears.'),
             expectedObservations: [text('Pri \\(n=3\\) je \\(K_3=0{,}02492\\), več kot dvakrat toliko kot pri enakomerni gostoti; pri \\(n=10\\) je še \\(K_{10}=0{,}01248\\).', 'At \\(n=3\\), \\(K_3=0.02492\\), more than twice the uniform value; at \\(n=10\\) it is still \\(K_{10}=0.01248\\).')],
             scene: cltScene('clt-skewed-start', {example: 'skewed', n: 3},
@@ -500,11 +502,11 @@ const centralLimit: GuidedLesson = {
             title: text('Oblika osnovne gostote', 'The shape of the base density'),
             purpose: text('Z vlečenjem višin preizkusiti, da izrek ne zahteva posebne osnovne gostote.', 'Testing by dragging heights that the theorem does not need a special base density.'),
             explanation: text(
-                'Graf je spet pri enakomerni gostoti z \\(n=5\\), \\(K_5=0{,}00572\\). Povleci drsnike višin osnovne gostote: oblika se normira in vsota pri istem \\(n\\) se izračuna znova. Poskusi dvigniti eno samo višino ali ustvariti stopnico. Dokler je varianca končna (tu je osnovna gostota omejena na \\([0,1]\\)), se vsota z naraščajočim \\(n\\) znova približa zvonu. Sprememba oblike ustavi predvajanje.',
-                'The graph is back at the uniform density with \\(n=5\\), \\(K_5=0.00572\\). Drag the height sliders of the base density: the shape is normalized and the sum at the same \\(n\\) is computed again. Try raising a single height or making a step. As long as the variance is finite (here the base density lives on \\([0,1]\\)), the sum approaches the bell again as \\(n\\) grows. Changing the shape stops playback.',
+                'Graf je spet pri enakomerni gostoti z \\(n=5\\), \\(K_5=0{,}00572\\). V kartici Orodja nastavi višine osnovne gostote: oblika se normira in vsota pri istem \\(n\\) se izračuna znova. Poskusi dvigniti eno samo višino ali ustvariti stopnico. Dokler je varianca končna (tu je osnovna gostota omejena na \\([0,1]\\)), se vsota z naraščajočim \\(n\\) znova približa zvonu. Sprememba oblike ustavi predvajanje.',
+                'The graph is back at the uniform density with \\(n=5\\), \\(K_5=0.00572\\). In the Tools card, set the heights of the base density: the shape is normalized and the sum at the same \\(n\\) is computed again. Try raising a single height or making a step. As long as the variance is finite (here the base density lives on \\([0,1]\\)), the sum approaches the bell again as \\(n\\) grows. Changing the shape stops playback.',
             ),
             formulaIds: ['clt-standardized-sum'],
-            frames: [frame('clt-shape-explanation', 'explanation'), frame('clt-shape-observation', 'observation')],
+            frames: [frame('clt-shape-explanation', 'explanation', cltFrame({open: ['tools']})), frame('clt-shape-observation', 'observation', cltFrame({open: ['readouts'], highlight: ['kolmogorov']}))],
             observationPrompt: text('Naredi zelo neenakomerno obliko in dodajaj kopije. Se standardizirana vsota še vedno približuje zvonu?', 'Make a very uneven shape and add copies. Does the standardized sum still approach the bell?'),
             expectedObservations: [text('Tudi pri neenakomerni obliki se krivulja z naraščajočim \\(n\\) približuje zvonu; \\(K_n\\) pa je odvisna od oblike in je ni mogoče prebrati kot splošno hitrost.', 'Even for an uneven shape the curve approaches the bell as \\(n\\) grows; \\(K_n\\) depends on the shape and cannot be read as a general rate.')],
             scene: cltScene('clt-shape-start', {example: 'uniform', n: 5},
@@ -520,7 +522,7 @@ const centralLimit: GuidedLesson = {
                 'The distribution function is switched on; the distance \\(K_n\\) is the largest vertical gap between it and the function \\(\\Phi\\). The skewed density at \\(n=10\\) has \\(K_{10}=0.01248\\), the uniform one at the same \\(n\\) only \\(0.00281\\). The theorem (independent, identically distributed variables with finite variance; sources: FMF, Verjetnost and Statistika) guarantees \\(K_n\\to0\\) but no rate; a rate comes from the Berry–Esseen theorem, which is only cited here. One number at one \\(n\\) is not a rate.',
             ),
             formulaIds: ['clt-standardized-sum'],
-            frames: [frame('clt-distance-explanation', 'explanation'), frame('clt-distance-observation', 'observation')],
+            frames: [frame('clt-distance-explanation', 'explanation', cltFrame({open: ['readouts'], highlight: ['kolmogorov'], uses: ['cdf']})), frame('clt-distance-observation', 'observation', cltFrame({open: ['readouts'], highlight: ['kolmogorov']}))],
             observationPrompt: text('Kako velik je razmik med obema krivuljama pri \\(n=10\\) za poševno in kako za enakomerno gostoto? Kaj lahko iz tega sklepaš o hitrosti?', 'How large is the gap between the two curves at \\(n=10\\) for the skewed and for the uniform density? What can you conclude about the rate?'),
             expectedObservations: [text('Poševna: \\(K_{10}=0{,}01248\\); enakomerna: \\(K_{10}=0{,}00281\\). Poševnost približevanje upočasni, a natančne hitrosti iz teh dveh številk ne razberemo.', 'Skewed: \\(K_{10}=0.01248\\); uniform: \\(K_{10}=0.00281\\). Skewness slows the approach, but these two numbers do not give an exact rate.')],
             scene: cltScene('clt-distance-start', {example: 'skewed', n: 10, cdf: true},
@@ -532,11 +534,11 @@ const centralLimit: GuidedLesson = {
             title: text('Prosto raziskovanje', 'Free exploration'),
             purpose: text('Samostojno raziskovati, kako oblika in \\(n\\) vplivata na standardizirano vsoto.', 'Exploring on your own how the shape and \\(n\\) affect the standardized sum.'),
             explanation: text(
-                'Graf je spet pri enakomerni gostoti z \\(n=1\\). Izberi primer, spreminjaj višine in \\(n\\) (do \\(30\\)), uporabi Dodaj še eno kopijo, Predvajaj in Ponastavi ter preklapljaj med gostoto in porazdelitveno funkcijo. Poišči obliko, pri kateri je razdalja \\(K_n\\) pri istem \\(n\\) čim večja.',
-                'The graph is back at the uniform density with \\(n=1\\). Choose an example, change the heights and \\(n\\) (up to \\(30\\)), use Add one more copy, Play and Reset, and switch between the density and the distribution function. Look for the shape with the largest distance \\(K_n\\) at the same \\(n\\).',
+                'Graf je spet pri enakomerni gostoti z \\(n=1\\). V kartici Orodja izberi primer in spreminjaj višine, s krmilnikom Število kopij nastavi \\(n\\) (do \\(30\\)), uporabi Dodaj še eno kopijo, Predvajaj in Ponastavi ter s krmilnikom Funkcija F preklapljaj med gostoto in porazdelitveno funkcijo. Poišči obliko, pri kateri je razdalja \\(K_n\\) pri istem \\(n\\) čim večja.',
+                'The graph is back at the uniform density with \\(n=1\\). In the Tools card, choose an example and change the heights, set \\(n\\) (up to \\(30\\)) with the Copies control, use Add one more copy, Play and Reset, and switch between the density and the distribution function with the CDF control. Look for the shape with the largest distance \\(K_n\\) at the same \\(n\\).',
             ),
             formulaIds: ['clt-standardized-sum'],
-            frames: [frame('clt-explore-explanation', 'explanation'), frame('clt-explore-observation', 'observation')],
+            frames: [frame('clt-explore-explanation', 'explanation', cltFrame({open: ['tools'], uses: ['clt-n', 'cdf']})), frame('clt-explore-observation', 'observation', cltFrame({open: ['readouts'], highlight: ['kolmogorov']}))],
             observationPrompt: text('Katera oblika osnovne gostote najbolj upočasni približevanje in zakaj?', 'Which base shape slows the approach the most, and why?'),
             expectedObservations: [text('Bolj poševne ali bolj neenakomerne oblike imajo pri istem \\(n\\) večjo razdaljo \\(K_n\\); dovolj velik \\(n\\) jo vseeno zmanjša.', 'More skewed or more uneven shapes have a larger distance \\(K_n\\) at the same \\(n\\); a large enough \\(n\\) still reduces it.')],
             scene: cltScene('clt-explore-default', {example: 'uniform'},
