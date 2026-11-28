@@ -47,7 +47,7 @@ Rewritten by handler 3 (2026-11-28) after L47. Present state only.
   unlink with PowerShell before ever removing). Last merge of `board-workspace-2`: `f9204e8c6`. Merge again before each
   lane; conflicts are list unions (`fragments/index.ts`, `parity.test.tsx`, `*FirstTask.test.tsx`, lesson files, lane
   notes): keep both sides (a Sonnet worker resolves them; Grep `^(<<<<<<<|>>>>>>>)` before committing the merge).
-- Stream A = **"Board workspace handler 14"**: send every accepted commit id there; it cherry-picks and publishes.
+- Stream A = **"Board workspace handler 15"**: send every accepted commit id there; it cherry-picks and publishes.
 - Lane-b Vite dev server on 4484 (`npx vite --port 4484 --strictPort --host 127.0.0.1`, background; check the port's
   owner before restarting): `http://127.0.0.1:4484/bezeg-2.0/`. Lesson smoke port 4395. graph-check needs
   `MSYS_NO_PATHCONV=1` for `--route` in git-bash and `--base http://127.0.0.1:4484/bezeg-2.0` for its browser line.
@@ -91,7 +91,9 @@ Rewritten by handler 3 (2026-11-28) after L47. Present state only.
 - Owner, 2026-11-27: remove board captions and labels that repeat a legend entry or readout row.
 - After a golden re-record, run `git ls-files "src/graphs/*golden.json" | sed 's#.*/##' | sort | uniq -d`: the check
   reads the first `<id>.golden.json` anywhere, so delete a stale shadowed copy of our id (A, 2026-11-28).
-  `BaseRationalCurveGraph` is in A's L45 now: rational-extrapolation waits for it.
+  L45 landed on `board-workspace-2`: `BaseRationalCurveGraph.declaresRationalWorkspace()` opt-in (only `rational` opts in); merge before rational-extrapolation and opt in from its subclass.
+- Merging `board-workspace-2`: in `fragments/index.ts` keep exactly one import line per fragment (A has `subdivision`
+  further down; drop lane-b's top-of-file copy), then tsc.
 - Narrow view marks on `kind`, never cast (strict readonly `ViewMark` on board-workspace-2).
 - Puck rule (A, 2026-11-28): a range/choice/switch becomes a puck only if a lesson step asks the learner to set it;
   multi-value data editors and setup choosers stay in Orodja.

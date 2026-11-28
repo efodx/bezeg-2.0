@@ -5,6 +5,12 @@ import BezierCurveGraph from '../curves/bezier/BezierCurveGraph';
 import DecasteljauGraph from '../curves/bezier/DecasteljauGraph';
 import SubdivisionGraph, {MAX_SUBDIVISION_STEPS} from '../curves/bezier/SubdivisionGraph';
 import ExtrapolationGraph from '../curves/bezier/ExtrapolationGraph';
+
+/** Task 08 lane L41 declared the extrapolation graph, so its t slider is a board puck; this stands in for the undeclared graph whose Orodja slider this test reads. */
+class UndeclaredExtrapolationGraph extends ExtrapolationGraph {
+    protected override declaresCurveWorkspace(): boolean { return false; }
+    protected override declaration(): undefined { return undefined; }
+}
 import G1SplineGraph from '../curves/spline/G1SplineGraph';
 import BSplineBlossomGraph from '../curves/bspline/BSplineBlossomGraph';
 import {GraphHost} from './GraphHost';
@@ -88,7 +94,7 @@ test('subdividing to the cap and resetting makes subdividing work again', async 
 
 describe('inspector controls show the restored scene after a reset', () => {
     test('the extrapolation slider follows the default value again', async () => {
-        const graph = new ExtrapolationGraph();
+        const graph = new UndeclaredExtrapolationGraph();
         const view = renderGraph(graph);
         const slider = () => view.container.querySelector<HTMLInputElement>('.tools input[type="range"]')!;
         const shown = () => slider().closest('form')!.querySelector<HTMLInputElement>('input[role="spinbutton"]')!.value;

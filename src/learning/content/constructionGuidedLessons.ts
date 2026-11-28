@@ -2,11 +2,14 @@ import type {LessonCurveFixture, LessonViewBox} from '../model';
 import type {ContentSource, GuidedLesson, GuidedLessonFrame, GuidedLessonFrameKind, LocalizedText} from './guidedLessons';
 import {frameDeclarer, type FrameDeclaration} from '../../graphs/base/declare/graphDeclaration';
 import type {SubdivisionIds} from '../../graphs/curves/bezier/SubdivisionGraph1';
+import type {ExtrapolationIds} from '../../graphs/curves/bezier/ExtrapolationGraph';
 
 const text = (sl: string, en: string): LocalizedText => ({sl, en});
 const frame = (id: string, kind: GuidedLessonFrameKind, declare?: FrameDeclaration): GuidedLessonFrame => ({id, kind, ...(declare ? {declare} : {})});
 /** Typed by the declared subdivision graph's ids: an unknown control fails the type check. */
 const subdivisionFrame = frameDeclarer<SubdivisionIds>();
+/** Typed by the declared extrapolation graph's ids. */
+const extrapolationFrame = frameDeclarer<ExtrapolationIds>();
 
 const farinSource = (implementationCorrespondence?: string): ContentSource => ({
     id: 'farin-cagd-construction',
@@ -607,15 +610,15 @@ const extrapolation: GuidedLesson = {
             title: text('Večji \\(t\\), večji doseg', 'A larger \\(t\\), a longer reach'),
             purpose: text('Opaziti, kako točka beži z večjim \\(t\\).', 'Noticing how the point runs away as \\(t\\) grows.'),
             explanation: text(
-                'Pri \\(t=\\tfrac32\\), največji ponujeni vrednosti, je točka \\(B(\\tfrac32)\\) že \\((0{,}5;\\ -9{,}88)\\), daleč pod krivuljo. Drsnik zato sega le od 1 do 1,5.',
-                'At \\(t=\\tfrac32\\), the largest offered value, the point \\(B(\\tfrac32)\\) is already \\((0.5,\\ -9.88)\\), far below the curve. The slider therefore only spans 1 to 1.5.',
+                'Pri \\(t=\\tfrac32\\), največji ponujeni vrednosti, je točka \\(B(\\tfrac32)\\) že \\((0{,}5;\\ -9{,}88)\\), daleč pod krivuljo. Krmilnik Ekstrapolacija zato sega le od 1 do 1,5.',
+                'At \\(t=\\tfrac32\\), the largest offered value, the point \\(B(\\tfrac32)\\) is already \\((0.5,\\ -9.88)\\), far below the curve. The Extrapolation control therefore only spans 1 to 1.5.',
             ),
             formulaIds: ['ex-reparameterization'],
-            frames: [frame('ex-farther-explanation', 'explanation'), frame('ex-farther-observation', 'observation')],
-            observationPrompt: text('Premikaj drsnik \\(t\\) med 1 in 1,5 ter spremljaj, kako hitro točka beži.', 'Move the \\(t\\) slider between 1 and 1.5 and watch how fast the point runs away.'),
+            frames: [frame('ex-farther-explanation', 'explanation'), frame('ex-farther-observation', 'observation', extrapolationFrame({uses: ['extrapolation-t']}))],
+            observationPrompt: text('S krmilnikom Ekstrapolacija premikaj \\(t\\) med 1 in 1,5 ter spremljaj, kako hitro točka beži.', 'With the Extrapolation control move \\(t\\) between 1 and 1.5 and watch how fast the point runs away.'),
             expectedObservations: [text('Z naraščajočim \\(t\\) se točka vse hitreje oddaljuje od krivulje; pri \\(t=\\tfrac32\\) je lahko zunaj vidnega območja.', 'As \\(t\\) grows the point moves away from the curve ever faster; at \\(t=\\tfrac32\\) it may be outside the visible area.')],
             scene: {
-                id: 'ex-t-max', basedOn: 'demonstration-default', view: extrapolationExampleView,
+                id: 'ex-t-max', basedOn: 'demonstration-default',
                 actions: [{kind: 'extrapolation-parameter', value: 1.5}],
                 expectedState: text('Točka je prikazana pri \\(t=\\tfrac32\\).', 'The point is shown at \\(t=\\tfrac32\\).'),
             },

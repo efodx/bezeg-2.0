@@ -11,6 +11,12 @@ import SubdivisionGraph1 from '../../curves/bezier/SubdivisionGraph1';
 import RationalElevationGraph from '../../curves/rational/RationalElevationGraph';
 
 /** Task 08 lane L41 declared the subdivision graph, so its t slider is a board puck; this stands in for the undeclared graph whose operation tool owns the slider. Keep it as the undeclared case once rational-subdivision is declared as well. */
+/** Task 08 lane L41 also declared the extrapolation graph, so its t slider is a board puck; the same stand-in for the undeclared case (no declaration, no puck). */
+class UndeclaredExtrapolationGraph extends ExtrapolationGraph {
+    protected override declaresCurveWorkspace(): boolean { return false; }
+    protected override declaration(): undefined { return undefined; }
+}
+
 class UndeclaredSubdivisionGraph extends SubdivisionGraph1 {
     protected override declaresSubdivisionWorkspace(): boolean { return false; }
 }
@@ -163,7 +169,7 @@ describe('the operation graphs use the shared operation tool', () => {
     });
 
     test('the Extrapolation graph extrapolates to the slider value', () => {
-        const graph = new ExtrapolationGraph();
+        const graph = new UndeclaredExtrapolationGraph();
         const view = mount(graph);
         fireEvent.change(view.getByLabelText(t('extrapolation_parameter_t')), {target: {value: '1.3'}});
         expect(graph.getFirstJxgCurve().getExtrapolationT()).toBeCloseTo(1.3);

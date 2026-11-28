@@ -33,17 +33,16 @@ const select = (graph: Run) => {
 const button = (name: string | RegExp) => screen.getByRole('button', {name});
 const press = (name: string | RegExp) => act(() => { fireEvent.click(button(name)); });
 const xy = (p: Pt) => [p.X(), p.Y()];
-const slider = (name: string) => screen.getByRole('slider', {name});
 
 /** The controls of each route's first task, as accessible queries. */
 const inButton = (r: HTMLElement, name: string | RegExp) => within(r).getByRole('button', {name});
-const inSlider = (r: HTMLElement, name: string) => within(r).getByRole('slider', {name});
 const firstTask: Record<string, Array<(root: HTMLElement) => HTMLElement>> = {
     'affine': [r => inButton(r, new RegExp(t('rotate_left'))), r => inButton(r, new RegExp(t('rotate_right')))],
     'repeated-subdivision': [r => inButton(r, t('subdivide'))],
     // The cut parameter t is a declared board puck (task 08 lane L41): off the Edit list, on the puck strip (checked below); Subdivide leads.
     'subdivision': [r => inButton(r, t('subdivide'))],
-    'extrapolation': [r => inSlider(r, t('extrapolation_parameter_t')), r => inButton(r, t('extrapolate'))],
+    // The extrapolation parameter t is a declared board puck (task 08 lane L41): off the Edit list, on the puck strip (checked below); Extrapolate leads.
+    'extrapolation': [r => inButton(r, t('extrapolate'))],
     'elevation': [r => inButton(r, t('elevate_degree'))],
 };
 // Headings the plan entries place after the first task.
@@ -81,6 +80,14 @@ describe.each(Object.keys(firstTask) as Array<'affine' | 'repeated-subdivision' 
         expect(strip, 'puck strip').not.toBeNull();
         expect(strip!.textContent).toContain(t('subdivision_t_name'));
         expect(screen.queryByRole('slider', {name: t('subdivision_parameter_t')})).toBeNull();
+    });
+
+    test.runIf(key === 'extrapolation')('the extrapolation parameter is a puck on the strip, not a slider in Edit', () => {
+        mount(key);
+        const strip = document.querySelector('[data-puck-strip]');
+        expect(strip, 'puck strip').not.toBeNull();
+        expect(strip!.textContent).toContain(t('extrapolation_t_name'));
+        expect(screen.queryByRole('slider', {name: t('extrapolation_parameter_t')})).toBeNull();
     });
 
     test.runIf(key === 'affine')('the rotation leads the other transformation groups', () => {
@@ -165,7 +172,7 @@ describe('route acceptance', () => {
 
     test('extrapolation: moving the parameter past the endpoint draws the separate extension element', () => {
         const graph = mount('extrapolation');
-        act(() => { fireEvent.change(slider(t('extrapolation_parameter_t')), {target: {value: '1.5'}}); });
+        act(() => runAs('learner', () => (graph as unknown as {parameterBindings(): Record<string, {apply(value: number): void}>}).parameterBindings()['extrapolation-t'].apply(1.5)));
         expect(graph.jxgCurves[0].getExtrapolationT()).toBeCloseTo(1.5, 6);
         expect(graph.extensionCurve).toBeDefined();
     });

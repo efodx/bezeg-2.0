@@ -259,7 +259,7 @@ const extrapolation = {
     },
     stepProbe: async (page, ctx, step, label) => {
         const tByStep = [1.2, 1.5, 1.2, 1.5];
-        await expect.poll(async () => Number(await rangeSlider(page, '1.5').inputValue()), {message: `extrapolation slider at ${label}`}).toBeCloseTo(tByStep[step - 1], 2);
+        await expect.poll(async () => Number(await page.locator('.puck-strip [data-puck-key="extrapolation-t"] [role="slider"]').getAttribute('aria-valuenow')), {message: `extrapolation puck at ${label}`}).toBeCloseTo(tByStep[step - 1], 2);
         const stats = await boardStats(page);
         // The Bézier curve (drawn up to the parameter t) plus the blue extension arc on [1, t], which ExtrapolationGraph always keeps.
         expect(stats.curves, `curve + extension arc at ${label}`).toBe(2);
