@@ -5,28 +5,73 @@
     {
       "name": "default",
       "rows": [],
-      "notes": [],
-      "outputs": [
-        "0"
+      "notes": [
+        "N = 5; členov: 11; največji vrteči se člen: k = 1, |cₖ| = 1,0001; največja napaka sledi na 2000 točkah: 0,00155."
       ],
+      "outputs": [],
       "captions": []
     },
     {
-      "name": "epicycles-guided/epi-radius",
+      "name": "epicycles-guided/epi-loop",
       "rows": [],
-      "notes": [],
-      "outputs": [
-        "1,57"
+      "notes": [
+        "N = 1; členov: 3; največji vrteči se člen: k = 1, |cₖ| = 1,0001; največja napaka sledi na 2000 točkah: 0,00735."
       ],
+      "outputs": [],
       "captions": []
     },
     {
       "name": "epicycles-guided/epi-trace",
       "rows": [],
-      "notes": [],
-      "outputs": [
-        "3,14"
+      "notes": [
+        "N = 9; členov: 19; največji vrteči se člen: k = 1, |cₖ| = 1,0001; največja napaka sledi na 2000 točkah: 0,0006."
       ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "epicycles-guided/epi-diamond",
+      "rows": [],
+      "notes": [
+        "N = 9; členov: 19; največji vrteči se člen: k = 1, |cₖ| = 0,8106; največja napaka sledi na 2000 točkah: 0,0404."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "epicycles-guided/epi-uneven-equal",
+      "rows": [],
+      "notes": [
+        "N = 9; členov: 19; največji vrteči se člen: k = -1, |cₖ| = 1,7658; največja napaka sledi na 2000 točkah: 0,09719."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "epicycles-guided/epi-uneven-chord",
+      "rows": [],
+      "notes": [
+        "N = 9; členov: 19; največji vrteči se člen: k = -1, |cₖ| = 1,7843; največja napaka sledi na 2000 točkah: 0,14875."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "epicycles-guided/epi-drag",
+      "rows": [],
+      "notes": [
+        "N = 9; členov: 19; največji vrteči se člen: k = 1, |cₖ| = 1,0243; največja napaka sledi na 2000 točkah: 0,03149."
+      ],
+      "outputs": [],
+      "captions": []
+    },
+    {
+      "name": "epicycles-guided/epi-explore",
+      "rows": [],
+      "notes": [
+        "N = 15; členov: 31; največji vrteči se člen: k = -1, |cₖ| = 1,7658; največja napaka sledi na 2000 točkah: 0,05874."
+      ],
+      "outputs": [],
       "captions": []
     }
   ]

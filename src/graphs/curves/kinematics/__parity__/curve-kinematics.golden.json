@@ -61,16 +61,13 @@
           "value": "puščica dolžine 1 m na grafu pomeni 1 m/s²"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Čas 0 s. Hitrost je 0 ali skoraj 0: ni smeri gibanja, zato puščice hitrosti in njenih delov ni.",
+        "Predznak aₙ in κ: pozitivno, ko tir zavija levo; negativno: tir zavija desno."
+      ],
       "outputs": [],
       "captions": [
-        "$$a$$",
-        "Hitrost je 0 ali skoraj 0: ni puščice hitrosti",
-        "Pot (bleda črta)",
-        "Prepotovani del poti (debela črta)",
-        "Točka, ki se giblje",
-        "a (črtkano): puščica dolžine 1 m na grafu pomeni 1 m/s²",
-        "v (polna črta): puščica dolžine 1 m na grafu pomeni 2 m/s"
+        "$$a$$"
       ]
     },
     {
@@ -122,13 +119,12 @@
           "value": "-0,707 m/s²"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Čas 1,57 s. Točka pospešuje (aₜ > 0): pospešek kaže delno naprej.",
+        "Predznak aₙ in κ: pozitivno, ko tir zavija levo; negativno: tir zavija desno."
+      ],
       "outputs": [],
-      "captions": [
-        "Pot (bleda črta)",
-        "Prepotovani del poti (debela črta)",
-        "Točka, ki se giblje"
-      ]
+      "captions": []
     },
     {
       "name": "curve-kinematics-vectors/kn1-explore",
@@ -189,16 +185,14 @@
           "value": "puščica dolžine 1 m na grafu pomeni 1 m/s²"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Čas 1,57 s. Točka pospešuje (aₜ > 0): pospešek kaže delno naprej.",
+        "Predznak aₙ in κ: pozitivno, ko tir zavija levo; negativno: tir zavija desno."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
-        "$$v$$",
-        "Pot (bleda črta)",
-        "Prepotovani del poti (debela črta)",
-        "Točka, ki se giblje",
-        "a (črtkano): puščica dolžine 1 m na grafu pomeni 1 m/s²",
-        "v (polna črta): puščica dolžine 1 m na grafu pomeni 2 m/s"
+        "$$v$$"
       ]
     },
     {
@@ -255,14 +249,12 @@
           "value": "6,283 s"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Čas 1,12 s. Točka zavira (aₜ < 0): pospešek kaže delno nazaj.",
+        "Predznak aₙ in κ: pozitivno, ko tir zavija levo; negativno: tir zavija desno."
+      ],
       "outputs": [],
-      "captions": [
-        "Pot (bleda črta)",
-        "Prepotovani del poti (debela črta)",
-        "Primerjalna točka: enakomerno kroženje z isto kotno hitrostjo ω",
-        "Točka, ki se giblje"
-      ]
+      "captions": []
     },
     {
       "name": "curve-kinematics-speed/kn2-acceleration",
@@ -328,22 +320,16 @@
           "value": "puščica dolžine 0,5 m na grafu pomeni 5 m/s²"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Čas 1,57 s. Točka zavira (aₜ < 0): pospešek kaže delno nazaj.",
+        "Predznak aₙ in κ: pozitivno, ko tir zavija levo; negativno: tir zavija desno."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
         "$$a_{n}$$",
         "$$a_{t}$$",
-        "$$v$$",
-        "Pot (bleda črta)",
-        "Prepotovani del poti (debela črta)",
-        "Primerjalna točka: enakomerno kroženje z isto kotno hitrostjo ω",
-        "Tangentna in normalna os skozi točko (tanki črti)",
-        "Točka, ki se giblje",
-        "a (črtkano): puščica dolžine 0,5 m na grafu pomeni 5 m/s²",
-        "aₙ in κ: negativno, ko tir zavija desno",
-        "aₜ (pikčasto) in aₙ (dolge črtice) v merilu pospeška",
-        "v (polna črta): puščica dolžine 0,5 m na grafu pomeni 2 m/s"
+        "$$v$$"
       ]
     },
     {
@@ -410,17 +396,14 @@
           "value": "puščica dolžine 0,5 m na grafu pomeni 5 m/s²"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Čas 1,57 s. Točka zavira (aₜ < 0): pospešek kaže delno nazaj.",
+        "Predznak aₙ in κ: pozitivno, ko tir zavija levo; negativno: tir zavija desno."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
-        "$$v$$",
-        "Pot (bleda črta)",
-        "Prepotovani del poti (debela črta)",
-        "Primerjalna točka: enakomerno kroženje z isto kotno hitrostjo ω",
-        "Točka, ki se giblje",
-        "a (črtkano): puščica dolžine 0,5 m na grafu pomeni 5 m/s²",
-        "v (polna črta): puščica dolžine 0,5 m na grafu pomeni 2 m/s"
+        "$$v$$"
       ]
     },
     {
@@ -502,17 +485,14 @@
           "value": "puščica dolžine 10 m na grafu pomeni 10 m/s²"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Čas 1 s. Točka zavira (aₜ < 0): pospešek kaže delno nazaj. Gibanje je spremenjeno, čas je spet 0.",
+        "Predznak aₙ in κ: pozitivno, ko tir zavija levo; negativno: tir zavija desno."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
-        "$$v$$",
-        "Pot (bleda črta)",
-        "Prepotovani del poti (debela črta)",
-        "Težni pospešek je povsod enak: g = 9,81 m/s², navpično navzdol",
-        "Točka, ki se giblje",
-        "a (črtkano): puščica dolžine 10 m na grafu pomeni 10 m/s²",
-        "v (polna črta): puščica dolžine 10 m na grafu pomeni 20 m/s"
+        "$$v$$"
       ]
     },
     {
@@ -584,14 +564,12 @@
           "value": "9,81 m/s²"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Čas 0 s. Točka zavira (aₜ < 0): pospešek kaže delno nazaj.",
+        "Predznak aₙ in κ: pozitivno, ko tir zavija levo; negativno: tir zavija desno."
+      ],
       "outputs": [],
-      "captions": [
-        "Pot (bleda črta)",
-        "Prepotovani del poti (debela črta)",
-        "Težni pospešek je povsod enak: g = 9,81 m/s², navpično navzdol",
-        "Točka, ki se giblje"
-      ]
+      "captions": []
     },
     {
       "name": "curve-kinematics-circular/kn4-velocity",
@@ -652,14 +630,13 @@
           "value": "puščica dolžine 1 m na grafu pomeni 5 m/s"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Čas 1,05 s. Hitrost je stalna, pospešek je pravokoten na gibanje (aₜ = 0).",
+        "Predznak aₙ in κ: pozitivno, ko tir zavija levo; negativno: tir zavija desno."
+      ],
       "outputs": [],
       "captions": [
-        "$$v$$",
-        "Pot (bleda črta)",
-        "Prepotovani del poti (debela črta)",
-        "Točka, ki se giblje",
-        "v (polna črta): puščica dolžine 1 m na grafu pomeni 5 m/s"
+        "$$v$$"
       ]
     },
     {
@@ -721,16 +698,14 @@
           "value": "puščica dolžine 1 m na grafu pomeni 1 m/s²"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Čas 3,14 s. Točka pospešuje (aₜ > 0): pospešek kaže delno naprej.",
+        "Predznak aₙ in κ: pozitivno, ko tir zavija levo; negativno: tir zavija desno."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
-        "$$v$$",
-        "Pot (bleda črta)",
-        "Prepotovani del poti (debela črta)",
-        "Točka, ki se giblje",
-        "a (črtkano): puščica dolžine 1 m na grafu pomeni 1 m/s²",
-        "v (polna črta): puščica dolžine 1 m na grafu pomeni 2 m/s"
+        "$$v$$"
       ]
     },
     {
@@ -792,21 +767,16 @@
           "value": "puščica dolžine 1 m na grafu pomeni 1 m/s²"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Čas 0,5 s. Točka pospešuje (aₜ > 0): pospešek kaže delno naprej.",
+        "Predznak aₙ in κ: pozitivno, ko tir zavija levo; negativno: tir zavija desno."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
         "$$a_{n}$$",
         "$$a_{t}$$",
-        "$$v$$",
-        "Pot (bleda črta)",
-        "Prepotovani del poti (debela črta)",
-        "Tangentna in normalna os skozi točko (tanki črti)",
-        "Točka, ki se giblje",
-        "a (črtkano): puščica dolžine 1 m na grafu pomeni 1 m/s²",
-        "aₙ in κ: negativno, ko tir zavija desno",
-        "aₜ (pikčasto) in aₙ (dolge črtice) v merilu pospeška",
-        "v (polna črta): puščica dolžine 1 m na grafu pomeni 2 m/s"
+        "$$v$$"
       ]
     },
     {
@@ -868,22 +838,16 @@
           "value": "puščica dolžine 1 m na grafu pomeni 1 m/s²"
         }
       ],
-      "notes": [],
+      "notes": [
+        "Čas 2 s. Točka pospešuje (aₜ > 0): pospešek kaže delno naprej.",
+        "Predznak aₙ in κ: pozitivno, ko tir zavija levo; negativno: tir zavija desno."
+      ],
       "outputs": [],
       "captions": [
         "$$a$$",
         "$$a_{n}$$",
         "$$a_{t}$$",
-        "$$v$$",
-        "Krivinska krožnica s središčem in polmerom 1/|κ|",
-        "Pot (bleda črta)",
-        "Prepotovani del poti (debela črta)",
-        "Tangentna in normalna os skozi točko (tanki črti)",
-        "Točka, ki se giblje",
-        "a (črtkano): puščica dolžine 1 m na grafu pomeni 1 m/s²",
-        "aₙ in κ: negativno, ko tir zavija desno",
-        "aₜ (pikčasto) in aₙ (dolge črtice) v merilu pospeška",
-        "v (polna črta): puščica dolžine 1 m na grafu pomeni 2 m/s"
+        "$$v$$"
       ]
     }
   ]

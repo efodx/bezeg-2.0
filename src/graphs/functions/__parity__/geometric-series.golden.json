@@ -45,14 +45,7 @@
         "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
       ],
       "outputs": [],
-      "captions": [
-        "Sₙ = a(1 - qⁿ)/(1 - q)",
-        "a = 1, q = 0,5, n = 1",
-        "delna vsota Sₙ = 1",
-        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
-        "limita a/(1 - q) = 2",
-        "napaka |L - Sₙ| = 1"
-      ]
+      "captions": []
     },
     {
       "name": "geometric-series-guided/series-bars",
@@ -97,14 +90,7 @@
         "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
       ],
       "outputs": [],
-      "captions": [
-        "Sₙ = a(1 - qⁿ)/(1 - q)",
-        "a = 1, q = 0,5, n = 3",
-        "delna vsota Sₙ = 1,75",
-        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
-        "limita a/(1 - q) = 2",
-        "napaka |L - Sₙ| = 0,25"
-      ]
+      "captions": []
     },
     {
       "name": "geometric-series-guided/series-predict",
@@ -149,14 +135,7 @@
         "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
       ],
       "outputs": [],
-      "captions": [
-        "Sₙ = a(1 - qⁿ)/(1 - q)",
-        "a = 1, q = 0,5, n = 4",
-        "delna vsota Sₙ = 1,875",
-        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
-        "limita a/(1 - q) = 2",
-        "napaka |L - Sₙ| = 0,125"
-      ]
+      "captions": []
     },
     {
       "name": "geometric-series-guided/series-reveal",
@@ -201,14 +180,7 @@
         "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
       ],
       "outputs": [],
-      "captions": [
-        "Sₙ = a(1 - qⁿ)/(1 - q)",
-        "a = 1, q = 0,5, n = 5",
-        "delna vsota Sₙ = 1,9375",
-        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
-        "limita a/(1 - q) = 2",
-        "napaka |L - Sₙ| = 0,0625"
-      ]
+      "captions": []
     },
     {
       "name": "geometric-series-guided/series-alternating",
@@ -253,14 +225,7 @@
         "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
       ],
       "outputs": [],
-      "captions": [
-        "Sₙ = a(1 - qⁿ)/(1 - q)",
-        "a = 1, q = -0,5, n = 4",
-        "delna vsota Sₙ = 0,625",
-        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
-        "limita a/(1 - q) = 0,6667",
-        "napaka |L - Sₙ| = 0,0417"
-      ]
+      "captions": []
     },
     {
       "name": "geometric-series-guided/series-divergence",
@@ -305,13 +270,7 @@
         "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
       ],
       "outputs": [],
-      "captions": [
-        "Sₙ = a(1 - qⁿ)/(1 - q)",
-        "a = 1, q = -1, n = 6",
-        "delna vsota Sₙ = 0",
-        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
-        "limite ni: |q| ≥ 1"
-      ]
+      "captions": []
     },
     {
       "name": "geometric-series-guided/series-decimals",
@@ -356,14 +315,7 @@
         "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
       ],
       "outputs": [],
-      "captions": [
-        "Sₙ = a(1 - qⁿ)/(1 - q)",
-        "a = 0,3, q = 0,1, n = 4",
-        "delna vsota Sₙ = 0,3333",
-        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
-        "limita a/(1 - q) = 0,3333",
-        "napaka |L - Sₙ| = 0"
-      ]
+      "captions": []
     },
     {
       "name": "geometric-series-guided/series-explore",
@@ -408,14 +360,7 @@
         "Končna slika konvergenco le ponazori: dokaz nosi sklenjena oblika Sₙ = a(1 - qⁿ)/(1 - q). Slika prikaže največ 50 členov; označba limite se pojavi le pri |q| < 1."
       ],
       "outputs": [],
-      "captions": [
-        "Sₙ = a(1 - qⁿ)/(1 - q)",
-        "a = 1, q = 0,5, n = 8",
-        "delna vsota Sₙ = 1,9922",
-        "levi stolpec: člen; desni stolpec: delna vsota Sₙ",
-        "limita a/(1 - q) = 2",
-        "napaka |L - Sₙ| = 0,0078"
-      ]
+      "captions": []
     }
   ]
 }
