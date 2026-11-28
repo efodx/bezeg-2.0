@@ -110,13 +110,15 @@ describe('rational: selection first, then the weight', () => {
     });
 });
 
-describe('farin: the switch stays in Display', () => {
-    test('a fresh visit shows the Farin points with the Display switch on; the control points drag and switching off restores the typed inputs', () => {
+describe('farin: the switch is a board puck', () => {
+    // Task 08 (lane L48): the Farin points switch is a declared puck on the strip, no longer a Display checkbox.
+    const farinPuck = () => document.querySelector('[data-puck-strip] [data-puck-key="farin-points"] [role="switch"]') as HTMLElement;
+    test('a fresh visit shows the Farin points with the puck on; the control points drag and switching off restores the typed inputs', () => {
         const graph = mount('farin');
         const curve = graph.jxgCurves[0];
         const locked = () => (graph as unknown as {inputsDisabled: boolean}).inputsDisabled;
-        act(() => { fireEvent.click(screen.getByRole('button', {name: t('display')})); });
-        expect(screen.getByRole('checkbox', {name: t('farin_points')})).toBeChecked();
+        expect(screen.queryByRole('checkbox', {name: t('farin_points')})).toBeNull();
+        expect(farinPuck().getAttribute('aria-checked')).toBe('true');
         expect(curve.isShowingFarinPoints()).toBe(true);
         expect(curve.sliders.length).toBe(3);
         expect(locked()).toBe(true);
@@ -124,7 +126,7 @@ describe('farin: the switch stays in Display', () => {
         const w0 = curve.getCurve().getEffectiveWeights().slice();
         act(() => { curve.sliders[1].setValue(0.8); graph.boardUpdate(); });
         expect(curve.getCurve().getEffectiveWeights()).not.toEqual(w0);
-        act(() => { fireEvent.click(screen.getByRole('checkbox', {name: t('farin_points')})); });
+        act(() => { fireEvent.click(farinPuck()); });
         expect(curve.isShowingFarinPoints()).toBe(false);
         expect(locked()).toBe(false);
     });
@@ -135,10 +137,8 @@ describe('farin: the switch stays in Display', () => {
         expect(curve.isShowingFarinPoints()).toBe(true);
         // Exact equality: a slider-position round trip drifts in the last bits (1.9999999999999947), which broke the Preset round trip.
         expect(curve.getCurve().getEffectiveWeights()).toEqual([1, 2, 1, 1]);
-        const farin = () => screen.getByRole('checkbox', {name: t('farin_points')});
-        act(() => { fireEvent.click(screen.getByRole('button', {name: t('display')})); });
-        act(() => { fireEvent.click(farin()); });
-        act(() => { fireEvent.click(farin()); });
+        act(() => { fireEvent.click(farinPuck()); });
+        act(() => { fireEvent.click(farinPuck()); });
         expect(curve.isShowingFarinPoints()).toBe(true);
         expect(curve.getCurve().getEffectiveWeights()).toEqual([1, 2, 1, 1]);
         act(() => { curve.sliders[2].setValue(0.75); graph.boardUpdate(); });

@@ -220,9 +220,10 @@ test('batch restore preserves live Farin weights, rational curve, and standard-f
     await inspector(page).getByRole('button', {name: 'Previous weight', exact: true}).click();
     await inspector(page).getByRole('button', {name: 'Increase weight', exact: true}).first().click();
     await selection.getByRole('button', {name: 'Clear selection', exact: true}).click();
-    await openDisplayTab(page);
-    const farinSwitch = inspector(page).getByRole('checkbox', {name: 'Farin points', exact: true});
-    await farinSwitch.check();
+    // The Farin points switch is a board puck (task 08 lane L48); the demonstration starts with it on.
+    const farinPuck = page.locator('.puck-strip [data-puck-key="farin-points"] [role="switch"]');
+    if (await farinPuck.getAttribute('aria-checked') !== 'true') await farinPuck.click();
+    await expect(farinPuck).toHaveAttribute('aria-checked', 'true');
 
     await selectFirstCurve(page);
     const standardForm = inspector(page).getByRole('checkbox', {name: 'Standard form', exact: true});
@@ -253,8 +254,7 @@ test('batch restore preserves live Farin weights, rational curve, and standard-f
 
     const restoredSelection = inspector(page).locator('.curve-selection');
     await restoredSelection.getByRole('button', {name: 'Clear selection', exact: true}).click();
-    await openDisplayTab(page);
-    await expect(inspector(page).getByRole('checkbox', {name: 'Farin points', exact: true})).toBeChecked();
+    await expect(farinPuck).toHaveAttribute('aria-checked', 'true');
     await openEditTab(page);
     await expect(inspector(page).getByRole('checkbox', {name: 'Standard form', exact: true})).toBeChecked();
 });

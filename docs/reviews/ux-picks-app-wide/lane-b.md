@@ -97,6 +97,7 @@ Rewritten by handler 3 (2026-11-28) after L47. Present state only.
 - A renamed control named by a guided-example recipe (`src/learning/chapter/guidedExampleHighlights.ts` set-control
   labels): update it there and in `guidedExampleHighlightExpectations.test.ts`, run
   `node scripts/generate-guided-example-inventory.cjs`, tell A (it recaptures).
+- L39 waves is reverted on `board-workspace-2` (`dcc29de52`) pending the owner's lesson-mode decision: never touch waves.
 - Narrow view marks on `kind`, never cast (strict readonly `ViewMark` on board-workspace-2).
 - Puck rule (A, 2026-11-28): a range/choice/switch becomes a puck only if a lesson step asks the learner to set it;
   multi-value data editors and setup choosers stay in Orodja.
