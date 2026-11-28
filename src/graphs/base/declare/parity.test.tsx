@@ -2246,6 +2246,52 @@ const SAMPLES: readonly Sample[] = [
             {name: 'interval, sample 16, 10000 intervals', apply: run('interval', {sampleSize: 16, n: 10000, shown: 10000})},
         ] satisfies ParityState[];
     })()},
+    {file: 'functions/__parity__/epicycles.json', demonstration: 'epicycles', accepted: ['centre', 'circle-1', 'circle-2', 'circle-3'].map(id => ({
+        kind: 'extra', where: `row ${id}`, reason: 'the table of all terms stays in Orodja; the board names the centre and the three largest circles as rows, which the panel showed only in its table and sentence',
+    }) as const), states: (() => {
+        type Epi = {setN(value: number): void; setExample(value: string): void; setParametrization(value: string): void; setTime(value: number): void};
+        const run = (edit: (graph: Epi) => void): ParityState['apply'] => graph => { runAs('learner', () => edit(graph as unknown as Epi)); };
+        return [
+            {name: 'default', apply: () => undefined},
+            {name: 'circle, N = 0 (centre only)', apply: run(g => { g.setExample('circle'); g.setN(0); })},
+            {name: 'circle, N = 1, t = pi/2', apply: run(g => { g.setN(1); g.setTime(Math.PI / 2); })},
+            {name: 'circle, N = 5', apply: run(g => { g.setN(5); g.setTime(0); })},
+            {name: 'diamond, N = 9', apply: run(g => { g.setExample('diamond'); g.setN(9); })},
+            {name: 'uneven, equal, N = 9', apply: run(g => { g.setExample('uneven'); })},
+            {name: 'uneven, chord length, N = 9', apply: run(g => { g.setParametrization('chord'); })},
+            {name: 'uneven, N = 50 (the cap)', apply: run(g => { g.setParametrization('equal'); g.setN(50); })},
+            {name: 'outline of Slovenia, N = 12', apply: run(g => { g.setExample('slovenia'); g.setN(12); })},
+        ] satisfies ParityState[];
+    })()},
+    {file: 'mechanics/__parity__/mechanics-descent.json', demonstration: 'mechanics-descent', accepted: descentAccepted, states: (() => {
+        type Descent = {applyDescentAction(action: unknown): void};
+        const base = {radius: 1, endX: 3.25, endY: 2, p1x: 0.5, p1y: 2, p2x: 2, p2y: 2.5, theta1: 0.3, theta2: 1, theta3: 2, showCycloid: true, showArc: false};
+        // every state names the mode, every stored field and the time, so a state does not inherit the previous one
+        const scene = (mode: string, params: Record<string, unknown>, t: number): ParityState['apply'] => graph => {
+            runAs('learner', () => {
+                const descent = graph as unknown as Descent;
+                descent.applyDescentAction({kind: 'descent', operation: 'set-mode', mode});
+                descent.applyDescentAction({kind: 'descent', operation: 'set-params', ...base, ...params});
+                descent.applyDescentAction({kind: 'descent', operation: 'set-time', t});
+            });
+        };
+        return [
+            {name: 'race, t = 0', apply: scene('race', {}, 0)},
+            {name: 'race, t = 0,4', apply: scene('race', {}, 0.4)},
+            {name: 'race, the run ended', apply: scene('race', {}, 1.19)},
+            {name: 'race, r = 2, t = 1', apply: scene('race', {radius: 2}, 1)},
+            {name: 'track, t = 0', apply: scene('track', {}, 0)},
+            {name: 'track, bent, cycloid hidden, t = 0,5', apply: scene('track', {p1x: 0.25, p1y: 1.5, p2x: 1.5, p2y: 2.5, showCycloid: false}, 0.5)},
+            {name: 'track, a straight line, t = 0,8', apply: scene('track', {endX: 3, endY: 1.5, p1x: 1, p1y: 0.5, p2x: 2, p2y: 1}, 0.8)},
+            {name: 'track, horizontal start (never slides)', apply: scene('track', {p1x: 1, p1y: 0}, 0)},
+            {name: 'track, a control point above A', apply: scene('track', {p1x: 1, p1y: -0.5}, 0)},
+            {name: 'tautochrone, t = 0', apply: scene('tautochrone', {}, 0)},
+            {name: 'tautochrone, t = 0,5', apply: scene('tautochrone', {}, 0.5)},
+            {name: 'tautochrone, circular arc shown, t = 0,7', apply: scene('tautochrone', {showArc: true}, 0.7)},
+            {name: 'tautochrone, r = 0,25, t = 0,5', apply: scene('tautochrone', {radius: 0.25}, 0.5)},
+            {name: 'tautochrone, beads at the edges', apply: scene('tautochrone', {theta1: 0, theta2: Math.PI, theta3: 0.5, showArc: true}, 0.3)},
+        ] satisfies ParityState[];
+    })()},
 ];
 
 const root =path.resolve(__dirname, '../..');
